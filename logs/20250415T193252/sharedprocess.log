@@ -1,0 +1,40 @@
+2025-04-15 19:33:01.658 [info] Getting Manifest... onecentlin.laravel-blade
+2025-04-15 19:33:01.661 [info] Getting Manifest... onecentlin.laravel5-snippets
+2025-04-15 19:33:01.663 [info] Getting Manifest... pkief.material-icon-theme
+2025-04-15 19:33:01.664 [info] Getting Manifest... pranaygp.vscode-css-peek
+2025-04-15 19:33:01.666 [info] Getting Manifest... shufo.vscode-blade-formatter
+2025-04-15 19:33:01.817 [info] Installing extension: shufo.vscode-blade-formatter
+2025-04-15 19:33:01.819 [info] Installing extension: onecentlin.laravel-blade
+2025-04-15 19:33:01.821 [info] Installing extension: pranaygp.vscode-css-peek
+2025-04-15 19:33:01.822 [info] Installing extension: pkief.material-icon-theme
+2025-04-15 19:33:01.862 [info] Installing extension: onecentlin.laravel5-snippets
+2025-04-15 19:33:08.519 [info] Extension signature is verified: onecentlin.laravel5-snippets
+2025-04-15 19:33:08.628 [info] Extracted extension to file:///root/.vscode/extensions/onecentlin.laravel5-snippets-1.19.1: onecentlin.laravel5-snippets
+2025-04-15 19:33:08.658 [info] Renamed to /root/.vscode/extensions/onecentlin.laravel5-snippets-1.19.1
+2025-04-15 19:33:08.660 [info] Extracting extension completed. onecentlin.laravel5-snippets
+2025-04-15 19:33:08.713 [info] Extension installed successfully: onecentlin.laravel5-snippets
+2025-04-15 19:33:08.725 [info] Marked extension as uninstalled onecentlin.laravel5-snippets-1.18.0
+2025-04-15 19:33:08.886 [info] Extension signature is verified: pkief.material-icon-theme
+2025-04-15 19:33:09.613 [info] Extension signature is verified: onecentlin.laravel-blade
+2025-04-15 19:33:09.929 [info] Extension signature is verified: pranaygp.vscode-css-peek
+2025-04-15 19:33:10.465 [info] Extension signature is verified: shufo.vscode-blade-formatter
+2025-04-15 19:33:11.586 [info] Extracted extension to file:///root/.vscode/extensions/onecentlin.laravel-blade-1.37.0: onecentlin.laravel-blade
+2025-04-15 19:33:11.624 [info] Renamed to /root/.vscode/extensions/onecentlin.laravel-blade-1.37.0
+2025-04-15 19:33:11.629 [info] Extracting extension completed. onecentlin.laravel-blade
+2025-04-15 19:33:11.667 [info] Extension installed successfully: onecentlin.laravel-blade
+2025-04-15 19:33:11.675 [info] Marked extension as uninstalled onecentlin.laravel-blade-1.36.1
+2025-04-15 19:33:11.731 [info] Extracted extension to file:///root/.vscode/extensions/pkief.material-icon-theme-5.21.2: pkief.material-icon-theme
+2025-04-15 19:33:11.757 [info] Renamed to /root/.vscode/extensions/pkief.material-icon-theme-5.21.2
+2025-04-15 19:33:11.763 [info] Extracting extension completed. pkief.material-icon-theme
+2025-04-15 19:33:11.799 [info] Extension installed successfully: pkief.material-icon-theme
+2025-04-15 19:33:11.808 [info] Marked extension as uninstalled pkief.material-icon-theme-5.17.0
+2025-04-15 19:33:15.829 [info] Extracted extension to file:///root/.vscode/extensions/pranaygp.vscode-css-peek-4.4.3: pranaygp.vscode-css-peek
+2025-04-15 19:33:15.888 [info] Renamed to /root/.vscode/extensions/pranaygp.vscode-css-peek-4.4.3
+2025-04-15 19:33:15.891 [info] Extracting extension completed. pranaygp.vscode-css-peek
+2025-04-15 19:33:15.930 [info] Extension installed successfully: pranaygp.vscode-css-peek
+2025-04-15 19:33:15.944 [info] Marked extension as uninstalled pranaygp.vscode-css-peek-4.4.1
+2025-04-15 19:33:23.672 [info] Extracted extension to file:///root/.vscode/extensions/shufo.vscode-blade-formatter-0.24.6: shufo.vscode-blade-formatter
+2025-04-15 19:33:23.710 [info] Renamed to /root/.vscode/extensions/shufo.vscode-blade-formatter-0.24.6
+2025-04-15 19:33:23.714 [info] Extracting extension completed. shufo.vscode-blade-formatter
+2025-04-15 19:33:23.760 [info] Extension installed successfully: shufo.vscode-blade-formatter
+2025-04-15 19:33:23.770 [info] Marked extension as uninstalled shufo.vscode-blade-formatter-0.24.4

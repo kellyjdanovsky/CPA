@@ -1,0 +1,27 @@
+2025-04-15 20:51:08.167 [info] update#setState idle
+2025-04-15 20:51:12.857 [error] update#isLatestVersion(): failed to check for updates
+2025-04-15 20:51:12.857 [error] Error: net::ERR_NAME_NOT_RESOLVED
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:2:49312)
+    at SimpleURLLoaderWrapper.emit (node:events:513:28)
+2025-04-15 20:51:17.837 [error] update#isLatestVersion(): failed to check for updates
+2025-04-15 20:51:17.837 [error] Error: net::ERR_NAME_NOT_RESOLVED
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:2:49312)
+    at SimpleURLLoaderWrapper.emit (node:events:513:28)
+2025-04-15 20:51:38.207 [info] update#setState checking for updates
+2025-04-15 20:51:38.211 [error] Error: net::ERR_NAME_NOT_RESOLVED
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:2:49312)
+    at SimpleURLLoaderWrapper.emit (node:events:513:28)
+2025-04-15 20:51:38.212 [info] update#setState idle
+2025-04-15 18:48:52.967 [info] update#setState checking for updates
+2025-04-15 18:48:53.478 [info] update#setState available for download
+2025-04-15 18:49:07.397 [info] update#setState idle
+2025-04-15 18:51:37.424 [info] update#setState checking for updates
+2025-04-15 18:51:37.797 [info] update#setState available for download
+2025-04-15 19:25:54.631 [info] update#setState idle
+2025-04-15 19:26:16.063 [info] update#setState checking for updates
+2025-04-15 19:26:16.448 [info] update#setState available for download
+2025-04-15 19:26:59.860 [info] update#setState idle
+2025-04-15 19:29:43.045 [info] update#setState checking for updates
+2025-04-15 19:29:43.435 [info] update#setState available for download
+2025-04-15 19:29:47.056 [info] update#setState idle
+2025-04-15 19:32:10.266 [info] Extension host with pid 3601 exited with code: 0, signal: unknown.

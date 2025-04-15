@@ -1,0 +1,90 @@
+2025-04-15 19:36:07.691 [info] Extension host with pid 19418 started
+2025-04-15 19:36:07.691 [info] Skipping acquiring lock for /var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6.
+2025-04-15 19:36:08.795 [info] ExtensionService#_doActivateExtension vscode.emmet, startup: false, activationEvent: 'onLanguage'
+2025-04-15 19:36:08.807 [info] ExtensionService#_doActivateExtension vscode.git-base, startup: false, activationEvent: 'onLanguage:ignore'
+2025-04-15 19:36:09.176 [info] ExtensionService#_doActivateExtension christian-kohler.path-intellisense, startup: true, activationEvent: '*'
+2025-04-15 19:36:09.209 [info] ExtensionService#_doActivateExtension Zignd.html-css-class-completion, startup: true, activationEvent: '*'
+2025-04-15 19:36:09.301 [info] ExtensionService#_doActivateExtension vscode.npm, startup: true, activationEvent: 'workspaceContains:package.json'
+2025-04-15 19:36:09.414 [info] ExtensionService#_doActivateExtension vscode.git, startup: true, activationEvent: '*'
+2025-04-15 19:36:09.448 [info] ExtensionService#_doActivateExtension vscode.github, startup: true, activationEvent: '*'
+2025-04-15 19:36:09.747 [info] ExtensionService#_doActivateExtension pranaygp.vscode-css-peek, startup: true, activationEvent: 'workspaceContains:**/*.css,**/*.scss,**/*.sass,**/*.less'
+2025-04-15 19:36:10.016 [info] ExtensionService#_doActivateExtension zobo.php-intellisense, startup: true, activationEvent: 'workspaceContains:**/*.php'
+2025-04-15 19:36:10.711 [info] ExtensionService#_doActivateExtension vscode.github-authentication, startup: false, activationEvent: 'onAuthenticationRequest:github'
+2025-04-15 19:36:12.075 [info] ExtensionService#_doActivateExtension vscode.microsoft-authentication, startup: false, activationEvent: 'onAuthenticationRequest:microsoft'
+2025-04-15 19:36:12.519 [info] Eager extensions activated
+2025-04-15 19:36:12.528 [info] ExtensionService#_doActivateExtension vscode.debug-auto-launch, startup: false, activationEvent: 'onStartupFinished'
+2025-04-15 19:36:12.530 [info] ExtensionService#_doActivateExtension vscode.merge-conflict, startup: false, activationEvent: 'onStartupFinished'
+2025-04-15 19:36:12.539 [info] ExtensionService#_doActivateExtension GitHub.vscode-pull-request-github, startup: false, activationEvent: 'onStartupFinished'
+2025-04-15 19:36:12.586 [info] ExtensionService#_doActivateExtension ionutvmi.path-autocomplete, startup: false, activationEvent: 'onStartupFinished'
+2025-04-15 19:36:12.596 [info] ExtensionService#_doActivateExtension PKief.material-icon-theme, startup: false, activationEvent: 'onStartupFinished'
+2025-04-15 19:36:53.416 [warning] [Decorations] CAPPING events from decorations provider vscode.git 547
+2025-04-15 19:36:58.534 [warning] [Decorations] CAPPING events from decorations provider vscode.git 547
+2025-04-15 19:37:03.623 [warning] [Decorations] CAPPING events from decorations provider vscode.git 547
+2025-04-15 19:37:08.763 [warning] [Decorations] CAPPING events from decorations provider vscode.git 547
+2025-04-15 19:37:13.854 [warning] [Decorations] CAPPING events from decorations provider vscode.git 547
+2025-04-15 19:37:43.517 [warning] [Decorations] CAPPING events from decorations provider vscode.git 547
+2025-04-15 19:37:48.610 [warning] [Decorations] CAPPING events from decorations provider vscode.git 547
+2025-04-15 19:37:53.703 [warning] [Decorations] CAPPING events from decorations provider vscode.git 547
+2025-04-15 19:37:58.809 [warning] [Decorations] CAPPING events from decorations provider vscode.git 547
+2025-04-15 19:38:03.961 [warning] [Decorations] CAPPING events from decorations provider vscode.git 547
+2025-04-15 19:38:09.056 [warning] [Decorations] CAPPING events from decorations provider vscode.git 547
+2025-04-15 19:38:14.151 [warning] [Decorations] CAPPING events from decorations provider vscode.git 547
+2025-04-15 19:38:19.266 [warning] [Decorations] CAPPING events from decorations provider vscode.git 547
+2025-04-15 19:38:29.980 [warning] [Decorations] CAPPING events from decorations provider vscode.git 547
+2025-04-15 19:38:35.073 [warning] [Decorations] CAPPING events from decorations provider vscode.git 547
+2025-04-15 19:38:40.150 [warning] [Decorations] CAPPING events from decorations provider vscode.git 547
+2025-04-15 19:38:45.227 [warning] [Decorations] CAPPING events from decorations provider vscode.git 547
+2025-04-15 19:38:50.324 [warning] [Decorations] CAPPING events from decorations provider vscode.git 548
+2025-04-15 19:38:59.974 [warning] [Decorations] CAPPING events from decorations provider vscode.git 548
+2025-04-15 19:39:05.106 [warning] [Decorations] CAPPING events from decorations provider vscode.git 549
+2025-04-15 19:39:15.026 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:39:20.120 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:39:25.255 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:39:30.349 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:39:35.442 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:39:40.546 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:39:45.697 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:39:50.788 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:39:55.879 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:40:00.980 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:40:06.070 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:40:11.171 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:40:16.263 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:40:21.359 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:40:26.481 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:40:31.571 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:40:36.665 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:40:41.762 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:40:46.851 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:40:51.943 [warning] [Decorations] CAPPING events from decorations provider vscode.git 550
+2025-04-15 19:40:57.955 [error] Error: Repository not initialized
+    at R.Y (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1325527)
+    at R.status (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1310970)
+    at R.o (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1217933)
+    at R.lb (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1331580)
+2025-04-15 19:41:20.003 [info] Extension host terminating: renderer closed the MessagePort
+2025-04-15 19:41:20.051 [error] Canceled: Canceled
+    at new h (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:56634)
+    at t.O (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:8020)
+    at Proxy.N.<computed>.T.charCodeAt.N.<computed> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:5459)
+    at a.g (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:77241)
+    at a.executeCommand (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76679)
+    at v.registerCommand.description (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76000)
+    at a.h (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:77777)
+    at a.g (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76772)
+    at a.executeCommand (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76679)
+    at Object.executeCommand (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:20977)
+    at r0.reset (/root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1822:4008)
+    at r0.dispose (/root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1822:4247)
+    at S (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:13:11731)
+    at r.Z (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:9686)
+    at /usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7582
+    at Array.map (<anonymous>)
+    at r.S (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7570)
+    at r.terminate (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7842)
+    at s.terminate (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:1506)
+    at C (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:130:32254)
+    at MessagePortMain.<anonymous> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:130:28679)
+    at MessagePortMain.emit (node:events:513:28)
+    at Object.MessagePortMain._internalPort.emit (node:electron/js2c/utility_init:2:367) setContext undefined
+2025-04-15 19:41:20.140 [info] Extension host with pid 19418 exiting with code 0

@@ -1,0 +1,38 @@
+2025-04-15 20:51:14.753 [error] [uncaught exception in sharedProcess]: net::ERR_NAME_NOT_RESOLVED: Error: net::ERR_NAME_NOT_RESOLVED
+    at SimpleURLLoaderWrapper.<anonymous> (node:electron/js2c/browser_init:2:49312)
+    at SimpleURLLoaderWrapper.emit (node:events:513:28)
+2025-04-15 18:28:36.138 [error] Failed to install extension. augment.vscode-augment
+2025-04-15 18:28:36.138 [error] Incompatible: Can't install 'augment.vscode-augment' extension because it is not compatible with the current version of Visual Studio Code (version 1.81.1).
+    at H.J (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:74778)
+    at async /usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65348
+    at async Promise.allSettled (index 0)
+    at async H.installGalleryExtensions (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65272)
+    at async H.installFromGallery (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:64861)
+2025-04-15 18:44:05.960 [info] Getting Manifest... github.vscode-pull-request-github
+2025-04-15 18:44:06.298 [info] Installing extension: github.vscode-pull-request-github
+2025-04-15 18:44:13.271 [info] Extension signature is verified: github.vscode-pull-request-github
+2025-04-15 18:44:13.537 [info] Extracted extension to file:///root/.vscode/extensions/github.vscode-pull-request-github-0.70.0: github.vscode-pull-request-github
+2025-04-15 18:44:13.570 [info] Renamed to /root/.vscode/extensions/github.vscode-pull-request-github-0.70.0
+2025-04-15 18:44:13.578 [info] Extracting extension completed. github.vscode-pull-request-github
+2025-04-15 18:44:13.614 [info] Extension installed successfully: github.vscode-pull-request-github
+2025-04-15 18:48:44.210 [error] Failed to install extension. augment.vscode-augment
+2025-04-15 18:48:44.210 [error] Incompatible: Can't install 'augment.vscode-augment' extension because it is not compatible with the current version of Visual Studio Code (version 1.81.1).
+    at H.J (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:74778)
+    at async /usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65348
+    at async Promise.allSettled (index 0)
+    at async H.installGalleryExtensions (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65272)
+    at async H.installFromGallery (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:64861)
+2025-04-15 19:26:10.755 [error] Failed to install extension. augment.vscode-augment
+2025-04-15 19:26:10.756 [error] Incompatible: Can't install 'augment.vscode-augment' extension because it is not compatible with the current version of Visual Studio Code (version 1.81.1).
+    at H.J (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:74778)
+    at async /usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65348
+    at async Promise.allSettled (index 0)
+    at async H.installGalleryExtensions (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65272)
+    at async H.installFromGallery (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:64861)
+2025-04-15 19:26:55.977 [error] Failed to install extension. augment.vscode-augment
+2025-04-15 19:26:55.977 [error] Incompatible: Can't install 'augment.vscode-augment' extension because it is not compatible with the current version of Visual Studio Code (version 1.81.1).
+    at H.J (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:74778)
+    at async /usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65348
+    at async Promise.allSettled (index 0)
+    at async H.installGalleryExtensions (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65272)
+    at async H.installFromGallery (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:64861)

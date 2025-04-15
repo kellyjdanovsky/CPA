@@ -1,0 +1,10 @@
+2025-04-15 19:32:56.638 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 19:32:56.638 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 19:32:56.638 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 19:32:56.639 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 19:32:56.639 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 19:32:56.639 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 19:32:56.640 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 19:32:59.690 [info] [perf] Render performance baseline is 67ms
+2025-04-15 19:33:00.743 [error] [File Watcher (parcel)] Unexpected error: inotify_add_watch on '/var/www/html/cpa/User/globalStorage/github.vscode-pull-request-github/temp' failed: No such file or directory (EUNKNOWN) (path: /var/www/html/cpa)
+2025-04-15 19:33:00.744 [error] [File Watcher (universal)] restarting watcher after error: inotify_add_watch on '/var/www/html/cpa/User/globalStorage/github.vscode-pull-request-github/temp' failed: No such file or directory

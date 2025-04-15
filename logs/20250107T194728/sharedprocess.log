@@ -1,0 +1,56 @@
+2025-01-07 19:47:36.812 [info] Getting Manifest... bmewburn.vscode-intelephense-client
+2025-01-07 19:47:36.814 [info] Getting Manifest... christian-kohler.path-intellisense
+2025-01-07 19:47:36.816 [info] Getting Manifest... onecentlin.laravel-blade
+2025-01-07 19:47:36.817 [info] Getting Manifest... onecentlin.laravel5-snippets
+2025-01-07 19:47:36.819 [info] Getting Manifest... pkief.material-icon-theme
+2025-01-07 19:47:36.820 [info] Getting Manifest... shufo.vscode-blade-formatter
+2025-01-07 19:47:36.821 [info] Getting Manifest... xdebug.php-debug
+2025-01-07 19:47:37.255 [info] Installing extension: christian-kohler.path-intellisense
+2025-01-07 19:47:37.334 [info] Installing extension: onecentlin.laravel-blade
+2025-01-07 19:47:37.343 [info] Installing extension: onecentlin.laravel5-snippets
+2025-01-07 19:47:37.371 [info] Installing extension: bmewburn.vscode-intelephense-client
+2025-01-07 19:47:37.394 [info] Installing extension: xdebug.php-debug
+2025-01-07 19:47:37.396 [info] Installing extension: pkief.material-icon-theme
+2025-01-07 19:47:37.400 [info] Installing extension: shufo.vscode-blade-formatter
+2025-01-07 19:48:31.333 [info] Extension signature is verified: onecentlin.laravel-blade
+2025-01-07 19:48:31.337 [info] Extension signature is verified: xdebug.php-debug
+2025-01-07 19:48:31.338 [info] Extension signature is verified: onecentlin.laravel5-snippets
+2025-01-07 19:48:31.340 [info] Extension signature is verified: shufo.vscode-blade-formatter
+2025-01-07 19:48:31.343 [info] Extension signature is verified: pkief.material-icon-theme
+2025-01-07 19:48:31.345 [info] Extension signature is verified: bmewburn.vscode-intelephense-client
+2025-01-07 19:48:31.345 [info] Extension signature is verified: christian-kohler.path-intellisense
+2025-01-07 19:48:31.776 [info] Extracted extension to file:///root/.vscode/extensions/onecentlin.laravel5-snippets-1.18.0: onecentlin.laravel5-snippets
+2025-01-07 19:48:31.867 [info] Renamed to /root/.vscode/extensions/onecentlin.laravel5-snippets-1.18.0
+2025-01-07 19:48:31.877 [info] Extracting extension completed. onecentlin.laravel5-snippets
+2025-01-07 19:48:31.930 [info] Extension installed successfully: onecentlin.laravel5-snippets
+2025-01-07 19:48:31.946 [info] Marked extension as uninstalled onecentlin.laravel5-snippets-1.17.0
+2025-01-07 19:48:32.096 [info] Extracted extension to file:///root/.vscode/extensions/christian-kohler.path-intellisense-2.10.0: christian-kohler.path-intellisense
+2025-01-07 19:48:32.191 [info] Renamed to /root/.vscode/extensions/christian-kohler.path-intellisense-2.10.0
+2025-01-07 19:48:32.214 [info] Extracting extension completed. christian-kohler.path-intellisense
+2025-01-07 19:48:32.259 [info] Extension installed successfully: christian-kohler.path-intellisense
+2025-01-07 19:48:32.272 [info] Marked extension as uninstalled christian-kohler.path-intellisense-2.8.5
+2025-01-07 19:48:34.675 [info] Extracted extension to file:///root/.vscode/extensions/onecentlin.laravel-blade-1.36.1: onecentlin.laravel-blade
+2025-01-07 19:48:34.709 [info] Renamed to /root/.vscode/extensions/onecentlin.laravel-blade-1.36.1
+2025-01-07 19:48:34.714 [info] Extracting extension completed. onecentlin.laravel-blade
+2025-01-07 19:48:34.752 [info] Extension installed successfully: onecentlin.laravel-blade
+2025-01-07 19:48:34.763 [info] Marked extension as uninstalled onecentlin.laravel-blade-1.35.1
+2025-01-07 19:48:35.230 [info] Extracted extension to file:///root/.vscode/extensions/bmewburn.vscode-intelephense-client-1.10.4: bmewburn.vscode-intelephense-client
+2025-01-07 19:48:35.346 [info] Renamed to /root/.vscode/extensions/bmewburn.vscode-intelephense-client-1.10.4
+2025-01-07 19:48:35.355 [info] Extracting extension completed. bmewburn.vscode-intelephense-client
+2025-01-07 19:48:35.421 [info] Extension installed successfully: bmewburn.vscode-intelephense-client
+2025-01-07 19:48:35.434 [info] Marked extension as uninstalled bmewburn.vscode-intelephense-client-1.10.2
+2025-01-07 19:48:35.553 [info] Extracted extension to file:///root/.vscode/extensions/xdebug.php-debug-1.35.0: xdebug.php-debug
+2025-01-07 19:48:35.613 [info] Renamed to /root/.vscode/extensions/xdebug.php-debug-1.35.0
+2025-01-07 19:48:35.616 [info] Extracting extension completed. xdebug.php-debug
+2025-01-07 19:48:35.656 [info] Extension installed successfully: xdebug.php-debug
+2025-01-07 19:48:35.663 [info] Marked extension as uninstalled xdebug.php-debug-1.34.0
+2025-01-07 19:48:36.028 [info] Extracted extension to file:///root/.vscode/extensions/pkief.material-icon-theme-5.17.0: pkief.material-icon-theme
+2025-01-07 19:48:36.062 [info] Renamed to /root/.vscode/extensions/pkief.material-icon-theme-5.17.0
+2025-01-07 19:48:36.067 [info] Extracting extension completed. pkief.material-icon-theme
+2025-01-07 19:48:36.111 [info] Extension installed successfully: pkief.material-icon-theme
+2025-01-07 19:48:36.118 [info] Marked extension as uninstalled pkief.material-icon-theme-4.34.0
+2025-01-07 19:48:44.336 [info] Extracted extension to file:///root/.vscode/extensions/shufo.vscode-blade-formatter-0.24.4: shufo.vscode-blade-formatter
+2025-01-07 19:48:44.404 [info] Renamed to /root/.vscode/extensions/shufo.vscode-blade-formatter-0.24.4
+2025-01-07 19:48:44.408 [info] Extracting extension completed. shufo.vscode-blade-formatter
+2025-01-07 19:48:44.646 [info] Extension installed successfully: shufo.vscode-blade-formatter
+2025-01-07 19:48:44.661 [info] Marked extension as uninstalled shufo.vscode-blade-formatter-0.24.2

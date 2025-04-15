@@ -1,0 +1,69 @@
+2025-04-15 20:51:11.812 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 20:51:11.813 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 20:51:11.814 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 20:51:11.814 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 20:51:11.815 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 20:51:11.815 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 20:51:11.816 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 20:51:17.756 [info] [perf] Render performance baseline is 71ms
+2025-04-15 17:55:18.535 [warning] [File Watcher (node.js)] Watcher shutdown because watched path got deleted
+2025-04-15 18:05:14.297 [error] An unknown error occurred. Please consult the log for more details.: EntryNotFound (FileSystemError): 
+    at l.readFile (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1223980)
+2025-04-15 18:22:29.033 [warning] [File Watcher (node.js)] Watcher shutdown because watched path got deleted
+2025-04-15 18:22:30.071 [error] An unknown error occurred. Please consult the log for more details.: EntryNotFound (FileSystemError): 
+    at l.readFile (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1223980)
+2025-04-15 18:28:36.169 [error] Incompatible: Can't install 'augment.vscode-augment' extension because it is not compatible with the current version of Visual Studio Code (version 1.81.1).
+    at H.J (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:74778)
+    at async /usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65348
+    at async Promise.allSettled (index 0)
+    at async H.installGalleryExtensions (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65272)
+    at async H.installFromGallery (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:64861)
+2025-04-15 18:28:36.198 [error] Can't install 'augment.vscode-augment' extension because it is not compatible with the current version of Visual Studio Code (version 1.81.1).: Incompatible: Can't install 'augment.vscode-augment' extension because it is not compatible with the current version of Visual Studio Code (version 1.81.1).
+    at H.J (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:74778)
+    at async /usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65348
+    at async Promise.allSettled (index 0)
+    at async H.installGalleryExtensions (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65272)
+    at async H.installFromGallery (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:64861)
+2025-04-15 18:44:13.878 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 18:44:13.879 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 18:44:13.879 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 18:44:13.880 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 18:44:13.880 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 18:44:13.881 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 18:44:13.881 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 18:48:44.263 [error] Incompatible: Can't install 'augment.vscode-augment' extension because it is not compatible with the current version of Visual Studio Code (version 1.81.1).
+    at H.J (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:74778)
+    at async /usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65348
+    at async Promise.allSettled (index 0)
+    at async H.installGalleryExtensions (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65272)
+    at async H.installFromGallery (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:64861)
+2025-04-15 18:48:44.296 [error] Can't install 'augment.vscode-augment' extension because it is not compatible with the current version of Visual Studio Code (version 1.81.1).: Incompatible: Can't install 'augment.vscode-augment' extension because it is not compatible with the current version of Visual Studio Code (version 1.81.1).
+    at H.J (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:74778)
+    at async /usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65348
+    at async Promise.allSettled (index 0)
+    at async H.installGalleryExtensions (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65272)
+    at async H.installFromGallery (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:64861)
+2025-04-15 19:26:10.823 [error] Incompatible: Can't install 'augment.vscode-augment' extension because it is not compatible with the current version of Visual Studio Code (version 1.81.1).
+    at H.J (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:74778)
+    at async /usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65348
+    at async Promise.allSettled (index 0)
+    at async H.installGalleryExtensions (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65272)
+    at async H.installFromGallery (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:64861)
+2025-04-15 19:26:10.899 [error] Can't install 'augment.vscode-augment' extension because it is not compatible with the current version of Visual Studio Code (version 1.81.1).: Incompatible: Can't install 'augment.vscode-augment' extension because it is not compatible with the current version of Visual Studio Code (version 1.81.1).
+    at H.J (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:74778)
+    at async /usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65348
+    at async Promise.allSettled (index 0)
+    at async H.installGalleryExtensions (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65272)
+    at async H.installFromGallery (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:64861)
+2025-04-15 19:26:56.034 [error] Incompatible: Can't install 'augment.vscode-augment' extension because it is not compatible with the current version of Visual Studio Code (version 1.81.1).
+    at H.J (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:74778)
+    at async /usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65348
+    at async Promise.allSettled (index 0)
+    at async H.installGalleryExtensions (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65272)
+    at async H.installFromGallery (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:64861)
+2025-04-15 19:26:56.118 [error] Can't install 'augment.vscode-augment' extension because it is not compatible with the current version of Visual Studio Code (version 1.81.1).: Incompatible: Can't install 'augment.vscode-augment' extension because it is not compatible with the current version of Visual Studio Code (version 1.81.1).
+    at H.J (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:74778)
+    at async /usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65348
+    at async Promise.allSettled (index 0)
+    at async H.installGalleryExtensions (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:65272)
+    at async H.installFromGallery (/usr/share/code/resources/app/out/vs/code/node/sharedProcess/sharedProcessMain.js:82:64861)
