@@ -1,0 +1,90 @@
+[Info  - 10:28:46 PM] Initialising intelephense 1.10.2
+[Info  - 10:28:53 PM] Reading state from /var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/bmewburn.vscode-intelephense-client/49f65a47.
+[Info  - 10:28:54 PM] Initialised in 2054 ms
+[Info  - 10:28:56 PM] Searching file:///root/.vscode/extensions/bmewburn.vscode-intelephense-client-1.10.2/node_modules/intelephense/lib/stub for files to index.
+[Info  - 10:28:56 PM] Searching file:///var/www/html/cpa for files to index.
+[Info  - 10:28:57 PM] Searching file:///var/www/html/cpa/logs/20250107T222837/window1/exthost/vscode.github for files to index.
+[Info  - 10:28:57 PM] Searching file:///var/www/html/cpa/logs/20250107T222837/window1/exthost/vscode.github-authentication for files to index.
+[Info  - 10:28:57 PM] Searching file:///var/www/html/cpa/logs/20250107T222837/window1/exthost/vscode.microsoft-authentication for files to index.
+[Warn  - 10:28:58 PM] file:///var/www/html/cpa/vendor/fakerphp/faker/src/Faker/Provider/nl_BE/Text.php is over the maximum file size of 1000000 bytes.
+[Warn  - 10:30:28 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 10:31:57 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/globalStorage/state.vscdb-journal'
+[Warn  - 10:31:57 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 10:32:28 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/globalStorage/state.vscdb-journal'
+[Warn  - 10:32:28 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 10:32:41 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 10:33:41 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 10:34:41 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 10:34:49 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 10:35:11 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/globalStorage/state.vscdb-journal'
+[Warn  - 10:35:11 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 10:35:14 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/globalStorage/storage.json.vsctmp'
+[Info  - 10:35:14 PM] Searching file:///var/www/html/cpa/Backups/c752218c2b1d17883dfe8460d2aa5aa1 for files to index.
+[Info  - 10:35:14 PM] Searching file:///var/www/html/cpa/Backups/c752218c2b1d17883dfe8460d2aa5aa1/file for files to index.
+[Warn  - 10:35:16 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/globalStorage/state.vscdb-journal'
+[Info  - 10:35:23 PM] Indexing started.
+[Info  - 10:35:23 PM] Indexing ended. 2 files indexed in 0s.
+[Warn  - 10:35:26 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/globalStorage/storage.json.vsctmp'
+[Warn  - 10:35:27 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/Backups/c752218c2b1d17883dfe8460d2aa5aa1/file/-a86fe8b'
+[Info  - 10:35:27 PM] Indexing started.
+[Info  - 10:35:28 PM] Indexing ended. 2 files indexed in 0s.
+[Info  - 10:35:34 PM] Indexing started.
+[Info  - 10:35:35 PM] Indexing ended. 1 files indexed in 0s.
+[Warn  - 10:35:53 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/globalStorage/storage.json.vsctmp'
+[Info  - 10:35:59 PM] Indexing started.
+[Info  - 10:35:59 PM] Indexing ended. 2 files indexed in 0s.
+[Warn  - 10:36:00 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Info  - 10:36:01 PM] Indexing started.
+[Info  - 10:36:01 PM] Indexing ended. 1 files indexed in 0s.
+[Warn  - 10:36:14 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/globalStorage/storage.json.vsctmp'
+[Warn  - 10:36:41 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Info  - 10:36:47 PM] Indexing started.
+[Info  - 10:36:47 PM] Indexing ended. 2 files indexed in 0s.
+[Warn  - 10:36:54 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 10:37:01 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/globalStorage/storage.json.vsctmp'
+[Info  - 10:37:35 PM] Indexing started.
+[Info  - 10:37:35 PM] Indexing ended. 2 files indexed in 0s.
+[Warn  - 10:37:36 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Info  - 10:37:36 PM] Indexing started.
+[Info  - 10:37:37 PM] Indexing ended. 1 files indexed in 0s.
+[Warn  - 10:37:46 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 10:37:54 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/globalStorage/storage.json.vsctmp'
+[Info  - 10:37:55 PM] Indexing started.
+[Info  - 10:37:55 PM] Indexing ended. 2 files indexed in 0s.
+[Info  - 10:37:56 PM] Indexing started.
+[Info  - 10:37:56 PM] Indexing ended. 1 files indexed in 0s.
+[Warn  - 10:38:03 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/globalStorage/storage.json.vsctmp'
+[Info  - 10:38:04 PM] Indexing started.
+[Info  - 10:38:04 PM] Indexing ended. 3 files indexed in 0s.
+[Warn  - 10:38:06 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Info  - 10:38:06 PM] Indexing started.
+[Info  - 10:38:06 PM] Indexing ended. 1 files indexed in 0s.
+[Warn  - 10:38:15 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/globalStorage/storage.json.vsctmp'
+[Warn  - 10:38:41 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Info  - 10:38:43 PM] Indexing started.
+[Info  - 10:38:43 PM] Indexing ended. 2 files indexed in 0s.
+[Warn  - 10:38:44 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/globalStorage/storage.json.vsctmp'
+[Info  - 10:38:51 PM] Indexing started.
+[Info  - 10:38:51 PM] Indexing ended. 2 files indexed in 0s.
+[Info  - 10:38:52 PM] Indexing started.
+[Info  - 10:38:52 PM] Indexing ended. 1 files indexed in 0s.
+[Warn  - 10:39:05 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/globalStorage/storage.json.vsctmp'
+[Info  - 10:39:07 PM] Indexing started.
+[Info  - 10:39:07 PM] Indexing ended. 2 files indexed in 0s.
+[Warn  - 10:39:08 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Info  - 10:39:08 PM] Indexing started.
+[Info  - 10:39:09 PM] Indexing ended. 1 files indexed in 0s.
+[Info  - 10:39:26 PM] Indexing started.
+[Info  - 10:39:27 PM] Indexing ended. 2 files indexed in 0s.
+[Warn  - 10:39:29 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Info  - 10:39:30 PM] Indexing started.
+[Info  - 10:39:30 PM] Indexing ended. 1 files indexed in 0s.
+[Info  - 10:40:23 PM] Indexing started.
+[Info  - 10:40:23 PM] Indexing ended. 8 files indexed in 0s.
+[Warn  - 10:41:31 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 10:43:11 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 7:44:56 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 7:46:49 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/globalStorage/state.vscdb-journal'
+[Warn  - 7:47:03 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/globalStorage/state.vscdb-journal'
+[Warn  - 7:47:03 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 7:47:17 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'

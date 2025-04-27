@@ -1,0 +1,191 @@
+2025-04-15 19:32:56.579 [info] Extension host with pid 17880 started
+2025-04-15 19:32:56.579 [info] Skipping acquiring lock for /var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6.
+2025-04-15 19:32:57.471 [info] ExtensionService#_doActivateExtension vscode.emmet, startup: false, activationEvent: 'onLanguage'
+2025-04-15 19:32:57.486 [info] ExtensionService#_doActivateExtension vscode.git-base, startup: false, activationEvent: 'onLanguage:ignore'
+2025-04-15 19:32:57.759 [info] ExtensionService#_doActivateExtension vscode.git, startup: true, activationEvent: '*'
+2025-04-15 19:32:57.797 [info] ExtensionService#_doActivateExtension vscode.github, startup: true, activationEvent: '*'
+2025-04-15 19:32:57.809 [info] ExtensionService#_doActivateExtension christian-kohler.path-intellisense, startup: true, activationEvent: '*'
+2025-04-15 19:32:57.829 [info] ExtensionService#_doActivateExtension Zignd.html-css-class-completion, startup: true, activationEvent: '*'
+2025-04-15 19:32:57.922 [info] ExtensionService#_doActivateExtension vscode.npm, startup: true, activationEvent: 'workspaceContains:package.json'
+2025-04-15 19:32:58.160 [info] ExtensionService#_doActivateExtension zobo.php-intellisense, startup: true, activationEvent: 'workspaceContains:**/*.php'
+2025-04-15 19:32:58.355 [info] ExtensionService#_doActivateExtension pranaygp.vscode-css-peek, startup: true, activationEvent: 'workspaceContains:**/*.css,**/*.scss,**/*.sass,**/*.less'
+2025-04-15 19:32:59.916 [info] ExtensionService#_doActivateExtension vscode.github-authentication, startup: false, activationEvent: 'onAuthenticationRequest:github'
+2025-04-15 19:33:00.142 [info] ExtensionService#_doActivateExtension vscode.microsoft-authentication, startup: false, activationEvent: 'onAuthenticationRequest:microsoft'
+2025-04-15 19:33:00.591 [info] Eager extensions activated
+2025-04-15 19:33:00.601 [info] ExtensionService#_doActivateExtension vscode.debug-auto-launch, startup: false, activationEvent: 'onStartupFinished'
+2025-04-15 19:33:00.605 [info] ExtensionService#_doActivateExtension vscode.merge-conflict, startup: false, activationEvent: 'onStartupFinished'
+2025-04-15 19:33:00.618 [info] ExtensionService#_doActivateExtension GitHub.vscode-pull-request-github, startup: false, activationEvent: 'onStartupFinished'
+2025-04-15 19:33:00.667 [info] ExtensionService#_doActivateExtension ionutvmi.path-autocomplete, startup: false, activationEvent: 'onStartupFinished'
+2025-04-15 19:33:00.678 [info] ExtensionService#_doActivateExtension PKief.material-icon-theme, startup: false, activationEvent: 'onStartupFinished'
+2025-04-15 19:35:59.571 [info] Extension host terminating: renderer closed the MessagePort
+2025-04-15 19:35:59.614 [error] Canceled: Canceled
+    at new h (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:56634)
+    at t.O (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:8020)
+    at Proxy.N.<computed>.T.charCodeAt.N.<computed> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:5459)
+    at a.g (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:77241)
+    at a.executeCommand (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76679)
+    at v.registerCommand.description (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76000)
+    at a.h (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:77777)
+    at a.g (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76772)
+    at a.executeCommand (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76679)
+    at Object.executeCommand (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:20977)
+    at r.D [as value] (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1261690)
+    at f.w (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:63:1902)
+    at f.x (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:63:1972)
+    at fire (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:63:2188)
+    at Object.m [as dispose] (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1277293)
+    at /usr/share/code/resources/app/extensions/git/dist/main.js:2:1282023
+    at Array.forEach (<anonymous>)
+    at g.dispose (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1282009)
+    at p.<anonymous> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:98:3381)
+    at p.dispose (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:98:3478)
+    at p.<anonymous> (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1263703)
+    at p.dispose (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:98:3478)
+    at S (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:13:11731)
+    at r.Z (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:9686)
+    at /usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7582
+    at Array.map (<anonymous>)
+    at r.S (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7570)
+    at r.terminate (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7842)
+    at s.terminate (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:1506)
+    at C (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:130:32254)
+    at MessagePortMain.<anonymous> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:130:28679)
+    at MessagePortMain.emit (node:events:513:28)
+    at Object.MessagePortMain._internalPort.emit (node:electron/js2c/utility_init:2:367) setContext undefined
+2025-04-15 19:35:59.624 [error] Canceled: Canceled
+    at new h (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:56634)
+    at t.O (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:8020)
+    at Proxy.N.<computed>.T.charCodeAt.N.<computed> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:5459)
+    at a.g (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:77241)
+    at a.executeCommand (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76679)
+    at v.registerCommand.description (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76000)
+    at a.h (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:77777)
+    at a.g (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76772)
+    at a.executeCommand (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76679)
+    at Object.executeCommand (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:20977)
+    at t.$Ne.set b [as b] (/usr/share/code/resources/app/extensions/github/dist/extension.js:2:676183)
+    at /usr/share/code/resources/app/extensions/github/dist/extension.js:2:676827
+    at r.value (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1349176)
+    at f.w (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:63:1902)
+    at f.x (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:63:1972)
+    at fire (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:63:2188)
+    at Object.m [as dispose] (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1277293)
+    at /usr/share/code/resources/app/extensions/git/dist/main.js:2:1282023
+    at Array.forEach (<anonymous>)
+    at g.dispose (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1282009)
+    at p.<anonymous> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:98:3381)
+    at p.dispose (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:98:3478)
+    at p.<anonymous> (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1263703)
+    at p.dispose (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:98:3478)
+    at S (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:13:11731)
+    at r.Z (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:9686)
+    at /usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7582
+    at Array.map (<anonymous>)
+    at r.S (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7570)
+    at r.terminate (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7842)
+    at s.terminate (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:1506)
+    at C (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:130:32254)
+    at MessagePortMain.<anonymous> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:130:28679)
+    at MessagePortMain.emit (node:events:513:28)
+    at Object.MessagePortMain._internalPort.emit (node:electron/js2c/utility_init:2:367) setContext undefined
+2025-04-15 19:35:59.626 [error] Canceled: Canceled
+    at new h (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:56634)
+    at t.O (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:8020)
+    at Proxy.N.<computed>.T.charCodeAt.N.<computed> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:5459)
+    at a.g (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:77241)
+    at a.executeCommand (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76679)
+    at v.registerCommand.description (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76000)
+    at a.h (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:77777)
+    at a.g (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76772)
+    at a.executeCommand (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76679)
+    at Object.executeCommand (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:20977)
+    at e (/root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1655:1445)
+    at Object.n [as setContext] (/root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1655:1560)
+    at gp.updateActiveReviewCount (/root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1772:22481)
+    at gp.removeRepo (/root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1772:23608)
+    at r.value (/root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1835:4126)
+    at f.w (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:63:1902)
+    at f.x (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:63:1972)
+    at fire (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:63:2188)
+    at r.value (/root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1624:461993)
+    at f.w (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:63:1902)
+    at fire (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:63:2119)
+    at /root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1772:27322
+    at r.value (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1349176)
+    at f.w (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:63:1902)
+    at f.x (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:63:1972)
+    at fire (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:63:2188)
+    at Object.m [as dispose] (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1277293)
+    at /usr/share/code/resources/app/extensions/git/dist/main.js:2:1282023
+    at Array.forEach (<anonymous>)
+    at g.dispose (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1282009)
+    at p.<anonymous> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:98:3381)
+    at p.dispose (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:98:3478)
+    at p.<anonymous> (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1263703)
+    at p.dispose (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:98:3478)
+    at S (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:13:11731)
+    at r.Z (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:9686)
+    at /usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7582
+    at Array.map (<anonymous>)
+    at r.S (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7570)
+    at r.terminate (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7842)
+    at s.terminate (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:1506)
+    at C (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:130:32254)
+    at MessagePortMain.<anonymous> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:130:28679)
+    at MessagePortMain.emit (node:events:513:28)
+    at Object.MessagePortMain._internalPort.emit (node:electron/js2c/utility_init:2:367) setContext undefined
+2025-04-15 19:35:59.628 [error] Canceled: Canceled
+    at new h (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:56634)
+    at t.O (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:8020)
+    at Proxy.N.<computed>.T.charCodeAt.N.<computed> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:5459)
+    at a.g (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:77241)
+    at a.executeCommand (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76679)
+    at v.registerCommand.description (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76000)
+    at a.h (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:77777)
+    at a.g (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76772)
+    at a.executeCommand (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:76679)
+    at Object.executeCommand (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:20977)
+    at r0.reset (/root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1822:4008)
+    at r0.dispose (/root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1822:4247)
+    at S (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:13:11731)
+    at r.Z (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:9686)
+    at /usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7582
+    at Array.map (<anonymous>)
+    at r.S (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7570)
+    at r.terminate (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7842)
+    at s.terminate (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:1506)
+    at C (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:130:32254)
+    at MessagePortMain.<anonymous> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:130:28679)
+    at MessagePortMain.emit (node:events:513:28)
+    at Object.MessagePortMain._internalPort.emit (node:electron/js2c/utility_init:2:367) setContext undefined
+2025-04-15 19:35:59.630 [error] Canceled: Canceled
+    at new h (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:56634)
+    at t.O (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:8020)
+    at Proxy.N.<computed>.T.charCodeAt.N.<computed> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:5459)
+    at A.showMessage (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:104:85257)
+    at Object.showErrorMessage (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:30410)
+    at eg.login (/root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1772:19113)
+    at gp.authenticate (/root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1772:26073)
+    at /root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1762:10313
+    at a.h (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:77769) pr.signin {"value":"GitHub.vscode-pull-request-github","_lower":"github.vscode-pull-request-github"}
+2025-04-15 19:35:59.631 [error] Canceled: Canceled
+    at new h (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:56634)
+    at t.O (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:8020)
+    at Proxy.N.<computed>.T.charCodeAt.N.<computed> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:5459)
+    at A.showMessage (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:104:85257)
+    at Object.showErrorMessage (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:30410)
+    at eg.login (/root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1772:19113)
+    at gp.authenticate (/root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1772:26073)
+    at /root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1762:10313
+    at a.h (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:77769) pr.signin {"value":"GitHub.vscode-pull-request-github","_lower":"github.vscode-pull-request-github"}
+2025-04-15 19:35:59.631 [error] Canceled: Canceled
+    at new h (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:56634)
+    at t.O (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:8020)
+    at Proxy.N.<computed>.T.charCodeAt.N.<computed> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:5459)
+    at A.showMessage (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:104:85257)
+    at Object.showErrorMessage (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:30410)
+    at eg.login (/root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1772:19113)
+    at gp.authenticate (/root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1772:26073)
+    at /root/.vscode/extensions/github.vscode-pull-request-github-0.70.0/dist/extension.js:1762:10313
+    at a.h (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:102:77769) pr.signin {"value":"GitHub.vscode-pull-request-github","_lower":"github.vscode-pull-request-github"}
+2025-04-15 19:35:59.689 [info] Extension host with pid 17880 exiting with code 0

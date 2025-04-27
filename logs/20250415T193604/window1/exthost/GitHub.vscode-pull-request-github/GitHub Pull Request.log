@@ -1,0 +1,13 @@
+2025-04-15 19:36:12.721 [warning] /root/.ssh/config: ENOENT: no such file or directory, open '/root/.ssh/config'
+2025-04-15 19:36:12.796 [info] Looking for git repository
+2025-04-15 19:36:12.796 [info] Found 0 repositories during activation
+2025-04-15 19:36:12.796 [info] Git repository found, initializing review manager and pr tree view.
+2025-04-15 19:36:12.800 [info] Registering git provider
+2025-04-15 19:36:12.800 [info] Review> Validate state in progress
+2025-04-15 19:36:12.800 [info] Review> Validating state...
+2025-04-15 19:36:12.842 [info] Found GitHub remote for folder /var/www/html/cpa
+2025-04-15 19:36:12.966 [info] Repo state for file:///var/www/html/cpa changed.
+2025-04-15 19:36:12.966 [info] Repo file:///var/www/html/cpa has already been setup.
+2025-04-15 19:36:12.967 [info] Review> No matching pull request metadata found locally for current branch master
+2025-04-15 19:36:12.967 [info] Review> no matching pull request metadata found for current branch master
+2025-04-15 19:36:12.967 [info] Review> No matching pull request metadata found on GitHub for current branch master

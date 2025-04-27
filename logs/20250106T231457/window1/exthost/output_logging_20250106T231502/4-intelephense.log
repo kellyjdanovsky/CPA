@@ -1,0 +1,15 @@
+[Info  - 11:36:27 PM] Initialising intelephense 1.10.2
+[Info  - 11:36:27 PM] Reading state from /var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/bmewburn.vscode-intelephense-client/49f65a47.
+[Info  - 11:36:29 PM] Initialised in 1676 ms
+[Info  - 11:36:29 PM] Searching file:///root/.vscode/extensions/bmewburn.vscode-intelephense-client-1.10.2/node_modules/intelephense/lib/stub for files to index.
+[Info  - 11:36:29 PM] Searching file:///var/www/html/cpa for files to index.
+[Warn  - 11:36:31 PM] file:///var/www/html/cpa/vendor/fakerphp/faker/src/Faker/Provider/nl_BE/Text.php is over the maximum file size of 1000000 bytes.
+[Info  - 11:36:31 PM] Indexing started.
+[Info  - 11:36:31 PM] Indexing ended. 72 files indexed in 0s.
+[Info  - 11:36:31 PM] Writing state to /var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/bmewburn.vscode-intelephense-client/49f65a47.
+[Info  - 11:36:33 PM] Wrote state in 1.3s.
+[Warn  - 11:36:38 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 11:36:43 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 11:37:46 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 11:37:46 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/workspaceStorage/36dc8be9c84159de429994b94ed188a6/state.vscdb-journal'
+[Warn  - 11:38:42 PM] Error: ENOENT: no such file or directory, stat '/var/www/html/cpa/User/globalStorage/storage.json.vsctmp'

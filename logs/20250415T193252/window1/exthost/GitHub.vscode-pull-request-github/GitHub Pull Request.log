@@ -1,0 +1,49 @@
+2025-04-15 19:33:00.778 [warning] /root/.ssh/config: ENOENT: no such file or directory, open '/root/.ssh/config'
+2025-04-15 19:33:00.881 [info] Looking for git repository
+2025-04-15 19:33:00.881 [info] Found 0 repositories during activation
+2025-04-15 19:33:00.882 [info] Git repository found, initializing review manager and pr tree view.
+2025-04-15 19:33:00.886 [info] Registering git provider
+2025-04-15 19:33:00.886 [info] Review> Validate state in progress
+2025-04-15 19:33:00.886 [info] Review> Validating state...
+2025-04-15 19:33:00.944 [info] Found GitHub remote for folder /var/www/html/cpa
+2025-04-15 19:33:01.127 [info] Repo state for file:///var/www/html/cpa changed.
+2025-04-15 19:33:01.127 [info] Repo file:///var/www/html/cpa has already been setup.
+2025-04-15 19:33:01.128 [info] Review> No matching pull request metadata found locally for current branch master
+2025-04-15 19:33:01.128 [info] Review> no matching pull request metadata found for current branch master
+2025-04-15 19:33:01.128 [info] Review> No matching pull request metadata found on GitHub for current branch master
+2025-04-15 19:35:59.629 [error] Error signing in to GitHub: Canceled: Canceled
+2025-04-15 19:35:59.629 [error] Canceled: Canceled
+    at Object.I [as $4] (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:10:1032)
+    at /usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:4817
+    at Array.forEach (<anonymous>)
+    at t.dispose (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:4782)
+    at r.terminate (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7818)
+    at s.terminate (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:1506)
+    at C (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:130:32254)
+    at MessagePortMain.<anonymous> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:130:28679)
+    at MessagePortMain.emit (node:events:513:28)
+    at Object.MessagePortMain._internalPort.emit (node:electron/js2c/utility_init:2:367)
+2025-04-15 19:35:59.629 [error] Error signing in to GitHub: Canceled: Canceled
+2025-04-15 19:35:59.629 [error] Canceled: Canceled
+    at Object.I [as $4] (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:10:1032)
+    at /usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:4817
+    at Array.forEach (<anonymous>)
+    at t.dispose (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:4782)
+    at r.terminate (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7818)
+    at s.terminate (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:1506)
+    at C (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:130:32254)
+    at MessagePortMain.<anonymous> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:130:28679)
+    at MessagePortMain.emit (node:events:513:28)
+    at Object.MessagePortMain._internalPort.emit (node:electron/js2c/utility_init:2:367)
+2025-04-15 19:35:59.629 [error] Error signing in to GitHub: Canceled: Canceled
+2025-04-15 19:35:59.629 [error] Canceled: Canceled
+    at Object.I [as $4] (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:10:1032)
+    at /usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:4817
+    at Array.forEach (<anonymous>)
+    at t.dispose (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:114:4782)
+    at r.terminate (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:116:7818)
+    at s.terminate (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:120:1506)
+    at C (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:130:32254)
+    at MessagePortMain.<anonymous> (/usr/share/code/resources/app/out/vs/workbench/api/node/extensionHostProcess.js:130:28679)
+    at MessagePortMain.emit (node:events:513:28)
+    at Object.MessagePortMain._internalPort.emit (node:electron/js2c/utility_init:2:367)

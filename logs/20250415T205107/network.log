@@ -1,0 +1,12 @@
+2025-04-15 20:51:12.556 [error] electron #1: https://az764295.vo.msecnd.net/extensions/marketplace.json - error GET net::ERR_NAME_NOT_RESOLVED
+2025-04-15 20:51:12.816 [error] electron #2: https://update.code.visualstudio.com/api/update/linux-x64/stable/6c3e3dba23e8fadc360aed75ce363ba185c49794 - error undefined net::ERR_NAME_NOT_RESOLVED
+2025-04-15 20:51:14.742 [error] electron #3: https://mobile.events.data.microsoft.com/OneCollector/1.0?cors=true&content-type=application/x-json-stream - error POST net::ERR_NAME_NOT_RESOLVED
+2025-04-15 20:51:15.821 [error] browser #1: https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery - error POST XHR failed
+2025-04-15 20:51:17.837 [error] electron #4: https://update.code.visualstudio.com/api/update/linux-x64/stable/6c3e3dba23e8fadc360aed75ce363ba185c49794 - error undefined net::ERR_NAME_NOT_RESOLVED
+2025-04-15 20:51:38.211 [error] electron #5: https://update.code.visualstudio.com/api/update/linux-x64/stable/6c3e3dba23e8fadc360aed75ce363ba185c49794 - error undefined net::ERR_NAME_NOT_RESOLVED
+2025-04-15 20:51:56.097 [error] browser #2: https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery - error POST XHR failed
+2025-04-15 20:51:57.029 [error] browser #3: https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery - error POST XHR failed
+2025-04-15 20:52:02.307 [error] browser #4: https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery - error POST XHR failed
+2025-04-15 20:52:02.880 [error] browser #5: https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery - error POST XHR failed
+2025-04-15 20:52:03.342 [error] browser #6: https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery - error POST XHR failed
+2025-04-15 18:28:49.708 [error] browser #24: https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery - error POST Canceled

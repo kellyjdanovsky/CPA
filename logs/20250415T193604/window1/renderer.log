@@ -1,0 +1,11 @@
+2025-04-15 19:36:07.735 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 19:36:07.736 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 19:36:07.736 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 19:36:07.737 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 19:36:07.737 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 19:36:07.738 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 19:36:07.738 [info] [MehediDracula.php-namespace-resolver]: Menu item references the same command as default and alt-command
+2025-04-15 19:36:11.496 [info] [perf] Render performance baseline is 146ms
+2025-04-15 19:40:52.995 [warning] [File Watcher (node.js)] Watcher shutdown because watched path got deleted
+2025-04-15 19:40:53.831 [error] An unknown error occurred. Please consult the log for more details.: EntryNotFound (FileSystemError): 
+    at l.readFile (/usr/share/code/resources/app/extensions/git/dist/main.js:2:1223980)

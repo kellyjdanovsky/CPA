@@ -1,0 +1,7 @@
+2025-01-05 20:34:19.219 [error] electron #1: https://az764295.vo.msecnd.net/extensions/marketplace.json - error GET net::ERR_INTERNET_DISCONNECTED
+2025-01-05 20:34:19.693 [error] electron #2: https://update.code.visualstudio.com/api/update/linux-x64/stable/6c3e3dba23e8fadc360aed75ce363ba185c49794 - error undefined net::ERR_INTERNET_DISCONNECTED
+2025-01-05 20:34:21.441 [error] browser #1: https://marketplace.visualstudio.com/_apis/public/gallery/extensionquery - error POST Offline
+2025-01-05 20:34:21.620 [error] electron #3: https://mobile.events.data.microsoft.com/OneCollector/1.0?cors=true&content-type=application/x-json-stream - error POST net::ERR_INTERNET_DISCONNECTED
+2025-01-05 20:34:44.922 [error] electron #4: https://update.code.visualstudio.com/api/update/linux-x64/stable/6c3e3dba23e8fadc360aed75ce363ba185c49794 - error undefined net::ERR_INTERNET_DISCONNECTED
+2025-01-05 20:39:23.809 [error] electron #5: https://az764295.vo.msecnd.net/extensions/marketplace.json - error GET net::ERR_INTERNET_DISCONNECTED
+2025-01-05 20:44:23.927 [error] electron #6: https://az764295.vo.msecnd.net/extensions/marketplace.json - error GET net::ERR_INTERNET_DISCONNECTED

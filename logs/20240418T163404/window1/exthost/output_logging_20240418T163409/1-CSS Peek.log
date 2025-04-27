@@ -1,0 +1,2102 @@
+[Server(28557) cpa/] onInitialize
+[Server(28557) cpa/] Number of style sheets - 548
+[Server(28557) cpa/] setupInitialStylemap
+want 6011
+  script 54 60
+  script 113 119
+  script 122 128
+  script 181 187
+  table 191 196
+  tbody 250 255
+  tr 266 268
+  td 283 285
+  strong 287 293
+  strong 300 306
+  td 343 345
+  td 360 362
+  strong 364 370
+  strong 392 398
+  td 419 421
+  td 436 438
+  strong 440 446
+  strong 456 462
+  td 499 501
+  tr 513 515
+  tr 526 528
+  td 543 545
+  strong 547 553
+  strong 578 584
+  td 642 644
+  td 659 661
+  strong 663 669
+  strong 689 695
+  td 714 716
+  td 731 733
+  strong 735 741
+  strong 748 754
+  td 891 893
+  tr 905 907
+  tbody 916 921
+  table 925 930
+  table 935 940
+  thead 1081 1086
+  tr 1097 1099
+  th 1114 1116
+  th 1133 1135
+  th 1150 1152
+  th 1175 1177
+  th 1192 1194
+  br 1211 1213
+  th 1220 1222
+  th 1237 1239
+  br 1256 1258
+  th 1265 1267
+  th 1282 1284
+  br 1305 1307
+  th 1314 1316
+  th 1331 1333
+  br 1360 1362
+  th 1365 1367
+  th 1452 1454
+  br 1474 1476
+  sup 1486 1489
+  sup 1493 1496
+  th 1509 1511
+  th 1526 1528
+  sup 1543 1546
+  sup 1551 1554
+  br 1557 1559
+  th 1572 1574
+  th 1589 1591
+  sup 1606 1609
+  sup 1613 1616
+  br 1619 1621
+  th 1634 1636
+  th 1651 1653
+  br 1678 1680
+  sup 1684 1687
+  sup 1692 1695
+  sup 1701 1704
+  sup 1708 1711
+  sup 1717 1720
+  sup 1724 1727
+  th 1730 1732
+  th 1747 1749
+  th 1771 1773
+  th 1813 1815
+  th 1841 1843
+  th 1858 1860
+  th 1890 1892
+  th 1907 1909
+  th 1933 1935
+  tr 1947 1949
+  thead 1957 1962
+  tbody 1970 1975
+  tr 2027 2029
+  td 2048 2050
+  td 2075 2077
+  td 2096 2098
+  td 2117 2119
+  td 2241 2243
+  td 2266 2268
+  td 2291 2293
+  td 2316 2318
+  td 2341 2343
+  td 2367 2369
+  td 2392 2394
+  td 2875 2877
+  td 2995 2997
+  td 3022 3024
+  td 3052 3054
+  td 3133 3135
+  td 3163 3165
+  td 3244 3246
+  td 3274 3276
+  td 3300 3302
+  td 3330 3332
+  td 3360 3362
+  td 3486 3488
+  td 3520 3522
+  td 3545 3547
+  td 4155 4157
+  td 4180 4182
+  td 4228 4230
+  tr 4274 4276
+  tr 4759 4761
+  td 4776 4778
+  strong 4811 4817
+  strong 4846 4852
+  td 4855 4857
+  td 4872 4874
+  strong 4906 4912
+  strong 4931 4937
+  td 4940 4942
+  td 4988 4990
+  strong 5004 5010
+  td 5063 5065
+  td 5109 5111
+  strong 5125 5131
+  td 5185 5187
+  tr 5229 5231
+  tbody 5239 5244
+  table 5248 5253
+  script 5306 5312
+  script 6106 6112
+Invalid Selector
+want 6011
+  script 54 60
+  script 113 119
+  script 122 128
+  script 181 187
+  table 191 196
+  tbody 250 255
+  tr 266 268
+  td 283 285
+  strong 287 293
+  strong 300 306
+  td 343 345
+  td 360 362
+  strong 364 370
+  strong 392 398
+  td 419 421
+  td 436 438
+  strong 440 446
+  strong 456 462
+  td 499 501
+  tr 513 515
+  tr 526 528
+  td 543 545
+  strong 547 553
+  strong 578 584
+  td 642 644
+  td 659 661
+  strong 663 669
+  strong 689 695
+  td 714 716
+  td 731 733
+  strong 735 741
+  strong 748 754
+  td 891 893
+  tr 905 907
+  tbody 916 921
+  table 925 930
+  table 935 940
+  thead 1081 1086
+  tr 1097 1099
+  th 1114 1116
+  th 1133 1135
+  th 1150 1152
+  th 1175 1177
+  th 1192 1194
+  br 1211 1213
+  th 1220 1222
+  th 1237 1239
+  br 1256 1258
+  th 1265 1267
+  th 1282 1284
+  br 1305 1307
+  th 1314 1316
+  th 1331 1333
+  br 1360 1362
+  th 1365 1367
+  th 1452 1454
+  br 1474 1476
+  sup 1486 1489
+  sup 1493 1496
+  th 1509 1511
+  th 1526 1528
+  sup 1543 1546
+  sup 1551 1554
+  br 1557 1559
+  th 1572 1574
+  th 1589 1591
+  sup 1606 1609
+  sup 1613 1616
+  br 1619 1621
+  th 1634 1636
+  th 1651 1653
+  br 1678 1680
+  sup 1684 1687
+  sup 1692 1695
+  sup 1701 1704
+  sup 1708 1711
+  sup 1717 1720
+  sup 1724 1727
+  th 1730 1732
+  th 1747 1749
+  th 1771 1773
+  th 1813 1815
+  th 1841 1843
+  th 1858 1860
+  th 1890 1892
+  th 1907 1909
+  th 1933 1935
+  tr 1947 1949
+  thead 1957 1962
+  tbody 1970 1975
+  tr 2027 2029
+  td 2048 2050
+  td 2075 2077
+  td 2096 2098
+  td 2117 2119
+  td 2241 2243
+  td 2266 2268
+  td 2291 2293
+  td 2316 2318
+  td 2341 2343
+  td 2367 2369
+  td 2392 2394
+  td 2875 2877
+  td 2995 2997
+  td 3022 3024
+  td 3052 3054
+  td 3133 3135
+  td 3163 3165
+  td 3244 3246
+  td 3274 3276
+  td 3300 3302
+  td 3330 3332
+  td 3360 3362
+  td 3486 3488
+  td 3520 3522
+  td 3545 3547
+  td 4155 4157
+  td 4180 4182
+  td 4228 4230
+  tr 4274 4276
+  tr 4759 4761
+  td 4776 4778
+  strong 4811 4817
+  strong 4846 4852
+  td 4855 4857
+  td 4872 4874
+  strong 4906 4912
+  strong 4931 4937
+  td 4940 4942
+  td 4988 4990
+  strong 5004 5010
+  td 5063 5065
+  td 5109 5111
+  strong 5125 5131
+  td 5185 5187
+  tr 5229 5231
+  tbody 5239 5244
+  table 5248 5253
+  script 5306 5312
+  script 6106 6112
+Invalid Selector
+$students 4292
+  div 100 103
+  div 127 130
+  h5 188 190
+  i 211 212
+  i 239 240
+  h5 265 267
+  div 321 324
+  div 336 339
+  form 372 376
+  div 479 482
+  div 518 521
+  div 565 568
+  label 618 623
+  label 688 693
+  select 724 730
+  option 933 939
+  option 1041 1047
+  select 1123 1129
+  div 1157 1160
+  div 1184 1187
+  div 1211 1214
+  div 1258 1261
+  label 1311 1316
+  label 1385 1390
+  select 1421 1427
+  option 1618 1624
+  option 1636 1642
+  option 1741 1747
+  option 1847 1853
+  select 1929 1935
+  div 1963 1966
+  div 1990 1993
+  div 2017 2020
+  div 2064 2067
+  label 2117 2122
+  label 2191 2196
+  select 2227 2233
+  option 2543 2549
+  option 2633 2639
+  select 2758 2764
+  div 2792 2795
+  div 2819 2822
+  div 2847 2850
+  div 2899 2902
+  button 2957 2963
+  i 3019 3020
+  i 3052 3053
+  button 3056 3062
+  div 3090 3093
+  div 3117 3120
+  div 3141 3144
+  form 3161 3165
+  div 3177 3180
+  div 3188 3191
+  div 3265 3268
+  div 3296 3299
+  h6 3338 3340
+  h6 3483 3485
+  div 3501 3504
+  div 3519 3522
+  table 3559 3564
+  thead 3602 3607
+  tr 3630 3632
+  th 3664 3666
+  th 3670 3672
+  th 3704 3706
+  th 3740 3742
+  th 3825 3827
+  th 3909 3911
+  th 3974 3976
+  th 4007 4009
+  th 4036 4038
+  th 4072 4074
+  th 4101 4103
+  th 4139 4141
+  tr 4165 4167
+  thead 4191 4196
+  tbody 4219 4224
+  tr 4946 4948
+  td 4984 4986
+  td 5011 5013
+  td 5049 5051
+  td 5101 5103
+  td 5194 5196
+  td 5305 5307
+  td 5379 5381
+  td 5474 5476
+  td 5507 5509
+  td 5601 5603
+  td 5634 5636
+  td 5746 5748
+  tr 5776 5778
+  tbody 5834 5839
+  table 5859 5864
+  div 5929 5932
+  a 5980 5981
+  i 6114 6115
+  i 6144 6145
+  a 6182 6183
+  div 6203 6206
+  div 6222 6225
+  div 6237 6240
+Invalid Selector
+the 4288
+  div 100 103
+  div 127 130
+  h5 188 190
+  i 211 212
+  i 239 240
+  h5 265 267
+  div 321 324
+  div 336 339
+  form 372 376
+  div 479 482
+  div 518 521
+  div 565 568
+  label 618 623
+  label 688 693
+  select 724 730
+  option 933 939
+  option 1041 1047
+  select 1123 1129
+  div 1157 1160
+  div 1184 1187
+  div 1211 1214
+  div 1258 1261
+  label 1311 1316
+  label 1385 1390
+  select 1421 1427
+  option 1618 1624
+  option 1636 1642
+  option 1741 1747
+  option 1847 1853
+  select 1929 1935
+  div 1963 1966
+  div 1990 1993
+  div 2017 2020
+  div 2064 2067
+  label 2117 2122
+  label 2191 2196
+  select 2227 2233
+  option 2543 2549
+  option 2633 2639
+  select 2758 2764
+  div 2792 2795
+  div 2819 2822
+  div 2847 2850
+  div 2899 2902
+  button 2957 2963
+  i 3019 3020
+  i 3052 3053
+  button 3056 3062
+  div 3090 3093
+  div 3117 3120
+  div 3141 3144
+  form 3161 3165
+  div 3177 3180
+  div 3188 3191
+  div 3265 3268
+  div 3296 3299
+  h6 3338 3340
+  h6 3483 3485
+  div 3501 3504
+  div 3519 3522
+  table 3559 3564
+  thead 3602 3607
+  tr 3630 3632
+  th 3664 3666
+  th 3670 3672
+  th 3704 3706
+  th 3740 3742
+  th 3825 3827
+  th 3909 3911
+  th 3974 3976
+  th 4007 4009
+  th 4036 4038
+  th 4072 4074
+  th 4101 4103
+  th 4139 4141
+  tr 4165 4167
+  thead 4191 4196
+  tbody 4219 4224
+  tr 4946 4948
+  td 4984 4986
+  td 5011 5013
+  td 5049 5051
+  td 5101 5103
+  td 5194 5196
+  td 5305 5307
+  td 5379 5381
+  td 5474 5476
+  td 5507 5509
+  td 5601 5603
+  td 5634 5636
+  td 5746 5748
+  tr 5776 5778
+  tbody 5834 5839
+  table 5859 5864
+  div 5929 5932
+  a 5980 5981
+  i 6114 6115
+  i 6144 6145
+  a 6182 6183
+  div 6203 6206
+  div 6222 6225
+  div 6237 6240
+Invalid Selector
+$sortedStudents 4385
+  div 100 103
+  div 127 130
+  h5 188 190
+  i 211 212
+  i 239 240
+  h5 265 267
+  div 321 324
+  div 336 339
+  form 372 376
+  div 479 482
+  div 518 521
+  div 565 568
+  label 618 623
+  label 688 693
+  select 724 730
+  option 933 939
+  option 1041 1047
+  select 1123 1129
+  div 1157 1160
+  div 1184 1187
+  div 1211 1214
+  div 1258 1261
+  label 1311 1316
+  label 1385 1390
+  select 1421 1427
+  option 1618 1624
+  option 1636 1642
+  option 1741 1747
+  option 1847 1853
+  select 1929 1935
+  div 1963 1966
+  div 1990 1993
+  div 2017 2020
+  div 2064 2067
+  label 2117 2122
+  label 2191 2196
+  select 2227 2233
+  option 2543 2549
+  option 2633 2639
+  select 2758 2764
+  div 2792 2795
+  div 2819 2822
+  div 2847 2850
+  div 2899 2902
+  button 2957 2963
+  i 3019 3020
+  i 3052 3053
+  button 3056 3062
+  div 3090 3093
+  div 3117 3120
+  div 3141 3144
+  form 3161 3165
+  div 3177 3180
+  div 3188 3191
+  div 3265 3268
+  div 3296 3299
+  h6 3338 3340
+  h6 3483 3485
+  div 3501 3504
+  div 3519 3522
+  table 3559 3564
+  thead 3602 3607
+  tr 3630 3632
+  th 3664 3666
+  th 3670 3672
+  th 3704 3706
+  th 3740 3742
+  th 3825 3827
+  th 3909 3911
+  th 3974 3976
+  th 4007 4009
+  th 4036 4038
+  th 4072 4074
+  th 4101 4103
+  th 4139 4141
+  tr 4165 4167
+  thead 4191 4196
+  tbody 4219 4224
+  tr 4946 4948
+  td 4984 4986
+  td 5011 5013
+  td 5049 5051
+  td 5101 5103
+  td 5194 5196
+  td 5305 5307
+  td 5379 5381
+  td 5474 5476
+  td 5507 5509
+  td 5601 5603
+  td 5634 5636
+  td 5746 5748
+  tr 5776 5778
+  tbody 5834 5839
+  table 5859 5864
+  div 5929 5932
+  a 5980 5981
+  i 6114 6115
+  i 6144 6145
+  a 6182 6183
+  div 6203 6206
+  div 6222 6225
+  div 6237 6240
+Invalid Selector
+$suffix 4481
+  div 100 103
+  div 127 130
+  h5 188 190
+  i 211 212
+  i 239 240
+  h5 265 267
+  div 321 324
+  div 336 339
+  form 372 376
+  div 479 482
+  div 518 521
+  div 565 568
+  label 618 623
+  label 688 693
+  select 724 730
+  option 933 939
+  option 1041 1047
+  select 1123 1129
+  div 1157 1160
+  div 1184 1187
+  div 1211 1214
+  div 1258 1261
+  label 1311 1316
+  label 1385 1390
+  select 1421 1427
+  option 1618 1624
+  option 1636 1642
+  option 1741 1747
+  option 1847 1853
+  select 1929 1935
+  div 1963 1966
+  div 1990 1993
+  div 2017 2020
+  div 2064 2067
+  label 2117 2122
+  label 2191 2196
+  select 2227 2233
+  option 2543 2549
+  option 2633 2639
+  select 2758 2764
+  div 2792 2795
+  div 2819 2822
+  div 2847 2850
+  div 2899 2902
+  button 2957 2963
+  i 3019 3020
+  i 3052 3053
+  button 3056 3062
+  div 3090 3093
+  div 3117 3120
+  div 3141 3144
+  form 3161 3165
+  div 3177 3180
+  div 3188 3191
+  div 3265 3268
+  div 3296 3299
+  h6 3338 3340
+  h6 3483 3485
+  div 3501 3504
+  div 3519 3522
+  table 3559 3564
+  thead 3602 3607
+  tr 3630 3632
+  th 3664 3666
+  th 3670 3672
+  th 3704 3706
+  th 3740 3742
+  th 3825 3827
+  th 3909 3911
+  th 3974 3976
+  th 4007 4009
+  th 4036 4038
+  th 4072 4074
+  th 4101 4103
+  th 4139 4141
+  tr 4165 4167
+  thead 4191 4196
+  tbody 4219 4224
+  tr 4946 4948
+  td 4984 4986
+  td 5011 5013
+  td 5049 5051
+  td 5101 5103
+  td 5194 5196
+  td 5305 5307
+  td 5379 5381
+  td 5474 5476
+  td 5507 5509
+  td 5601 5603
+  td 5634 5636
+  td 5746 5748
+  tr 5776 5778
+  tbody 5834 5839
+  table 5859 5864
+  div 5929 5932
+  a 5980 5981
+  i 6114 6115
+  i 6144 6145
+  a 6182 6183
+  div 6203 6206
+  div 6222 6225
+  div 6237 6240
+Invalid Selector
+@foreach($subjects 3768
+  div 100 103
+  div 127 130
+  h5 188 190
+  i 211 212
+  i 239 240
+  h5 265 267
+  div 321 324
+  div 336 339
+  form 372 376
+  div 479 482
+  div 518 521
+  div 565 568
+  label 618 623
+  label 688 693
+  select 724 730
+  option 933 939
+  option 1041 1047
+  select 1123 1129
+  div 1157 1160
+  div 1184 1187
+  div 1211 1214
+  div 1258 1261
+  label 1311 1316
+  label 1385 1390
+  select 1421 1427
+  option 1618 1624
+  option 1636 1642
+  option 1741 1747
+  option 1847 1853
+  select 1929 1935
+  div 1963 1966
+  div 1990 1993
+  div 2017 2020
+  div 2064 2067
+  label 2117 2122
+  label 2191 2196
+  select 2227 2233
+  option 2543 2549
+  option 2633 2639
+  select 2758 2764
+  div 2792 2795
+  div 2819 2822
+  div 2847 2850
+  div 2899 2902
+  button 2957 2963
+  i 3019 3020
+  i 3052 3053
+  button 3056 3062
+  div 3090 3093
+  div 3117 3120
+  div 3141 3144
+  form 3161 3165
+  div 3177 3180
+  div 3188 3191
+  div 3265 3268
+  div 3296 3299
+  h6 3338 3340
+  h6 3483 3485
+  div 3501 3504
+  div 3519 3522
+  table 3559 3564
+  thead 3602 3607
+  tr 3630 3632
+  th 3664 3666
+  th 3670 3672
+  th 3704 3706
+  th 3740 3742
+  th 3825 3827
+  th 3909 3911
+  th 3974 3976
+  th 4007 4009
+  th 4036 4038
+  th 4072 4074
+  th 4101 4103
+  th 4139 4141
+  tr 4165 4167
+  thead 4191 4196
+  tbody 4219 4224
+  tr 4946 4948
+  td 4984 4986
+  td 5011 5013
+  td 5049 5051
+  td 5101 5103
+  td 5194 5196
+  td 5305 5307
+  td 5379 5381
+  td 5474 5476
+  td 5507 5509
+  td 5601 5603
+  td 5634 5636
+  td 5746 5748
+  tr 5776 5778
+  tbody 5834 5839
+  table 5859 5864
+  div 5929 5932
+  a 5980 5981
+  i 6114 6115
+  i 6144 6145
+  a 6182 6183
+  div 6203 6206
+  div 6222 6225
+  div 6237 6240
+Invalid Selector
+ÉTUDIANTS 3716
+  div 100 103
+  div 127 130
+  h5 188 190
+  i 211 212
+  i 239 240
+  h5 265 267
+  div 321 324
+  div 336 339
+  form 372 376
+  div 479 482
+  div 518 521
+  div 565 568
+  label 618 623
+  label 688 693
+  select 724 730
+  option 933 939
+  option 1041 1047
+  select 1123 1129
+  div 1157 1160
+  div 1184 1187
+  div 1211 1214
+  div 1258 1261
+  label 1311 1316
+  label 1385 1390
+  select 1421 1427
+  option 1618 1624
+  option 1636 1642
+  option 1741 1747
+  option 1847 1853
+  select 1929 1935
+  div 1963 1966
+  div 1990 1993
+  div 2017 2020
+  div 2064 2067
+  label 2117 2122
+  label 2191 2196
+  select 2227 2233
+  option 2543 2549
+  option 2633 2639
+  select 2758 2764
+  div 2792 2795
+  div 2819 2822
+  div 2847 2850
+  div 2899 2902
+  button 2957 2963
+  i 3019 3020
+  i 3052 3053
+  button 3056 3062
+  div 3090 3093
+  div 3117 3120
+  div 3141 3144
+  form 3161 3165
+  div 3177 3180
+  div 3188 3191
+  div 3265 3268
+  div 3296 3299
+  h6 3338 3340
+  h6 3483 3485
+  div 3501 3504
+  div 3519 3522
+  table 3559 3564
+  thead 3602 3607
+  tr 3630 3632
+  th 3664 3666
+  th 3670 3672
+  th 3704 3706
+  th 3740 3742
+  th 3825 3827
+  th 3909 3911
+  th 3974 3976
+  th 4007 4009
+  th 4036 4038
+  th 4072 4074
+  th 4101 4103
+  th 4139 4141
+  tr 4165 4167
+  thead 4191 4196
+  tbody 4219 4224
+  tr 4946 4948
+  td 4984 4986
+  td 5011 5013
+  td 5049 5051
+  td 5101 5103
+  td 5194 5196
+  td 5305 5307
+  td 5379 5381
+  td 5474 5476
+  td 5507 5509
+  td 5601 5603
+  td 5634 5636
+  td 5746 5748
+  tr 5776 5778
+  tbody 5834 5839
+  table 5859 5864
+  div 5929 5932
+  a 5980 5981
+  i 6114 6115
+  i 6144 6145
+  a 6182 6183
+  div 6203 6206
+  div 6222 6225
+  div 6237 6240
+Invalid Selector
+$sub- 3893
+  div 100 103
+  div 127 130
+  h5 188 190
+  i 211 212
+  i 239 240
+  h5 265 267
+  div 321 324
+  div 336 339
+  form 372 376
+  div 479 482
+  div 518 521
+  div 565 568
+  label 618 623
+  label 688 693
+  select 724 730
+  option 933 939
+  option 1041 1047
+  select 1123 1129
+  div 1157 1160
+  div 1184 1187
+  div 1211 1214
+  div 1258 1261
+  label 1311 1316
+  label 1385 1390
+  select 1421 1427
+  option 1618 1624
+  option 1636 1642
+  option 1741 1747
+  option 1847 1853
+  select 1929 1935
+  div 1963 1966
+  div 1990 1993
+  div 2017 2020
+  div 2064 2067
+  label 2117 2122
+  label 2191 2196
+  select 2227 2233
+  option 2543 2549
+  option 2633 2639
+  select 2758 2764
+  div 2792 2795
+  div 2819 2822
+  div 2847 2850
+  div 2899 2902
+  button 2957 2963
+  i 3019 3020
+  i 3052 3053
+  button 3056 3062
+  div 3090 3093
+  div 3117 3120
+  div 3141 3144
+  form 3161 3165
+  div 3177 3180
+  div 3188 3191
+  div 3265 3268
+  div 3296 3299
+  h6 3338 3340
+  h6 3483 3485
+  div 3501 3504
+  div 3519 3522
+  table 3559 3564
+  thead 3602 3607
+  tr 3630 3632
+  th 3664 3666
+  th 3670 3672
+  th 3704 3706
+  th 3740 3742
+  th 3825 3827
+  th 3909 3911
+  th 3974 3976
+  th 4007 4009
+  th 4036 4038
+  th 4072 4074
+  th 4101 4103
+  th 4139 4141
+  tr 4165 4167
+  thead 4191 4196
+  tbody 4219 4224
+  tr 4946 4948
+  td 4984 4986
+  td 5011 5013
+  td 5049 5051
+  td 5101 5103
+  td 5194 5196
+  td 5305 5307
+  td 5379 5381
+  td 5474 5476
+  td 5507 5509
+  td 5601 5603
+  td 5634 5636
+  td 5746 5748
+  tr 5776 5778
+  tbody 5834 5839
+  table 5859 5864
+  div 5929 5932
+  a 5980 5981
+  i 6114 6115
+  i 6144 6145
+  a 6182 6183
+  div 6203 6206
+  div 6222 6225
+  div 6237 6240
+Invalid Selector
+$sub->name) 3893
+  div 100 103
+  div 127 130
+  h5 188 190
+  i 211 212
+  i 239 240
+  h5 265 267
+  div 321 324
+  div 336 339
+  form 372 376
+  div 479 482
+  div 518 521
+  div 565 568
+  label 618 623
+  label 688 693
+  select 724 730
+  option 933 939
+  option 1041 1047
+  select 1123 1129
+  div 1157 1160
+  div 1184 1187
+  div 1211 1214
+  div 1258 1261
+  label 1311 1316
+  label 1385 1390
+  select 1421 1427
+  option 1618 1624
+  option 1636 1642
+  option 1741 1747
+  option 1847 1853
+  select 1929 1935
+  div 1963 1966
+  div 1990 1993
+  div 2017 2020
+  div 2064 2067
+  label 2117 2122
+  label 2191 2196
+  select 2227 2233
+  option 2543 2549
+  option 2633 2639
+  select 2758 2764
+  div 2792 2795
+  div 2819 2822
+  div 2847 2850
+  div 2899 2902
+  button 2957 2963
+  i 3019 3020
+  i 3052 3053
+  button 3056 3062
+  div 3090 3093
+  div 3117 3120
+  div 3141 3144
+  form 3161 3165
+  div 3177 3180
+  div 3188 3191
+  div 3265 3268
+  div 3296 3299
+  h6 3338 3340
+  h6 3483 3485
+  div 3501 3504
+  div 3519 3522
+  table 3559 3564
+  thead 3602 3607
+  tr 3630 3632
+  th 3664 3666
+  th 3670 3672
+  th 3704 3706
+  th 3740 3742
+  th 3825 3827
+  th 3909 3911
+  th 3974 3976
+  th 4007 4009
+  th 4036 4038
+  th 4072 4074
+  th 4101 4103
+  th 4139 4141
+  tr 4165 4167
+  thead 4191 4196
+  tbody 4219 4224
+  tr 4946 4948
+  td 4984 4986
+  td 5011 5013
+  td 5049 5051
+  td 5101 5103
+  td 5194 5196
+  td 5305 5307
+  td 5379 5381
+  td 5474 5476
+  td 5507 5509
+  td 5601 5603
+  td 5634 5636
+  td 5746 5748
+  tr 5776 5778
+  tbody 5834 5839
+  table 5859 5864
+  div 5929 5932
+  a 5980 5981
+  i 6114 6115
+  i 6144 6145
+  a 6182 6183
+  div 6203 6206
+  div 6222 6225
+  div 6237 6240
+Invalid Selector
+$sub->name) 3887
+  div 100 103
+  div 127 130
+  h5 188 190
+  i 211 212
+  i 239 240
+  h5 265 267
+  div 321 324
+  div 336 339
+  form 372 376
+  div 479 482
+  div 518 521
+  div 565 568
+  label 618 623
+  label 688 693
+  select 724 730
+  option 933 939
+  option 1041 1047
+  select 1123 1129
+  div 1157 1160
+  div 1184 1187
+  div 1211 1214
+  div 1258 1261
+  label 1311 1316
+  label 1385 1390
+  select 1421 1427
+  option 1618 1624
+  option 1636 1642
+  option 1741 1747
+  option 1847 1853
+  select 1929 1935
+  div 1963 1966
+  div 1990 1993
+  div 2017 2020
+  div 2064 2067
+  label 2117 2122
+  label 2191 2196
+  select 2227 2233
+  option 2543 2549
+  option 2633 2639
+  select 2758 2764
+  div 2792 2795
+  div 2819 2822
+  div 2847 2850
+  div 2899 2902
+  button 2957 2963
+  i 3019 3020
+  i 3052 3053
+  button 3056 3062
+  div 3090 3093
+  div 3117 3120
+  div 3141 3144
+  form 3161 3165
+  div 3177 3180
+  div 3188 3191
+  div 3265 3268
+  div 3296 3299
+  h6 3338 3340
+  h6 3477 3479
+  div 3495 3498
+  div 3513 3516
+  table 3553 3558
+  thead 3596 3601
+  tr 3624 3626
+  th 3658 3660
+  th 3664 3666
+  th 3698 3700
+  th 3734 3736
+  th 3819 3821
+  th 3903 3905
+  th 3968 3970
+  th 4001 4003
+  th 4030 4032
+  th 4066 4068
+  th 4095 4097
+  th 4133 4135
+  tr 4159 4161
+  thead 4185 4190
+  tbody 4213 4218
+  tr 4940 4942
+  td 4978 4980
+  td 5005 5007
+  td 5043 5045
+  td 5095 5097
+  td 5188 5190
+  td 5299 5301
+  td 5373 5375
+  td 5468 5470
+  td 5501 5503
+  td 5595 5597
+  td 5628 5630
+  td 5740 5742
+  tr 5770 5772
+  tbody 5828 5833
+  table 5853 5858
+  div 5923 5926
+  a 5974 5975
+  i 6108 6109
+  i 6138 6139
+  a 6176 6177
+  div 6197 6200
+  div 6216 6219
+  div 6231 6234
+Invalid Selector
+$students- 4397
+  div 100 103
+  div 127 130
+  h5 188 190
+  i 211 212
+  i 239 240
+  h5 265 267
+  div 321 324
+  div 336 339
+  form 372 376
+  div 479 482
+  div 518 521
+  div 565 568
+  label 618 623
+  label 688 693
+  select 724 730
+  option 933 939
+  option 1041 1047
+  select 1123 1129
+  div 1157 1160
+  div 1184 1187
+  div 1211 1214
+  div 1258 1261
+  label 1311 1316
+  label 1385 1390
+  select 1421 1427
+  option 1618 1624
+  option 1636 1642
+  option 1741 1747
+  option 1847 1853
+  select 1929 1935
+  div 1963 1966
+  div 1990 1993
+  div 2017 2020
+  div 2064 2067
+  label 2117 2122
+  label 2191 2196
+  select 2227 2233
+  option 2543 2549
+  option 2633 2639
+  select 2758 2764
+  div 2792 2795
+  div 2819 2822
+  div 2847 2850
+  div 2899 2902
+  button 2957 2963
+  i 3019 3020
+  i 3052 3053
+  button 3056 3062
+  div 3090 3093
+  div 3117 3120
+  div 3141 3144
+  form 3161 3165
+  div 3177 3180
+  div 3188 3191
+  div 3265 3268
+  div 3296 3299
+  h6 3338 3340
+  h6 3477 3479
+  div 3495 3498
+  div 3513 3516
+  table 3553 3558
+  thead 3596 3601
+  tr 3624 3626
+  th 3658 3660
+  th 3664 3666
+  th 3698 3700
+  th 3734 3736
+  th 3819 3821
+  th 3903 3905
+  th 3968 3970
+  th 4001 4003
+  th 4030 4032
+  th 4066 4068
+  th 4095 4097
+  th 4133 4135
+  tr 4159 4161
+  thead 4185 4190
+  tbody 4213 4218
+  tr 4940 4942
+  td 4978 4980
+  td 5005 5007
+  td 5043 5045
+  td 5095 5097
+  td 5188 5190
+  td 5299 5301
+  td 5373 5375
+  td 5468 5470
+  td 5501 5503
+  td 5595 5597
+  td 5628 5630
+  td 5740 5742
+  tr 5770 5772
+  tbody 5828 5833
+  table 5853 5858
+  div 5923 5926
+  a 5974 5975
+  i 6108 6109
+  i 6138 6139
+  a 6176 6177
+  div 6197 6200
+  div 6216 6219
+  div 6231 6234
+Invalid Selector
+preg_match( 4661
+  div 100 103
+  div 127 130
+  h5 188 190
+  i 211 212
+  i 239 240
+  h5 265 267
+  div 321 324
+  div 336 339
+  form 372 376
+  div 479 482
+  div 518 521
+  div 565 568
+  label 618 623
+  label 688 693
+  select 724 730
+  option 933 939
+  option 1041 1047
+  select 1123 1129
+  div 1157 1160
+  div 1184 1187
+  div 1211 1214
+  div 1258 1261
+  label 1311 1316
+  label 1385 1390
+  select 1421 1427
+  option 1618 1624
+  option 1636 1642
+  option 1741 1747
+  option 1847 1853
+  select 1929 1935
+  div 1963 1966
+  div 1990 1993
+  div 2017 2020
+  div 2064 2067
+  label 2117 2122
+  label 2191 2196
+  select 2227 2233
+  option 2543 2549
+  option 2633 2639
+  select 2758 2764
+  div 2792 2795
+  div 2819 2822
+  div 2847 2850
+  div 2899 2902
+  button 2957 2963
+  i 3019 3020
+  i 3052 3053
+  button 3056 3062
+  div 3090 3093
+  div 3117 3120
+  div 3141 3144
+  form 3161 3165
+  div 3177 3180
+  div 3188 3191
+  div 3265 3268
+  div 3296 3299
+  h6 3338 3340
+  h6 3477 3479
+  div 3495 3498
+  div 3513 3516
+  table 3553 3558
+  thead 3596 3601
+  tr 3624 3626
+  th 3658 3660
+  th 3664 3666
+  th 3698 3700
+  th 3734 3736
+  th 3819 3821
+  th 3903 3905
+  th 3968 3970
+  th 4001 4003
+  th 4030 4032
+  th 4066 4068
+  th 4095 4097
+  th 4133 4135
+  tr 4159 4161
+  thead 4185 4190
+  tbody 4213 4218
+  tr 4940 4942
+  td 4978 4980
+  td 5005 5007
+  td 5043 5045
+  td 5095 5097
+  td 5188 5190
+  td 5299 5301
+  td 5373 5375
+  td 5468 5470
+  td 5501 5503
+  td 5595 5597
+  td 5628 5630
+  td 5740 5742
+  tr 5770 5772
+  tbody 5828 5833
+  table 5853 5858
+  div 5923 5926
+  a 5974 5975
+  i 6108 6109
+  i 6138 6139
+  a 6176 6177
+  div 6197 6200
+  div 6216 6219
+  div 6231 6234
+Invalid Selector
+td 5610
+  div 100 103
+  div 127 130
+  h5 188 190
+  i 211 212
+  i 239 240
+  h5 265 267
+  div 321 324
+  div 336 339
+  form 372 376
+  div 479 482
+  div 518 521
+  div 565 568
+  label 618 623
+  label 688 693
+  select 724 730
+  option 933 939
+  option 1041 1047
+  select 1123 1129
+  div 1157 1160
+  div 1184 1187
+  div 1211 1214
+  div 1258 1261
+  label 1311 1316
+  label 1385 1390
+  select 1421 1427
+  option 1618 1624
+  option 1636 1642
+  option 1741 1747
+  option 1847 1853
+  select 1929 1935
+  div 1963 1966
+  div 1990 1993
+  div 2017 2020
+  div 2064 2067
+  label 2117 2122
+  label 2191 2196
+  select 2227 2233
+  option 2543 2549
+  option 2633 2639
+  select 2758 2764
+  div 2792 2795
+  div 2819 2822
+  div 2847 2850
+  div 2899 2902
+  button 2957 2963
+  i 3019 3020
+  i 3052 3053
+  button 3056 3062
+  div 3090 3093
+  div 3117 3120
+  div 3141 3144
+  form 3161 3165
+  div 3177 3180
+  div 3188 3191
+  div 3265 3268
+  div 3296 3299
+  h6 3338 3340
+  h6 3477 3479
+  div 3495 3498
+  div 3513 3516
+  table 3553 3558
+  thead 3596 3601
+  tr 3624 3626
+  th 3658 3660
+  th 3664 3666
+  th 3698 3700
+  th 3734 3736
+  th 3819 3821
+  th 3903 3905
+  th 3968 3970
+  th 4001 4003
+  th 4035 4037
+  th 4071 4073
+  th 4105 4107
+  th 4143 4145
+  tr 4169 4171
+  thead 4195 4200
+  tbody 4223 4228
+  tr 4950 4952
+  td 4988 4990
+  td 5015 5017
+  td 5053 5055
+  td 5105 5107
+  td 5198 5200
+  td 5309 5311
+  td 5383 5385
+  td 5478 5480
+  td 5516 5518
+  td 5610 5612
+td is a "html tag"
+Parsing components.min.css
+components.min.css has 4339 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing bootstrap.css
+bootstrap.css has 2572 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing components.css
+components.css has 4341 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing my_print.css
+my_print.css has 14 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing bootstrap_limitless.css
+bootstrap_limitless.css has 1198 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing bootstrap_limitless.min.css
+bootstrap_limitless.min.css has 1198 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing receipt.css
+receipt.css has 17 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing print_tabulation.css
+print_tabulation.css has 7 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing bootstrap.min.css
+bootstrap.min.css has 2572 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing bootstrap-datepicker.min.css
+bootstrap-datepicker.min.css has 221 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _c3.scss
+_c3.scss has 48 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _print.scss
+_print.scss has 34 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _inbox.scss
+_inbox.scss has 15 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _tables.scss
+_tables.scss has 43 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _table-row.scss
+_table-row.scss has 10 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing exception.css
+exception.css has 214 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing default.css
+default.css has 45 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing whoops.base.css
+whoops.base.css has 120 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing html.css
+html.css has 163 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing bootstrap.min.css
+bootstrap.min.css has 3147 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing style.css
+style.css has 50 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing nv.d3.min.css
+nv.d3.min.css has 135 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _tables.scss
+_tables.scss has 136 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _widgets.scss
+_widgets.scss has 281 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _fullcalendar.scss
+_fullcalendar.scss has 285 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _fancytree.scss
+_fancytree.scss has 100 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _handsontable.scss
+_handsontable.scss has 342 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _footable.scss
+_footable.scss has 17 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _alpaca.scss
+_alpaca.scss has 65 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _daterange.scss
+_daterange.scss has 86 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _datatable-columns-reorder.scss
+_datatable-columns-reorder.scss has 4 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _datatable-rows-reorder.scss
+_datatable-rows-reorder.scss has 4 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _datatable-responsive.scss
+_datatable-responsive.scss has 31 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _datatable-scroller.scss
+_datatable-scroller.scss has 8 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _datatable-fixed-columns.scss
+_datatable-fixed-columns.scss has 21 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _tables.scss
+_tables.scss has 136 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing dialog_ie7.css
+dialog_ie7.css has 172 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing dialog_ie8.css
+dialog_ie8.css has 161 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing dialog_iequirks.css
+dialog_iequirks.css has 158 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing dialog_opera.css
+dialog_opera.css has 160 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing dialog_iequirks.css
+dialog_iequirks.css has 158 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing dialog_opera.css
+dialog_opera.css has 160 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing dialog_ie.css
+dialog_ie.css has 173 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing dialog_ie.css
+dialog_ie.css has 173 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing dialog_ie7.css
+dialog_ie7.css has 172 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing dialog.scss
+dialog.scss has 155 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing dialog_ie8.css
+dialog_ie8.css has 161 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing dialog.scss
+dialog.scss has 155 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing dialog_opera.scss
+dialog_opera.scss has 3 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing dialog_opera.scss
+dialog_opera.scss has 3 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _colorpanel.scss
+_colorpanel.scss has 20 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _colorpanel.scss
+_colorpanel.scss has 20 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing dialog.css
+dialog.css has 159 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing dialog.css
+dialog.css has 159 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing wsc.css
+wsc.css has 18 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _date.scss
+_date.scss has 49 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _datatable-keytable.scss
+_datatable-keytable.scss has 8 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _datatables.scss
+_datatables.scss has 133 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _alpaca.scss
+_alpaca.scss has 64 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _fullcalendar.scss
+_fullcalendar.scss has 285 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _fancytree.scss
+_fancytree.scss has 100 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _footable.scss
+_footable.scss has 17 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _widgets.scss
+_widgets.scss has 251 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _daterange.scss
+_daterange.scss has 87 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _handsontable.scss
+_handsontable.scss has 342 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _datatables.scss
+_datatables.scss has 132 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _datatable-responsive.scss
+_datatable-responsive.scss has 31 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _date.scss
+_date.scss has 49 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _datatable-rows-reorder.scss
+_datatable-rows-reorder.scss has 4 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _datatable-keytable.scss
+_datatable-keytable.scss has 8 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _datatable-scroller.scss
+_datatable-scroller.scss has 8 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _datatable-columns-reorder.scss
+_datatable-columns-reorder.scss has 4 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing _datatable-fixed-columns.scss
+_datatable-fixed-columns.scss has 21 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+Parsing app.css
+app.css has 3148 symbols
+Searching through them all for /(^|[\s>+~])td(\[[^\]]*\]|:{1,2}[\w-()]+|\.[\w-]+|#[\w-]+)*\s*/
+Done
+totalpoint 5791
+  script 54 60
+  script 113 119
+  script 122 128
+  script 181 187
+  table 191 196
+  tbody 250 255
+  tr 266 268
+  td 283 285
+  strong 287 293
+  strong 300 306
+  td 343 345
+  td 360 362
+  strong 364 370
+  strong 392 398
+  td 419 421
+  td 436 438
+  strong 440 446
+  strong 456 462
+  td 499 501
+  tr 513 515
+  tr 526 528
+  td 543 545
+  strong 547 553
+  strong 578 584
+  td 642 644
+  td 659 661
+  strong 663 669
+  strong 689 695
+  td 714 716
+  td 731 733
+  strong 735 741
+  strong 748 754
+  td 891 893
+  tr 905 907
+  tbody 916 921
+  table 925 930
+  table 935 940
+  thead 1081 1086
+  tr 1097 1099
+  th 1114 1116
+  th 1133 1135
+  th 1150 1152
+  th 1175 1177
+  th 1192 1194
+  br 1211 1213
+  th 1220 1222
+  th 1237 1239
+  br 1256 1258
+  th 1265 1267
+  th 1282 1284
+  br 1305 1307
+  th 1314 1316
+  th 1331 1333
+  br 1360 1362
+  th 1365 1367
+  th 1452 1454
+  br 1474 1476
+  sup 1486 1489
+  sup 1493 1496
+  th 1509 1511
+  th 1526 1528
+  sup 1543 1546
+  sup 1551 1554
+  br 1557 1559
+  th 1572 1574
+  th 1589 1591
+  sup 1606 1609
+  sup 1613 1616
+  br 1619 1621
+  th 1634 1636
+  th 1651 1653
+  br 1678 1680
+  sup 1684 1687
+  sup 1692 1695
+  sup 1701 1704
+  sup 1708 1711
+  sup 1717 1720
+  sup 1724 1727
+  th 1730 1732
+  th 1747 1749
+  th 1771 1773
+  th 1813 1815
+  th 1841 1843
+  th 1858 1860
+  th 1890 1892
+  th 1907 1909
+  th 1933 1935
+  tr 1947 1949
+  thead 1957 1962
+  tbody 1970 1975
+  tr 2027 2029
+  td 2048 2050
+  td 2075 2077
+  td 2096 2098
+  td 2117 2119
+  td 2241 2243
+  td 2266 2268
+  td 2291 2293
+  td 2316 2318
+  td 2341 2343
+  td 2367 2369
+  td 2392 2394
+  td 2875 2877
+  td 2995 2997
+  td 3022 3024
+  td 3052 3054
+  td 3133 3135
+  td 3163 3165
+  td 3244 3246
+  td 3274 3276
+  td 3300 3302
+  td 3330 3332
+  td 3360 3362
+  td 3486 3488
+  td 3520 3522
+  td 3545 3547
+  td 4155 4157
+  td 4180 4182
+  td 4228 4230
+  tr 4274 4276
+  tr 4759 4761
+  td 4776 4778
+  strong 4811 4817
+  strong 4846 4852
+  td 4855 4857
+  td 4872 4874
+  strong 4906 4912
+  strong 4931 4937
+  td 4940 4942
+  td 4988 4990
+  strong 5004 5010
+  td 5063 5065
+  td 5109 5111
+  strong 5125 5131
+  td 5185 5187
+  tr 5229 5231
+  tbody 5239 5244
+  table 5248 5253
+  script 5306 5312
+  script 6106 6112
+Invalid Selector
+totalpoint 5791
+  script 54 60
+  script 113 119
+  script 122 128
+  script 181 187
+  table 191 196
+  tbody 250 255
+  tr 266 268
+  td 283 285
+  strong 287 293
+  strong 300 306
+  td 343 345
+  td 360 362
+  strong 364 370
+  strong 392 398
+  td 419 421
+  td 436 438
+  strong 440 446
+  strong 456 462
+  td 499 501
+  tr 513 515
+  tr 526 528
+  td 543 545
+  strong 547 553
+  strong 578 584
+  td 642 644
+  td 659 661
+  strong 663 669
+  strong 689 695
+  td 714 716
+  td 731 733
+  strong 735 741
+  strong 748 754
+  td 891 893
+  tr 905 907
+  tbody 916 921
+  table 925 930
+  table 935 940
+  thead 1081 1086
+  tr 1097 1099
+  th 1114 1116
+  th 1133 1135
+  th 1150 1152
+  th 1175 1177
+  th 1192 1194
+  br 1211 1213
+  th 1220 1222
+  th 1237 1239
+  br 1256 1258
+  th 1265 1267
+  th 1282 1284
+  br 1305 1307
+  th 1314 1316
+  th 1331 1333
+  br 1360 1362
+  th 1365 1367
+  th 1452 1454
+  br 1474 1476
+  sup 1486 1489
+  sup 1493 1496
+  th 1509 1511
+  th 1526 1528
+  sup 1543 1546
+  sup 1551 1554
+  br 1557 1559
+  th 1572 1574
+  th 1589 1591
+  sup 1606 1609
+  sup 1613 1616
+  br 1619 1621
+  th 1634 1636
+  th 1651 1653
+  br 1678 1680
+  sup 1684 1687
+  sup 1692 1695
+  sup 1701 1704
+  sup 1708 1711
+  sup 1717 1720
+  sup 1724 1727
+  th 1730 1732
+  th 1747 1749
+  th 1771 1773
+  th 1813 1815
+  th 1841 1843
+  th 1858 1860
+  th 1890 1892
+  th 1907 1909
+  th 1933 1935
+  tr 1947 1949
+  thead 1957 1962
+  tbody 1970 1975
+  tr 2027 2029
+  td 2048 2050
+  td 2075 2077
+  td 2096 2098
+  td 2117 2119
+  td 2241 2243
+  td 2266 2268
+  td 2291 2293
+  td 2316 2318
+  td 2341 2343
+  td 2367 2369
+  td 2392 2394
+  td 2875 2877
+  td 2995 2997
+  td 3022 3024
+  td 3052 3054
+  td 3133 3135
+  td 3163 3165
+  td 3244 3246
+  td 3274 3276
+  td 3300 3302
+  td 3330 3332
+  td 3360 3362
+  td 3486 3488
+  td 3520 3522
+  td 3545 3547
+  td 4155 4157
+  td 4180 4182
+  td 4228 4230
+  tr 4274 4276
+  tr 4759 4761
+  td 4776 4778
+  strong 4811 4817
+  strong 4846 4852
+  td 4855 4857
+  td 4872 4874
+  strong 4906 4912
+  strong 4931 4937
+  td 4940 4942
+  td 4988 4990
+  strong 5004 5010
+  td 5063 5065
+  td 5109 5111
+  strong 5125 5131
+  td 5185 5187
+  tr 5229 5231
+  tbody 5239 5244
+  table 5248 5253
+  script 5306 5312
+  script 6106 6112
+Invalid Selector
