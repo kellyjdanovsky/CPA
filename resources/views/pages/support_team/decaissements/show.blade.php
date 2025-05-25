@@ -74,6 +74,9 @@
                                             
                                             <dt>Année scolaire</dt>
                                             <dd>{{ $decaissement->year }}</dd>
+                                            
+                                            <dt>Projet Associé</dt> {{-- Nouveau champ --}}
+                                            <dd>{{ $decaissement->projet->nom ?? 'Aucun projet associé' }}</dd> {{-- Affichage du projet --}}
                                         </dl>
                                     </div>
                                 </div>

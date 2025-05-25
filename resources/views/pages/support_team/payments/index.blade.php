@@ -1,5 +1,8 @@
 @extends('layouts.master')
 @section('page_title', 'Gérer les paiements')
+@php
+    use Illuminate\Support\Str;
+@endphp
 @section('content')
 
     <div class="card fade-in">

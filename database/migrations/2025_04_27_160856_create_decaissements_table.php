@@ -13,24 +13,26 @@ class CreateDecaissementsTable extends Migration
      */
     public function up()
     {
-        Schema::create('decaissements', function (Blueprint $table) {
-            $table->id();
-            $table->date('date_paiement');
-            $table->decimal('montant', 15, 2);
-            $table->string('motif');
-            $table->text('description')->nullable();
-            $table->string('beneficiaire');
-            $table->string('methode_paiement')->default('espèces');
-            $table->string('reference')->nullable();
-            $table->string('piece')->nullable();
-            $table->text('details_bancaires')->nullable();
-            $table->enum('status', ['en_attente', 'approuve', 'rejete'])->default('en_attente');
-            $table->unsignedBigInteger('created_by');
-            $table->string('year');
-            $table->timestamps();
+        if (!Schema::hasTable('decaissements')) {
+            Schema::create('decaissements', function (Blueprint $table) {
+                $table->id();
+                $table->date('date_paiement');
+                $table->decimal('montant', 15, 2);
+                $table->string('motif');
+                $table->text('description')->nullable();
+                $table->string('beneficiaire');
+                $table->string('methode_paiement')->default('espèces');
+                $table->string('reference')->nullable();
+                $table->string('piece')->nullable();
+                $table->text('details_bancaires')->nullable();
+                $table->enum('status', ['en_attente', 'approuve', 'rejete'])->default('en_attente');
+                $table->unsignedBigInteger('created_by');
+                $table->string('year');
+                $table->timestamps();
 
-            $table->foreign('created_by')->references('id')->on('users');
-        });
+                $table->foreign('created_by')->references('id')->on('users');
+            });
+        }
     }
 
     /**

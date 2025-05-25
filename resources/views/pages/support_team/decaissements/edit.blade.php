@@ -128,6 +128,24 @@
                     </div>
 
                     <div class="row">
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="projet_id">Projet Associé</label>
+                                <select name="projet_id" id="projet_id" class="form-control select @error('projet_id') is-invalid @enderror">
+                                    <option value="">Sélectionner un projet (optionnel)</option>
+                                    {{-- Assurez-vous que la variable $projets est passée depuis le contrôleur --}}
+                                    @foreach($projets ?? [] as $projet)
+                                        <option value="{{ $projet->id }}" {{ old('projet_id', $decaissement->projet_id) == $projet->id ? 'selected' : '' }}>{{ $projet->nom }}</option>
+                                    @endforeach
+                                </select>
+                                @error('projet_id')
+                                    <span class="invalid-feedback">{{ $message }}</span>
+                                @enderror
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
                         <div class="col-md-12">
                             <div class="form-group">
                                 <label for="description">Description</label>

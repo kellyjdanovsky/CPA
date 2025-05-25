@@ -11,7 +11,10 @@
             font-family: 'Courier New', monospace; /* Police adaptée aux imprimantes thermiques */
             margin: 0;
             padding: 0;
-            font-size: 7px; /* Réduction de la taille de police par défaut */
+            font-size: 12px; /* Augmentation de la taille de police par défaut à 12px */
+            font-weight: bold; /* Texte en gras par défaut */
+            -webkit-print-color-adjust: exact !important;
+            color-adjust: exact !important;
         }
         .receipt-container {
             width: 56mm; /* Légèrement plus petit que la page pour éviter les débordements */
@@ -29,7 +32,7 @@
         }
         .header {
             text-align: center;
-            font-size: 9px; /* Réduction de la taille de police */
+            font-size: 16px; /* Augmentation à 16px selon les instructions */
             font-weight: bold;
             margin-bottom: 1mm; /* Réduction de la marge */
             border-bottom: 1px solid #000;
@@ -37,28 +40,31 @@
         }
         .receipt-title {
             text-align: center;
-            font-size: 8px; /* Réduction de la taille de police */
+            font-size: 14px; /* Augmentation à 14px selon les instructions */
             font-weight: bold;
             margin: 1mm 0; /* Réduction des marges */
             text-transform: uppercase;
+            letter-spacing: 0.5px; /* Espacement des lettres pour meilleure lisibilité */
         }
         .receipt-info {
-            font-size: 7px; /* Réduction de la taille de police */
+            font-size: 12px; /* Augmentation à 12px selon les instructions */
             margin-bottom: 1mm; /* Réduction de la marge */
             border-bottom: 1px dotted #ccc;
             padding-bottom: 0.5mm; /* Réduction du padding */
+            font-weight: bold;
         }
         .student-info {
-            font-size: 7px; /* Réduction de la taille de police */
+            font-size: 12px; /* Augmentation à 12px selon les instructions */
             margin-bottom: 1mm; /* Réduction de la marge */
             border-bottom: 1px dotted #ccc;
             padding-bottom: 0.5mm; /* Réduction du padding */
+            font-weight: bold;
         }
         .status-badge {
             display: inline-block;
-            padding: 0.5mm 1mm; /* Réduction du padding */
+            padding: 1mm 2mm; /* Augmentation du padding */
             border-radius: 1mm; /* Réduction du rayon */
-            font-size: 6px; /* Réduction de la taille de police */
+            font-size: 12px; /* Augmentation à 12px selon les instructions */
             font-weight: bold;
             text-transform: uppercase;
             margin-top: 0.5mm; /* Réduction de la marge */
@@ -76,10 +82,11 @@
             color: #8a6d3b;
         }
         .payment-info {
-            font-size: 7px; /* Réduction de la taille de police */
+            font-size: 12px; /* Augmentation à 12px selon les instructions */
             margin-bottom: 1mm; /* Réduction de la marge */
             border-bottom: 1px dotted #ccc;
             padding-bottom: 0.5mm; /* Réduction du padding */
+            font-weight: bold;
         }
         .payment-summary {
             margin-top: 1.5mm; /* Réduction de la marge */
@@ -92,16 +99,17 @@
             font-weight: bold;
             background-color: #f8f8f8;
             border-bottom: 1px solid #000;
-            padding: 0.5mm; /* Réduction du padding */
-            font-size: 7px; /* Réduction de la taille de police */
+            padding: 1mm; /* Augmentation du padding */
+            font-size: 15px; /* Augmentation à 15px */
         }
         .payment-summary-table {
             width: 100%;
             border-collapse: collapse;
         }
         .payment-summary-table tr td {
-            padding: 1mm 1.5mm; /* Réduction du padding */
-            font-size: 7px; /* Réduction de la taille de police */
+            padding: 1.5mm 2mm; /* Augmentation du padding */
+            font-size: 14px; /* Augmentation à 14px selon les instructions */
+            font-weight: bold;
         }
         .payment-summary-table tr:not(:last-child) td {
             border-bottom: 1px dotted #ccc;
@@ -116,24 +124,25 @@
         .payment-summary-table .highlight-row td {
             background-color: #f8f8f8;
             font-weight: bold;
-            font-size: 8px; /* Réduction de la taille de police */
+            font-size: 16px; /* Augmentation à 16px (ultra-visible) selon les instructions */
         }
         .footer {
             text-align: center;
-            font-size: 7px; /* Réduction de la taille de police */
+            font-size: 13px; /* Augmentation à 13px selon les instructions */
             margin-top: 1.5mm; /* Réduction de la marge */
             font-weight: bold;
-            padding: 1mm; /* Réduction du padding */
-            border: 1px solid #ccc;
+            padding: 1.5mm; /* Augmentation du padding */
+            border: 1px solid #000; /* Bordure plus visible */
             border-radius: 0.5mm; /* Réduction du rayon */
             background-color: #f8f8f8;
         }
         .sign {
             text-align: center;
-            font-size: 7px; /* Réduction de la taille de police */
+            font-size: 13px; /* Augmentation à 13px selon les instructions */
             margin-top: 1.5mm; /* Réduction de la marge */
             padding-top: 1mm; /* Réduction du padding */
             border-top: 1px dotted #ccc;
+            font-weight: bold;
         }
         .cut-line {
             border-top: 1px dashed #000;
@@ -150,9 +159,10 @@
             font-size: 8px; /* Réduction de la taille de police */
         }
         .date-time {
-            font-size: 6px; /* Réduction de la taille de police */
+            font-size: 13px; /* Augmentation à 13px selon les instructions */
             text-align: center;
             margin-top: 1mm; /* Réduction de la marge */
+            font-weight: bold;
         }
         .bold {
             font-weight: bold;
@@ -164,13 +174,14 @@
             text-align: right;
         }
         .special-note {
-            font-size: 6px; /* Réduction de la taille de police */
+            font-size: 13px; /* Augmentation à 13px selon les instructions */
             font-style: italic;
+            font-weight: bold;
             margin-top: 1mm; /* Réduction de la marge */
             text-align: center;
-            padding: 0.5mm; /* Réduction du padding */
+            padding: 1mm; /* Augmentation du padding */
             background-color: #f8f8f8;
-            border: 1px dotted #ccc;
+            border: 1px solid #000; /* Bordure plus visible */
             border-radius: 0.5mm; /* Réduction du rayon */
         }
         /* Optimisations pour impression thermique */
@@ -180,10 +191,21 @@
                 color-adjust: exact !important;
             }
             .payment-summary, .footer, .special-note {
-                border: 1px solid #000 !important;
+                border: 0.5px solid #000 !important; /* Bordure continue pour éviter les problèmes d'impression */
             }
             .status-badge {
                 border: 0.5px solid #000 !important;
+            }
+            /* Forçage de la taille en impression */
+            .payment-summary-table .highlight-row td {
+                font-size: 16px !important; /* Maintien de la taille même en impression */
+            }
+            .payment-summary-table tr td {
+                font-size: 14px !important; /* Maintien de la taille même en impression */
+            }
+            /* Forçage du montant restant à payer */
+            .footer div {
+                font-size: 16px !important; /* Maintien de la taille même en impression */
             }
         }
     </style>
@@ -243,7 +265,7 @@
         <div class="receipt-title">REÇU DE PAIEMENT</div>
 
         <div class="date-time">
-            Date: {{ date('d/m/Y H:i') }}
+            <span style="font-size: 13px; font-weight: bold;">Date: {{ date('d/m/Y H:i') }}</span>
         </div>
 
         <div class="receipt-info">
@@ -287,8 +309,8 @@
                     <td class="amount-value">{{ $formattedBilledAmount }} Ar</td>
                 </tr>
                 <tr class="highlight-row">
-                    <td class="amount-label">RESTE</td>
-                    <td class="amount-value">0 Ar</td>
+                    <td class="amount-label">DESCRIPTION</td>
+                    <td class="amount-value">{{ $payment->description }}</td>
                 </tr>
             </table>
         </div>
@@ -330,7 +352,7 @@
             @endphp
 
             <span class="status-badge {{ $statusClass }}">{{ $paymentStatus }}</span>
-            <div style="margin-top: 1mm; font-size: 6px;">
+            <div style="margin-top: 1mm; font-size: 16px; font-weight: bold;">
                 @if($paymentStatus == "ACQUITTÉ")
                     Payé le {{ date('d/m/y', strtotime($paymentDate)) }}
                 @else
@@ -343,11 +365,11 @@
         </div>
 
         <div class="sign">
-            Caissier: {{ Auth::user()->name }}
+            <span style="font-size: 13px; font-weight: bold;">Caissier: {{ Auth::user()->name }}</span>
         </div>
 
         <div class="date-time">
-            Mode: ADRA
+            <span style="font-size: 13px; font-weight: bold;">Mode: ADRA</span>
         </div>
 
         <div class="cut-line"></div>

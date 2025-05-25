@@ -11,9 +11,10 @@ class Decaissement extends Model
     protected $table = 'decaissements';
 
     protected $fillable = [
-        'date_paiement', 'montant', 'motif', 'description', 'beneficiaire',
-        'methode_paiement', 'reference', 'piece', 'details_bancaires',
-        'status', 'created_by', 'year'
+        'date_paiement', 'montant', 'montant_lettres', 'motif', 'description', 'beneficiaire',
+        'coordonnees', 'methode_paiement', 'reference', 'piece', 'details_bancaires',
+        'projet_rubrique', 'justificatif_present', 'observations', 'status', 'created_by', 'year',
+        'projet_id'
     ];
 
     protected $casts = [
@@ -24,6 +25,11 @@ class Decaissement extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'created_by');
+    }
+
+    public function projet()
+    {
+        return $this->belongsTo(Projet::class, 'projet_id'); // Ajout de la relation projet
     }
 
     public function getStatusBadgeAttribute()
@@ -67,6 +73,26 @@ class Decaissement extends Model
             'carte' => 'Carte bancaire',
             'autre' => 'Autre'
         ];
+    }
+
+    public static function getProjetsRubriques()
+    {
+        return [
+            'cantine_scolaire' => 'Cantine scolaire',
+            'projet_pedagogique' => 'Projet pédagogique',
+            'renovation' => 'Rénovation',
+            'fournitures' => 'Fournitures',
+            'transport' => 'Transport',
+            'salaires' => 'Salaires',
+            'autre' => 'Autre'
+        ];
+    }
+
+    public function getJustificatifBadgeAttribute()
+    {
+        return $this->justificatif_present ?
+            '<span class="badge badge-success"><i class="icon-checkmark"></i> Présent</span>' :
+            '<span class="badge badge-danger"><i class="icon-cross"></i> Absent</span>';
     }
 
     public static function boot()

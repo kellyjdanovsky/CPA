@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
+use App\Models\Projet;
+use App\Models\User;
 
 class DecaissementController extends Controller
 {
@@ -21,15 +23,44 @@ class DecaissementController extends Controller
     }
 
     /**
-     * Affiche la liste des décaissements
+     * Affiche la liste des décaissements avec filtres
      */
-    public function index()
+    public function index(Request $request)
     {
-        $decaissements = Decaissement::where('year', $this->year)
-            ->orderBy('date_paiement', 'desc')
-            ->get();
+        $query = Decaissement::with(['user', 'projet'])->where('year', $this->year);
 
-        return view('pages.support_team.decaissements.index', compact('decaissements'));
+        // Filtrage par date
+        if ($request->filled('date_debut')) {
+            $query->whereDate('date_paiement', '>=', $request->date_debut);
+        }
+        if ($request->filled('date_fin')) {
+            $query->whereDate('date_paiement', '<=', $request->date_fin);
+        }
+
+        // Filtrage par statut
+        if ($request->filled('status_filter')) {
+            $query->where('status', $request->status_filter);
+        }
+
+        // Filtrage par projet
+        if ($request->filled('projet_filter')) {
+            $query->where('projet_id', $request->projet_filter);
+        }
+
+        // Filtrage par utilisateur
+        if ($request->filled('user_filter')) {
+            $query->where('created_by', $request->user_filter);
+        }
+
+        $decaissements = $query->orderBy('date_paiement', 'desc')->get();
+
+        // Récupérer les données pour les filtres
+        $projets = \App\Models\Projet::orderBy('nom')->get(); // Utilisation du namespace complet
+        $users = \App\Models\User::whereHas('user_type', function ($q) {
+            $q->whereIn('title', ['super_admin', 'admin', 'support_team']); // Ajustez les rôles si nécessaire
+        })->orderBy('name')->get(); // Utilisation du namespace complet
+
+        return view('pages.support_team.decaissements.index', compact('decaissements', 'projets', 'users'));
     }
 
     /**

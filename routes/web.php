@@ -191,6 +191,9 @@ Route::group(['middleware' => 'auth'], function () {
         Route::post('decaissements/{id}/update-status', 'DecaissementController@updateStatus')->name('decaissements.update_status');
         Route::get('decaissements/{id}/download-piece', 'DecaissementController@downloadPiece')->name('decaissements.download_piece');
 
+        /*************** Projets *****************/
+        Route::resource('projets', 'ProjetController');
+
 
     });
 

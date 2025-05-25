@@ -13,9 +13,9 @@ class DropDecaissementsTable extends Migration
      */
     public function up()
     {
-        Schema::table('decaissements', function (Blueprint $table) {
-            //
-        });
+        if (Schema::hasTable('decaissements')) {
+            Schema::dropIfExists('decaissements');
+        }
     }
 
     /**
@@ -25,8 +25,6 @@ class DropDecaissementsTable extends Migration
      */
     public function down()
     {
-        Schema::table('decaissements', function (Blueprint $table) {
-            //
-        });
+        // Cette méthode est vide car la table sera recréée par la migration suivante
     }
 }

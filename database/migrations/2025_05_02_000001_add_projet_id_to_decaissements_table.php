@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class AddOnlyYearToDecaissementsTable extends Migration
+class AddProjetIdToDecaissementsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,9 @@ class AddOnlyYearToDecaissementsTable extends Migration
     public function up()
     {
         Schema::table('decaissements', function (Blueprint $table) {
-            if (!Schema::hasColumn('decaissements', 'year')) {
-                $table->string('year')->nullable();
+            if (!Schema::hasColumn('decaissements', 'projet_id')) {
+                $table->unsignedBigInteger('projet_id')->nullable()->after('created_by');
+                $table->foreign('projet_id')->references('id')->on('projets')->onDelete('set null');
             }
         });
     }
@@ -28,8 +29,9 @@ class AddOnlyYearToDecaissementsTable extends Migration
     public function down()
     {
         Schema::table('decaissements', function (Blueprint $table) {
-            if (Schema::hasColumn('decaissements', 'year')) {
-                $table->dropColumn('year');
+            if (Schema::hasColumn('decaissements', 'projet_id')) {
+                $table->dropForeign(['projet_id']);
+                $table->dropColumn('projet_id');
             }
         });
     }

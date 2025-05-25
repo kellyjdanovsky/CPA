@@ -54,7 +54,7 @@
                     <div class="d-flex align-items-center">
                         <div class="mr-3 text-right">
                             <h6 class="font-weight-semibold mb-0">Nombre total d'élèves</h6>
-                            <h4 class="mb-0">{{ count($payment_records) }}</h4>
+                            <h4 class="mb-0 font-weight-bold">{{ count($payment_records) }}</h4>
                         </div>
                         <div class="bg-warning rounded-circle p-2 d-flex align-items-center justify-content-center" style="width: 45px; height: 45px;">
                             <i class="icon-users4 text-white"></i>
@@ -71,7 +71,7 @@
                     <div class="card-body">
                         <div class="d-flex">
                             <div>
-                                <h3 class="mb-0">{{ number_format($totalBilledAmount ?? 0, 0, ',', ' ') }} Ar</h3>
+                                <h3 class="mb-0 font-weight-bold">{{ number_format($totalBilledAmount ?? 0, 0, ',', ' ') }} Ar</h3>
                                 <span class="text-uppercase font-size-xs">Montant total facturé</span>
                             </div>
                             <div class="ml-auto">
@@ -86,7 +86,7 @@
                     <div class="card-body">
                         <div class="d-flex">
                             <div>
-                                <h3 class="mb-0">{{ $totalAdraStudents ?? 0 }}</h3>
+                                <h3 class="mb-0 font-weight-bold">{{ $totalAdraStudents ?? 0 }}</h3>
                                 <span class="text-uppercase font-size-xs">Élèves ADRA</span>
                             </div>
                             <div class="ml-auto">
@@ -101,7 +101,7 @@
                     <div class="card-body">
                         <div class="d-flex">
                             <div>
-                                <h3 class="mb-0">{{ $totalTeam3Students ?? 0 }}</h3>
+                                <h3 class="mb-0 font-weight-bold">{{ $totalTeam3Students ?? 0 }}</h3>
                                 <span class="text-uppercase font-size-xs">Élèves TEAM3</span>
                             </div>
                             <div class="ml-auto">
@@ -302,7 +302,7 @@
                                     @if($cashRemaining > 0)
                                         <span class="font-weight-semibold text-danger">{{ number_format($cashRemaining, 0, ',', ' ') }} Ar</span>
                                     @else
-                                        <span class="font-weight-semibold text-success">0 Ar</span>
+                                        <span class="font-weight-semibold text-success">{{ number_format($payment->amount, 0, ',', ' ') }} Ar</span>
                                     @endif
                                 @else
                                     <span class="text-muted">-</span>

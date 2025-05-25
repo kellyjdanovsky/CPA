@@ -29,10 +29,65 @@
 
         <div class="tab-content">
             <div class="tab-pane fade show active" id="all-decaissements">
+                {{-- Filtres --}}
+                <form method="GET" action="{{ route('decaissements.index') }}" class="mb-4">
+                    <div class="row">
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="date_debut">Date début</label>
+                                <input type="date" name="date_debut" id="date_debut" class="form-control" value="{{ request('date_debut') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="date_fin">Date fin</label>
+                                <input type="date" name="date_fin" id="date_fin" class="form-control" value="{{ request('date_fin') }}">
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="status_filter">Statut</label>
+                                <select name="status_filter" id="status_filter" class="form-control select">
+                                    <option value="">Tous</option>
+                                    <option value="en_attente" {{ request('status_filter') == 'en_attente' ? 'selected' : '' }}>En attente</option>
+                                    <option value="approuve" {{ request('status_filter') == 'approuve' ? 'selected' : '' }}>Approuvé</option>
+                                    <option value="rejete" {{ request('status_filter') == 'rejete' ? 'selected' : '' }}>Rejeté</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="projet_filter">Projet</label>
+                                <select name="projet_filter" id="projet_filter" class="form-control select">
+                                    <option value="">Tous</option>
+                                    @foreach($projets ?? [] as $projet)
+                                        <option value="{{ $projet->id }}" {{ request('projet_filter') == $projet->id ? 'selected' : '' }}>{{ $projet->nom }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="form-group">
+                                <label for="user_filter">Créé par</label>
+                                <select name="user_filter" id="user_filter" class="form-control select">
+                                    <option value="">Tous</option>
+                                    @foreach($users ?? [] as $user)
+                                        <option value="{{ $user->id }}" {{ request('user_filter') == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-md-2 align-self-end">
+                            <button type="submit" class="btn btn-info btn-block">Filtrer</button>
+                        </div>
+                    </div>
+                </form>
+
                 <div class="row mb-3">
                     <div class="col-md-6">
+                        {{-- La barre de recherche peut être conservée ou intégrée aux filtres --}}
                         <div class="input-group">
-                            <input type="text" class="form-control" id="search-input" placeholder="Rechercher...">
+                            <input type="text" class="form-control" id="search-input" placeholder="Rechercher dans les résultats...">
                             <div class="input-group-append">
                                 <button class="btn btn-light" type="button" id="search-button">
                                     <i class="icon-search4"></i>
@@ -57,6 +112,8 @@
                                 <th>Montant</th>
                                 <th>Méthode</th>
                                 <th>Référence</th>
+                                <th>Projet</th> {{-- Nouvelle colonne --}}
+                                <th>Créé par</th> {{-- Nouvelle colonne --}}
                                 <th>Statut</th>
                                 <th>Actions</th>
                             </tr>
@@ -70,6 +127,8 @@
                                 <td>{{ $d->formatted_montant }}</td>
                                 <td>{{ $d->methode_paiement }}</td>
                                 <td>{{ $d->reference ?? 'N/A' }}</td>
+                                <td>{{ $d->projet->nom ?? 'N/A' }}</td> {{-- Affichage du projet --}}
+                                <td>{{ $d->user->name ?? 'Inconnu' }}</td> {{-- Affichage de l'utilisateur --}}
                                 <td>{!! $d->status_badge !!}</td>
                                 <td class="text-center">
                                     <div class="list-icons">
@@ -153,28 +212,34 @@
 @section('page_scripts')
 <script>
     $(document).ready(function() {
-        // Recherche dans le tableau
+        // Initialiser Select2 si utilisé
+        if ($.fn.select2) {
+            $('.select').select2();
+        }
+
+        // Recherche instantanée dans les résultats affichés
         $('#search-input').on('keyup', function() {
             var value = $(this).val().toLowerCase();
             $('#decaissements-table tbody tr').filter(function() {
                 $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
             });
         });
-        
-        // Bouton de recherche
+
+        // Bouton de recherche (pour la recherche instantanée)
         $('#search-button').on('click', function() {
-            var value = $('#search-input').val().toLowerCase();
-            $('#decaissements-table tbody tr').filter(function() {
-                $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
-            });
+            $('#search-input').trigger('keyup'); // Déclenche la recherche instantanée
         });
+
+        // Les filtres sont gérés par la soumission du formulaire GET
+        // Pas besoin de JS supplémentaire pour le filtrage principal
     });
-    
+
     // Confirmation de suppression
     function confirmDelete(id) {
         if (confirm('Êtes-vous sûr de vouloir supprimer cette dépense ?')) {
             var form = $('#delete-form');
-            form.attr('action', '/decaissements/' + id);
+            // Assurez-vous que la route est correcte
+            form.attr('action', '{{ url("decaissements") }}/' + id);
             form.submit();
         }
     }

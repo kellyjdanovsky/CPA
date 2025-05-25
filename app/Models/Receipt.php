@@ -7,7 +7,7 @@ use Eloquent;
 
 class Receipt extends Eloquent
 {
-    protected $fillable = ['pr_id', 'year', 'balance', 'amt_paid', 'methode', 'created_by', 'payment_method', 'reference_number', 'observations'];
+    protected $fillable = ['pr_id', 'year', 'balance', 'amt_paid', 'methode', 'created_by', 'payment_method', 'reference_number', 'observations', 'amount', 'description'];
 
     public function pr()
     {
