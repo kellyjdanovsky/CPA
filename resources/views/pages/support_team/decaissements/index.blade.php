@@ -144,15 +144,19 @@
                                                 <a href="{{ route('decaissements.edit', $d->id) }}" class="dropdown-item">
                                                     <i class="icon-pencil"></i> Modifier
                                                 </a>
+                                                <div class="dropdown-divider"></div>
+                                                <a href="{{ route('decaissements.ordre_paiement', $d->id) }}" class="dropdown-item" target="_blank">
+                                                    <i class="icon-printer"></i> Ordre de Paiement
+                                                </a>
                                                 @if($d->piece)
                                                 <a href="{{ route('decaissements.download_piece', $d->id) }}" class="dropdown-item">
                                                     <i class="icon-file-download"></i> Télécharger Pièce
                                                 </a>
                                                 @endif
+                                                <div class="dropdown-divider"></div>
                                                 <a href="#" class="dropdown-item" onclick="confirmDelete({{ $d->id }})">
                                                     <i class="icon-trash"></i> Supprimer
                                                 </a>
-                                                <div class="dropdown-divider"></div>
                                                 <a href="#" class="dropdown-item" data-toggle="modal" data-target="#status-modal-{{ $d->id }}">
                                                     <i class="icon-checkmark3"></i> Changer Statut
                                                 </a>

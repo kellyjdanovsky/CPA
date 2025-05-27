@@ -101,12 +101,12 @@
             <p>
                 <strong>Période :</strong>
                 @if($startDate == $endDate)
-                    {{ date('d/m/Y', strtotime($startDate)) }}
+                    {{ \App\Helpers\DateHelper::formatForReceipt($startDate) }}
                 @else
-                    Du {{ date('d/m/Y', strtotime($startDate)) }} au {{ date('d/m/Y', strtotime($endDate)) }}
+                    Du {{ \App\Helpers\DateHelper::formatForReceipt($startDate) }} au {{ \App\Helpers\DateHelper::formatForReceipt($endDate) }}
                 @endif
             </p>
-            <p><strong>Total des paiements :</strong> {{ number_format($totalAmount, 0, ',', ' ') }} Ar</p>
+            <p><strong>Total des paiements :</strong> <span class="badge badge-success" style="font-size: 14px;">{{ \App\Helpers\DateHelper::formatAmount($totalAmount) }}</span></p>
         </div>
 
         <div class="table-responsive">
@@ -128,7 +128,7 @@
                 <tbody>
                     @foreach($receipts as $receipt)
                         <tr>
-                            <td>{{ date('d/m/Y H:i', strtotime($receipt->created_at)) }}</td>
+                            <td>{{ \App\Helpers\DateHelper::formatFrenchWithTime($receipt->created_at) }}</td>
                             <td>
                                 @if($receipt->pr && $receipt->pr->student)
                                     {{ $receipt->pr->student->name }}
@@ -174,7 +174,7 @@
                                     N/A
                                 @endif
                             </td>
-                            <td>{{ number_format($receipt->amt_paid, 0, ',', ' ') }} Ar</td>
+                            <td><strong>{{ \App\Helpers\DateHelper::formatAmount($receipt->amt_paid) }}</strong></td>
                             <td>{{ $receipt->methode ?? 'Espèces' }}</td>
                             <td>{{ $receipt->reference_number ?? $receipt->pr->ref_no ?? 'N/A' }}</td>
                             <td>{{ $receipt->observations ?? '' }}</td>
@@ -185,7 +185,7 @@
                 <tfoot>
                     <tr class="bg-primary text-white">
                         <th colspan="5" class="text-right">TOTAL</th>
-                        <th>{{ number_format($totalAmount, 0, ',', ' ') }} Ar</th>
+                        <th><strong>{{ \App\Helpers\DateHelper::formatAmount($totalAmount) }}</strong></th>
                         <th colspan="4"></th>
                     </tr>
                 </tfoot>
@@ -213,14 +213,14 @@
                                     @foreach($classTotals as $className => $amount)
                                         <tr>
                                             <td>{{ $className }}</td>
-                                            <td class="text-right">{{ number_format($amount, 0, ',', ' ') }} Ar</td>
+                                            <td class="text-right"><strong>{{ \App\Helpers\DateHelper::formatAmount($amount) }}</strong></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                                 <tfoot>
                                     <tr class="bg-light">
                                         <th>Total</th>
-                                        <th class="text-right">{{ number_format($classTotalSum, 0, ',', ' ') }} Ar</th>
+                                        <th class="text-right"><strong>{{ \App\Helpers\DateHelper::formatAmount($classTotalSum) }}</strong></th>
                                     </tr>
                                 </tfoot>
                             </table>
@@ -245,14 +245,14 @@
                                     @foreach($paymentTypeTotals as $paymentTitle => $amount)
                                         <tr>
                                             <td>{{ $paymentTitle }}</td>
-                                            <td class="text-right">{{ number_format($amount, 0, ',', ' ') }} Ar</td>
+                                            <td class="text-right"><strong>{{ \App\Helpers\DateHelper::formatAmount($amount) }}</strong></td>
                                         </tr>
                                     @endforeach
                                 </tbody>
                                 <tfoot>
                                     <tr class="bg-light">
                                         <th>Total</th>
-                                        <th class="text-right">{{ number_format($paymentTypeTotalSum, 0, ',', ' ') }} Ar</th>
+                                        <th class="text-right"><strong>{{ \App\Helpers\DateHelper::formatAmount($paymentTypeTotalSum) }}</strong></th>
                                     </tr>
                                 </tfoot>
                             </table>

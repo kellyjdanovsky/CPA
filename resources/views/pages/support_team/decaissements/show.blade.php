@@ -137,7 +137,11 @@
                                             <i class="icon-trash mr-2"></i> Supprimer
                                         </button>
                                     </div>
-                                    
+
+                                    <a href="{{ route('decaissements.ordre_paiement', $decaissement->id) }}" class="btn btn-success btn-block mt-2" target="_blank">
+                                        <i class="icon-printer mr-2"></i> Imprimer Ordre de Paiement
+                                    </a>
+
                                     <button type="button" class="btn btn-light btn-block mt-2" data-toggle="modal" data-target="#status-modal">
                                         <i class="icon-checkmark3 mr-2"></i> Changer le statut
                                     </button>

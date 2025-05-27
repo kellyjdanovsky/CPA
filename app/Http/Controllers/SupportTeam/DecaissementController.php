@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Projet;
-use App\Models\User;
+use App\User;
 
 class DecaissementController extends Controller
 {
@@ -55,23 +55,22 @@ class DecaissementController extends Controller
         $decaissements = $query->orderBy('date_paiement', 'desc')->get();
 
         // Récupérer les données pour les filtres
-        $projets = \App\Models\Projet::orderBy('nom')->get(); // Utilisation du namespace complet
-        $users = \App\Models\User::whereHas('user_type', function ($q) {
-            $q->whereIn('title', ['super_admin', 'admin', 'support_team']); // Ajustez les rôles si nécessaire
-        })->orderBy('name')->get(); // Utilisation du namespace complet
+        $projets = Projet::all();
+        $users = \App\User::all();
 
         return view('pages.support_team.decaissements.index', compact('decaissements', 'projets', 'users'));
     }
 
     /**
-     * Affiche le formulaire de création d'un décaissement
+     * Affiche le formulaire de création d'un nouveau décaissement
      */
     public function create()
     {
-        $methodes_paiement = Decaissement::getMethodesPaiement();
         $categories = Decaissement::getCategories();
+        $methodes_paiement = Decaissement::getMethodesPaiement();
+        $projets = Projet::all();
 
-        return view('pages.support_team.decaissements.create', compact('methodes_paiement', 'categories'));
+        return view('pages.support_team.decaissements.create', compact('categories', 'methodes_paiement', 'projets'));
     }
 
     /**
@@ -84,15 +83,12 @@ class DecaissementController extends Controller
             'montant' => 'required|numeric|min:0',
             'motif' => 'required|string|max:255',
             'beneficiaire' => 'required|string|max:255',
-            'methode_paiement' => 'required|string|max:255',
-            'reference' => 'nullable|string|max:255',
-            'piece' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:2048',
-            'description' => 'nullable|string',
-            'details_bancaires' => 'nullable|string',
+            'methode_paiement' => 'required|string',
+            'piece' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return back()->withErrors($validator)->withInput();
         }
 
         $data = $request->all();
@@ -100,17 +96,16 @@ class DecaissementController extends Controller
         $data['year'] = $this->year;
         $data['status'] = 'en_attente';
 
-        // Traitement du fichier pièce jointe
+        // Gestion du fichier uploadé
         if ($request->hasFile('piece')) {
             $file = $request->file('piece');
-            $filename = 'decaissement_' . time() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('public/decaissements', $filename);
-            $data['piece'] = $filename;
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $data['piece'] = $file->storeAs('decaissements', $filename, 'public');
         }
 
         Decaissement::create($data);
 
-        return redirect()->route('decaissements.index')->with('flash_success', 'Décaissement enregistré avec succès');
+        return redirect()->route('decaissements.index')->with('flash_success', 'Décaissement créé avec succès.');
     }
 
     /**
@@ -118,21 +113,21 @@ class DecaissementController extends Controller
      */
     public function show($id)
     {
-        $decaissement = Decaissement::findOrFail($id);
-
+        $decaissement = Decaissement::with(['user', 'projet'])->findOrFail($id);
         return view('pages.support_team.decaissements.show', compact('decaissement'));
     }
 
     /**
-     * Affiche le formulaire de modification d'un décaissement
+     * Affiche le formulaire d'édition d'un décaissement
      */
     public function edit($id)
     {
         $decaissement = Decaissement::findOrFail($id);
-        $methodes_paiement = Decaissement::getMethodesPaiement();
         $categories = Decaissement::getCategories();
+        $methodes_paiement = Decaissement::getMethodesPaiement();
+        $projets = Projet::all();
 
-        return view('pages.support_team.decaissements.edit', compact('decaissement', 'methodes_paiement', 'categories'));
+        return view('pages.support_team.decaissements.edit', compact('decaissement', 'categories', 'methodes_paiement', 'projets'));
     }
 
     /**
@@ -147,35 +142,31 @@ class DecaissementController extends Controller
             'montant' => 'required|numeric|min:0',
             'motif' => 'required|string|max:255',
             'beneficiaire' => 'required|string|max:255',
-            'methode_paiement' => 'required|string|max:255',
-            'reference' => 'nullable|string|max:255',
-            'piece' => 'nullable|file|mimes:jpeg,png,jpg,pdf|max:2048',
-            'description' => 'nullable|string',
-            'details_bancaires' => 'nullable|string',
+            'methode_paiement' => 'required|string',
+            'piece' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
         ]);
 
         if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
+            return back()->withErrors($validator)->withInput();
         }
 
         $data = $request->all();
 
-        // Traitement du fichier pièce jointe
+        // Gestion du fichier uploadé
         if ($request->hasFile('piece')) {
             // Supprimer l'ancien fichier s'il existe
             if ($decaissement->piece) {
-                Storage::delete('public/decaissements/' . $decaissement->piece);
+                Storage::disk('public')->delete($decaissement->piece);
             }
 
             $file = $request->file('piece');
-            $filename = 'decaissement_' . time() . '.' . $file->getClientOriginalExtension();
-            $path = $file->storeAs('public/decaissements', $filename);
-            $data['piece'] = $filename;
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $data['piece'] = $file->storeAs('decaissements', $filename, 'public');
         }
 
         $decaissement->update($data);
 
-        return redirect()->route('decaissements.index')->with('flash_success', 'Décaissement mis à jour avec succès');
+        return redirect()->route('decaissements.show', $id)->with('flash_success', 'Décaissement mis à jour avec succès.');
     }
 
     /**
@@ -185,60 +176,53 @@ class DecaissementController extends Controller
     {
         $decaissement = Decaissement::findOrFail($id);
 
-        // Supprimer le fichier pièce jointe s'il existe
+        // Supprimer le fichier associé s'il existe
         if ($decaissement->piece) {
-            Storage::delete('public/decaissements/' . $decaissement->piece);
+            Storage::disk('public')->delete($decaissement->piece);
         }
 
         $decaissement->delete();
 
-        return redirect()->route('decaissements.index')->with('flash_success', 'Décaissement supprimé avec succès');
+        return redirect()->route('decaissements.index')->with('flash_success', 'Décaissement supprimé avec succès.');
     }
 
     /**
-     * Change le statut d'un décaissement
+     * Met à jour le statut d'un décaissement
      */
     public function updateStatus(Request $request, $id)
     {
         $decaissement = Decaissement::findOrFail($id);
+        $decaissement->update(['status' => $request->status]);
 
-        $validator = Validator::make($request->all(), [
-            'status' => 'required|in:en_attente,approuve,rejete',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator);
-        }
-
-        $decaissement->status = $request->status;
-        $decaissement->save();
-
-        $status_text = [
-            'en_attente' => 'en attente',
-            'approuve' => 'approuvé',
-            'rejete' => 'rejeté'
-        ][$request->status];
-
-        return redirect()->back()->with('flash_success', 'Statut du décaissement mis à jour : ' . $status_text);
+        return back()->with('flash_success', 'Statut mis à jour avec succès.');
     }
 
     /**
-     * Télécharge la pièce jointe d'un décaissement
+     * Télécharge la pièce justificative d'un décaissement
      */
     public function downloadPiece($id)
     {
         $decaissement = Decaissement::findOrFail($id);
 
         if (!$decaissement->piece) {
-            return redirect()->back()->with('flash_danger', 'Aucune pièce jointe disponible');
+            return back()->with('flash_danger', 'Aucune pièce justificative trouvée.');
         }
 
-        $path = storage_path('app/public/decaissements/' . $decaissement->piece);
+        $filePath = storage_path('app/public/' . $decaissement->piece);
 
-        if (!file_exists($path)) {
-            return redirect()->back()->with('flash_danger', 'Fichier introuvable');
+        if (!file_exists($filePath)) {
+            return back()->with('flash_danger', 'Fichier introuvable.');
         }
 
-        return response()->download($path);
+        return response()->download($filePath);
+    }
+
+    /**
+     * Génère l'ordre de paiement imprimable
+     */
+    public function ordrePaiement($id)
+    {
+        $decaissement = Decaissement::with(['user', 'projet'])->findOrFail($id);
+        return view('pages.support_team.decaissements.ordre_paiement', compact('decaissement'));
     }
 }

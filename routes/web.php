@@ -187,9 +187,10 @@ Route::group(['middleware' => 'auth'], function () {
         });
 
         /*************** Décaissements (Dépenses) *****************/
-        Route::resource('decaissements', 'DecaissementController');
-        Route::post('decaissements/{id}/update-status', 'DecaissementController@updateStatus')->name('decaissements.update_status');
+        Route::get('decaissements/{id}/ordre-paiement', 'DecaissementController@ordrePaiement')->name('decaissements.ordre_paiement');
         Route::get('decaissements/{id}/download-piece', 'DecaissementController@downloadPiece')->name('decaissements.download_piece');
+        Route::post('decaissements/{id}/update-status', 'DecaissementController@updateStatus')->name('decaissements.update_status');
+        Route::resource('decaissements', 'DecaissementController');
 
         /*************** Projets *****************/
         Route::resource('projets', 'ProjetController');
