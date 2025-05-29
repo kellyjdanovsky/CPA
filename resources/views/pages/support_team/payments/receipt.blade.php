@@ -11,11 +11,11 @@
         }
         
         body {
-            font-family: 'Courier New', monospace; /* Police adaptée aux imprimantes thermiques */
+            font-family: 'Arial', sans-serif; /* Police plus lisible */
             margin: 0;
             padding: 0;
-            width: 58mm;
-            font-size: 14px;
+            width: 58mm; /* Largeur fixe pour imprimante thermique 58mm */
+            font-size: 10pt; /* Taille de police réduite pour s'adapter à la largeur */
             font-weight: bold;
             -webkit-print-color-adjust: exact !important;
             color-adjust: exact !important;
@@ -30,7 +30,7 @@
         }
         
         .container {
-            width: 56mm;
+            width: 54mm; /* Légèrement plus petit que la largeur du body pour les marges */
             margin: 0 auto;
             padding: 1mm;
         }
@@ -41,29 +41,27 @@
         }
         
         .logo img {
-            max-width: 20mm;
+            max-width: 15mm;
             height: auto;
         }
         
         /* En-tête avec hiérarchie typographique claire */
         .header {
             text-align: center;
-            font-size: 18px;
-            font-weight: 900;
-            margin-bottom: 2mm;
-            border-bottom: 2px solid #000;
+            font-size: 12pt;
+            font-weight: bold;
+            margin-bottom: 1mm;
+            border-bottom: 1px solid #000;
             padding-bottom: 1mm;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
         }
         
         .receipt-title {
             text-align: center;
-            font-size: 16px;
-            font-weight: 900;
-            margin: 2mm 0;
+            font-size: 12pt;
+            font-weight: bold;
+            margin: 1mm 0;
             text-transform: uppercase;
-            letter-spacing: 1px;
             background-color: #f0f0f0;
             padding: 1mm;
             border: 1px solid #000;
@@ -71,15 +69,15 @@
         
         /* Informations du reçu avec formatage amélioré */
         .receipt-info {
-            font-size: 11px;
+            font-size: 9pt;
             margin-bottom: 1mm;
             border-bottom: 1px solid #ccc;
             padding-bottom: 1mm;
         }
         
         .receipt-info .ref-number {
-            font-size: 12px;
-            font-weight: 900;
+            font-size: 9pt;
+            font-weight: bold;
             text-align: center;
             background-color: #f8f8f8;
             padding: 0.5mm;
@@ -89,35 +87,36 @@
         
         /* Informations étudiant avec mise en forme claire */
         .student-info {
-            font-size: 14px;
+            font-size: 10pt;
             margin-bottom: 2mm;
-            border-bottom: 1px solid #000;
+            border: 1px solid #000;
             padding: 1mm;
-            background-color: #fafafa;
+            background-color: #f8f8f8;
         }
         
         .student-info p {
             margin: 1mm 0;
-            font-weight: 900;
+            font-weight: bold;
+            text-transform: uppercase;
         }
         
         .student-info .student-name {
-            font-size: 16px;
-            font-weight: 900;
+            font-size: 11pt;
+            font-weight: bold;
+            text-transform: uppercase;
         }
         
         .student-info .student-class {
-            font-size: 15px;
-            font-weight: 900;
+            font-size: 10pt;
+            font-weight: bold;
         }
         
         /* Badges de statut améliorés */
         .status-badge {
             display: inline-block;
-            padding: 1mm 2mm;
-            border-radius: 1mm;
-            font-size: 11px;
-            font-weight: 900;
+            padding: 0.5mm 1mm;
+            font-size: 8pt;
+            font-weight: bold;
             text-transform: uppercase;
             margin-top: 1mm;
             border: 1px solid #000;
@@ -143,19 +142,21 @@
         
         /* Historique des paiements simplifié */
         .payment-history {
-            font-size: 13px;
+            font-size: 9pt;
             width: 100%;
             margin-bottom: 2mm;
             border: 1px solid #000;
-            background-color: #fafafa;
+            background-color: #f8f8f8;
+            overflow: hidden;
         }
         
         .payment-history-title {
             text-align: center;
-            font-weight: 900;
-            margin-bottom: 1mm;
-            font-size: 15px;
-            background-color: #e9ecef;
+            font-weight: bold;
+            margin-bottom: 0.5mm;
+            font-size: 10pt;
+            background-color: #343a40;
+            color: white;
             padding: 1mm;
             border-bottom: 1px solid #000;
             text-transform: uppercase;
@@ -163,12 +164,12 @@
         
         .payment-duration {
             text-align: center;
-            font-size: 10px;
+            font-size: 8pt;
             font-weight: bold;
-            margin-bottom: 1mm;
+            margin-bottom: 0.5mm;
             padding: 0.5mm;
             background-color: #f8f9fa;
-            border-bottom: 1px dotted #666;
+            border-bottom: 1px solid #000;
         }
         
         .payment-history-table {
@@ -178,49 +179,52 @@
         
         .payment-history-table th,
         .payment-history-table td {
-            border-bottom: 1px dotted #666;
+            border-bottom: 1px solid #000;
             padding: 1mm 0.5mm;
-            font-size: 12px;
+            font-size: 8pt;
             font-weight: bold;
+            white-space: nowrap;
         }
         
         .payment-history-table th {
-            font-weight: 900;
-            font-size: 13px;
+            font-weight: bold;
+            font-size: 8pt;
             background-color: #e9ecef;
             text-transform: uppercase;
         }
         
-        .payment-history-table td.text-right {
+        .payment-history-table td.text-right,
+        .payment-history-table td:nth-child(2),
+        .payment-history-table td:nth-child(3) {
             text-align: right;
         }
         
         .payment-history-table .amount {
-            font-weight: 900;
-            font-size: 14px;
+            font-weight: bold;
+            font-size: 9pt;
         }
         
         .payment-history-table .date {
-            font-weight: 900;
-            font-size: 13px;
+            font-weight: bold;
+            font-size: 8pt;
         }
         
         /* Résumé de paiement avec mise en forme professionnelle */
         .payment-summary {
-            margin: 1mm 0;
-            border: 2px solid #000;
-            border-radius: 1mm;
+            margin: 2mm 0;
+            border: 1px solid #000;
             background-color: #f8f9fa;
+            overflow: hidden;
         }
         
         .payment-summary-title {
             text-align: center;
-            font-weight: 900;
+            font-weight: bold;
             background-color: #343a40;
             color: white;
             border-bottom: 1px solid #000;
             padding: 1mm;
-            font-size: 13px;
+            font-size: 10pt;
             text-transform: uppercase;
         }
         
@@ -231,90 +235,96 @@
         
         .payment-summary-table tr td {
             padding: 1mm;
-            font-size: 13px;
+            font-size: 10pt;
             font-weight: bold;
+            white-space: nowrap;
         }
         
         .payment-summary-table tr:not(:last-child) td {
-            border-bottom: 1px dotted #666;
+            border-bottom: 1px solid #000;
         }
         
         .payment-summary-table .amount-label {
-            font-weight: 900;
-            font-size: 14px;
+            font-weight: bold;
+            font-size: 11pt;
+            width: 60%;
         }
         
         .payment-summary-table .amount-value {
             text-align: right;
-            font-weight: 900;
-            font-size: 16px;
+            font-weight: bold;
+            font-size: 11pt;
+            width: 40%;
         }
         
         .payment-summary-table .highlight-row td {
             background-color: #fff3cd;
-            font-weight: 900;
-            font-size: 18px;
+            font-weight: bold;
+            font-size: 11pt;
             border: 1px solid #856404;
+            padding: 1mm;
+            white-space: nowrap;
         }
         
         /* Pied de page avec informations critiques */
         .footer {
             text-align: center;
-            font-size: 12px;
+            font-size: 9pt;
             margin: 1mm 0;
-            font-weight: 900;
+            font-weight: bold;
             padding: 1mm;
-            border: 2px solid #000;
-            border-radius: 1mm;
+            border: 1px solid #000;
             background-color: #f8f9fa;
         }
         
         .footer .critical-amount {
-            font-size: 20px;
-            font-weight: 900;
+            font-size: 12pt;
+            font-weight: bold;
             margin-top: 1mm;
             padding: 1mm;
             background-color: #fff;
             border: 1px solid #000;
-            border-radius: 0.5mm;
         }
         
         .footer .payment-date {
-            font-size: 16px;
-            font-weight: 900;
+            font-size: 9pt;
+            font-weight: bold;
             margin-top: 1mm;
         }
         
         /* Signature et informations du caissier */
         .sign {
             text-align: center;
-            font-size: 11px;
-            margin-top: 1mm;
-            padding-top: 1mm;
-            border-top: 1px solid #666;
-            font-weight: 900;
+            font-size: 10pt;
+            margin-top: 2mm;
+            padding: 1mm;
+            border: 1px solid #000;
+            background-color: #f8f8f8;
+            font-weight: bold;
+            text-transform: uppercase;
         }
         
         .cashier-info {
-            font-size: 12px;
-            font-weight: 900;
+            font-size: 10pt;
+            font-weight: bold;
+            text-transform: uppercase;
         }
         
         /* Ligne de découpe */
         .cut-line {
-            border-top: 2px dashed #000;
-            margin: 2mm 0;
+            border-top: 1px dashed #000;
+            margin: 3mm 0;
             height: 1mm;
             position: relative;
         }
         
         .cut-line:after {
-            content: '✂ DÉCOUPER ICI ✂';
+            content: '✂';
             position: absolute;
             top: -2mm;
             left: 50%;
             transform: translateX(-50%);
-            font-size: 8px;
+            font-size: 9pt;
             background-color: white;
             padding: 0 1mm;
             font-weight: bold;
@@ -322,14 +332,14 @@
         
         /* Date et heure avec formatage localisé */
         .date-time {
-            font-size: 11px;
+            font-size: 8pt;
             text-align: center;
             margin-top: 1mm;
-            font-weight: 900;
+            font-weight: bold;
         }
         
         .current-datetime {
-            font-size: 10px;
+            font-size: 8pt;
             font-weight: bold;
             color: #666;
             margin-top: 0.5mm;
@@ -345,17 +355,17 @@
         }
         
         .text-bold {
-            font-weight: 900 !important;
+            font-weight: bold !important;
         }
         
         .amount {
-            font-weight: 900 !important;
-            font-size: 16px !important;
+            font-weight: bold !important;
+            font-size: 11pt !important;
         }
         
         .date {
             font-weight: bold !important;
-            font-size: 14px !important;
+            font-size: 9pt !important;
         }
         
         /* Optimisations pour impression thermique et numérique */
@@ -363,6 +373,16 @@
             * {
                 -webkit-print-color-adjust: exact !important;
                 color-adjust: exact !important;
+            }
+            
+            body {
+                width: 58mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            
+            .container {
+                width: 54mm !important;
             }
             
             .payment-summary, .footer {
@@ -374,36 +394,73 @@
             }
             
             .payment-summary-table .highlight-row td {
-                font-size: 20px !important;
+                font-size: 11pt !important;
             }
             
             .payment-summary-table tr td {
-                font-size: 16px !important;
+                font-size: 10pt !important;
             }
             
             .footer .critical-amount {
-                font-size: 22px !important;
+                font-size: 12pt !important;
             }
             
             .cashier-info {
-                font-size: 16px !important;
+                font-size: 10pt !important;
             }
             
             .student-name {
-                font-size: 18px !important;
+                font-size: 11pt !important;
             }
             
             .student-class {
-                font-size: 17px !important;
+                font-size: 10pt !important;
             }
             
             .amount {
-                font-size: 18px !important;
+                font-size: 11pt !important;
             }
             
             .date {
-                font-size: 16px !important;
+                font-size: 9pt !important;
             }
+        }
+        
+        /* Styles pour les méthodes de paiement */
+        .method-cash {
+            background-color: #e8f5e9 !important;
+            border-color: #4caf50 !important;
+            color: #2e7d32 !important;
+        }
+        
+        .method-adra {
+            background-color: #e3f2fd !important;
+            border-color: #2196f3 !important;
+            color: #0d47a1 !important;
+        }
+        
+        .method-team {
+            background-color: #fff3e0 !important;
+            border-color: #ff9800 !important;
+            color: #e65100 !important;
+        }
+        
+        .method-bank {
+            background-color: #e8eaf6 !important;
+            border-color: #3f51b5 !important;
+            color: #1a237e !important;
+        }
+        
+        .method-cheque {
+            background-color: #f3e5f5 !important;
+            border-color: #9c27b0 !important;
+            color: #4a148c !important;
+        }
+        
+        .method-other {
+            background-color: #f5f5f5 !important;
+            border-color: #607d8b !important;
+            color: #263238 !important;
         }
         
         /* Responsive pour affichage numérique */
@@ -427,50 +484,49 @@
 </head>
 <body>
 <div class="container">
-    <div class="logo">
-        <!-- Logo peut être ajouté ici -->
-        <!-- <img src="{{ asset('assets/images/logo.png') }}" alt="Logo"> -->
-    </div>
-
     <div class="header">
         {{ strtoupper(Qs::getSetting('system_name')) }}
     </div>
 
-    <div class="receipt-title">Reçu de Paiement</div>
+    <div class="receipt-title">Reçu</div>
 
-    <div class="student-info">
-        <p class="student-name"><strong>ÉLÈVE:</strong> {{ $sr->user->name }}</p>
-        <p class="student-class"><strong>CLASSE:</strong> {{ $sr->my_class->name }} {{ $sr->section->name ? '('.$sr->section->name.')' : '' }}</p>
-        <p><strong>DESCRIPTION:</strong> {{ $payment->title }}</p>
-    </div>
-
-    <!-- Historique des paiements avec dates formatées et triées chronologiquement -->
     @php
         use App\Helpers\DateHelper;
         
-        // Trier les reçus par date de création (chronologique: du plus ancien au plus récent)
+        // Trier les reçus par date de création
         $sortedReceipts = $receipts->sortBy('created_at');
         
-        // Formatage des dates avec DateHelper
-        $firstPaymentDate = $sortedReceipts->first() ?
-            DateHelper::formatForReceipt($sortedReceipts->first()->created_at) : 'N/A';
-        $lastPaymentDate = $sortedReceipts->last() ?
-            DateHelper::formatForReceipt($sortedReceipts->last()->created_at) : 'N/A';
+        // Récupérer la méthode de paiement du dernier reçu
+        $paymentMethod = $sortedReceipts->last() ? 
+            ($sortedReceipts->last()->payment_method ?? 
+             $sortedReceipts->last()->methode ?? 'CASH') : 'CASH';
         
-        // Période de paiement
-        $paymentDuration = DateHelper::formatPeriod(
-            $sortedReceipts->first()->created_at ?? null,
-            $sortedReceipts->last()->created_at ?? null
-        );
+        // Formater la méthode de paiement pour l'affichage
+        $formattedMethod = strtoupper($paymentMethod);
+        if ($formattedMethod == 'CASH' || $formattedMethod == 'ESPÈCES' || $formattedMethod == 'ESPECES') {
+            $formattedMethod = 'CASH';
+        }
         
-        // Calculer le montant total payé
-        $totalPaid = $sortedReceipts->sum('amt_paid');
+        // Formater la date actuelle
+        $currentDate = date('d/m/Y H:i');
         
-        // Date de la dernière transaction pour affichage précis
-        $lastTransactionDate = $sortedReceipts->last() ?
-            DateHelper::formatFrenchWithTime($sortedReceipts->last()->created_at) : 'N/A';
+        // Référence du reçu
+        $receiptRef = $pr->ref_no ?? 'N/A';
     @endphp
 
+    <!-- Référence du reçu -->
+    <div style="text-align: center; font-size: 8pt; margin-bottom: 1mm;">
+        <strong>REF: {{ $receiptRef }}</strong> | {{ $currentDate }}
+    </div>
+
+    <!-- Informations essentielles -->
+    <div class="student-info">
+        <p class="student-name">{{ strtoupper($sr->user->name) }}</p>
+        <p>{{ $sr->my_class->name }} {{ $sr->section->name ? '('.$sr->section->name.')' : '' }}</p>
+        <p>{{ $payment->title }} - <strong>{{ DateHelper::formatAmount($payment->amount) }}</strong></p>
+    </div>
+
+    <!-- Historique des paiements simplifié -->
     @if($sortedReceipts->count() > 0)
     <div class="payment-history">
         <div class="payment-history-title">Historique</div>
@@ -478,63 +534,47 @@
             <thead>
                 <tr>
                     <th>Date</th>
-                    <th class="text-right">Montant</th>
-                    <th class="text-right">Solde</th>
+                    <th>Payé</th>
+                    <th>Reste</th>
                 </tr>
             </thead>
             <tbody>
-                @foreach($sortedReceipts->take(3) as $r)
+                @foreach($sortedReceipts->take(2) as $r)
                     @if($r->amt_paid != 0)
                     <tr>
-                        <td class="date">{{ DateHelper::formatForPaymentHistory($r->created_at) }}</td>
-                        <td class="text-right amount">{{ DateHelper::formatAmount($r->amt_paid) }}</td>
-                        <td class="text-right amount">{{ DateHelper::formatAmount($r->balance) }}</td>
+                        <td>{{ DateHelper::formatForPaymentHistory($r->created_at) }}</td>
+                        <td>{{ DateHelper::formatAmount($r->amt_paid) }}</td>
+                        <td>{{ DateHelper::formatAmount($r->balance) }}</td>
                     </tr>
                     @endif
                 @endforeach
             </tbody>
         </table>
     </div>
+    
+    <!-- Méthode de paiement -->
+    <div style="text-align: center; font-size: 9pt; margin: 1mm 0;">
+        <strong>Mode: {{ $formattedMethod }}</strong>
+    </div>
     @endif
 
-    <!-- Résumé financier simplifié -->
+    <!-- Résumé simplifié -->
     <div class="payment-summary">
-        <div class="payment-summary-title">Résumé</div>
         <table class="payment-summary-table">
-            <tr>
-                <td class="amount-label">Total:</td>
-                <td class="amount-value amount">{{ DateHelper::formatAmount($pr->amount) }}</td>
-            </tr>
             <tr class="highlight-row">
-                <td class="amount-label">Reste:</td>
+                <td class="amount-label">Reste à payer:</td>
                 <td class="amount-value amount">{{ DateHelper::formatAmount($pr->balance) }}</td>
             </tr>
         </table>
     </div>
 
-    <!-- Statut et informations critiques -->
-    <div class="footer">
-        @if($pr->paid)
-            <span class="status-badge status-normal">✓ ACQUITTÉ</span>
-            <div class="payment-date">
-                <strong>Payé le:</strong> {{ $lastTransactionDate }}
-            </div>
-        @else
-            <span class="status-badge status-adra">⚠ EN COURS</span>
-            <div class="critical-amount">
-                <strong>Montant à payer:</strong><br>
-                {{ DateHelper::formatAmount($pr->balance) }}
-            </div>
-        @endif
-    </div>
-
     <!-- Informations simplifiées -->
     <div class="sign">
-        <div class="cashier-info" style="font-size: 14px;">
+        <div class="cashier-info">
             <strong>Caissier:</strong> {{ Auth::user()->name }}
         </div>
-        <div style="margin-top: 1mm; font-size: 13px; text-align: center;">
-            {{ DateHelper::now() }}
+        <div style="font-size: 8pt; margin-top: 1mm;">
+            Merci pour votre paiement
         </div>
     </div>
 
