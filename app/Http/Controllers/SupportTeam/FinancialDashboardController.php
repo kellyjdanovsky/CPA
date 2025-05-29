@@ -104,21 +104,39 @@ class FinancialDashboardController extends Controller
         // Calculer le montant total des recettes
         $totalRevenue = $receipts->sum('amt_paid');
 
-        // Récupérer les dépenses (si la table existe)
+        // Récupérer les dépenses (décaissements) avec gestion d'erreur améliorée
         $totalExpenses = 0;
         $expenses = collect();
 
-        if (Schema::hasTable('decaissements')) {
-            $expensesQuery = DB::table('decaissements')
-                ->whereBetween('date_paiement', [$startDate, $endDate]);
+        try {
+            if (Schema::hasTable('decaissements')) {
+                $expensesQuery = DB::table('decaissements')
+                    ->whereBetween('date_paiement', [$startDate, $endDate])
+                    ->where('status', 'approuve') // Seulement les dépenses approuvées
+                    ->where('year', $this->year); // Filtrer par année scolaire
 
-            if ($classId) {
-                // Filtrer les dépenses par classe si applicable
-                // Note: Cela dépend de la structure de la table decaissements
+                if ($classId) {
+                    // Filtrer les dépenses par classe si applicable
+                    // Ajouter une jointure si nécessaire pour lier aux classes
+                    $expensesQuery->where('motif', 'LIKE', '%classe%');
+                }
+
+                $expenses = $expensesQuery->orderBy('date_paiement', 'desc')->get();
+                $totalExpenses = $expenses->sum('montant');
+
+                // Log pour debug
+                \Log::info('Décaissements récupérés', [
+                    'count' => $expenses->count(),
+                    'total' => $totalExpenses,
+                    'period' => [$startDate, $endDate]
+                ]);
+            } else {
+                \Log::warning('Table decaissements non trouvée');
             }
-
-            $expenses = $expensesQuery->get();
-            $totalExpenses = $expenses->sum('montant');
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors de la récupération des décaissements: ' . $e->getMessage());
+            $totalExpenses = 0;
+            $expenses = collect();
         }
 
         // Calculer le solde de trésorerie
@@ -234,19 +252,31 @@ class FinancialDashboardController extends Controller
             }
         }
 
-        // Récupérer les dépenses par mois si la table existe
-        if (Schema::hasTable('decaissements')) {
-            $monthlyExpenses = DB::table('decaissements')
-                ->selectRaw('DATE_FORMAT(date_paiement, "%Y-%m") as month, SUM(montant) as total')
-                ->whereBetween('date_paiement', [$startDate, $endDate])
-                ->groupBy('month')
-                ->get();
+        // Récupérer les dépenses par mois avec gestion d'erreur améliorée
+        try {
+            if (Schema::hasTable('decaissements')) {
+                $monthlyExpenses = DB::table('decaissements')
+                    ->selectRaw('DATE_FORMAT(date_paiement, "%Y-%m") as month, SUM(montant) as total')
+                    ->whereBetween('date_paiement', [$startDate, $endDate])
+                    ->where('status', 'approuve') // Seulement les dépenses approuvées
+                    ->where('year', $this->year) // Filtrer par année scolaire
+                    ->groupBy('month')
+                    ->get();
 
-            foreach ($monthlyExpenses as $expense) {
-                if (isset($months[$expense->month])) {
-                    $months[$expense->month]['expenses'] = $expense->total;
+                foreach ($monthlyExpenses as $expense) {
+                    if (isset($months[$expense->month])) {
+                        $months[$expense->month]['expenses'] = (float) $expense->total;
+                    }
                 }
+
+                // Log pour debug
+                \Log::info('Dépenses mensuelles récupérées', [
+                    'count' => $monthlyExpenses->count(),
+                    'data' => $monthlyExpenses->toArray()
+                ]);
             }
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors de la récupération des dépenses mensuelles: ' . $e->getMessage());
         }
 
         return array_values($months);

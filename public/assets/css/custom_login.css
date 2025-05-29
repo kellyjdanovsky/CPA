@@ -1,0 +1,63 @@
+.login-cover {
+    background: #f0f2f5;
+}
+
+.login-form-custom .card {
+    border: none;
+    border-radius: 8px;
+}
+
+.login-form-custom .card-body {
+    padding: 2.5rem !important; /* Augmenter le padding pour plus d'espace */
+}
+
+.login-form-custom .form-control-lg {
+    min-height: calc(1.5em + 1rem + 2px);
+    padding: 0.5rem 1rem;
+    font-size: 1rem;
+    border-radius: 0.3rem;
+}
+
+.login-form-custom .btn-lg {
+    padding: 0.75rem 1.25rem;
+    font-size: 1.1rem;
+    border-radius: 0.3rem;
+}
+
+.login-form-custom .logos {
+    max-width: 250px; /* Ajuster la taille du logo si nécessaire */
+    margin-bottom: 1.5rem !important;
+}
+
+.login-form-custom h5 {
+    font-size: 1.5rem; /* Augmenter la taille du titre */
+    font-weight: 500;
+}
+
+.login-form-custom .text-muted {
+    font-size: 0.95rem; /* Ajuster la taille du texte sous le titre */
+}
+
+.login-form-custom .form-check-label {
+    font-size: 0.9rem;
+}
+
+.login-form-custom .ml-auto {
+    font-size: 0.9rem;
+}
+
+/* Centrer le formulaire verticalement et horizontalement */
+.page-content.login-cover {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+}
+
+.content-wrapper {
+    width: 100%;
+}
+
+.content.d-flex.justify-content-center.align-items-center {
+    width: 100%;
+}

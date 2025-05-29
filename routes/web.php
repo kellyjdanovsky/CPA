@@ -3,7 +3,22 @@
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Facades\Auth;
 
-Auth::routes();
+// Auth::routes();
+
+// Routes d'authentification personnalisées
+Route::get('login', 'Auth\LoginController@showLoginForm')->name('login');
+Route::post('login', 'Auth\LoginController@login');
+Route::post('logout', 'Auth\LoginController@logout')->name('logout');
+
+// Routes de réinitialisation de mot de passe
+Route::get('password/reset', 'Auth\ForgotPasswordController@showLinkRequestForm')->name('password.request');
+Route::post('password/email', 'Auth\ForgotPasswordController@sendResetLinkEmail')->name('password.email');
+Route::get('password/reset/{token}', 'Auth\ResetPasswordController@showResetForm')->name('password.reset');
+Route::post('password/reset', 'Auth\ResetPasswordController@reset')->name('password.update');
+
+// Route pour un second type de login (exemple)
+// Route::get('admin/login', 'Auth\AdminLoginController@showLoginForm')->name('admin.login');
+// Route::post('admin/login', 'Auth\AdminLoginController@login')->name('admin.login.submit');
 
 
 
@@ -188,9 +203,25 @@ Route::group(['middleware' => 'auth'], function () {
 
         /*************** Décaissements (Dépenses) *****************/
         Route::get('decaissements/{id}/ordre-paiement', 'DecaissementController@ordrePaiement')->name('decaissements.ordre_paiement');
+        Route::get('decaissements/{id}/ordre_paiement', 'DecaissementController@ordrePaiement')->name('decaissements.ordre_paiement_alt');
         Route::get('decaissements/{id}/download-piece', 'DecaissementController@downloadPiece')->name('decaissements.download_piece');
         Route::post('decaissements/{id}/update-status', 'DecaissementController@updateStatus')->name('decaissements.update_status');
+Route::get('decaissements/verify-and-correct', 'DecaissementController@verifyAndCorrectDecaissements')->name('decaissements.verify_and_correct')->middleware('auth');
         Route::resource('decaissements', 'DecaissementController');
+
+// Vous pouvez ajouter ici d'autres routes si nécessaire pour le nouveau login
+
+
+
+
+
+
+
+
+
+
+
+
 
         /*************** Projets *****************/
         Route::resource('projets', 'ProjetController');

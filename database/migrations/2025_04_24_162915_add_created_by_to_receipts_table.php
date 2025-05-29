@@ -14,7 +14,7 @@ class AddCreatedByToReceiptsTable extends Migration
     public function up()
     {
         Schema::table('receipts', function (Blueprint $table) {
-            $table->string('created_by')->nullable()->after('methode');
+            $table->string('created_by')->nullable();
         });
     }
 

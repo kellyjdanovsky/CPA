@@ -213,6 +213,7 @@ return [
         'Qs' => App\Helpers\Qs::class,
         'Mk' => App\Helpers\Mk::class,
         'Pay' => App\Helpers\Pay::class,
+        'DateHelper' => App\Helpers\DateHelper::class,
     ],
 
 ];

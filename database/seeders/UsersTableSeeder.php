@@ -38,6 +38,14 @@ class UsersTableSeeder extends Seeder
                 'remember_token' => Str::random(10),
             ],
 
+            ['name' => 'CPA User',
+                'email' => 'cpa@example.com',
+                'username' => 'CPA',
+                'password' => $password, // Utilise le même mot de passe hashé 'cpa'
+                'user_type' => 'super_admin',
+                'code' => strtoupper(Str::random(10)),
+                'remember_token' => Str::random(10),
+            ],
             
         ];
         DB::table('users')->insert($d);

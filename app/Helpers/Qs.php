@@ -258,7 +258,27 @@ class Qs
 
     public static function getSetting($type)
     {
-        return Setting::where('type', $type)->first()->description;
+        $setting = Setting::where('type', $type)->first();
+
+        if ($setting) {
+            return $setting->description;
+        }
+
+        // Valeurs par défaut si le setting n'existe pas
+        $defaults = [
+            'system_name' => 'Collège Privé Adventiste Avaratetezana',
+            'system_title' => 'CPA',
+            'current_session' => '2024-2025',
+            'system_email' => 'admin@cpa-avaratetezana.mg',
+            'phone' => '+261 34 12 345 67',
+            'address' => 'Avaratetezana, Antananarivo, Madagascar',
+            'logo' => '/images/logo_avar.png',
+            'lock_exam' => '0',
+            'sch_name' => 'Collège Privé Adventiste Avaratetezana',
+            'term' => 'Trimestre',
+        ];
+
+        return $defaults[$type] ?? null;
     }
 
     public static function getCurrentSession()

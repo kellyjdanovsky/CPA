@@ -290,6 +290,49 @@
             color: #666;
         }
 
+        /* Section de confirmation de réception */
+        .receipt-confirmation {
+            margin-top: 30px;
+            border: 2px solid #28a745;
+            padding: 15px;
+            border-radius: 10px;
+            background-color: #f8f9fa;
+        }
+
+        .receipt-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14pt;
+            margin-bottom: 15px;
+            color: #28a745;
+        }
+
+        .receipt-signature {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 30px;
+        }
+
+        .receipt-signature-box {
+            width: 45%;
+        }
+
+        .receipt-signature-label {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .receipt-signature-line {
+            height: 60px;
+            border-bottom: 1px solid #000;
+        }
+
+        .receipt-stamp {
+            height: 60px;
+            border: 1px dashed #000;
+            border-radius: 5px;
+        }
+
         /* Styles pour l'impression */
         @media print {
             body {
@@ -347,6 +390,15 @@
             .signature-box {
                 width: 100%;
             }
+
+            .receipt-signature {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .receipt-signature-box {
+                width: 100%;
+            }
         }
     </style>
 </head>
@@ -354,7 +406,6 @@
     @php
         // Générer le numéro d'ordre automatique
         $orderNumber = 'OP-' . date('Y') . '-' . str_pad($decaissement->id, 4, '0', STR_PAD_LEFT);
-
         $montantEnLettres = DateHelper::convertirMontantEnLettres($decaissement->montant);
     @endphp
 
@@ -552,12 +603,6 @@
                     <td class="label">Référence du dossier</td>
                     <td class="value">{{ $decaissement->reference ?? 'N/A' }}</td>
                 </tr>
-                @if($decaissement->user)
-                <tr>
-                    <td class="label">Demandé par</td>
-                    <td class="value">{{ $decaissement->user->name }}</td>
-                </tr>
-                @endif
             </table>
 
             <!-- Section montant -->
@@ -570,35 +615,28 @@
                 </div>
             </div>
 
-            <!-- Pièces justificatives -->
-            <div class="justificatives">
-                <div class="justificatives-title">Pièces justificatives jointes:</div>
-                <div class="justificatives-list">
-                    <div class="checkbox-item">
-                        <span class="checkbox {{ $decaissement->piece ? 'checked' : '' }}">{{ $decaissement->piece ? '✓' : '' }}</span>
-                        <span>Facture</span>
+            <!-- Section de confirmation de réception -->
+            <div class="receipt-confirmation">
+                <div class="receipt-title">
+                    CONFIRMATION DE RÉCEPTION
+                </div>
+                <p>
+                    Je soussigné(e), <strong>{{ $decaissement->beneficiaire }}</strong>, confirme avoir reçu la somme de 
+                    <strong>{{ DateHelper::formatAmount($decaissement->montant) }}</strong> 
+                    ({{ $montantEnLettres }}) en date du _____________________, 
+                    par {{ ucfirst(str_replace('_', ' ', $decaissement->methode_paiement)) }}.
+                </p>
+                <div class="receipt-signature">
+                    <div class="receipt-signature-box">
+                        <div class="receipt-signature-label">Signature du bénéficiaire:</div>
+                        <div class="receipt-signature-line"></div>
                     </div>
-                    <div class="checkbox-item">
-                        <span class="checkbox">{{ $decaissement->description ? '✓' : '' }}</span>
-                        <span>Devis</span>
-                    </div>
-                    <div class="checkbox-item">
-                        <span class="checkbox">{{ $decaissement->reference ? '✓' : '' }}</span>
-                        <span>Note de frais</span>
-                    </div>
-                    <div class="checkbox-item">
-                        <span class="checkbox"></span>
-                        <span>Autre: _____________</span>
+                    <div class="receipt-signature-box">
+                        <div class="receipt-signature-label">Cachet (si applicable):</div>
+                        <div class="receipt-stamp"></div>
                     </div>
                 </div>
             </div>
-
-            @if($decaissement->description && strlen($decaissement->description) > 100)
-            <div style="margin-top: 15px;">
-                <strong>Observations:</strong><br>
-                {{ $decaissement->description }}
-            </div>
-            @endif
         </div>
 
         <!-- Signatures -->
@@ -625,94 +663,11 @@
         </div>
     </div>
 
-    <script>
-        // Auto-impression
-        window.addEventListener('load', function() {
-            setTimeout(function() {
-                window.print();
-            }, 1000);
-        });
-    </script>
+    <!-- Boutons d'impression (visible uniquement à l'écran) -->
+    <div class="no-print" style="text-align: center; margin-top: 30px;">
+        <button onclick="window.print()" style="padding: 10px 20px; background-color: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; font-size: 14pt;">
+            <span style="margin-right: 5px;">🖨️</span> Imprimer
+        </button>
+    </div>
 </body>
 </html>
-
-@php
-function convertirMontantEnLettres($montant) {
-    // Fonction simple de conversion - à améliorer selon les besoins
-    $unites = ['', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf'];
-    $dizaines = ['', '', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'soixante-dix', 'quatre-vingt', 'quatre-vingt-dix'];
-    $centaines = ['', 'cent', 'deux cents', 'trois cents', 'quatre cents', 'cinq cents', 'six cents', 'sept cents', 'huit cents', 'neuf cents'];
-
-    $montant = intval($montant);
-
-    if ($montant == 0) return 'Zéro ariary';
-    if ($montant < 1000) return 'Moins de mille ariary';
-
-    $millions = intval($montant / 1000000);
-    $milliers = intval(($montant % 1000000) / 1000);
-    $reste = $montant % 1000;
-
-    $resultat = '';
-
-    if ($millions > 0) {
-        if ($millions == 1) {
-            $resultat .= 'Un million ';
-        } else {
-            $resultat .= convertirNombre($millions) . ' millions ';
-        }
-    }
-
-    if ($milliers > 0) {
-        if ($milliers == 1) {
-            $resultat .= 'mille ';
-        } else {
-            $resultat .= convertirNombre($milliers) . ' mille ';
-        }
-    }
-
-    if ($reste > 0) {
-        $resultat .= convertirNombre($reste) . ' ';
-    }
-
-    return ucfirst(trim($resultat)) . ' ariary';
-}
-
-function convertirNombre($nombre) {
-    if ($nombre < 20) {
-        $unites = ['', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf', 'dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf'];
-        return $unites[$nombre];
-    }
-
-    if ($nombre < 100) {
-        $dizaines = ['', '', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'soixante-dix', 'quatre-vingt', 'quatre-vingt-dix'];
-        $diz = intval($nombre / 10);
-        $unit = $nombre % 10;
-
-        if ($unit == 0) {
-            return $dizaines[$diz];
-        } else {
-            return $dizaines[$diz] . '-' . convertirNombre($unit);
-        }
-    }
-
-    if ($nombre < 1000) {
-        $cent = intval($nombre / 100);
-        $reste = $nombre % 100;
-
-        $resultat = '';
-        if ($cent == 1) {
-            $resultat = 'cent';
-        } else {
-            $resultat = convertirNombre($cent) . ' cents';
-        }
-
-        if ($reste > 0) {
-            $resultat .= ' ' . convertirNombre($reste);
-        }
-
-        return $resultat;
-    }
-
-    return strval($nombre);
-}
-@endphp

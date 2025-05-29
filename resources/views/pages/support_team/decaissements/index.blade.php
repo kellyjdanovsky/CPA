@@ -139,27 +139,35 @@
 
                                             <div class="dropdown-menu dropdown-menu-right">
                                                 <a href="{{ route('decaissements.show', $d->id) }}" class="dropdown-item">
-                                                    <i class="icon-eye"></i> Voir Détails
+                                                    <i class="icon-eye mr-2"></i> Voir Détails
                                                 </a>
+
+                                                @if(Qs::userIsTeamSA() || Qs::userIsAdmin())
                                                 <a href="{{ route('decaissements.edit', $d->id) }}" class="dropdown-item">
-                                                    <i class="icon-pencil"></i> Modifier
-                                                </a>
-                                                <div class="dropdown-divider"></div>
-                                                <a href="{{ route('decaissements.ordre_paiement', $d->id) }}" class="dropdown-item" target="_blank">
-                                                    <i class="icon-printer"></i> Ordre de Paiement
-                                                </a>
-                                                @if($d->piece)
-                                                <a href="{{ route('decaissements.download_piece', $d->id) }}" class="dropdown-item">
-                                                    <i class="icon-file-download"></i> Télécharger Pièce
+                                                    <i class="icon-pencil mr-2"></i> Modifier
                                                 </a>
                                                 @endif
+
                                                 <div class="dropdown-divider"></div>
-                                                <a href="#" class="dropdown-item" onclick="confirmDelete({{ $d->id }})">
-                                                    <i class="icon-trash"></i> Supprimer
+                                                <a href="{{ route('decaissements.ordre_paiement', $d->id) }}" class="dropdown-item" target="_blank">
+                                                    <i class="icon-printer mr-2"></i> Ordre de Paiement
                                                 </a>
-                                                <a href="#" class="dropdown-item" data-toggle="modal" data-target="#status-modal-{{ $d->id }}">
-                                                    <i class="icon-checkmark3"></i> Changer Statut
+
+                                                @if($d->piece)
+                                                <a href="{{ route('decaissements.download_piece', $d->id) }}" class="dropdown-item">
+                                                    <i class="icon-file-download mr-2"></i> Télécharger Pièce
                                                 </a>
+                                                @endif
+
+                                                @if(Qs::userIsTeamSA() || Qs::userIsAdmin())
+                                                <div class="dropdown-divider"></div>
+                                                <a href="#" class="dropdown-item text-warning" data-toggle="modal" data-target="#status-modal-{{ $d->id }}">
+                                                    <i class="icon-checkmark3 mr-2"></i> Changer Statut
+                                                </a>
+                                                <a href="#" class="dropdown-item text-danger" onclick="confirmDelete({{ $d->id }})">
+                                                    <i class="icon-trash mr-2"></i> Supprimer
+                                                </a>
+                                                @endif
                                             </div>
                                         </div>
                                     </div>

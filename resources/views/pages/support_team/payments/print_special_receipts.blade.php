@@ -8,57 +8,70 @@
             margin: 0;
         }
         body {
-            font-family: 'Courier New', monospace; /* Police adaptée aux imprimantes thermiques */
+            font-family: 'Arial', sans-serif; /* Police plus lisible */
             margin: 0;
             padding: 0;
-            font-size: 12px; /* Augmentation de la taille de police par défaut à 12px */
-            font-weight: bold; /* Texte en gras par défaut */
+            font-size: 16px; /* Augmentation de la taille de police */
+            font-weight: 900; /* Texte en gras renforcé */
             -webkit-print-color-adjust: exact !important;
             color-adjust: exact !important;
+            line-height: 1.3;
+            line-height: 1.3;
         }
         .receipt-container {
             width: 56mm; /* Légèrement plus petit que la page pour éviter les débordements */
             margin: 0 auto;
-            padding: 0.5mm; /* Réduction du padding */
+            padding: 1mm; /Légère augmentagère augmentation du padding */
             page-break-after: always;
         }
         .logo {
             text-align: center;
-            margin-bottom: 1mm; /* Réduction de la marge */
+            margin-bottom: 2mm;
         }
         .logo img {
-            max-width: 25mm; /* Réduction de la taille max du logo */
+            max-width: 25mm;
             height: auto;
         }
         .header {
             text-align: center;
-            font-size: 16px; /* Augmentation à 16px selon les instructions */
-            font-weight: bold;
-            margin-bottom: 1mm; /* Réduction de la marge */
-            border-bottom: 1px solid #000;
-            padding-bottom: 0.5mm; /* Réduction du padding */
+            font-size: 18px;le */
+            font-weight: 900; /* Bordure plus épaisse */
+            margin-bottom: 2mm;
+            border-bottom: 2px solid #000; /* Bordure plus épaisse */
+            padding-bottom: 1mm;
+            text-transform: uppercase;
         }
         .receipt-title {
             text-align: center;
-            font-size: 14px; /* Augmentation à 14px selon les instructions */
-            font-weight: bold;
-            margin: 1mm 0; /* Réduction des marges */
+            font-size: 14px;la taille */
+            font-weight: 900;
+            margin: 2mm 0;
             text-transform: uppercase;
-            letter-spacing: 0.5px; /* Espacement des lettres pour meilleure lisibilité */
+            letter-spacing: 1px;
+            background-color: #f0f0f0;
+            padding: 1.5mm;
+            border: 1px solid #000;
+            border-radius: 2mm;
         }
         .receipt-info {
-            font-size: 12px; /* Augmentation à 12px selon les instructions */
-            margin-bottom: 1mm; /* Réduction de la marge */
-            border-bottom: 1px dotted #ccc;
-            padding-bottom: 0.5mm; /* Réduction du padding */
-            font-weight: bold;
+            font-size: 14px;
+            margin-bottom: 2mm;
+            border-bottom: 1px solid #000;
+            padding-bottom: 1mm;
+            font-weight: 900;
         }
         .student-info {
-            font-size: 12px; /* Augmentation à 12px selon les instructions */
-            margin-bottom: 1mm; /* Réduction de la marge */
-            border-bottom: 1px dotted #ccc;
-            padding-bottom: 0.5mm; /* Réduction du padding */
-            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 3mm;
+            border: 2px solid #000;
+            padding: 2mm;
+            background-color: #f8f8f8;
+            border-radius: 2mm;
+            border: 2px solid #000;
+            padding: 2mm;
+            background-color: #f8f8f8;
+            border-radius: 2mm;
+            font-weight: 900;
         }
         .status-badge {
             display: inline-block;
@@ -82,81 +95,95 @@
             color: #8a6d3b;
         }
         .payment-info {
-            font-size: 12px; /* Augmentation à 12px selon les instructions */
+            font-size: 12px; /* Augmentation à 12px selon les instru2mm;
+            background-color: #f8f9fa;
+            overflow: hidden;
             margin-bottom: 1mm; /* Réduction de la marge */
             border-bottom: 1px dotted #ccc;
-            padding-bottom: 0.5mm; /* Réduction du padding */
-            font-weight: bold;
+            padding-bottom: adding */
+            font-weight: 900;
         }
         .payment-summary {
-            margin-top: 1.5mm; /* Réduction de la marge */
-            margin-bottom: 1.5mm; /* Réduction de la marge */
-            border: 1px solid #000;
-            border-radius: 0.5mm; /* Réduction du rayon */
+            margin:            border: 3px solid #000;
+            border-radius: 2mm;
+            background-color: #f8f9fa;
+            overflow: hidden;
         }
         .payment-summary-title {
             text-align: center;
-            font-weight: bold;
-            background-color: #f8f8f8;
-            border-bottom: 1px solid #000;
-            padding: 1mm; /* Augmentation du padding */
-            font-size: 15px; /* Augmentation à 15px */
+            font-weight: 900;
+            background-color: #f8f9fa;
+            border-bottom: 2px solid #000;
+            padding: 2mm;
         }
         .payment-summary-table {
             width: 100%;
             border-collapse: collapse;
         }
         .payment-summary-table tr td {
-            padding: 1.5mm 2mm; /* Augmentation du padding */
-            font-size: 14px; /* Augmentation à 14px selon les instructions */
-            font-weight: bold;
+            padding: 2mm 1mm 1mm;
+            font-size: 16px;
+            font-weight: 900;
+            white-space: nowrap;
         }
         .payment-summary-table tr:not(:last-child) td {
-            border-bottom: 1px dotted #ccc;
+            border-bottom: 1px solid #000;
         }
         .payment-summary-table .amount-label {
-            font-weight: bold;
+            font-weight: 900;
+                 width: 60%;
         }
         .payment-summary-table .amount-value {
             text-align: right;
-            font-weight: bold;
+            font-weight: 900;
+       white-space: nowrap;
+            width: 40%;
         }
         .payment-summary-table .highlight-row td {
-            background-color: #f8f8f8;
-            font-weight: bold;
-            font-size: 16px; /* Augmentation à 16px (ultra-visible) selon les instructions */
+            background-color: #fff3cd;
+            font-weight: 900;
+            font-size: 16px;
+            width: 40%;
+            white-space: nowrap;
         }
-        .footer {
+        .ccashier-info {
             text-align: center;
-            font-size: 13px; /* Augmentation à 13px selon les instructions */
-            margin-top: 1.5mm; /* Réduction de la marge */
-            font-weight: bold;
-            padding: 1.5mm; /* Augmentation du padding */
-            border: 1px solid #000; /* Bordure plus visible */
-            border-radius: 0.5mm; /* Réduction du rayon */
-            background-color: #f8f8f8;
+            font-size: 18px;
+            margin: 4mm 00;
+            font-weight: ;
         }
         .sign {
             text-align: center;
-            font-size: 13px; /* Augmentation à 13px selon les instructions */
-            margin-top: 1.5mm; /* Réduction de la marge */
-            padding-top: 1mm; /* Réduction du padding */
-            border-top: 1px dotted #ccc;
-            font-weight: bold;
+            font-size: 16px;
+            margin-top: 3mm;
+            padding: 2mm;
+            border: 2px solid #000;
+            border-radius: 2mm;
+            background-color: #f8f8f8;
+            font-weight: 900;
+        }
+        .cashier-info {
+            font-size: 16px;
+            font-weight: 900;
+            text-transform: uppercase;
         }
         .cut-line {
-            border-top: 1px dashed #000;
-            margin-top: 3mm; /* Réduction de la marge */
-            margin-bottom: 0;
-            height: 0.5mm; /* Réduction de la hauteur */
+            border-top: 3px dashed #000;
+            margin: 4mm 0;
+            height: 2mm;
             position: relative;
         }
         .cut-line:after {
             content: '✂';
             position: absolute;
-            top: -2mm; /* Ajustement de la position */
-            left: -1mm;
-            font-size: 8px; /* Réduction de la taille de police */
+            top: -3mm;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            background-color: white;
+            padding: 0;
+            font-weight: 900;
+            overflow: hidden;
         }
         .date-time {
             font-size: 13px; /* Augmentation à 13px selon les instructions */
@@ -165,7 +192,7 @@
             font-weight: bold;
         }
         .bold {
-            font-weight: bold;
+            font-weight: 7bold;
         }
         .text-center {
             text-align: center;
@@ -176,14 +203,117 @@
         .special-note {
             font-size: 13px; /* Augmentation à 13px selon les instructions */
             font-style: italic;
-            font-weight: bold;
-            margin-top: 1mm; /* Réduction de la marge */
+            font-weight: 343a40;
+            margin-top: 1mm; /* Réduction de la marge 0*/
             text-align: center;
             padding: 1mm; /* Augmentation du padding */
             background-color: #f8f8f8;
             border: 1px solid #000; /* Bordure plus visible */
-            border-radius: 0.5mm; /* Réduction du rayon */
+            border-bottom: 2px solid #000;
+            font-weight: 900;
+            text-transform: uppercase; /* Réduction du rayon */
         }
+
+        /* Historique des paiements */
+        .payment-history {
+            margin: 3mm 0;
+            border: 2px solid #000;
+            border-radius: 2mm;
+            padding: 0;
+            background-color: #f8f9fa;
+            overflow: hidden;
+        }
+
+        .payment-history-title {
+            font-size: 15px;
+            text-transform: uppercase;
+            font-weight: 900;
+            text-align: center;
+            margin-bottom: 0;
+            padding: 1.5mm 1mm;
+            background-color: #343a40;
+            color: white;
+            border-bottom: 2px solid #000;
+            text-transform: uppercase;
+        }
+
+        .payment-history-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 13px;
+        }
+
+        .payment-history-table th,
+        .payment-history-table td {
+            padding: 1.5mm 0.5mm;
+            border-bottom: 1px solid #000;
+            text-align: left;
+            font-weight: 900;
+            white-space: nowrap;
+            white-space: nowrap;
+        }
+
+        .payment-history-table th {
+            font-weight: 900;
+            background-color: #e9ecef;
+            font-size: 13px;
+            text-transform: uppercase;
+        }
+        
+        /* Alignement des montants à droite */
+        .payment-history-table td:nth-child(2),
+        .payment-history-table td:nth-child(3) {
+            text-align: right;
+        }
+
+        /* Classes utilitaires supplémentaires */
+        .amount {
+            font-weight: 900 !important;
+            font-size: 16px !important;
+        }
+
+        .date {
+            font-weight: bold !important;
+            font-size: 14px !important;
+        }
+        
+        /* Alignement des montants à droite */
+        .payment-history-table td:nth-child(2),
+        .payment-history-table td:nth-child(3) {
+            text-align: right;
+        }
+
+        .student-name {
+            font-size: 13px;
+            font-weight: bold;
+        }
+
+        .student-class {
+            font-size: 15px;
+            font-weight: bold;
+        }
+
+        .cashier-info {
+            font-size: 12px;
+            font-weight: 900;
+        }
+
+        .critical-amount {
+            font-size: 20px;
+            font-weight: 900;
+            margin-top: 1mm;
+            padding: 1mm;
+            background-color: #fff;
+            border: 1px solid #000;
+            border-radius: 0.5mm;
+        }
+
+        .payment-date {
+            font-size: 16px;
+            font-weight: 900;
+            margin-top: 1mm;
+        }
+
         /* Optimisations pour impression thermique */
         @media print {
             * {
@@ -207,6 +337,35 @@
             .footer div {
                 font-size: 16px !important; /* Maintien de la taille même en impression */
             }
+
+            /* Optimisations pour les nouvelles classes */
+            .payment-history, .footer {
+                border: 1px solid #000 !important;
+            }
+
+            .critical-amount {
+                font-size: 22px !important;
+            }
+
+            .cashier-info {
+                font-size: 16px !important;
+            }
+
+            .student-name {
+                font-size: 18px !important;
+            }
+
+            .student-class {
+                font-size: 17px !important;
+            }
+
+            .amount {
+                font-size: 18px !important;
+            }
+
+            .date {
+                font-size: 16px !important;
+            }
         }
     </style>
 </head>
@@ -220,7 +379,7 @@
         // Trier les reçus par date de création (du plus ancien au plus récent)
         $sortedReceipts = $receipts->sortBy('created_at');
         $latestReceipt = $sortedReceipts->last();
-        $paymentDate = $latestReceipt ? date('d/m/Y', strtotime($latestReceipt->created_at)) : date('d/m/Y');
+        $paymentDate = $latestReceipt ? \App\Helpers\DateHelper::formatForReceipt($latestReceipt->created_at) : \App\Helpers\DateHelper::formatForReceipt(now());
 
         // Déterminer le statut de l'élève
         $status = $sr->user->status ?? 'Normal';
@@ -262,114 +421,116 @@
             {{ strtoupper($settings['system_name'] ?? 'ÉCOLE') }}
         </div>
 
-        <div class="receipt-title">REÇU DE PAIEMENT</div>
-
-        <div class="date-time">
-            <span style="font-size: 13px; font-weight: bold;">Date: {{ date('d/m/Y H:i') }}</span>
-        </div>
-
-        <div class="receipt-info">
-            <div class="bold">N° REÇU: {{ $pr->ref_no }}</div>
-        </div>
+        <div class="receipt-title">REÇU</div>
 
         <div class="student-info">
-            <div><span class="bold">NOM:</span> {{ $sr->user->name }}</div>
-            <div><span class="bold">ADM_NO:</span> {{ $sr->adm_no }}</div>
-            <div><span class="bold">CLASSE:</span> {{ $sr->my_class->name }}</div>
-            <div><span class="bold">STATUT:</span> <span class="status-badge {{ $statusClass }}">{{ $status }}</span></div>
+            <p class="student-name">{{ $sr->user->name }}</p>
+            <p>{{ $sr->my_class->name }} {{ $sr->section->name ? '('.$sr->section->name.')' : '' }}</p>
+            <p>{{ $payment->title }} - <strong>{{ \App\Helpers\DateHelper::formatAmount($payment->amount) }}</strong></p>
+            <p><span class="status-badge {{ $statusClass }}">{{ $status }}</span></p>
         </div>
 
-        <div class="payment-info">
-            <div><span class="bold">TITRE:</span> {{ $payment->title }}</div>
-            @if($payment->description)
-                <div><span class="bold">DESCRIPTION:</span> {{ $payment->description }}</div>
-            @endif
+        <!-- Historique des paiements simplifié -->
+        @if($sortedReceipts->count() > 0)
+        <div class="payment-history">
+            <div class="payment-history-title">Historique</div>
+            <table class="payment-history-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Payé</th>
+                        <th>Reste</th>
+                        <th>Mode</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($sortedReceipts->take(2) as $r)
+                        @if($r->amt_paid != 0)
+                        @php
+                            $method = strtoupper($r->payment_method ?? $r->methode ?? 'CASH');
+                            if ($method == 'CASH' || $method == 'ESPÈCES' || $method == 'ESPECES') {
+                                $method = 'CASH';
+                            }
+                        @endphp
+                        <tr>
+                                <td>{{ \App\Helpers\DateHelper::formatForPaymentHistory($r->created_at) }}</td>
+                            <td>{{ \App\Helpers\DateHelper::formatAmount($r->amt_paid) }}</td>
+                            <td>{{ \App\Helpers\DateHelper::formatAmount($r->balance) }}</td>
+                            <td>{{ $method }}</td>
+                        </tr>
+                        @endif
+                    @endforeach
+                </tbody>
+            </table>
         </div>
+        @endif
 
-        <!-- Tableau de résumé des paiements -->
+        @php
+            // Pour les élèves ADRA, vérifier si le 25% a été payé
+            $remainingCash = null;
+            if ($status == 'ADRA') {
+                $cashAmount = $payment->amount * 0.25;
+                $cashPaid = 0;
+                
+                // Calculer le montant payé en cash
+                foreach ($receipts as $r) {
+                    if ($r->payment_method != 'ADRA') {
+                        $cashPaid += $r->amt_paid;
+                    }
+                }
+
+                // Si le montant payé en cash est inférieur à 25%
+                if ($cashPaid < $cashAmount) {
+                    $remainingCash = $cashAmount - $cashPaid;
+              $remainingCash = $cashAmount - $cashPaid;
+                }
+            }
+        @endphp
+
+        <!-- Résumé simplifié -->
         <div class="payment-summary">
-            <div class="payment-summary-title">DÉTAILS DU PAIEMENT</div>
             <table class="payment-summary-table">
-                <tr>
-                    <td class="amount-label">TOTAL</td>
-                    <td class="amount-value">{{ $formattedTotalAmount }} Ar</td>
+                <tr class="highlight-row">
+                    <td class="amount-label">Reste à payer:</td>
+                    <td class="amount-value amount">{{ \App\Helpers\DateHelper::formatAmount($pr->balance ?? 0) }}</td>
                 </tr>
+                @if(isset($remainingCash) && $remainingCash > 0)
                 <tr>
-                    <td class="amount-label">FACTURÉ</td>
-                    <td class="amount-value">{{ $formattedBilledAmount }} Ar</td>
-                </tr>
-                @if($status == 'ADRA' && $cashAmount > 0)
-                <tr>
-                    <td class="amount-label">CASH (25%)</td>
-                    <td class="amount-value">{{ $formattedCashAmount }} Ar</td>
+                    <td class="amount-label">Cash 25%:</td>
+                    <td class="amount-value amount">{{ \App\Helpers\DateHelper::formatAmount($remainingCash) }}</td>
                 </tr>
                 @endif
-                <tr>
-                    <td class="amount-label">PAYÉ</td>
-                    <td class="amount-value">{{ $formattedBilledAmount }} Ar</td>
-                </tr>
-                <tr class="highlight-row">
-                    <td class="amount-label">DESCRIPTION</td>
-                    <td class="amount-value">{{ $payment->description }}</td>
-                </tr>
             </table>
         </div>
 
-        @if($specialNote)
-            <div class="special-note">
-                {{ $specialNote }}
-            </div>
-        @endif
-
-        <div class="footer">
-            @php
-                $paymentStatus = "ACQUITTÉ";
-                $statusClass = "status-normal";
-
-                // Pour les élèves ADRA, vérifier si le 25% a été payé
-                if ($status == 'ADRA') {
-                    $cashAmount = $payment->amount * 0.25;
-                    $totalPaid = 0;
-                    $cashPaid = 0;
-
-                    // Calculer le montant total payé et le montant payé en cash
-                    foreach ($receipts as $r) {
-                        $totalPaid += $r->amt_paid;
-
-                        // Compter uniquement les paiements non-ADRA comme cash
-                        if ($r->payment_method != 'ADRA') {
-                            $cashPaid += $r->amt_paid;
-                        }
-                    }
-
-                    // Si le montant payé en cash est inférieur à 25%, alors le paiement est en cours
-                    if ($cashPaid < $cashAmount) {
-                        $paymentStatus = "EN COURS";
-                        $statusClass = "status-adra";
-                        $remainingCash = $cashAmount - $cashPaid;
-                    }
-                }
-            @endphp
-
-            <span class="status-badge {{ $statusClass }}">{{ $paymentStatus }}</span>
-            <div style="margin-top: 1mm; font-size: 16px; font-weight: bold;">
-                @if($paymentStatus == "ACQUITTÉ")
-                    Payé le {{ date('d/m/y', strtotime($paymentDate)) }}
-                @else
-                    25% cash à payer
-                    @if(isset($remainingCash))
-                        <br>Reste: {{ number_format($remainingCash, 0, ',', ' ') }} Ar
-                    @endif
-                @endif
-            </div>
-        </div>
-
+        <!-- Informations simplifiées -->
         <div class="sign">
-            <span style="font-size: 13px; font-weight: bold;">Caissier: {{ Auth::user()->name }}</span>
+            <div class="cashier-info">
+                <strong>Caissier:</strong> {{ Auth::user()->name  }
+            }
+        @endphp
+
+        <!-- Résumé simplifié -->
+        <div class="payment-summary">
+            <table class="payment-summary-table">
+                <tr class="highlight-row">
+                    <td class="amount-label">Reste à payer:</td>
+                    <td class="amount-value amount">{{ \App\Helpers\DateHelper::formatAmount($pr->balance ?? 0) }}</td>
+                </tr>
+                @if(isset($remainingCash) && $remainingCash > 0)
+                <tr>
+                    <td class="amount-label">Cash 25%:</td>
+                    <td class="amount-value amount">{{ \App\Helpers\DateHelper::formatAmount($remainingCash) }}</td>
+                </tr>
+                @endif
+            </table>
         </div>
 
-        <div class="date-time">
-            <span style="font-size: 13px; font-weight: bold;">Mode: ADRA</span>
+        <!-- Informations simplifiées -->
+        <div class="sign">
+            <div class="cashier-info">
+                <strong>Caissier:</strong> {{ Auth::user()->name }}
+            </div>
         </div>
 
         <div class="cut-line"></div>
@@ -377,7 +538,12 @@
 @endforeach
 
 <script>
-    window.print();
+    // Auto-impression pour les reçus thermiques
+    window.addEventListener('load', function() {
+        setTimeout(function() {
+            window.print();
+        }, 500);
+    });
 </script>
 </body>
 </html>

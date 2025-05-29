@@ -208,4 +208,88 @@ class DateHelper
     {
         return self::formatFrench($date, 'DD/MM/YYYY');
     }
+/**
+     * Convertit un montant en lettres pour les reçus
+     *
+     * @param float|int $montant
+     * @return string
+     */
+    public static function convertirMontantEnLettres($montant)
+    {
+        $unites = ['', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf'];
+        $dizaines = ['', '', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'soixante', 'quatre-vingt', 'quatre-vingt'];
+        $teens = ['dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf'];
+
+        if ($montant == 0) return 'zéro ariary';
+
+        $montant = intval($montant);
+        $result = '';
+
+        // Millions
+        if ($montant >= 1000000) {
+            $millions = intval($montant / 1000000);
+            $result .= self::convertirNombre($millions, $unites, $dizaines, $teens) . ' million' . ($millions > 1 ? 's' : '') . ' ';
+            $montant %= 1000000;
+        }
+
+        // Milliers
+        if ($montant >= 1000) {
+            $milliers = intval($montant / 1000);
+            $result .= self::convertirNombre($milliers, $unites, $dizaines, $teens) . ' mille ';
+            $montant %= 1000;
+        }
+
+        // Centaines, dizaines, unités
+        if ($montant > 0) {
+            $result .= self::convertirNombre($montant, $unites, $dizaines, $teens);
+        }
+
+        return trim($result) . ' ariary';
+    }
+
+    /**
+     * Convertit un nombre en lettres
+     *
+     * @param int $nombre
+     * @param array $unites
+     * @param array $dizaines
+     * @param array $teens
+     * @return string
+     */
+    protected static function convertirNombre($nombre, $unites, $dizaines, $teens)
+    {
+        $result = '';
+
+        // Centaines
+        if ($nombre >= 100) {
+            $centaines = intval($nombre / 100);
+            if ($centaines == 1) {
+                $result .= 'cent ';
+            } else {
+                $result .= $unites[$centaines] . ' cent ';
+            }
+            $nombre %= 100;
+        }
+
+        // Dizaines et unités
+        if ($nombre >= 20) {
+            $diz = intval($nombre / 10);
+            $unit = $nombre % 10;
+
+            if ($diz == 7 || $diz == 9) {
+                $result .= $dizaines[$diz] . '-' . ($diz == 7 ? $teens[$unit] : $teens[$unit]);
+            } else {
+                $result .= $dizaines[$diz];
+                if ($unit > 0) {
+                    $result .= '-' . $unites[$unit];
+                }
+            }
+        } elseif ($nombre >= 10) {
+            $result .= $teens[$nombre - 10];
+        } elseif ($nombre > 0) {
+            $result .= $unites[$nombre];
+        }
+
+        return $result;
+    }
 }

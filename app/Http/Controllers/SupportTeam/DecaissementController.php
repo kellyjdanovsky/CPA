@@ -20,6 +20,73 @@ class DecaissementController extends Controller
     {
         $this->middleware('teamSA');
         $this->year = Qs::getCurrentSession();
+        
+        // Vérifier et créer les tables nécessaires si elles n'existent pas
+        $this->checkAndCreateRequiredTables();
+    }
+    
+    /**
+     * Vérifie et crée les tables nécessaires si elles n'existent pas
+     */
+    private function checkAndCreateRequiredTables()
+    {
+        try {
+            // Vérifier et créer la table projets si elle n'existe pas
+            if (!\Schema::hasTable('projets')) {
+                \Schema::create('projets', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->id();
+                    $table->string('nom');
+                    $table->text('description')->nullable();
+                    $table->date('date_debut')->nullable();
+                    $table->date('date_fin')->nullable();
+                    $table->decimal('budget', 15, 2)->nullable();
+                    $table->string('statut')->default('actif');
+                    $table->timestamps();
+                });
+                
+                // Ajouter quelques projets par défaut
+                \DB::table('projets')->insert([
+                    ['nom' => 'Projet Éducatif', 'description' => 'Projet principal pour les activités éducatives', 'statut' => 'actif', 'created_at' => now(), 'updated_at' => now()],
+                    ['nom' => 'Cantine Scolaire', 'description' => 'Gestion de la cantine scolaire', 'statut' => 'actif', 'created_at' => now(), 'updated_at' => now()],
+                    ['nom' => 'Rénovation', 'description' => 'Travaux de rénovation des bâtiments', 'statut' => 'actif', 'created_at' => now(), 'updated_at' => now()]
+                ]);
+                
+                \Log::info('Table projets créée avec succès.');
+            }
+            
+            // Vérifier et créer la table decaissements si elle n'existe pas
+            if (!\Schema::hasTable('decaissements')) {
+                \Schema::create('decaissements', function (\Illuminate\Database\Schema\Blueprint $table) {
+                    $table->id();
+                    $table->date('date_paiement');
+                    $table->decimal('montant', 15, 2);
+                    $table->string('montant_lettres')->nullable();
+                    $table->string('motif');
+                    $table->text('description')->nullable();
+                    $table->string('beneficiaire');
+                    $table->text('coordonnees')->nullable();
+                    $table->string('methode_paiement')->default('espèces');
+                    $table->string('reference')->nullable();
+                    $table->string('piece')->nullable();
+                    $table->text('details_bancaires')->nullable();
+                    $table->string('projet_rubrique')->nullable();
+                    $table->boolean('justificatif_present')->default(false);
+                    $table->text('observations')->nullable();
+                    $table->enum('status', ['en_attente', 'approuve', 'rejete'])->default('en_attente');
+                    $table->unsignedBigInteger('created_by');
+                    $table->string('year');
+                    $table->unsignedBigInteger('projet_id')->nullable();
+                    $table->timestamps();
+
+                    $table->foreign('created_by')->references('id')->on('users');
+                    $table->foreign('projet_id')->references('id')->on('projets')->onDelete('set null');
+                });
+                
+                \Log::info('Table decaissements créée avec succès.');
+            }
+        } catch (\Exception $e) {
+            \Log::error('Erreur lors de la création des tables: ' . $e->getMessage());
+        }
     }
 
     /**
@@ -122,6 +189,11 @@ class DecaissementController extends Controller
      */
     public function edit($id)
     {
+        // Vérifier les permissions
+        if (!Qs::userIsTeamSA() && !Qs::userIsAdmin()) {
+            return redirect()->route('decaissements.index')->with('flash_danger', 'Accès non autorisé.');
+        }
+
         $decaissement = Decaissement::findOrFail($id);
         $categories = Decaissement::getCategories();
         $methodes_paiement = Decaissement::getMethodesPaiement();
@@ -135,6 +207,11 @@ class DecaissementController extends Controller
      */
     public function update(Request $request, $id)
     {
+        // Vérifier les permissions
+        if (!Qs::userIsTeamSA() && !Qs::userIsAdmin()) {
+            return redirect()->route('decaissements.index')->with('flash_danger', 'Accès non autorisé.');
+        }
+
         $decaissement = Decaissement::findOrFail($id);
 
         $validator = Validator::make($request->all(), [
@@ -143,7 +220,11 @@ class DecaissementController extends Controller
             'motif' => 'required|string|max:255',
             'beneficiaire' => 'required|string|max:255',
             'methode_paiement' => 'required|string',
+            'description' => 'nullable|string',
+            'reference' => 'nullable|string|max:255',
+            'details_bancaires' => 'nullable|string',
             'piece' => 'nullable|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'projet_id' => 'nullable|exists:projets,id',
         ]);
 
         if ($validator->fails()) {
@@ -174,7 +255,17 @@ class DecaissementController extends Controller
      */
     public function destroy($id)
     {
+        // Vérifier les permissions
+        if (!Qs::userIsTeamSA() && !Qs::userIsAdmin()) {
+            return redirect()->route('decaissements.index')->with('flash_danger', 'Accès non autorisé.');
+        }
+
         $decaissement = Decaissement::findOrFail($id);
+
+        // Vérifier si le décaissement peut être supprimé (pas encore approuvé)
+        if ($decaissement->status === 'approuve') {
+            return redirect()->route('decaissements.index')->with('flash_danger', 'Impossible de supprimer un décaissement approuvé.');
+        }
 
         // Supprimer le fichier associé s'il existe
         if ($decaissement->piece) {
@@ -223,6 +314,73 @@ class DecaissementController extends Controller
     public function ordrePaiement($id)
     {
         $decaissement = Decaissement::with(['user', 'projet'])->findOrFail($id);
-        return view('pages.support_team.decaissements.ordre_paiement', compact('decaissement'));
+        return view('pages.support_team.decaissements.ordre_paiement_recu', compact('decaissement'));
     }
+/**
+ * Vérifie et corrige les décaissements
+ */
+public function verifyAndCorrectDecaissements(Request $request)
+{
+    // Vérifier les permissions
+    if (!auth()->check() || !auth()->user()->is_teamSA) {
+        return redirect()->route('decaissements.index')->with('flash_danger', 'Accès non autorisé.');
+    }
+
+    // Récupérer tous les décaissements
+    $decaissements = Decaissement::with(['user', 'projet'])->get();
+
+    foreach ($decaissements as $decaissement) {
+        // Vérifier les faux décaissements (rejete ou manquants)
+        if ($decaissement->status === 'rejete' || $this->isInvalidDecaissement($decaissement)) {
+            // Supprimer le faux décaissement
+            $this->destroy($decaissement->id);
+            continue;
+        }
+
+        // Corriger les vrais décaissements
+        $this->correctDecaissement($decaissement);
+    }
+
+    return redirect()->route('decaissements.index')->with('flash_success', 'Vérification et correction des décaissements terminées.');
+}
+
+/**
+ * Vérifie si un décaissement est invalide
+ */
+protected function isInvalidDecaissement($decaissement)
+{
+    // Vérifier les champs obligatoires
+    if (!$decaissement->montant || !$decaissement->motif || !$decaissement->beneficiaire) {
+        return true;
+    }
+
+    // Vérifier l'incohérence entre montant et montant_lettres
+    if ($decaissement->montant_lettres) {
+        $montantEnLettres = \App\Helpers\DateHelper::convertirMontantEnLettres($decaissement->montant);
+        if ($montantEnLettres !== $decaissement->montant_lettres) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Corrige un décaissement valide
+ */
+protected function correctDecaissement($decaissement)
+{
+    $data = [];
+
+    // Mettre à jour montant_lettres si nécessaire
+    if (!$decaissement->montant_lettres || $decaissement->montant_lettres !== \App\Helpers\DateHelper::convertirMontantEnLettres($decaissement->montant)) {
+        $data['montant_lettres'] = \App\Helpers\DateHelper::convertirMontantEnLettres($decaissement->montant);
+    }
+
+    // Ajouter d'autres corrections si nécessaire
+
+    if (!empty($data)) {
+        $decaissement->update($data);
+    }
+}
 }
