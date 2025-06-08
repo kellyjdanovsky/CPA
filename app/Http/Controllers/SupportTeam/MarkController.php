@@ -138,6 +138,90 @@ class MarkController extends Controller
 
         return view('pages.support_team.marks.print.index', $d);
     }
+    
+    public function print_multiple($student_id, $year)
+    {
+        /* Prevent Other Students/Parents from viewing Result of others */
+        if(Auth::user()->id != $student_id && !Qs::userIsTeamSA() && !Qs::userIsMyChild($student_id, Auth::user()->id)){
+            return redirect(route('dashboard'))->with('pop_error', __('msg.denied'));
+        }
+
+        if(Mk::examIsLocked() && !Qs::userIsTeamSA()){
+            Session::put('marks_url', route('marks.show', [Qs::hash($student_id), $year]));
+
+            if(!$this->checkPinVerified($student_id)){
+                return redirect()->route('pins.enter', Qs::hash($student_id));
+            }
+        }
+
+        if(!$this->verifyStudentExamYear($student_id, $year)){
+            return $this->noStudentRecord();
+        }
+        
+        // Récupérer les IDs des examens sélectionnés depuis la requête
+        $exam_ids = request()->query('exams');
+        if (!$exam_ids) {
+            return back()->with('flash_danger', 'Aucun examen sélectionné');
+        }
+        
+        $exam_ids = explode(',', $exam_ids);
+        
+        // Vérifier que les examens existent
+        $exams = $this->exam->getExam(['year' => $year])->whereIn('id', $exam_ids);
+        if ($exams->count() < 1) {
+            return back()->with('flash_danger', 'Examens non trouvés');
+        }
+        
+        // Récupérer les informations de l'étudiant
+        $sr = $this->student->getRecord(['user_id' => $student_id])->first();
+        if (!$sr) {
+            return $this->noStudentRecord();
+        }
+        
+        // Récupérer la classe et le type de classe
+        $my_class = $this->my_class->find($sr->my_class_id);
+        $class_type = $this->my_class->findTypeByClass($my_class->id);
+        
+        // Récupérer les matières de la classe
+        $subjects = $this->my_class->findSubjectByClass($my_class->id);
+        
+        // Préparer les données pour la vue
+        $d['exams'] = $exams;
+        $d['sr'] = $sr;
+        $d['my_class'] = $my_class;
+        $d['section_id'] = $sr->section_id;
+        $d['class_type'] = $class_type;
+        $d['subjects'] = $subjects;
+        $d['year'] = $year;
+        $d['student_id'] = $student_id;
+        $d['ct'] = $class_type->code;
+        
+        // Récupérer les notes pour chaque examen
+        $all_marks = [];
+        $all_exam_records = [];
+        
+        foreach ($exams as $exam) {
+            $wh = ['student_id' => $student_id, 'exam_id' => $exam->id, 'year' => $year];
+            $marks = $this->exam->getMark($wh);
+            $exam_record = $this->exam->getRecord($wh)->first();
+            
+            if ($marks->count() > 0 && $exam_record) {
+                $all_marks[$exam->id] = $marks;
+                $all_exam_records[$exam->id] = $exam_record;
+            }
+        }
+        
+        $d['all_marks'] = $all_marks;
+        $d['all_exam_records'] = $all_exam_records;
+        
+        // Récupérer les compétences et les paramètres
+        $d['skills'] = $this->exam->getSkillByClassType() ?: NULL;
+        $d['s'] = Setting::all()->flatMap(function($s){
+            return [$s->type => $s->description];
+        });
+        
+        return view('pages.support_team.marks.print.multiple', $d);
+    }
 
     public function selector(MarkSelector $req)
     {

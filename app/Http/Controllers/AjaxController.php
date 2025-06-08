@@ -63,6 +63,31 @@ class AjaxController extends Controller
 
     public function get_available_years(Request $request)
     {
+        // Si student_id est fourni, récupérer les examens disponibles pour cet étudiant
+        if ($request->has('student_id') && $request->has('year')) {
+            $student_id = Qs::decodeHash($request->student_id);
+            $year = $request->year;
+            
+            // Récupérer les examens disponibles pour cet étudiant et cette année
+            $exams = \App\Models\Exam::where('year', $year)
+                ->whereExists(function ($query) use ($student_id, $year) {
+                    $query->select(\DB::raw(1))
+                        ->from('exam_records')
+                        ->whereRaw('exam_records.exam_id = exams.id')
+                        ->where('exam_records.student_id', $student_id)
+                        ->where('exam_records.year', $year);
+                })
+                ->get();
+            
+            // Si aucun examen n'est disponible, récupérer tous les examens de l'année
+            if ($exams->count() < 1) {
+                $exams = \App\Models\Exam::where('year', $year)->get();
+            }
+            
+            return response()->json(['exams' => $exams]);
+        }
+        
+        // Sinon, traiter comme une demande d'années disponibles
         $class_id = $request->class_id;
         $section_id = $request->section_id;
 
