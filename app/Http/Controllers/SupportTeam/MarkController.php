@@ -90,6 +90,11 @@ class MarkController extends Controller
         //$d['ct'] = $d['class_type']->code;
         //$d['mark_type'] = Qs::getMarkType($d['ct']);
 
+        // Calculate Director's Comment for show page (annual average)
+        // Assuming $d['sr']->ave holds the overall annual average. This might need adjustment.
+        $annual_average = $d['sr']->ave ?? 0; // Default to 0 if 'ave' is not set
+        $d['director_comment'] = $this->getDirectorComment($annual_average);
+
         return view('pages.support_team.marks.show.index', $d);
     }
 
@@ -135,6 +140,11 @@ class MarkController extends Controller
         });
 
         //$d['mark_type'] = Qs::getMarkType($ct);
+
+        // Calculate Director's Comment for print view (specific exam average)
+        // Assuming $d['exr']->ave holds the average for the specific exam.
+        $exam_average = $d['exr']->ave ?? 0; // Default to 0 if 'ave' is not set
+        $d['director_comment'] = $this->getDirectorComment($exam_average);
 
         return view('pages.support_team.marks.print.index', $d);
     }
@@ -297,13 +307,44 @@ class MarkController extends Controller
             $subject = Subject::where('id', $subject_id)->first(); // Fetch the subject by its id
             $coef = $subject->coef; // Retrieve the coef value of the subject
 
-            $total = ($tca + $exm) / 3; // Calculate the initial total
+            // Calculer le nombre de notes saisies
+            $note_count = 0;
+            $sum = 0;
+            
+            // Vérifier si DS1 est saisi
+            if ($t1 !== null && $t1 !== '') {
+                $note_count++;
+                $sum += $t1;
+            }
+            
+            // Vérifier si DS2 est saisi
+            if ($t2 !== null && $t2 !== '') {
+                $note_count++;
+                $sum += $t2;
+            }
+            
+            // Vérifier si l'examen est saisi
+            if ($exm !== null && $exm !== '') {
+                $note_count++;
+                $sum += $exm;
+            }
+            
+            // Calculer la moyenne en divisant par le nombre de notes saisies
+            $total = ($note_count > 0) ? ($sum / $note_count) : 0;
+            
+            // Calculer la note sur 20 avant d'appliquer le coefficient (pour les remarques)
+            $note_sur_20 = $total;
+            
+            // Appliquer le coefficient
             $total *= $coef; // Multiply the total by the coef
 
             $d['tex'.$exam->term] = $total; // Store the final total
+            
+            // Ajouter la remarque pédagogique basée sur la note sur 20
+            $d['comment'] = \App\Helpers\MarkComment::getComment($note_sur_20);
 
             if($total > 100){
-                $d['tex'.$exam->term] = $d['t1'] = $d['t2'] = $d['t3'] = $d['t4'] = $d['tca'] = $d['exm'] = NULL;
+                $d['tex'.$exam->term] = $d['t1'] = $d['t2'] = $d['t3'] = $d['t4'] = $d['tca'] = $d['exm'] = $d['comment'] = NULL;
             }
 
          /*   if($exam->term < 3){
@@ -573,6 +614,35 @@ class MarkController extends Controller
     protected function checkPinVerified($st_id)
     {
         return Session::has('pin_verified') && Session::get('pin_verified') == $st_id;
+    }
+
+    private function getDirectorComment(float $average): string
+    {
+        if ($average >= 18) {
+            return "Félicitations ! Un parcours remarquable.";
+        }
+        if ($average >= 16) {
+            return "Excellente implication, continue ainsi !";
+        }
+        if ($average >= 14) {
+            return "Bon travail, garde cette motivation.";
+        }
+        if ($average >= 12) {
+            return "Des efforts visibles, poursuis dans cette voie.";
+        }
+        if ($average >= 10) {
+            return "Des bases posées, à renforcer pas à pas.";
+        }
+        if ($average >= 8) {
+            return "Continue à progresser, tu en es capable.";
+        }
+        if ($average >= 5) {
+            return "Courage et persévérance mèneront à la réussite.";
+        }
+        if ($average >= 0) { // Handles 0 to 4.99
+            return "Ne lâche rien, chaque effort t'aidera à avancer.";
+        }
+        return ""; // Default or in case of negative (should not happen)
     }
 
 }

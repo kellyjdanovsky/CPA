@@ -87,7 +87,26 @@
                         @endphp
                         {{ number_format($multipliedValue, 1) }}
                     </td>
-                    <td>{{ $mk->grade ? $mk->grade->remark : '-' }}</td>
+                    <td>
+                        @php
+                            // Récupérer les valeurs de t1, t2, et exm
+                            $t1 = $mk->t1 ?: 0;
+                            $t2 = $mk->t2 ?: 0;
+                            $exm = $mk->exm ?: 0;
+
+                            // Calcul de la moyenne sans coefficient
+                            $values = [$t1, $t2, $exm];
+                            $sum = array_sum($values);
+                            $count = count(array_filter($values, function($value) { return $value > 0; }));
+                            $moyen_sans_coef = $count > 0 ? $sum / $count : 0;
+                            
+                            // Générer le commentaire basé sur la moyenne
+                            $comment = \App\Helpers\MarkComment::getComment($moyen_sans_coef);
+                            $commentColor = \App\Helpers\MarkComment::getCommentColor($moyen_sans_coef);
+                        @endphp
+                        
+                        <span class="{{ $commentColor }}">{{ $comment ?: ($mk->comment ?: '-') }}</span>
+                    </td>
                 @endforeach
                 <script>
                     $(document).ready(function() {
@@ -179,5 +198,76 @@
 
 {{-- TOTAL NOTE AVEC COEF SUR TOUTE MATIERE --}}
 
+<!-- Commentaire général de l'enseignant -->
+<div class="card mt-3">
+    <div class="card-header bg-light">
+        <h5 class="card-title">Commentaire de l'enseignant</h5>
+    </div>
+    <div class="card-body">
+        <div id="commentaire_general_{{ $ex->id }}" class="p-3 bg-light rounded">
+            <!-- Le commentaire sera inséré ici par JavaScript -->
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        // Attendre que la moyenne soit calculée
+        setTimeout(function() {
+            var totalpoint = 0;
+            var total_coef = 0;
+            
+            $(".notetotalaveccoef-{{ $ex->id }}").each(function() {
+                var value = parseFloat($(this).text());
+                if (!isNaN(value)) {
+                    totalpoint += value;
+                }
+            });
+            
+            $(".coef-{{ $ex->id }}").each(function() {
+                var value = parseFloat($(this).text());
+                if (!isNaN(value)) {
+                    total_coef += value;
+                }
+            });
+            
+            var moyenne = total_coef > 0 ? totalpoint / total_coef : 0;
+            var moyenne_sur_20 = moyenne;
+            
+            var commentaire = "";
+            var commentaireClass = "";
+            
+            // Déterminer le commentaire en fonction de la moyenne
+            if (moyenne_sur_20 >= 0 && moyenne_sur_20 < 5) {
+                commentaire = "Moyenne très faible. Il faut persévérer, chaque progrès compte.";
+                commentaireClass = "text-danger font-weight-bold";
+            } else if (moyenne_sur_20 >= 5 && moyenne_sur_20 < 8) {
+                commentaire = "Résultats insuffisants, mais des efforts peuvent relancer la dynamique.";
+                commentaireClass = "text-warning font-weight-bold";
+            } else if (moyenne_sur_20 >= 8 && moyenne_sur_20 < 10) {
+                commentaire = "Moyenne fragile. Du potentiel à développer avec plus de régularité.";
+                commentaireClass = "text-warning font-weight-bold";
+            } else if (moyenne_sur_20 >= 10 && moyenne_sur_20 < 12) {
+                commentaire = "Moyenne juste. Des bases sont posées, il faut les renforcer.";
+                commentaireClass = "text-primary font-weight-bold";
+            } else if (moyenne_sur_20 >= 12 && moyenne_sur_20 < 14) {
+                commentaire = "Moyenne correcte. Il faut continuer à s'investir pour consolider les acquis.";
+                commentaireClass = "text-primary font-weight-bold";
+            } else if (moyenne_sur_20 >= 14 && moyenne_sur_20 < 16) {
+                commentaire = "Bon travail. Un bel investissement à maintenir.";
+                commentaireClass = "text-success font-weight-bold";
+            } else if (moyenne_sur_20 >= 16 && moyenne_sur_20 < 18) {
+                commentaire = "Très bon niveau. L'élève est sérieux et régulier.";
+                commentaireClass = "text-success font-weight-bold";
+            } else if (moyenne_sur_20 >= 18 && moyenne_sur_20 <= 20) {
+                commentaire = "Excellent parcours. Un exemple à suivre, bravo !";
+                commentaireClass = "text-purple font-weight-bold";
+            }
+            
+            // Afficher le commentaire avec la classe de couleur appropriée
+            $("#commentaire_general_{{ $ex->id }}").html('<span class="' + commentaireClass + '">' + commentaire + '</span>');
+        }, 500); // Attendre 500ms pour s'assurer que la moyenne est calculée
+    });
+</script>
 
 {{-- Moyene NOTE AVEC COEF SUR TOUTE MATIERE --}}

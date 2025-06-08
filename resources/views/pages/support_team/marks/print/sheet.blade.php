@@ -102,7 +102,26 @@
 
                 </td>
 
-                <td>{{ $mk->grade ? $mk->grade->remark : '-' }}</td>
+                <td>
+                    @php
+                        // Récupérer les valeurs de t1, t2, et exm
+                        $t1 = $mk->t1 ?: 0;
+                        $t2 = $mk->t2 ?: 0;
+                        $exm = $mk->exm ?: 0;
+
+                        // Calcul de la moyenne sans coefficient
+                        $values = [$t1, $t2, $exm];
+                        $sum = array_sum($values);
+                        $count = count(array_filter($values, fn($value) => $value > 0));
+                        $moyen_sans_coef = $count > 0 ? $sum / $count : 0;
+                        
+                        // Générer le commentaire basé sur la moyenne
+                        $comment = \App\Helpers\MarkComment::getComment($moyen_sans_coef);
+                        $commentColor = \App\Helpers\MarkComment::getCommentColor($moyen_sans_coef);
+                    @endphp
+                    
+                    <span class="{{ $commentColor }}">{{ $comment ?: ($mk->comment ?: '-') }}</span>
+                </td>
             @endforeach
         </tr>
     @endforeach
@@ -163,6 +182,74 @@
         // Display the concatenated total value wherever you want
         $(".P_totalpoi").text(soratra);
         $(".P_moyenne").text(soratra2);
+        
+        // Stocker la moyenne pour le commentaire général
+        window.moyenne_generale = moyenne;
     });
 </script>
+
+<!-- Commentaire général de l'enseignant -->
+<div style="margin-top: 30px; border: 1px solid #ddd; padding: 15px; border-radius: 5px;">
+    <h4 style="border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 15px;">Commentaire de l'enseignant</h4>
+    <div id="commentaire_general" style="font-style: italic; padding: 10px; background-color: #f9f9f9; border-radius: 5px;">
+        <!-- Le commentaire sera inséré ici par JavaScript -->
+    </div>
+    
+    <script>
+        $(document).ready(function() {
+            // Attendre que la moyenne soit calculée
+            setTimeout(function() {
+                var moyenne = window.moyenne_generale || 0;
+                var commentaire = "";
+                var commentaireClass = "";
+                
+                // Déterminer le commentaire en fonction de la moyenne
+                if (moyenne >= 0 && moyenne < 5) {
+                    commentaire = "Moyenne très faible. Il faut persévérer, chaque progrès compte.";
+                    commentaireClass = "text-danger";
+                } else if (moyenne >= 5 && moyenne < 8) {
+                    commentaire = "Résultats insuffisants, mais des efforts peuvent relancer la dynamique.";
+                    commentaireClass = "text-warning";
+                } else if (moyenne >= 8 && moyenne < 10) {
+                    commentaire = "Moyenne fragile. Du potentiel à développer avec plus de régularité.";
+                    commentaireClass = "text-warning";
+                } else if (moyenne >= 10 && moyenne < 12) {
+                    commentaire = "Moyenne juste. Des bases sont posées, il faut les renforcer.";
+                    commentaireClass = "text-primary";
+                } else if (moyenne >= 12 && moyenne < 14) {
+                    commentaire = "Moyenne correcte. Il faut continuer à s'investir pour consolider les acquis.";
+                    commentaireClass = "text-primary";
+                } else if (moyenne >= 14 && moyenne < 16) {
+                    commentaire = "Bon travail. Un bel investissement à maintenir.";
+                    commentaireClass = "text-success";
+                } else if (moyenne >= 16 && moyenne < 18) {
+                    commentaire = "Très bon niveau. L'élève est sérieux et régulier.";
+                    commentaireClass = "text-success";
+                } else if (moyenne >= 18 && moyenne <= 20) {
+                    commentaire = "Excellent parcours. Un exemple à suivre, bravo !";
+                    commentaireClass = "text-purple";
+                }
+                
+                // Afficher le commentaire avec la classe de couleur appropriée
+                $("#commentaire_general").html('<span class="' + commentaireClass + '">' + commentaire + '</span>');
+            }, 500); // Attendre 500ms pour s'assurer que la moyenne est calculée
+        });
+    </script>
+</div>
+
+<!-- Signature de l'enseignant et du parent -->
+<div style="margin-top: 30px; display: flex; justify-content: space-between;">
+    <div style="width: 30%; text-align: center;">
+        <div style="border-bottom: 1px solid #000; height: 50px;"></div>
+        <p>Signature de l'enseignant</p>
+    </div>
+    <div style="width: 30%; text-align: center;">
+        <div style="border-bottom: 1px solid #000; height: 50px;"></div>
+        <p>Signature du directeur</p>
+    </div>
+    <div style="width: 30%; text-align: center;">
+        <div style="border-bottom: 1px solid #000; height: 50px;"></div>
+        <p>Signature du parent</p>
+    </div>
+</div>
 

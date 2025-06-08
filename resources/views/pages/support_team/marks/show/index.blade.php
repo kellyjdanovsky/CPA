@@ -8,6 +8,15 @@
         </div>
     </div>
 
+    @if(isset($director_comment) && !empty($director_comment))
+    <div class="card">
+        <div class="card-body">
+            <h5 class="font-weight-bold">Commentaire du Directeur (Annuel) :</h5>
+            <p class="text-muted"><em>{{ $director_comment }}</em></p>
+        </div>
+    </div>
+    @endif
+
     @foreach($exams as $ex)
         @foreach($exam_records->where('exam_id', $ex->id) as $exr)
 

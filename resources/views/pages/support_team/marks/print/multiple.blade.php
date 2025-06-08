@@ -132,7 +132,26 @@
                                     <td>{{ number_format($moyenSansCoef, 2) }}</td>
                                     <td>{{ $sub->coef }}</td>
                                     <td>{{ number_format($moyenAvecCoef, 2) }}</td>
-                                    <td>{{ $subjectMark->grade ? $subjectMark->grade->remark : '-' }}</td>
+                                    <td>
+                                        @php
+                                            // Récupérer les valeurs de t1, t2, et exm
+                                            $t1 = $subjectMark->t1 ?: 0;
+                                            $t2 = $subjectMark->t2 ?: 0;
+                                            $exm = $subjectMark->exm ?: 0;
+
+                                            // Calcul de la moyenne sans coefficient
+                                            $values = [$t1, $t2, $exm];
+                                            $sum = array_sum($values);
+                                            $count = count(array_filter($values, fn($value) => $value > 0));
+                                            $moyen_sans_coef = $count > 0 ? $sum / $count : 0;
+                                            
+                                            // Générer le commentaire basé sur la moyenne
+                                            $comment = \App\Helpers\MarkComment::getComment($moyen_sans_coef);
+                                            $commentColor = \App\Helpers\MarkComment::getCommentColor($moyen_sans_coef);
+                                        @endphp
+                                        
+                                        <span class="{{ $commentColor }}">{{ $comment ?: ($subjectMark->comment ?: '-') }}</span>
+                                    </td>
                                 @else
                                     <td>-</td>
                                     <td>-</td>
@@ -170,7 +189,48 @@
                             <td style="width:50%"><strong>COMMENTAIRE DU DIRECTEUR:</strong></td>
                         </tr>
                         <tr>
-                            <td style="height:50px; padding: 10px;">{{ $exr->t_comment }}</td>
+                            <td style="height:50px; padding: 10px;">
+                                @php
+                                    // Calculer la moyenne générale pour cet examen
+                                    $totalPoints = 0;
+                                    $totalCoef = 0;
+                                    
+                                    foreach ($subjects as $sub) {
+                                        if (isset($all_marks[$exam->id])) {
+                                            $subjectMarks = $all_marks[$exam->id]->where('subject_id', $sub->id);
+                                            if ($subjectMarks->count() > 0) {
+                                                $subjectMark = $subjectMarks->first();
+                                                
+                                                // Calculer la moyenne sans coefficient
+                                                $t1 = $subjectMark->t1 ?: 0;
+                                                $t2 = $subjectMark->t2 ?: 0;
+                                                $exm = $subjectMark->exm ?: 0;
+                                                
+                                                $values = [$t1, $t2, $exm];
+                                                $sum = array_sum($values);
+                                                $count = count(array_filter($values, fn($value) => $value > 0));
+                                                $moyenSansCoef = $count > 0 ? $sum / $count : 0;
+                                                
+                                                // Appliquer le coefficient
+                                                $moyenAvecCoef = $moyenSansCoef * $sub->coef;
+                                                
+                                                $totalPoints += $moyenAvecCoef;
+                                                $totalCoef += $sub->coef;
+                                            }
+                                        }
+                                    }
+                                    
+                                    $moyenneGenerale = $totalCoef > 0 ? $totalPoints / $totalCoef : 0;
+                                    
+                                    // Générer le commentaire basé sur la moyenne générale
+                                    $commentaire = \App\Helpers\MarkComment::getGeneralComment($moyenneGenerale);
+                                    $commentaireClass = \App\Helpers\MarkComment::getCommentColor($moyenneGenerale);
+                                @endphp
+                                
+                                <span style="font-weight: bold;">{{ $commentaire }}</span>
+                                <br>
+                                <span style="font-style: italic; font-size: 0.9em;">Moyenne générale: {{ number_format($moyenneGenerale, 2) }}/20</span>
+                            </td>
                             <td style="height:50px; padding: 10px;">{{ $exr->p_comment }}</td>
                         </tr>
                     </tbody>
