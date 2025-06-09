@@ -3,6 +3,27 @@
 <head>
     <title>Bulletin de notes de l'élève - {{ $sr->user->name }}</title>
     <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/my_print.css') }}" />
+    <style>
+        /* Styles supplémentaires pour garantir l'orientation paysage */
+        @page {
+            size: A4 landscape !important;
+        }
+        
+        @media print {
+            body {
+                width: 297mm;
+                height: 210mm;
+                margin: 0;
+                padding: 0;
+            }
+            
+            /* Ajustement pour s'assurer que tout le contenu tient sur une page */
+            #print {
+                transform: scale(0.98);
+                transform-origin: top left;
+            }
+        }
+    </style>
 </head>
 <body>
 <div class="container">
@@ -26,12 +47,10 @@
                 </td>
             </tr>
         </table>
-        <br/>
-
-        {{-- Logo de fond --}}
-        <div style="position: relative;  text-align: center; ">
+        {{-- Logo de fond (filigrane) --}}
+        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; z-index: -1; pointer-events: none;">
             <img src="{{ $s['logo'] }}"
-                 style="max-width: 500px; max-height:600px; margin-top: 60px; position:absolute ; opacity: 0.2; margin-left: auto;margin-right: auto; left: 0; right: 0;" />
+                 style="max-width: 80%; max-height: 80%; opacity: 0.25;" />
         </div>
 
         {{-- <!-- LE DOCUMENT COMMENCE ICI--> --}}
@@ -43,10 +62,9 @@
         {{-- TRAITS - PSYCHOMOTEURS ET AFFECTIFS --}}
         @include('pages.support_team.marks.print.skills')
 
-        <div style="margin-top: 25px; clear: both;"></div>
+        <div style="margin-top: 5px; clear: both;"></div>
 
-        {{-- Commentaires et signature --}}
-        @include('pages.support_team.marks.print.comments')
+        {{-- Les commentaires du directeur sont maintenant intégrés dans sheet.blade.php --}}
 
     </div>
 </div>

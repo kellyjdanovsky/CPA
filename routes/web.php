@@ -185,6 +185,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('show/{id}/{year}', 'MarkController@show')->name('marks.show');
             Route::get('print/{id}/{exam_id}/{year}', 'MarkController@print_view')->name('marks.print');
             Route::get('print_multiple/{id}/{year}', 'MarkController@print_multiple')->name('marks.print_multiple');
+            Route::post('save_decision', 'MarkController@save_decision')->name('marks.save_decision');
 
         });
 

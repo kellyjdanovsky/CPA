@@ -21,23 +21,54 @@
 @media print {
 
     td, th {
-        padding: 2px;
+        padding: 1px;
         text-align: center;
-        font-size: 12px;
+        font-size: 10px;
     }
 
     @page {
-        size: auto;   /* auto is the initial value */
+        size: A4 landscape !important;   /* Définir le format A4 en orientation paysage */
         margin: 0;  /* this affects the margin in the printer settings */
+    }
+    
+    /* Forcer l'orientation paysage */
+    @media print {
+        html, body {
+            width: 297mm !important;
+            height: 210mm !important;
+            overflow: hidden !important;
+        }
+        
+        .container {
+            width: 100% !important;
+            height: 100% !important;
+            transform-origin: top left;
+            transform: scale(0.98); /* Légère réduction pour s'assurer que tout tient */
+        }
     }
 
     html {
         background-color: #FFFFFF;
-        margin: 10px; /* this affects the margin on the html before sending to printer */
+        margin: 5px; /* Réduire la marge */
     }
 
     body {
-        margin: 0 10mm; /* margin you want for the content */
+        margin: 0 5mm; /* Réduire la marge */
+    }
+    
+    /* Optimisations pour tenir sur une page */
+    table {
+        margin-bottom: 5px !important;
+    }
+    
+    h4 {
+        margin-top: 5px !important;
+        margin-bottom: 5px !important;
+    }
+    
+    div {
+        margin-top: 0 !important;
+        margin-bottom: 5px !important;
     }
 }
 

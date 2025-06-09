@@ -87,6 +87,7 @@ class MarkController extends Controller
         $d['year'] = $year;
         $d['student_id'] = $student_id;
         $d['skills'] = $this->exam->getSkillByClassType() ?: NULL;
+        $d['all_classes'] = $this->my_class->all(); // Ajouter toutes les classes pour le formulaire de décision
         //$d['ct'] = $d['class_type']->code;
         //$d['mark_type'] = Qs::getMarkType($d['ct']);
 
@@ -145,6 +146,44 @@ class MarkController extends Controller
         // Assuming $d['exr']->ave holds the average for the specific exam.
         $exam_average = $d['exr']->ave ?? 0; // Default to 0 if 'ave' is not set
         $d['director_comment'] = $this->getDirectorComment($exam_average);
+
+        // Si c'est le 3ème trimestre, récupérer les moyennes des trimestres précédents pour calculer la moyenne annuelle
+        if($exam->term == 3) {
+            // Récupérer les examens du 1er et 2ème trimestre de la même année
+            $term1_exam = $this->exam->getExam(['year' => $year, 'term' => 1])->first();
+            $term2_exam = $this->exam->getExam(['year' => $year, 'term' => 2])->first();
+            
+            $d['term1_average'] = 0;
+            $d['term2_average'] = 0;
+            
+            // Si les examens existent, récupérer les moyennes
+            if($term1_exam) {
+                $term1_record = $this->exam->getRecord([
+                    'student_id' => $student_id, 
+                    'exam_id' => $term1_exam->id, 
+                    'year' => $year
+                ])->first();
+                $d['term1_average'] = $term1_record ? ($term1_record->ave ?? 0) : 0;
+            }
+            
+            if($term2_exam) {
+                $term2_record = $this->exam->getRecord([
+                    'student_id' => $student_id, 
+                    'exam_id' => $term2_exam->id, 
+                    'year' => $year
+                ])->first();
+                $d['term2_average'] = $term2_record ? ($term2_record->ave ?? 0) : 0;
+            }
+            
+            // Calculer la moyenne annuelle
+            $d['annual_average'] = ($d['term1_average'] + $d['term2_average'] + $exam_average) / 3;
+            
+            // Récupérer toutes les classes pour le menu déroulant de la classe de passage
+            $d['all_classes'] = $this->my_class->all();
+            
+            // Récupérer les informations de décision pour l'impression
+            $d['rang'] = $exr; // Utiliser l'enregistrement d'examen qui contient les champs decision, next_class_id, observations
+        }
 
         return view('pages.support_team.marks.print.index', $d);
     }
@@ -335,8 +374,12 @@ class MarkController extends Controller
             // Calculer la note sur 20 avant d'appliquer le coefficient (pour les remarques)
             $note_sur_20 = $total;
             
-            // Appliquer le coefficient
-            $total *= $coef; // Multiply the total by the coef
+            // Appliquer le coefficient seulement s'il y a au moins une note
+            if ($note_count > 0) {
+                $total *= $coef; // Multiply the total by the coef
+            } else {
+                $total = 0; // Si aucune note, le total est 0 (sans appliquer le coefficient)
+            }
 
             $d['tex'.$exam->term] = $total; // Store the final total
             
@@ -643,6 +686,41 @@ class MarkController extends Controller
             return "Ne lâche rien, chaque effort t'aidera à avancer.";
         }
         return ""; // Default or in case of negative (should not happen)
+    }
+
+    public function save_decision(Request $request)
+    {
+        // Valider les données
+        $validated = $request->validate([
+            'student_id' => 'required',
+            'exam_id' => 'required',
+            'year' => 'required',
+            'decision' => 'required|in:passant,redoublant',
+            'next_class' => 'nullable',
+            'observations' => 'nullable|string|max:500',
+        ]);
+
+        // Enregistrer la décision dans la base de données
+        // Nous allons utiliser la table exam_records pour stocker ces informations
+        $examRecord = $this->exam->getRecord([
+            'student_id' => $validated['student_id'],
+            'exam_id' => $validated['exam_id'],
+            'year' => $validated['year']
+        ])->first();
+
+        if ($examRecord) {
+            // Mettre à jour l'enregistrement existant
+            $this->exam->updateRecord(
+                ['id' => $examRecord->id],
+                [
+                    'decision' => $validated['decision'],
+                    'next_class_id' => $validated['next_class'],
+                    'observations' => $validated['observations']
+                ]
+            );
+        }
+
+        return redirect()->back()->with('flash_success', 'Décision de fin d\'année enregistrée avec succès');
     }
 
 }
