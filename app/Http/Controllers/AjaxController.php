@@ -143,8 +143,8 @@ class AjaxController extends Controller
 
         try {
             // Déterminer si le champ appartient à la table users ou student_records
-            $user_fields = ['name', 'dob', 'status', 'nom_p', 'prof_p', 'nom_m', 'prof_m', 'phone', 'address'];
-            $student_fields = ['age'];
+            $user_fields = ['name', 'dob', 'status', 'nom_p', 'prof_p', 'nom_m', 'prof_m', 'phone', 'address', 'student_type', 'academic_status'];
+            $student_fields = ['age', 'adm_no'];
 
             if (in_array($field_name, $user_fields)) {
                 // Mettre à jour le champ dans la table users
@@ -152,20 +152,33 @@ class AjaxController extends Controller
 
                 // Si c'est la date de naissance, calculer l'âge automatiquement
                 if ($field_name == 'dob') {
-                    $birthDate = new \DateTime($field_value);
-                    $today = new \DateTime('today');
-                    $age = $birthDate->diff($today)->y;
-
-                    // Mettre à jour l'âge dans la table student_records
-                    $this->student->updateRecord($student_id, ['age' => $age]);
+                    try {
+                        $birthDate = new \DateTime($field_value);
+                        $today = new \DateTime('today');
+                        $age = $birthDate->diff($today)->y;
+    
+                        // Mettre à jour l'âge dans la table student_records
+                        $this->student->updateRecord($student_id, ['age' => $age]);
+                    } catch (\Exception $e) {
+                        // En cas d'erreur avec la date, ne pas mettre à jour l'âge
+                        \Log::error("Erreur lors du calcul de l'âge: " . $e->getMessage());
+                    }
                 }
 
                 // Mettre à jour le champ utilisateur
                 $student->user()->update($data);
 
-                // Si le champ est le statut, vérifier qu'il est valide
+                // Valider les valeurs des champs spécifiques
                 if ($field_name == 'status' && !in_array($field_value, ['Normal', 'ADRA', 'TEAM3'])) {
                     return response()->json(['ok' => false, 'msg' => 'Statut invalide'], 400);
+                }
+                
+                if ($field_name == 'student_type' && !in_array($field_value, ['Nouveau', 'Ancien'])) {
+                    return response()->json(['ok' => false, 'msg' => 'Type d\'étudiant invalide'], 400);
+                }
+                
+                if ($field_name == 'academic_status' && !in_array($field_value, ['Passant', 'Redoublant'])) {
+                    return response()->json(['ok' => false, 'msg' => 'Statut académique invalide'], 400);
                 }
 
                 // Si le statut a été modifié, mettre à jour les enregistrements de paiement en conséquence
@@ -188,6 +201,15 @@ class AjaxController extends Controller
             }
             elseif (in_array($field_name, $student_fields)) {
                 // Mettre à jour le champ dans la table student_records
+                
+                // Vérifier si le numéro d'admission est unique s'il est modifié
+                if ($field_name == 'adm_no') {
+                    $existingStudent = $this->student->getRecord(['adm_no' => $field_value])->where('id', '!=', $student_id)->first();
+                    if ($existingStudent) {
+                        return response()->json(['ok' => false, 'msg' => 'Ce numéro d\'admission est déjà utilisé'], 400);
+                    }
+                }
+                
                 $this->student->updateRecord($student_id, [$field_name => $field_value]);
                 return response()->json(['ok' => true, 'msg' => 'Mise à jour réussie']);
             }

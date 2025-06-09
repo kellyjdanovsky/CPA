@@ -100,6 +100,7 @@
             <ul class="nav nav-tabs nav-tabs-highlight">
                 <li class="nav-item"><a href="#all-students" class="nav-link active" data-toggle="tab">Tous les étudiants</a></li>
                 <li class="nav-item"><a href="#student-stats" class="nav-link" data-toggle="tab">Statistiques des étudiants</a></li>
+                <li class="nav-item"><a href="#student-types" class="nav-link" data-toggle="tab">Types d'étudiants</a></li>
                 <li class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Filtrer par classe</a>
                     <div class="dropdown-menu dropdown-menu-right">
@@ -125,6 +126,8 @@
                             <th>Âge</th>
                             <th>Adresse</th>
                             <th>Statut</th>
+                            <th>Type</th>
+                            <th>Statut académique</th>
                             <th>Père/Tuteur</th>
                             <th>Profession père</th>
                             <th>Mère/Tutrice</th>
@@ -138,13 +141,15 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="{{ $s->user->photo }}" alt="photo"></td>
-                                <td>{{ $s->user->name }}</td>
-                                <td>{{ $s->adm_no }}</td>
+                                <td class="editable" data-field="name" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->name }}</td>
+                                <td class="editable" data-field="adm_no" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->adm_no }}</td>
                                 <td>{{ $s->my_class->name.' '.$s->section->name }}</td>
                                 <td class="editable" data-field="dob" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->dob }}</td>
                                 <td class="age-display" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->age }}</td>
                                 <td class="editable" data-field="address" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->address }}</td>
                                 <td class="editable" data-field="status" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->status ?? 'Normal' }}</td>
+                                <td class="editable" data-field="student_type" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->student_type ?? 'Nouveau' }}</td>
+                                <td class="editable" data-field="academic_status" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->academic_status ?? 'Passant' }}</td>
                                 <td class="editable" data-field="nom_p" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->nom_p }}</td>
                                 <td class="editable" data-field="prof_p" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->prof_p }}</td>
                                 <td class="editable" data-field="nom_m" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->nom_m }}</td>
@@ -178,6 +183,85 @@
                         @endforeach
                         </tbody>
                     </table>
+                    </div>
+                </div>
+
+                <div class="tab-pane fade" id="student-types">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-primary text-white header-elements-inline">
+                                    <h6 class="card-title">Types d'étudiants</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="student-type-chart"></canvas>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-md-12">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Type</th>
+                                                        <th>Nombre d'étudiants</th>
+                                                        <th>Pourcentage</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Nouveau</td>
+                                                        <td id="nouveaux-count">-</td>
+                                                        <td id="nouveaux-percent">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Ancien</td>
+                                                        <td id="anciens-count">-</td>
+                                                        <td id="anciens-percent">-</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-success text-white header-elements-inline">
+                                    <h6 class="card-title">Statuts académiques</h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container">
+                                        <canvas id="academic-status-chart"></canvas>
+                                    </div>
+                                    <div class="row mt-3">
+                                        <div class="col-md-12">
+                                            <table class="table table-bordered">
+                                                <thead>
+                                                    <tr>
+                                                        <th>Statut</th>
+                                                        <th>Nombre d'étudiants</th>
+                                                        <th>Pourcentage</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    <tr>
+                                                        <td>Passant</td>
+                                                        <td id="passants-count">-</td>
+                                                        <td id="passants-percent">-</td>
+                                                    </tr>
+                                                    <tr>
+                                                        <td>Redoublant</td>
+                                                        <td id="redoublants-count">-</td>
+                                                        <td id="redoublants-percent">-</td>
+                                                    </tr>
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
@@ -373,6 +457,12 @@
 
         // Initialiser les graphiques
         initializeCharts();
+        
+        // Calculer et afficher les statistiques pour les types d'étudiants et statuts académiques
+        calculateStudentTypeStats();
+        
+        // Calculer l'âge pour tous les étudiants
+        calculateAllAges();
 
         // Fonction pour initialiser les graphiques
         function initializeCharts() {
@@ -492,6 +582,24 @@
                         </select>
                         <span class="save-indicator"><i class="icon-spinner2 spinner"></i></span>
                     `;
+                } else if (field === 'student_type') {
+                    // Créer un menu déroulant pour le type d'étudiant
+                    editElement = `
+                        <select class="edit-input">
+                            <option value="Nouveau" ${currentValue === 'Nouveau' ? 'selected' : ''}>Nouveau</option>
+                            <option value="Ancien" ${currentValue === 'Ancien' ? 'selected' : ''}>Ancien</option>
+                        </select>
+                        <span class="save-indicator"><i class="icon-spinner2 spinner"></i></span>
+                    `;
+                } else if (field === 'academic_status') {
+                    // Créer un menu déroulant pour le statut académique
+                    editElement = `
+                        <select class="edit-input">
+                            <option value="Passant" ${currentValue === 'Passant' ? 'selected' : ''}>Passant</option>
+                            <option value="Redoublant" ${currentValue === 'Redoublant' ? 'selected' : ''}>Redoublant</option>
+                        </select>
+                        <span class="save-indicator"><i class="icon-spinner2 spinner"></i></span>
+                    `;
                 } else if (field === 'dob') {
                     // Créer un sélecteur de date pour la date de naissance
                     editElement = `
@@ -544,8 +652,8 @@
                     });
                 }
 
-                // Pour le select, sauvegarder lors du changement
-                if (field === 'status') {
+                // Pour les selects, sauvegarder lors du changement
+                if (field === 'status' || field === 'student_type' || field === 'academic_status') {
                     $(this).find('select').on('change', function() {
                         const newValue = $(this).val();
                         saveField(field, newValue, studentId, $(this).closest('.editable'));
@@ -554,6 +662,134 @@
             });
         }
 
+        // Fonction pour calculer l'âge à partir de la date de naissance
+        function calculateAge(dob) {
+            if (!dob) return '';
+            
+            const birthDate = new Date(dob);
+            if (isNaN(birthDate.getTime())) return '';
+            
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            
+            // Ajuster l'âge si l'anniversaire n'est pas encore passé cette année
+            if (today.getMonth() < birthDate.getMonth() || 
+                (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            
+            return age;
+        }
+        
+        // Fonction pour calculer l'âge pour tous les étudiants
+        function calculateAllAges() {
+            $('.editable[data-field="dob"]').each(function() {
+                const dob = $(this).text().trim();
+                const studentId = $(this).data('student-id');
+                const age = calculateAge(dob);
+                
+                if (age !== '') {
+                    $('.age-display[data-student-id="' + studentId + '"]').text(age);
+                }
+            });
+        }
+        
+        // Fonction pour calculer et afficher les statistiques des types d'étudiants et statuts académiques
+        function calculateStudentTypeStats() {
+            let nouveauxCount = 0;
+            let anciensCount = 0;
+            let passantsCount = 0;
+            let redoublantsCount = 0;
+            const totalStudents = {{ $total_students }};
+            
+            // Parcourir tous les étudiants pour compter les types et statuts
+            $('.editable[data-field="student_type"]').each(function() {
+                const value = $(this).text().trim();
+                if (value === 'Nouveau') {
+                    nouveauxCount++;
+                } else if (value === 'Ancien') {
+                    anciensCount++;
+                }
+            });
+            
+            $('.editable[data-field="academic_status"]').each(function() {
+                const value = $(this).text().trim();
+                if (value === 'Passant') {
+                    passantsCount++;
+                } else if (value === 'Redoublant') {
+                    redoublantsCount++;
+                }
+            });
+            
+            // Mettre à jour les tableaux
+            $('#nouveaux-count').text(nouveauxCount);
+            $('#anciens-count').text(anciensCount);
+            $('#nouveaux-percent').text(totalStudents > 0 ? (nouveauxCount / totalStudents * 100).toFixed(2) + '%' : '0%');
+            $('#anciens-percent').text(totalStudents > 0 ? (anciensCount / totalStudents * 100).toFixed(2) + '%' : '0%');
+            
+            $('#passants-count').text(passantsCount);
+            $('#redoublants-count').text(redoublantsCount);
+            $('#passants-percent').text(totalStudents > 0 ? (passantsCount / totalStudents * 100).toFixed(2) + '%' : '0%');
+            $('#redoublants-percent').text(totalStudents > 0 ? (redoublantsCount / totalStudents * 100).toFixed(2) + '%' : '0%');
+            
+            // Initialiser les graphiques si ce n'est pas déjà fait
+            if (!window.studentTypeChart) {
+                const studentTypeCtx = document.getElementById('student-type-chart').getContext('2d');
+                window.studentTypeChart = new Chart(studentTypeCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Nouveau', 'Ancien'],
+                        datasets: [{
+                            data: [nouveauxCount, anciensCount],
+                            backgroundColor: ['#4CAF50', '#2196F3'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            } else {
+                // Mettre à jour les données du graphique existant
+                window.studentTypeChart.data.datasets[0].data = [nouveauxCount, anciensCount];
+                window.studentTypeChart.update();
+            }
+            
+            if (!window.academicStatusChart) {
+                const academicStatusCtx = document.getElementById('academic-status-chart').getContext('2d');
+                window.academicStatusChart = new Chart(academicStatusCtx, {
+                    type: 'pie',
+                    data: {
+                        labels: ['Passant', 'Redoublant'],
+                        datasets: [{
+                            data: [passantsCount, redoublantsCount],
+                            backgroundColor: ['#4CAF50', '#FFC107'],
+                            borderWidth: 1
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom'
+                            }
+                        }
+                    }
+                });
+            } else {
+                // Mettre à jour les données du graphique existant
+                window.academicStatusChart.data.datasets[0].data = [passantsCount, redoublantsCount];
+                window.academicStatusChart.update();
+            }
+        }
+        
         // Fonction pour sauvegarder un champ
         function saveField(field, value, studentId, element) {
             // Afficher l'indicateur de sauvegarde
@@ -574,9 +810,15 @@
                         // Mettre à jour l'affichage
                         element.removeClass('editing').html(value);
 
-                        // Si c'est une date de naissance, mettre à jour l'âge
-                        if (field === 'dob' && response.age) {
-                            $('.age-display[data-student-id="' + studentId + '"]').text(response.age);
+                        // Si c'est une date de naissance, calculer et mettre à jour l'âge
+                        if (field === 'dob') {
+                            const age = calculateAge(value);
+                            $('.age-display[data-student-id="' + studentId + '"]').text(age);
+                        }
+                        
+                        // Si c'est un champ lié aux types d'étudiants ou statuts académiques, mettre à jour les statistiques
+                        if (field === 'student_type' || field === 'academic_status') {
+                            calculateStudentTypeStats();
                         }
 
                         // Afficher un message de succès

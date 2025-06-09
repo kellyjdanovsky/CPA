@@ -128,10 +128,11 @@ if ($usertype == 'teacher') {
                             @endif
 
                             {{--Student Information--}}
-                            <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['students.list', 'students.edit', 'students.show']) ? 'nav-item-expanded' : '' }}">
-                                <a href="#" class="nav-link {{ in_array(Route::currentRouteName(), ['students.list', 'students.edit', 'students.show']) ? 'active' : '' }}"> Information des Eleves</a>
+                            <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['students.list', 'students.edit', 'students.show', 'students.list_all']) ? 'nav-item-expanded' : '' }}">
+                                <a href="#" class="nav-link {{ in_array(Route::currentRouteName(), ['students.list', 'students.edit', 'students.show', 'students.list_all']) ? 'active' : '' }}"> Information des Eleves</a>
                                 <ul class="nav nav-group-sub">
-
+                                    <li class="nav-item"><a href="{{ route('students.list_all') }}" class="nav-link {{ (Route::currentRouteName() == 'students.list_all') ? 'active' : '' }}"><i class="icon-list-unordered"></i> Liste complète des étudiants</a></li>
+                                    <li class="nav-item"><hr class="my-1"></li>
                                     @foreach($liste_classe as $c)
                                         <li class="nav-item"><a href="{{ url('/students/list/'.$c->id) }}" class="nav-link ">{{ $c->name }}</a></li>
                                     @endforeach

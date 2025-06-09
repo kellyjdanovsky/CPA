@@ -117,6 +117,8 @@
                             <th>Âge</th>
                             <th>Adresse</th>
                             <th>Statut</th>
+                            <th>Type</th>
+                            <th>Statut académique</th>
                             <th>Père/Tuteur</th>
                             <th>Profession père</th>
                             <th>Mère/Tutrice</th>
@@ -130,13 +132,15 @@
                             <tr>
                                 <td>{{ $loop->iteration }}</td>
                                 <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="{{ $s->user->photo }}" alt="photo"></td>
-                                <td>{{ $s->user->name }}</td>
-                                <td>{{ $s->adm_no }}</td>
+                                <td class="editable" data-field="name" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->name }}</td>
+                                <td class="editable" data-field="adm_no" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->adm_no }}</td>
                                 <td>{{ $my_class->name.' '.$s->section->name }}</td>
                                 <td class="editable" data-field="dob" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->dob }}</td>
                                 <td class="age-display" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->age }}</td>
                                 <td class="editable" data-field="address" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->address }}</td>
                                 <td class="editable" data-field="status" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->status ?? 'Normal' }}</td>
+                                <td class="editable" data-field="student_type" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->student_type ?? 'Nouveau' }}</td>
+                                <td class="editable" data-field="academic_status" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->academic_status ?? 'Passant' }}</td>
                                 <td class="editable" data-field="nom_p" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->nom_p }}</td>
                                 <td class="editable" data-field="prof_p" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->prof_p }}</td>
                                 <td class="editable" data-field="nom_m" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->nom_m }}</td>
@@ -187,6 +191,8 @@
                             <th>Âge</th>
                             <th>Adresse</th>
                             <th>Statut</th>
+                            <th>Type</th>
+                            <th>Statut académique</th>
                             <th>Père/Tuteur</th>
                             <th>Profession père</th>
                             <th>Mère/Tutrice</th>
@@ -207,6 +213,8 @@
                                 <td class="age-display" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->age }}</td>
                                 <td class="editable" data-field="address" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->address }}</td>
                                 <td class="editable" data-field="status" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->status ?? 'Normal' }}</td>
+                                <td class="editable" data-field="student_type" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->student_type ?? 'Nouveau' }}</td>
+                                <td class="editable" data-field="academic_status" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->academic_status ?? 'Passant' }}</td>
                                 <td class="editable" data-field="nom_p" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->nom_p }}</td>
                                 <td class="editable" data-field="prof_p" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->prof_p }}</td>
                                 <td class="editable" data-field="nom_m" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->nom_m }}</td>
@@ -253,10 +261,13 @@
                                 <th>Photo</th>
                                 <th>Nom</th>
                                 <th>N° d'admission</th>
+                                <th>Classe/Section</th>
                                 <th>Date de naissance</th>
                                 <th>Âge</th>
                                 <th>Adresse</th>
                                 <th>Statut</th>
+                                <th>Type</th>
+                                <th>Statut académique</th>
                                 <th>Père/Tuteur</th>
                                 <th>Profession père</th>
                                 <th>Mère/Tutrice</th>
@@ -266,91 +277,19 @@
                             </tr>
                             </thead>
                             <tbody>
-                            @foreach($students->where('section_id', $se->id) as $sr)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="{{ $sr->user->photo }}" alt="photo"></td>
-                                    <td>{{ $sr->user->name }}</td>
-                                    <td>{{ $sr->adm_no }}</td>
-                                    <td class="editable" data-field="dob" data-student-id="{{ Qs::hash($sr->id) }}">{{ $sr->user->dob }}</td>
-                                    <td class="age-display" data-student-id="{{ Qs::hash($sr->id) }}">{{ $sr->age }}</td>
-                                    <td class="editable" data-field="address" data-student-id="{{ Qs::hash($sr->id) }}">{{ $sr->user->address }}</td>
-                                    <td class="editable" data-field="status" data-student-id="{{ Qs::hash($sr->id) }}">{{ $sr->user->status ?? 'Normal' }}</td>
-                                    <td class="editable" data-field="nom_p" data-student-id="{{ Qs::hash($sr->id) }}">{{ $sr->user->nom_p }}</td>
-                                    <td class="editable" data-field="prof_p" data-student-id="{{ Qs::hash($sr->id) }}">{{ $sr->user->prof_p }}</td>
-                                    <td class="editable" data-field="nom_m" data-student-id="{{ Qs::hash($sr->id) }}">{{ $sr->user->nom_m }}</td>
-                                    <td class="editable" data-field="prof_m" data-student-id="{{ Qs::hash($sr->id) }}">{{ $sr->user->prof_m }}</td>
-                                    <td class="editable" data-field="phone" data-student-id="{{ Qs::hash($sr->id) }}">{{ $sr->user->phone }}</td>
-                                    <td class="text-center">
-                                        <div class="list-icons">
-                                            <div class="dropdown">
-                                                <a href="#" class="list-icons-item" data-toggle="dropdown">
-                                                    <i class="icon-menu9"></i>
-                                                </a>
-
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a href="{{ route('students.show', Qs::hash($sr->id)) }}" class="dropdown-item"><i class="icon-eye"></i> Voir les informations</a>
-                                                    @if(Qs::userIsTeamSA())
-                                                        <a href="{{ route('students.edit', Qs::hash($sr->id)) }}" class="dropdown-item"><i class="icon-pencil"></i> Modifier</a>
-                                                        <a href="{{ route('st.reset_pass', Qs::hash($sr->user->id)) }}" class="dropdown-item"><i class="icon-lock"></i> Réinitialiser le mot de passe</a>
-                                                    @endif
-                                                    <a href="#" class="dropdown-item"><i class="icon-check"></i> Fiche de notes</a>
-
-                                                    {{--Suppression--}}
-                                                    @if(Qs::userIsSuperAdmin())
-                                                        <a id="{{ Qs::hash($sr->user->id) }}" onclick="confirmDelete(this.id)" href="#" class="dropdown-item"><i class="icon-trash"></i> Supprimer</a>
-                                                        <form method="post" id="item-delete-{{ Qs::hash($sr->user->id) }}" action="{{ route('students.destroy', Qs::hash($sr->user->id)) }}" class="hidden">@csrf @method('delete')</form>
-                                                    @endif
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-
-                            </tbody>
-                        </table>
-                        </div>
-                    </div>
-                @endforeach
-
-                @foreach($my_classes as $c)
-                    @if($c->id != $my_class->id) {{-- Ne pas dupliquer la classe actuelle --}}
-                    <div class="tab-pane fade" id="c{{$c->id}}">
-                        <div class="table-responsive">
-                        <table class="table datatable-button-html5-columns">
-                            <thead>
-                            <tr>
-                                <th>N°</th>
-                                <th>Photo</th>
-                                <th>Nom</th>
-                                <th>N° d'admission</th>
-                                <th>Section</th>
-                                <th>Date de naissance</th>
-                                <th>Âge</th>
-                                <th>Adresse</th>
-                                <th>Statut</th>
-                                <th>Père/Tuteur</th>
-                                <th>Profession père</th>
-                                <th>Mère/Tutrice</th>
-                                <th>Profession mère</th>
-                                <th>Téléphone</th>
-                                <th>Action</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach($all_students->where('my_class_id', $c->id) as $s)
+                            @foreach($students->where('section_id', $se->id) as $s)
                                 <tr>
                                     <td>{{ $loop->iteration }}</td>
                                     <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="{{ $s->user->photo }}" alt="photo"></td>
                                     <td>{{ $s->user->name }}</td>
                                     <td>{{ $s->adm_no }}</td>
-                                    <td>{{ $s->section->name }}</td>
+                                    <td>{{ $my_class->name.' '.$s->section->name }}</td>
                                     <td class="editable" data-field="dob" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->dob }}</td>
                                     <td class="age-display" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->age }}</td>
                                     <td class="editable" data-field="address" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->address }}</td>
                                     <td class="editable" data-field="status" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->status ?? 'Normal' }}</td>
+                                    <td class="editable" data-field="student_type" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->student_type ?? 'Nouveau' }}</td>
+                                    <td class="editable" data-field="academic_status" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->academic_status ?? 'Passant' }}</td>
                                     <td class="editable" data-field="nom_p" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->nom_p }}</td>
                                     <td class="editable" data-field="prof_p" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->prof_p }}</td>
                                     <td class="editable" data-field="nom_m" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->nom_m }}</td>
@@ -363,8 +302,8 @@
                                                     <i class="icon-menu9"></i>
                                                 </a>
 
-                                                <div class="dropdown-menu dropdown-menu-right">
-                                                    <a href="{{ route('students.show', Qs::hash($s->id)) }}" class="dropdown-item"><i class="icon-eye"></i> Voir les informations</a>
+                                                <div class="dropdown-menu dropdown-menu-left">
+                                                    <a href="{{ route('students.show', Qs::hash($s->id)) }}" class="dropdown-item"><i class="icon-eye"></i> Voir le profil</a>
                                                     @if(Qs::userIsTeamSA())
                                                         <a href="{{ route('students.edit', Qs::hash($s->id)) }}" class="dropdown-item"><i class="icon-pencil"></i> Modifier</a>
                                                         <a href="{{ route('st.reset_pass', Qs::hash($s->user->id)) }}" class="dropdown-item"><i class="icon-lock"></i> Réinitialiser le mot de passe</a>
@@ -376,27 +315,98 @@
                                                         <a id="{{ Qs::hash($s->user->id) }}" onclick="confirmDelete(this.id)" href="#" class="dropdown-item"><i class="icon-trash"></i> Supprimer</a>
                                                         <form method="post" id="item-delete-{{ Qs::hash($s->user->id) }}" action="{{ route('students.destroy', Qs::hash($s->user->id)) }}" class="hidden">@csrf @method('delete')</form>
                                                     @endif
-
                                                 </div>
                                             </div>
                                         </div>
                                     </td>
                                 </tr>
                             @endforeach
-
                             </tbody>
                         </table>
                         </div>
                     </div>
-                    @endif
                 @endforeach
 
+                @foreach($my_classes as $mc)
+                    <div class="tab-pane fade" id="c{{$mc->id}}">
+                        <div class="table-responsive">
+                        <table class="table datatable-button-html5-columns">
+                            <thead>
+                            <tr>
+                                <th>N°</th>
+                                <th>Photo</th>
+                                <th>Nom</th>
+                                <th>N° d'admission</th>
+                                <th>Classe/Section</th>
+                                <th>Date de naissance</th>
+                                <th>Âge</th>
+                                <th>Adresse</th>
+                                <th>Statut</th>
+                                <th>Type</th>
+                                <th>Statut académique</th>
+                                <th>Père/Tuteur</th>
+                                <th>Profession père</th>
+                                <th>Mère/Tutrice</th>
+                                <th>Profession mère</th>
+                                <th>Téléphone</th>
+                                <th>Action</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            @foreach($all_students->where('my_class_id', $mc->id) as $s)
+                                <tr>
+                                    <td>{{ $loop->iteration }}</td>
+                                    <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="{{ $s->user->photo }}" alt="photo"></td>
+                                    <td>{{ $s->user->name }}</td>
+                                    <td>{{ $s->adm_no }}</td>
+                                    <td>{{ $mc->name.' '.$s->section->name }}</td>
+                                    <td class="editable" data-field="dob" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->dob }}</td>
+                                    <td class="age-display" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->age }}</td>
+                                    <td class="editable" data-field="address" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->address }}</td>
+                                    <td class="editable" data-field="status" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->status ?? 'Normal' }}</td>
+                                    <td class="editable" data-field="student_type" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->student_type ?? 'Nouveau' }}</td>
+                                    <td class="editable" data-field="academic_status" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->academic_status ?? 'Passant' }}</td>
+                                    <td class="editable" data-field="nom_p" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->nom_p }}</td>
+                                    <td class="editable" data-field="prof_p" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->prof_p }}</td>
+                                    <td class="editable" data-field="nom_m" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->nom_m }}</td>
+                                    <td class="editable" data-field="prof_m" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->prof_m }}</td>
+                                    <td class="editable" data-field="phone" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->phone }}</td>
+                                    <td class="text-center">
+                                        <div class="list-icons">
+                                            <div class="dropdown">
+                                                <a href="#" class="list-icons-item" data-toggle="dropdown">
+                                                    <i class="icon-menu9"></i>
+                                                </a>
+
+                                                <div class="dropdown-menu dropdown-menu-left">
+                                                    <a href="{{ route('students.show', Qs::hash($s->id)) }}" class="dropdown-item"><i class="icon-eye"></i> Voir le profil</a>
+                                                    @if(Qs::userIsTeamSA())
+                                                        <a href="{{ route('students.edit', Qs::hash($s->id)) }}" class="dropdown-item"><i class="icon-pencil"></i> Modifier</a>
+                                                        <a href="{{ route('st.reset_pass', Qs::hash($s->user->id)) }}" class="dropdown-item"><i class="icon-lock"></i> Réinitialiser le mot de passe</a>
+                                                    @endif
+                                                    <a target="_blank" href="{{ route('marks.year_selector', Qs::hash($s->user->id)) }}" class="dropdown-item"><i class="icon-check"></i> Fiche de notes</a>
+
+                                                    {{--Suppression--}}
+                                                    @if(Qs::userIsSuperAdmin())
+                                                        <a id="{{ Qs::hash($s->user->id) }}" onclick="confirmDelete(this.id)" href="#" class="dropdown-item"><i class="icon-trash"></i> Supprimer</a>
+                                                        <form method="post" id="item-delete-{{ Qs::hash($s->user->id) }}" action="{{ route('students.destroy', Qs::hash($s->user->id)) }}" class="hidden">@csrf @method('delete')</form>
+                                                    @endif
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            @endforeach
+                            </tbody>
+                        </table>
+                        </div>
+                    </div>
+                @endforeach
             </div>
         </div>
     </div>
 
-    {{--Fin de la liste des étudiants--}}
-
+    {{--Student List Ends--}}
 @endsection
 
 @section('scripts')
@@ -404,7 +414,42 @@
     $(document).ready(function() {
         // Initialiser les champs éditables
         initializeEditableFields();
+        
+        // Calculer l'âge pour tous les étudiants
+        calculateAllAges();
 
+        // Fonction pour calculer l'âge à partir de la date de naissance
+        function calculateAge(dob) {
+            if (!dob) return '';
+            
+            const birthDate = new Date(dob);
+            if (isNaN(birthDate.getTime())) return '';
+            
+            const today = new Date();
+            let age = today.getFullYear() - birthDate.getFullYear();
+            
+            // Ajuster l'âge si l'anniversaire n'est pas encore passé cette année
+            if (today.getMonth() < birthDate.getMonth() || 
+                (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
+                age--;
+            }
+            
+            return age;
+        }
+        
+        // Fonction pour calculer l'âge pour tous les étudiants
+        function calculateAllAges() {
+            $('.editable[data-field="dob"]').each(function() {
+                const dob = $(this).text().trim();
+                const studentId = $(this).data('student-id');
+                const age = calculateAge(dob);
+                
+                if (age !== '') {
+                    $('.age-display[data-student-id="' + studentId + '"]').text(age);
+                }
+            });
+        }
+        
         // Fonction pour initialiser les champs éditables
         function initializeEditableFields() {
             // Gérer le clic sur un champ éditable
@@ -428,6 +473,24 @@
                             <option value="Normal" ${currentValue === 'Normal' ? 'selected' : ''}>Normal</option>
                             <option value="ADRA" ${currentValue === 'ADRA' ? 'selected' : ''}>ADRA</option>
                             <option value="TEAM3" ${currentValue === 'TEAM3' ? 'selected' : ''}>TEAM3</option>
+                        </select>
+                        <span class="save-indicator"><i class="icon-spinner2 spinner"></i></span>
+                    `;
+                } else if (field === 'student_type') {
+                    // Créer un menu déroulant pour le type d'étudiant
+                    editElement = `
+                        <select class="edit-input">
+                            <option value="Nouveau" ${currentValue === 'Nouveau' ? 'selected' : ''}>Nouveau</option>
+                            <option value="Ancien" ${currentValue === 'Ancien' ? 'selected' : ''}>Ancien</option>
+                        </select>
+                        <span class="save-indicator"><i class="icon-spinner2 spinner"></i></span>
+                    `;
+                } else if (field === 'academic_status') {
+                    // Créer un menu déroulant pour le statut académique
+                    editElement = `
+                        <select class="edit-input">
+                            <option value="Passant" ${currentValue === 'Passant' ? 'selected' : ''}>Passant</option>
+                            <option value="Redoublant" ${currentValue === 'Redoublant' ? 'selected' : ''}>Redoublant</option>
                         </select>
                         <span class="save-indicator"><i class="icon-spinner2 spinner"></i></span>
                     `;
@@ -483,8 +546,8 @@
                     });
                 }
 
-                // Pour le select, sauvegarder lors du changement
-                if (field === 'status') {
+                // Pour les selects, sauvegarder lors du changement
+                if (field === 'status' || field === 'student_type' || field === 'academic_status') {
                     $(this).find('select').on('change', function() {
                         const newValue = $(this).val();
                         saveField(field, newValue, studentId, $(this).closest('.editable'));
@@ -513,9 +576,18 @@
                         // Mettre à jour l'affichage
                         element.removeClass('editing').html(value);
 
-                        // Si c'est une date de naissance, mettre à jour l'âge
-                        if (field === 'dob' && response.age) {
-                            $('.age-display[data-student-id="' + studentId + '"]').text(response.age);
+                        // Si c'est une date de naissance, calculer et mettre à jour l'âge
+                        if (field === 'dob') {
+                            const age = calculateAge(value);
+                            $('.age-display[data-student-id="' + studentId + '"]').text(age);
+                        }
+                        
+                        // Si c'est un champ lié aux types d'étudiants ou statuts académiques, mettre à jour les statistiques
+                        if (field === 'student_type' || field === 'academic_status') {
+                            // Si la fonction existe (dans list_all.blade.php)
+                            if (typeof calculateStudentTypeStats === 'function') {
+                                calculateStudentTypeStats();
+                            }
                         }
 
                         // Afficher un message de succès
