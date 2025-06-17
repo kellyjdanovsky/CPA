@@ -43,4 +43,7 @@
 
 <script src=" {{ asset('assets/js/custom.js') }} "></script>
 
+<!-- Dashboard Interactive -->
+<script src=" {{ asset('js/dashboard-interactive.js') }} "></script>
+
 @include('partials.js.custom_js')

@@ -26,6 +26,10 @@ class AppServiceProvider extends ServiceProvider
         if ($this->app->isLocal()) {
             $this->app->register(\Barryvdh\LaravelIdeHelper\IdeHelperServiceProvider::class);
         }
-        //
+        
+        // Enregistrer le helper NumberToWords comme un alias
+        $this->app->singleton('numberToWords', function () {
+            return new \App\Helpers\NumberToWords();
+        });
     }
 }

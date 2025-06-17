@@ -11,7 +11,7 @@
             <form method="get" action="{{ route('payments.check_unpaid') }}">
                 @csrf
                 <div class="row">
-                    <div class="col-md-6 offset-md-3">
+                    <div class="col-md-8 offset-md-2">
                         <div class="row">
                             <div class="col-md-10">
                                 <div class="form-group">
@@ -24,11 +24,22 @@
                                     </select>
                                 </div>
                                 <div class="form-group">
-                                    <label for="payments" class="col-form-label font-weight-bold">Motif de paiement :</label>
-                                    <select required id="payments" name="my_paymets_id" class="form-control select">
-                                        <option value="">Sélectionner un motif de paiement</option>
+                                    <label for="payments" class="col-form-label font-weight-bold">Motifs de paiement :</label>
+                                    <select required id="payments" name="my_payments_id[]" class="form-control select" multiple="multiple">
+                                        <option value="">Sélectionner un ou plusieurs motifs de paiement</option>
                                     </select>
                                     <small class="form-text text-muted">Les motifs correspondent aux paiements créés pour cette classe ou pour toutes les classes</small>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-form-label font-weight-bold">Filtrer par statut :</label>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="status[]" id="status_normal" value="Normal" checked>
+                                        <label class="form-check-label" for="status_normal">Normal</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="status[]" id="status_adra" value="ADRA" checked>
+                                        <label class="form-check-label" for="status_adra">ADRA</label>
+                                    </div>
                                 </div>
                             </div>
 
@@ -46,6 +57,12 @@
 
     <script>
         $(document).ready(function(){
+            // Initialiser le select multiple
+            $('#payments').select2({
+                placeholder: 'Sélectionner un ou plusieurs motifs de paiement',
+                allowClear: true
+            });
+
             $('#my_class_id').change(function(){
                 var classId = $(this).val();
                 if(classId){
@@ -59,60 +76,15 @@
                                 $.each(res,function(key,value){
                                     $("#payments").append('<option value="'+value.id+'">'+value.title+'</option>');
                                 });
-
                             }else{
                                 $("#payments").empty();
                             }
                         }
                     });
                 }else{
-                   alert("Class not found");
+                   alert("Classe non trouvée");
                 }
             });
         });
     </script>
-
-
-
-    {{-- @if($selected)
-        <div class="card">
-            <div class="card-body">
-                <table class="table datatable-button-html5-columns">
-                    <thead>
-                    <tr>
-                        <th>S/N</th>
-                        <th>Photo</th>
-                        <th>Nom</th>
-                        <th>Ref_No</th>
-                        <th>Action</th>
-                    </tr>
-                    </thead>
-                    <tbody>
-                    @foreach($students as $s)
-                        <tr>
-                            <td>{{ $loop->iteration }}</td>
-                            <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="{{ $s->user->photo }}" alt="photo"></td>
-                            <td>{{ $s->user->name }}</td>
-                            <td>{{ $s->adm_no }}</td>
-                            <td>
-                                <div class="dropdown">
-                                    <a href="#" class=" btn btn-danger" data-toggle="dropdown"> Gestion par session <i class="icon-arrow-down5"></i>
-                                    </a>
-                                    <div class="dropdown-menu dropdown-menu-left">
-                                        <a href="{{ route('payments.invoice', [Qs::hash($s->user_id)]) }}" class="dropdown-item">Tous les paiements</a>
-                                        @foreach(Pay::getYears($s->user_id) as $py)
-                                            @if($py)
-                                                <a href="{{ route('payments.invoice', [Qs::hash($s->user_id), $py]) }}" class="dropdown-item">{{ $py }}</a>
-                                            @endif
-                                        @endforeach
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    @endforeach
-                    </tbody>
-                </table>
-            </div>
-        </div>
-    @endif --}}
 @endsection

@@ -1,0 +1,396 @@
+/* 
+ * Dashboard 3D Effects
+ * Styles pour les animations et effets 3D du tableau de bord
+ */
+
+/* Variables globales */
+:root {
+    --primary-color: #2196F3;
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --success-color: #28a745;
+    --success-gradient: linear-gradient(135deg, #56ab2f 0%, #a8e6cf 100%);
+    --danger-color: #dc3545;
+    --danger-gradient: linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%);
+    --warning-color: #ffc107;
+    --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    --info-color: #17a2b8;
+    --info-gradient: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+/* ===== STATISTIQUES ET CHIFFRES ===== */
+.stat-value, .kpi-value, .metric-value {
+    position: relative;
+    transition: all 0.3s ease;
+    transform-style: preserve-3d;
+    perspective: 500px;
+}
+
+.stat-value:hover, .kpi-value:hover, .metric-value:hover {
+    transform: translateZ(20px);
+    text-shadow: 0 5px 10px rgba(0,0,0,0.2);
+    color: var(--primary-color);
+}
+
+/* Animation de comptage pour les statistiques */
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.stat-animated {
+    animation: countUp 1s ease forwards;
+}
+
+/* Effet de pulsation pour les statistiques importantes */
+.stat-pulse {
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1); }
+}
+
+/* ===== GRAPHIQUES ===== */
+.chart-container, .chart-body, [id*="chart"] {
+    transition: all 0.3s ease;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.chart-container:hover, .chart-body:hover, [id*="chart"]:hover {
+    box-shadow: 0 15px 40px rgba(0,0,0,0.2);
+}
+
+/* Effet de profondeur pour les graphiques */
+.chart-container canvas, .chart-body canvas, [id*="chart"] canvas {
+    transition: all 0.3s ease;
+}
+
+.chart-container:hover canvas, .chart-body:hover canvas, [id*="chart"]:hover canvas {
+    transform: translateZ(20px);
+}
+
+/* Animation d'entrée pour les graphiques */
+@keyframes chartEnter {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+
+.chart-animated {
+    animation: chartEnter 0.8s ease forwards;
+}
+
+/* ===== TABLEAUX DE DONNÉES ===== */
+.table-3d {
+    border-collapse: separate;
+    border-spacing: 0;
+    perspective: 1000px;
+    width: 100%;
+    margin-bottom: 1rem;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* En-têtes de tableau */
+.table-3d thead th {
+    background: var(--primary-gradient);
+    color: white;
+    position: relative;
+    z-index: 2;
+    transition: all 0.3s ease;
+    transform-style: preserve-3d;
+    padding: 12px 15px;
+}
+
+.table-3d thead th:hover {
+    transform: translateZ(10px);
+}
+
+/* Lignes de tableau */
+.table-3d tbody tr {
+    transition: all 0.3s ease;
+    transform-style: preserve-3d;
+}
+
+.table-3d tbody tr:hover {
+    transform: translateZ(5px) scale(1.01);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    z-index: 1;
+    position: relative;
+    background-color: rgba(102, 126, 234, 0.05);
+}
+
+/* Cellules de tableau */
+.table-3d tbody td {
+    transition: all 0.3s ease;
+    transform-style: preserve-3d;
+    padding: 10px 15px;
+}
+
+.table-3d tbody td:hover {
+    transform: translateZ(5px);
+    color: var(--primary-color);
+}
+
+/* Animation d'alternance pour les lignes */
+.table-3d tbody tr:nth-child(odd) {
+    background-color: rgba(0,0,0,0.02);
+}
+
+/* ===== CARTES ET WIDGETS ===== */
+.card, .dashboard-card, .kpi-card, .quick-stat-card, .info-card {
+    transition: all 0.3s ease;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+}
+
+.card:hover, .dashboard-card:hover, .kpi-card:hover, .quick-stat-card:hover, .info-card:hover {
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+/* Effet de profondeur pour les éléments internes */
+.card-header, .card-body, .card-footer {
+    transition: all 0.3s ease;
+    transform-style: preserve-3d;
+}
+
+.card:hover .card-header, 
+.dashboard-card:hover .card-header, 
+.kpi-card:hover .card-header, 
+.quick-stat-card:hover .card-header, 
+.info-card:hover .card-header {
+    transform: translateZ(20px);
+}
+
+.card:hover .card-body, 
+.dashboard-card:hover .card-body, 
+.kpi-card:hover .card-body, 
+.quick-stat-card:hover .card-body, 
+.info-card:hover .card-body {
+    transform: translateZ(10px);
+}
+
+.card:hover .card-footer, 
+.dashboard-card:hover .card-footer, 
+.kpi-card:hover .card-footer, 
+.quick-stat-card:hover .card-footer, 
+.info-card:hover .card-footer {
+    transform: translateZ(15px);
+}
+
+/* Animation d'entrée pour les cartes */
+@keyframes cardEnter {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.card-animated {
+    animation: cardEnter 0.5s ease forwards;
+}
+
+/* Effet de verre (glassmorphism) */
+.glass-card {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+/* ===== BADGES DE STATUT ===== */
+.badge {
+    transition: all 0.3s ease;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+    position: relative;
+    overflow: hidden;
+}
+
+.badge:hover {
+    transform: translateY(-5px) rotateX(10deg);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+/* Effet de brillance pour les badges */
+.badge::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        rgba(255, 255, 255, 0) 100%
+    );
+    transform: rotate(45deg);
+    animation: shine 3s infinite;
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%) rotate(45deg); }
+    20%, 100% { transform: translateX(100%) rotate(45deg); }
+}
+
+/* ===== ICÔNES ===== */
+.icon-box, .stat-icon, .level-icon {
+    transition: all 0.3s ease;
+    transform-style: preserve-3d;
+    perspective: 1000px;
+}
+
+/* Effet de rotation 3D pour les icônes */
+.icon-rotate-3d {
+    animation: iconRotate 3s infinite ease-in-out;
+}
+
+@keyframes iconRotate {
+    0% { transform: rotateY(0deg); }
+    50% { transform: rotateY(180deg); }
+    100% { transform: rotateY(360deg); }
+}
+
+/* Effet de flottement pour les icônes */
+.icon-float {
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+
+/* ===== ANIMATIONS DE MISE À JOUR ===== */
+@keyframes value-update {
+    0% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0; transform: scale(0.8); }
+    100% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes section-exit {
+    0% { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-20px); }
+}
+
+@keyframes section-enter {
+    0% { opacity: 0; transform: translateY(20px); }
+    100% { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== EFFETS DE TEXTE ===== */
+/* Effet de dégradé animé pour les textes */
+.text-gradient-animated {
+    background: linear-gradient(
+        to right,
+        #667eea 0%,
+        #764ba2 25%,
+        #6B8DD6 50%,
+        #8E37D7 75%,
+        #667eea 100%
+    );
+    background-size: 200% auto;
+    color: transparent;
+    -webkit-background-clip: text;
+    background-clip: text;
+    animation: gradient-text 3s linear infinite;
+}
+
+@keyframes gradient-text {
+    to { background-position: 200% center; }
+}
+
+/* Effet de typographie 3D */
+.text-3d {
+    text-shadow: 0 1px 0 #ccc,
+                 0 2px 0 #c9c9c9,
+                 0 3px 0 #bbb,
+                 0 4px 0 #b9b9b9,
+                 0 5px 0 #aaa,
+                 0 6px 1px rgba(0,0,0,.1),
+                 0 0 5px rgba(0,0,0,.1),
+                 0 1px 3px rgba(0,0,0,.3),
+                 0 3px 5px rgba(0,0,0,.2),
+                 0 5px 10px rgba(0,0,0,.25),
+                 0 10px 10px rgba(0,0,0,.2),
+                 0 20px 20px rgba(0,0,0,.15);
+}
+
+/* ===== NOTIFICATIONS ===== */
+.update-notification {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    padding: 15px;
+    display: flex;
+    align-items: center;
+    z-index: 9999;
+    transform: translateX(100%);
+    opacity: 0;
+    transition: all 0.3s ease;
+    max-width: 300px;
+}
+
+.notification-icon {
+    margin-right: 15px;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.notification-success .notification-icon {
+    background: var(--success-color);
+}
+
+.notification-warning .notification-icon {
+    background: var(--warning-color);
+}
+
+.notification-error .notification-icon {
+    background: var(--danger-color);
+}
+
+.notification-info .notification-icon {
+    background: var(--info-color);
+}
+
+.notification-content p {
+    margin: 0;
+    font-size: 14px;
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .card:hover, .dashboard-card:hover, .kpi-card:hover, .quick-stat-card:hover, .info-card:hover {
+        transform: translateY(-5px) scale(1.01);
+    }
+    
+    .badge:hover {
+        transform: translateY(-3px) rotateX(5deg);
+    }
+    
+    .table-3d tbody tr:hover {
+        transform: translateZ(3px) scale(1.005);
+    }
+    
+    .stat-value:hover, .kpi-value:hover, .metric-value:hover {
+        transform: translateZ(10px);
+    }
+}

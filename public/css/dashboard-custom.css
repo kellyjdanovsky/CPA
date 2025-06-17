@@ -1,0 +1,665 @@
+/* Custom Dashboard Styles */
+
+/* Dashboard header styling */
+.dashboard-header {
+    padding: 30px 0;
+    position: relative;
+}
+
+.icon-3x {
+    font-size: 3rem !important;
+}
+
+.icon-4x {
+    font-size: 4rem !important;
+}
+
+.text-primary {
+    color: #2196F3 !important;
+}
+
+.text-gradient {
+    background: linear-gradient(45deg, #2196F3, #6f42c1);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-fill-color: transparent;
+}
+
+.lead {
+    font-size: 1.1rem;
+    font-weight: 300;
+}
+
+/* School logo container with pulse effect */
+.school-logo-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 20px;
+}
+
+.pulse-ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    border: 3px solid rgba(33, 150, 243, 0.3);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0.9);
+        opacity: 0.7;
+    }
+    70% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 0.3;
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(0.9);
+        opacity: 0.7;
+    }
+}
+
+/* Quick stats styling */
+.dashboard-quick-stats {
+    margin: 20px 0;
+}
+
+.quick-stat-card {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.quick-stat-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+}
+
+.stat-icon {
+    font-size: 2rem;
+    margin-right: 15px;
+    color: rgba(0, 0, 0, 0.5);
+}
+
+.stat-content {
+    flex: 1;
+}
+
+.stat-value {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0;
+    line-height: 1.2;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: rgba(0, 0, 0, 0.6);
+    margin: 0;
+}
+
+.bg-primary-50 {
+    background-color: rgba(33, 150, 243, 0.15);
+}
+
+.bg-success-50 {
+    background-color: rgba(40, 167, 69, 0.15);
+}
+
+.bg-info-50 {
+    background-color: rgba(23, 162, 184, 0.15);
+}
+
+.bg-warning-50 {
+    background-color: rgba(255, 193, 7, 0.15);
+}
+
+/* Card styling */
+.fade-in {
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.dashboard-card {
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.icon-box {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: rgba(255, 255, 255, 0.2);
+}
+
+.icon-box i {
+    font-size: 24px;
+    color: #fff;
+}
+
+/* School info card styling */
+.school-info-card {
+    border: none;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+}
+
+.school-info-card .card-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    padding: 15px 20px;
+}
+
+.school-info-card .card-body {
+    padding: 20px;
+}
+
+/* School banner styling */
+.school-banner {
+    padding: 20px;
+    background: linear-gradient(to right, rgba(33, 150, 243, 0.05), rgba(111, 66, 193, 0.05));
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.school-name {
+    font-weight: 600;
+    color: #333;
+}
+
+.school-contact {
+    margin-top: 10px;
+    color: #666;
+}
+
+.school-metrics {
+    display: flex;
+    justify-content: flex-end;
+    gap: 20px;
+}
+
+.metric-item {
+    text-align: center;
+}
+
+.metric-value {
+    display: block;
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #2196F3;
+}
+
+.metric-label {
+    display: block;
+    font-size: 0.8rem;
+    color: #666;
+}
+
+/* Info card styling */
+.info-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+}
+
+.info-card:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+    transform: translateY(-3px);
+}
+
+.info-card-header {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.info-card-body {
+    padding: 15px;
+}
+
+/* Location styling */
+.location-map {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    padding: 15px;
+    text-align: center;
+}
+
+.location-pin {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: #666;
+}
+
+.location-pin i {
+    color: #e74c3c;
+    font-size: 1.2rem;
+}
+
+/* Admin profile styling */
+.admin-profile {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.admin-avatar {
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background-color: #2196F3;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+}
+
+.admin-avatar i {
+    font-size: 1.5rem;
+}
+
+.admin-info h6 {
+    font-weight: 600;
+}
+
+/* School levels styling */
+.school-levels {
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+.level-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 10px;
+    border-radius: 8px;
+    background-color: #f8f9fa;
+    opacity: 0.5;
+    transition: all 0.3s ease;
+}
+
+.level-item.active {
+    opacity: 1;
+    background-color: rgba(33, 150, 243, 0.1);
+}
+
+.level-icon {
+    font-size: 1.5rem;
+    margin-bottom: 5px;
+    color: #2196F3;
+}
+
+.level-name {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+/* Infrastructure overview styling */
+.infrastructure-overview {
+    margin-bottom: 15px;
+}
+
+.progress-container {
+    margin-bottom: 10px;
+}
+
+.progress-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 5px;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.progress-value {
+    text-align: right;
+    font-size: 0.85rem;
+    color: #28a745;
+    font-weight: 600;
+    margin-top: 3px;
+}
+
+/* Language tags styling */
+.language-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.language-tag {
+    padding: 5px 10px;
+    background-color: rgba(33, 150, 243, 0.1);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: #2196F3;
+    transition: all 0.3s ease;
+}
+
+.language-tag:hover {
+    background-color: rgba(33, 150, 243, 0.2);
+    transform: translateY(-2px);
+}
+
+/* Table styling */
+.table-sm th, .table-sm td {
+    padding: 0.5rem;
+    vertical-align: middle;
+}
+
+.table-striped tbody tr:nth-of-type(odd) {
+    background-color: rgba(0, 0, 0, 0.02);
+}
+
+.table-sm thead th {
+    background-color: rgba(0, 0, 0, 0.03);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Badge styling */
+.badge {
+    font-weight: 500;
+    padding: 5px 10px;
+    border-radius: 4px;
+    transition: all 0.3s ease;
+}
+
+.badge:hover {
+    transform: translateY(-2px);
+}
+
+.badge-pill {
+    border-radius: 50rem;
+    padding: 0.35em 0.6em;
+}
+
+.badge-success {
+    background-color: #28a745;
+    color: #fff;
+}
+
+.badge-primary {
+    background-color: #2196F3;
+    color: #fff;
+}
+
+.badge-info {
+    background-color: #17a2b8;
+    color: #fff;
+}
+
+.badge-warning {
+    background-color: #ffc107;
+    color: #212529;
+}
+
+.badge-danger {
+    background-color: #dc3545;
+    color: #fff;
+}
+
+.badge-light {
+    background-color: #f8f9fa;
+    color: #212529;
+    border: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+.badge-secondary {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+/* List styling */
+.list-unstyled li {
+    margin-bottom: 8px;
+}
+
+/* Footer section styling */
+.footer-section {
+    height: 100%;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+.footer-section:hover {
+    background-color: #f1f3f5;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
+}
+
+/* Calendar events styling */
+.calendar-events {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.event-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    transition: all 0.3s ease;
+}
+
+.event-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.event-date {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background-color: #2196F3;
+    color: white;
+    border-radius: 8px;
+}
+
+.event-day {
+    font-size: 1.2rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.event-month {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+}
+
+.event-details {
+    flex: 1;
+}
+
+.event-title {
+    margin: 0;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+
+.event-time {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+/* Performance stats styling */
+.performance-stats {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.stat-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.stat-label {
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.stat-value {
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-align: right;
+}
+
+/* Vision and Mission styling */
+.vision-mission-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+    margin-bottom: 20px;
+    transition: all 0.3s ease;
+    border-left: 3px solid #2196F3;
+}
+
+.vision-mission-card:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+    transform: translateY(-3px);
+}
+
+.vision-mission-header {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.vision-mission-body {
+    padding: 15px;
+    background-color: #fff;
+}
+
+/* Objectives styling */
+.objectives-card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.03);
+    overflow: hidden;
+    height: 100%;
+    transition: all 0.3s ease;
+}
+
+.objectives-card:hover {
+    box-shadow: 0 8px 15px rgba(0, 0, 0, 0.08);
+    transform: translateY(-3px);
+}
+
+.objectives-header {
+    display: flex;
+    align-items: center;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.objectives-body {
+    padding: 15px;
+    background-color: #fff;
+}
+
+.objectives-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.objective-item {
+    display: flex;
+    margin-bottom: 15px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+.objective-item:last-child {
+    margin-bottom: 0;
+    padding-bottom: 0;
+    border-bottom: none;
+}
+
+.objective-icon {
+    margin-right: 15px;
+    color: #28a745;
+    font-size: 1.2rem;
+}
+
+.objective-content {
+    flex: 1;
+}
+
+.objective-title {
+    margin: 0 0 5px 0;
+    font-weight: 600;
+    font-size: 0.95rem;
+}
+
+.objective-description {
+    margin: 0;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .col-md-6, .col-md-4 {
+        margin-bottom: 20px;
+    }
+    
+    .school-metrics {
+        justify-content: center;
+        margin-top: 15px;
+    }
+    
+    .quick-stat-card {
+        margin-bottom: 15px;
+    }
+    
+    .vision-mission-card, .objectives-card {
+        margin-bottom: 15px;
+    }
+}

@@ -66,6 +66,20 @@ class PaymentRepo
     {
         return $year ? $this->getRecord(['student_id' => $st_id, 'year' => $year]) : $this->getRecord(['student_id' => $st_id]);
     }
+    
+    /**
+     * Récupère tous les enregistrements de paiement pour plusieurs élèves
+     */
+    public function getAllPRForStudents($student_ids, $year = NULL)
+    {
+        $query = PaymentRecord::whereIn('student_id', $student_ids)->with('payment');
+        
+        if ($year) {
+            $query->where('year', $year);
+        }
+        
+        return $query;
+    }
 
     public function getRecord($data, $order = 'year', $dir = 'desc')
     {

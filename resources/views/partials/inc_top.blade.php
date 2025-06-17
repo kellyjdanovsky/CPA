@@ -19,6 +19,12 @@
 {{-- Modern Theme CSS--}}
 <link href=" {{ asset('assets/css/modern-theme.css') }}" rel="stylesheet" type="text/css">
 
+{{-- Custom Dashboard CSS--}}
+<link href=" {{ asset('css/dashboard-custom.css') }}" rel="stylesheet" type="text/css">
+
+{{-- Dashboard Interactive CSS--}}
+<link href=" {{ asset('css/dashboard-interactive.css') }}" rel="stylesheet" type="text/css">
+
 {{--   Core JS files --}}
     <script src="{{ asset('global_assets/js/main/jquery.min.js') }} "></script>
     <script src="{{ asset('global_assets/js/main/bootstrap.bundle.min.js') }} "></script>

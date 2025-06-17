@@ -161,6 +161,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         App\Providers\HelperServiceProvider::class,
         Barryvdh\DomPDF\ServiceProvider::class,
+        Milon\Barcode\BarcodeServiceProvider::class,
     ],
 
     /*
@@ -214,6 +215,9 @@ return [
         'Mk' => App\Helpers\Mk::class,
         'Pay' => App\Helpers\Pay::class,
         'DateHelper' => App\Helpers\DateHelper::class,
+        'DNS1D' => Milon\Barcode\Facades\DNS1DFacade::class,
+        'DNS2D' => Milon\Barcode\Facades\DNS2DFacade::class,
+        'NumberToWords' => App\Facades\NumberToWords::class,
     ],
 
 ];

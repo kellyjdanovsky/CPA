@@ -84,25 +84,25 @@ if ($usertype == 'teacher') {
 
                 {{--Administrative--}}
                 @if(Qs::userIsAdministrative())
-                    <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['payments.index', 'payments.create', 'payments.invoice', 'payments.receipts', 'payments.edit', 'payments.manage', 'payments.show',]) ? 'nav-item-expanded nav-item-open' : '' }} ">
+                    <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['payments.index', 'payments.create', 'payments.invoice', 'payments.receipts', 'payments.edit', 'payments.manage', 'payments.show', 'payments.adra_team3', 'payments.adra_team3.filter', 'payments.adra_team3.print_receipt']) ? 'nav-item-expanded nav-item-open' : '' }} ">
                         <a href="#" class="nav-link"><i class="icon-office"></i> <span> Administration Financiere</span></a>
 
                         <ul class="nav nav-group-sub" data-submenu-title="Administrative">
 
                             {{--Payments--}}
                             @if(Qs::userIsTeamAccount())
-                            <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['payments.index', 'payments.create', 'payments.edit', 'payments.manage', 'payments.show', 'payments.invoice']) ? 'nav-item-expanded' : '' }}">
+                            <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['payments.index', 'payments.create', 'payments.edit', 'payments.manage', 'payments.show', 'payments.invoice', 'payments.adra_team3', 'payments.adra_team3.filter', 'payments.adra_team3.print_receipt']) ? 'nav-item-expanded' : '' }}">
 
-                                <a href="#" class="nav-link {{ in_array(Route::currentRouteName(), ['payments.index', 'payments.edit', 'payments.create', 'payments.manage', 'payments.show', 'payments.invoice']) ? 'active' : '' }}">Paiements</a>
+                                <a href="#" class="nav-link {{ in_array(Route::currentRouteName(), ['payments.index', 'payments.edit', 'payments.create', 'payments.manage', 'payments.show', 'payments.invoice', 'payments.adra_team3', 'payments.adra_team3.filter', 'payments.adra_team3.print_receipt']) ? 'active' : '' }}">Paiements</a>
 
                                 <ul class="nav nav-group-sub">
                                     <li class="nav-item"><a href="{{ url('/payments/create') }}" class="nav-link">Créer Paiement</a></li>
                                     <li class="nav-item"><a href="{{ url('/payments') }}" class="nav-link">Gerer Paiement</a></li>
                                     {{--PARTIE CAISSE - SUPPRIMÉE--}}
                                     <li class="nav-item"><a href="{{ url('/payments/manage') }}" class="nav-link">Paiement Eleves</a></li>
+                                    <li class="nav-item"><a href="{{ url('/payments/adra-team3') }}" class="nav-link">Reçu ADRA & TEAM 3</a></li>
                                     <li class="nav-item"><a href="{{ url('/payments/verified') }}" class="nav-link">Verifications</a></li>
                                     <li class="nav-item"><a href="{{ url('/payments/journal') }}" class="nav-link">Journal des Paiements</a></li>
-                                    <li class="nav-item"><a href="{{ url('/financial-dashboard') }}" class="nav-link">Tableau de Bord Financier</a></li>
 
 
                                 </ul>

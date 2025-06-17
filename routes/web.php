@@ -136,13 +136,20 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('select_class', 'PaymentController@select_class')->name('payments.select_class');
             Route::delete('reset_record/{id}', 'PaymentController@reset_record')->name('payments.reset_record');
             Route::post('pay_now/{id}', 'PaymentController@pay_now')->name('payments.pay_now');
-            Route::post('generate-special-receipts', 'PaymentController@generateSpecialReceipts')->name('payments.generate_special_receipts');
-            Route::get('special-receipts-summary', 'PaymentController@specialReceiptsSummary')->name('payments.special_receipts_summary');
-            Route::get('print-special-receipts', 'PaymentController@printSpecialReceipts')->name('payments.print_special_receipts');
 
             Route::get('journal', 'PaymentController@journal')->name('payments.journal');
             Route::get('journal/filter', 'PaymentController@journalFilter')->name('payments.journal.filter');
             Route::get('journal/export/excel', 'PaymentController@journalExportExcel')->name('payments.journal.export.excel');
+            
+            // Routes pour l'onglet "Reçu ADRA & TEAM 3"
+            Route::get('adra-team3', 'PaymentController@adraTeam3')->name('payments.adra_team3');
+            Route::get('adra-team3/filter', 'PaymentController@adraTeam3Filter')->name('payments.adra_team3.filter');
+            Route::post('adra-team3/generate-receipt', 'PaymentController@generateAdraTeam3Receipt')->name('payments.adra_team3.generate_receipt');
+            Route::get('adra-team3/print-receipt/{id}', 'PaymentController@printAdraTeam3Receipt')->name('payments.adra_team3.print_receipt');
+            Route::get('adra-team3/export-excel', 'PaymentController@exportAdraTeam3Excel')->name('payments.adra_team3.export_excel');
+            Route::post('adra-team3/save-reference', 'PaymentController@saveAdraTeam3Reference')->name('payments.adra_team3.save_reference');
+            Route::post('adra-team3/bulk-generate-receipts', 'PaymentController@bulkGenerateAdraTeam3Receipts')->name('payments.adra_team3.bulk_generate_receipts');
+            Route::get('adra-team3/bulk-print-receipts/{class_id}/{payment_ids}/{status?}', 'PaymentController@bulkPrintAdraTeam3Receipts')->name('payments.adra_team3.bulk_print_receipts');
 
         });
 
@@ -199,23 +206,9 @@ Route::group(['middleware' => 'auth'], function () {
         Route::resource('dorms', 'DormController');
         Route::resource('payments', 'PaymentController');
 
-        /*************** Financial Dashboard *****************/
-        Route::group(['prefix' => 'financial-dashboard'], function(){
-            Route::get('/', 'FinancialDashboardController@index')->name('financial_dashboard.index');
-            Route::get('/filter', 'FinancialDashboardController@index')->name('financial_dashboard.filter');
-            Route::get('/expenses', 'FinancialDashboardController@expenses')->name('financial_dashboard.expenses');
-            Route::get('/expenses/filter', 'FinancialDashboardController@expenses')->name('financial_dashboard.expenses.filter');
-            Route::get('/export/excel', 'FinancialDashboardController@exportExcel')->name('financial_dashboard.export.excel');
-            Route::get('/export/pdf', 'FinancialDashboardController@exportPdf')->name('financial_dashboard.export.pdf');
-        });
 
-        /*************** Décaissements (Dépenses) *****************/
-        Route::get('decaissements/{id}/ordre-paiement', 'DecaissementController@ordrePaiement')->name('decaissements.ordre_paiement');
-        Route::get('decaissements/{id}/ordre_paiement', 'DecaissementController@ordrePaiement')->name('decaissements.ordre_paiement_alt');
-        Route::get('decaissements/{id}/download-piece', 'DecaissementController@downloadPiece')->name('decaissements.download_piece');
-        Route::post('decaissements/{id}/update-status', 'DecaissementController@updateStatus')->name('decaissements.update_status');
-Route::get('decaissements/verify-and-correct', 'DecaissementController@verifyAndCorrectDecaissements')->name('decaissements.verify_and_correct')->middleware('auth');
-        Route::resource('decaissements', 'DecaissementController');
+
+
 
 // Vous pouvez ajouter ici d'autres routes si nécessaire pour le nouveau login
 

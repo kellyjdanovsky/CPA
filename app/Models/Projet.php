@@ -18,8 +18,5 @@ class Projet extends Model
         'budget' => 'decimal:2',
     ];
 
-    public function decaissements()
-    {
-        return $this->hasMany(Decaissement::class);
-    }
+
 }
