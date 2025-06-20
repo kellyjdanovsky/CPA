@@ -7,20 +7,90 @@
         /* Styles supplémentaires pour garantir l'orientation paysage */
         @page {
             size: A4 landscape !important;
+            margin: 8mm;
         }
-        
+
         @media print {
             body {
                 width: 297mm;
                 height: 210mm;
                 margin: 0;
                 padding: 0;
+                font-size: 11px;
             }
-            
+
             /* Ajustement pour s'assurer que tout le contenu tient sur une page */
             #print {
-                transform: scale(0.98);
+                transform: scale(0.82);
                 transform-origin: top left;
+                width: 100%;
+                height: 100%;
+            }
+
+            /* Réduction des espaces pour optimiser l'espace */
+            .card {
+                margin-bottom: 6px !important;
+            }
+
+            .card-header {
+                padding: 4px 8px !important;
+            }
+
+            .card-body {
+                padding: 6px !important;
+            }
+
+            table {
+                font-size: 9px !important;
+                margin: 3px auto !important;
+            }
+
+            th, td {
+                padding: 2px !important;
+                font-size: 8px !important;
+                line-height: 1.1 !important;
+            }
+
+            .form-group {
+                margin-bottom: 3px !important;
+            }
+
+            h4, h5 {
+                font-size: 11px !important;
+                margin: 3px 0 !important;
+            }
+
+            /* Optimisation des moyennes annuelles */
+            .row {
+                margin: 0 !important;
+            }
+
+            .col-md-4 {
+                padding: 1px !important;
+            }
+
+            /* Réduction des marges des commentaires */
+            div[style*="margin-top: 10px"] {
+                margin-top: 4px !important;
+            }
+
+            div[style*="margin-top: 5px"] {
+                margin-top: 2px !important;
+            }
+
+            /* Optimisation du header */
+            table[width="100%"] {
+                margin-bottom: 5px !important;
+            }
+
+            /* Réduction de la taille du logo */
+            img[style*="max-height : 100px"] {
+                max-height: 70px !important;
+            }
+
+            /* Optimisation des signatures */
+            div[style*="display: flex"] {
+                margin-top: 3px !important;
             }
         }
     </style>

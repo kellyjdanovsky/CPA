@@ -222,81 +222,33 @@
         <h5 class="card-title">Moyennes annuelles</h5>
     </div>
     <div class="card-body">
+        @php
+            // Récupérer tous les examens créés pour cette année
+            $all_exams = \App\Models\Exam::where('year', $year)->orderBy('term')->get();
+        @endphp
+
         <div class="row">
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label class="font-weight-bold">Moyenne 1<sup>er</sup> trimestre :</label>
-                    <div class="form-control-plaintext">11.64/20</div>
+            @foreach($all_exams as $exam)
+                <div class="col-md-4">
+                    <div class="form-group">
+                        <label class="font-weight-bold">Moyenne {{ $exam->name }} :</label>
+                        <div class="form-control-plaintext exam-average" data-exam-id="{{ $exam->id }}" id="moyenne_exam_{{ $exam->id }}">
+                            Calcul en cours...
+                        </div>
+                    </div>
                 </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label class="font-weight-bold">Moyenne 2<sup>ème</sup> trimestre :</label>
-                    <div class="form-control-plaintext">4.00/20</div>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="form-group">
-                    <label class="font-weight-bold">Moyenne 3<sup>ème</sup> trimestre :</label>
-                    <div class="form-control-plaintext" id="moyenne_trimestre3_{{ $ex->id }}">Calcul en cours...</div>
-                </div>
-            </div>
+            @endforeach
         </div>
+
         <div class="row mt-3">
             <div class="col-12 text-center">
-                <h4 class="font-weight-bold">Moyenne générale annuelle : <span id="moyenne_annuelle_{{ $ex->id }}">Calcul en cours...</span></h4>
+                <h4 class="font-weight-bold">Moyenne générale annuelle : <span id="moyenne_annuelle_finale">Calcul en cours...</span></h4>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Section de passage/redoublement (uniquement pour le 3ème trimestre) -->
-<div class="card mt-3">
-    <div class="card-header bg-light">
-        <h5 class="card-title">Décision de fin d'année</h5>
-    </div>
-    <div class="card-body">
-        <form id="decision_form_{{ $ex->id }}" action="{{ route('marks.save_decision') }}" method="POST">
-            @csrf
-            <input type="hidden" name="student_id" value="{{ $sr->user->id }}">
-            <input type="hidden" name="exam_id" value="{{ $ex->id }}">
-            <input type="hidden" name="year" value="{{ $year }}">
-            
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="decision_{{ $ex->id }}" class="font-weight-bold">Décision :</label>
-                        <select id="decision_{{ $ex->id }}" name="decision" class="form-control">
-                            <option value="passant">Passant(e)</option>
-                            <option value="redoublant">Redoublant(e)</option>
-                        </select>
-                    </div>
-                </div>
-                
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label for="next_class_{{ $ex->id }}" class="font-weight-bold">Classe de passage :</label>
-                        <select id="next_class_{{ $ex->id }}" name="next_class" class="form-control">
-                            <option value="">-- Sélectionner une classe --</option>
-                            @foreach($all_classes as $class)
-                                <option value="{{ $class->id }}">{{ $class->name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="form-group">
-                <label for="observations_{{ $ex->id }}" class="font-weight-bold">Observations :</label>
-                <textarea id="observations_{{ $ex->id }}" name="observations" class="form-control" rows="3"></textarea>
-            </div>
-            
-            <div class="text-center mt-3">
-                <button type="submit" class="btn btn-primary">Enregistrer la décision</button>
-            </div>
-        </form>
-    </div>
-</div>
+
 @endif
 
 <script>
@@ -361,21 +313,250 @@
             // Afficher le commentaire avec la classe de couleur appropriée
             $("#commentaire_general_{{ $ex->id }}").html('<span class="' + commentaireClass + '">' + commentaire + '</span>');
             
-            // Si c'est le 3ème trimestre, calculer et afficher la moyenne annuelle
+            // Mettre à jour la moyenne de l'examen actuel
+            $("#moyenne_exam_{{ $ex->id }}").text(moyenne_sur_20.toFixed(2) + "/20");
+
+            // Si c'est le 3ème trimestre, calculer la moyenne annuelle
             @if($ex->term == 3)
-                // Définir les moyennes des trimestres précédents (valeurs fixes)
-                var moyenneTrimestre1 = 11.64;
-                var moyenneTrimestre2 = 4.00;
-                var moyenneTrimestre3 = moyenne_sur_20;
-                
-                // Mettre à jour l'affichage de la moyenne du 3ème trimestre
-                $("#moyenne_trimestre3_{{ $ex->id }}").text(moyenneTrimestre3.toFixed(2) + "/20");
-                
-                // Calculer la moyenne annuelle
-                var moyenneAnnuelle = (moyenneTrimestre1 + moyenneTrimestre2 + moyenneTrimestre3) / 3;
-                
-                // Afficher la moyenne annuelle
-                $("#moyenne_annuelle_{{ $ex->id }}").text(moyenneAnnuelle.toFixed(2) + "/20");
+                // Fonction unifiée pour valider une moyenne
+                function validateAverage(average, examName) {
+                    if (average > 20) {
+                        console.log("ATTENTION: Moyenne " + examName + " (" + average.toFixed(2) + ") dépasse 20, limitée à 20");
+                        return 20;
+                    }
+                    return average;
+                }
+
+                // Fonction unifiée pour récupérer la moyenne d'un examen
+                function getExamAverage(examId, examName, isCurrentExam) {
+                    if (isCurrentExam) {
+                        return validateAverage(moyenne_sur_20, examName + " (actuel)");
+                    }
+
+                    // Essayer de récupérer depuis P_moyenne
+                    var examElement = $(".P_moyenne-" + examId);
+                    if (examElement.length > 0) {
+                        var examText = examElement.text();
+                        console.log("Texte P_moyenne-" + examId + ": '" + examText + "'");
+
+                        // Format "Moyenne 12.23"
+                        var match = examText.match(/Moyenne\s+(\d+\.?\d*)/);
+                        if (match && match[1]) {
+                            return validateAverage(parseFloat(match[1]), examName + " (format Moyenne)");
+                        }
+
+                        // Format "MOYENNE FINALE : 12.23"
+                        var match2 = examText.match(/MOYENNE FINALE\s*:\s*(\d+\.?\d*)/);
+                        if (match2 && match2[1]) {
+                            return validateAverage(parseFloat(match2[1]), examName + " (format MOYENNE FINALE)");
+                        }
+                    }
+
+                    return null; // Aucune moyenne trouvée
+                }
+
+                // Fonction pour calculer la moyenne annuelle à partir des éléments P_moyenne
+                function calculateAnnualAverage() {
+                    var examAverages = [];
+                    var totalAverage = 0;
+                    var validExams = 0;
+
+                    console.log("=== CALCUL DES MOYENNES ANNUELLES (SHOW) ===");
+                    console.log("Moyenne actuelle calculée: " + moyenne_sur_20.toFixed(2));
+
+                    // Récupérer toutes les moyennes des examens
+                    @foreach($all_exams as $exam)
+                        var examAverage = getExamAverage({{ $exam->id }}, "{{ $exam->name }}", {{ $exam->id == $ex->id ? 'true' : 'false' }});
+
+                        if (examAverage !== null && examAverage > 0) {
+                            examAverages.push(examAverage);
+                            totalAverage += examAverage;
+                            validExams++;
+                            console.log("Examen {{ $exam->name }}: " + examAverage.toFixed(2));
+                            $("#moyenne_exam_{{ $exam->id }}").text(examAverage.toFixed(2) + "/20");
+                        } else {
+                            // Priorité 1: Calculer manuellement d'abord (plus fiable que la DB)
+                            @php
+                                // Calculer la moyenne manuellement à partir des marks avec la même logique que show
+                                $marks = \App\Models\Mark::where([
+                                    'student_id' => $sr->user->id,
+                                    'exam_id' => $exam->id,
+                                    'my_class_id' => $my_class->id,
+                                    'year' => $year
+                                ])->get();
+
+                                $totalPoints = 0;
+                                $totalCoef = 0;
+
+                                foreach($marks as $mark) {
+                                    $subject = \App\Models\Subject::find($mark->subject_id);
+                                    if($subject) {
+                                        // Calculer la moyenne de la matière (t1 + t2 + exm) / nombre de notes
+                                        $t1 = $mark->t1 ?: 0;
+                                        $t2 = $mark->t2 ?: 0;
+                                        $exm = $mark->exm ?: 0;
+
+                                        $values = [$t1, $t2, $exm];
+                                        $sum = array_sum($values);
+                                        $count = count(array_filter($values, function($value) { return $value > 0; }));
+                                        $moyen_sans_coef = $count > 0 ? $sum / $count : 0;
+
+                                        // Utiliser cette moyenne avec le coefficient
+                                        if($moyen_sans_coef > 0) {
+                                            $totalPoints += ($moyen_sans_coef * $subject->coef);
+                                            $totalCoef += $subject->coef;
+                                        }
+                                    }
+                                }
+
+                                $calculated_average = $totalCoef > 0 ? $totalPoints / $totalCoef : 0;
+
+                                // Validation: s'assurer que la moyenne ne dépasse pas 20
+                                if($calculated_average > 20) {
+                                    $calculated_average = 20;
+                                }
+                            @endphp
+                            console.log("Calcul manuel pour {{ $exam->name }}: {{ number_format($calculated_average, 2) }}");
+                            @if($calculated_average > 0)
+                                var calculatedAverage = validateAverage({{ number_format($calculated_average, 2) }}, "{{ $exam->name }} (calculé manuellement)");
+                                examAverages.push(calculatedAverage);
+                                totalAverage += calculatedAverage;
+                                validExams++;
+                                console.log("Examen {{ $exam->name }} (calculé manuellement): " + calculatedAverage.toFixed(2));
+                                $("#moyenne_exam_{{ $exam->id }}").text(calculatedAverage.toFixed(2) + "/20");
+                            @else
+                                // Priorité 2: Fallback vers la base de données si calcul manuel échoue
+                                @php
+                                    $exam_record = \App\Models\ExamRecord::where([
+                                        'student_id' => $sr->user->id,
+                                        'exam_id' => $exam->id,
+                                        'year' => $year
+                                    ])->first();
+                                    $exam_average = $exam_record ? ($exam_record->ave ?? 0) : 0;
+                                @endphp
+                                console.log("Fallback DB pour {{ $exam->name }}: {{ $exam_average }}");
+                                @if($exam_average > 0)
+                                    var fallbackAverage = validateAverage({{ number_format($exam_average, 2) }}, "{{ $exam->name }} (fallback DB)");
+                                    examAverages.push(fallbackAverage);
+                                    totalAverage += fallbackAverage;
+                                    validExams++;
+                                    console.log("Examen {{ $exam->name }} (fallback DB): " + fallbackAverage.toFixed(2));
+                                    $("#moyenne_exam_{{ $exam->id }}").text(fallbackAverage.toFixed(2) + "/20");
+                                @else
+                                    console.log("Impossible de calculer la moyenne pour {{ $exam->name }}");
+                                    $("#moyenne_exam_{{ $exam->id }}").text("0.00/20");
+                                @endif
+                            @endif
+                        }
+                    @endforeach
+
+                    console.log("=== RÉSUMÉ DES MOYENNES (SHOW) ===");
+                    console.log("Examens valides: " + validExams);
+                    console.log("Total des moyennes: " + totalAverage.toFixed(2));
+                    console.log("Moyennes individuelles: " + examAverages.map(avg => avg.toFixed(2)).join(", "));
+                    console.log("Calcul: (" + examAverages.map(avg => avg.toFixed(2)).join(" + ") + ") / " + validExams + " = " + (totalAverage / validExams).toFixed(2));
+
+                    // Calculer et afficher la moyenne annuelle
+                    if (validExams > 0) {
+                        var annualAverage = validateAverage(totalAverage / validExams, "Moyenne annuelle");
+
+                        console.log("Moyenne annuelle finale (SHOW): " + annualAverage.toFixed(2));
+                        $("#moyenne_annuelle_finale").text(annualAverage.toFixed(2) + "/20");
+
+                        // Stocker la moyenne annuelle pour utilisation ultérieure et comparaison
+                        window.moyenne_annuelle_finale_show = annualAverage;
+                        window.moyenne_annuelle_finale = annualAverage;
+                    } else {
+                        console.log("Aucun examen valide, affichage 0.00");
+                        $("#moyenne_annuelle_finale").text("0.00/20");
+                        window.moyenne_annuelle_finale = 0;
+                    }
+                }
+
+                // Fonction pour s'assurer que tous les examens affichent leurs moyennes
+                function ensureAllExamAveragesDisplayed() {
+                    @foreach($all_exams as $exam)
+                        @if($exam->id == $ex->id)
+                            // L'examen actuel est déjà mis à jour
+                            if ($("#moyenne_exam_{{ $exam->id }}").text() === "Calcul en cours...") {
+                                $("#moyenne_exam_{{ $exam->id }}").text(moyenne_sur_20.toFixed(2) + "/20");
+                            }
+                        @else
+                            // Vérifier si l'examen a une moyenne affichée
+                            if ($("#moyenne_exam_{{ $exam->id }}").text() === "Calcul en cours...") {
+                                @php
+                                    $exam_record = \App\Models\ExamRecord::where([
+                                        'student_id' => $sr->user->id,
+                                        'exam_id' => $exam->id,
+                                        'year' => $year
+                                    ])->first();
+                                    $exam_average = $exam_record ? ($exam_record->ave ?? 0) : 0;
+
+                                    // Si pas de moyenne en DB, calculer manuellement
+                                    if($exam_average <= 0) {
+                                        $marks = \App\Models\Mark::where([
+                                            'student_id' => $sr->user->id,
+                                            'exam_id' => $exam->id,
+                                            'my_class_id' => $my_class->id,
+                                            'year' => $year
+                                        ])->get();
+
+                                        $totalPoints = 0;
+                                        $totalCoef = 0;
+
+                                        foreach($marks as $mark) {
+                                            $subject = \App\Models\Subject::find($mark->subject_id);
+                                            if($subject) {
+                                                $termValue = 0;
+                                                if($exam->term == 1) $termValue = $mark->tex1;
+                                                elseif($exam->term == 2) $termValue = $mark->tex2;
+                                                elseif($exam->term == 3) $termValue = $mark->tex3;
+
+                                                if($termValue > 0) {
+                                                    $totalPoints += $termValue;
+                                                    $totalCoef += $subject->coef;
+                                                }
+                                            }
+                                        }
+
+                                        $exam_average = $totalCoef > 0 ? $totalPoints / $totalCoef : 0;
+                                    }
+                                @endphp
+                                @if($exam_average > 0)
+                                    $("#moyenne_exam_{{ $exam->id }}").text("{{ number_format($exam_average, 2) }}/20");
+                                @else
+                                    $("#moyenne_exam_{{ $exam->id }}").text("0.00/20");
+                                @endif
+                            }
+                        @endif
+                    @endforeach
+                }
+
+                // S'assurer que tous les examens affichent leurs moyennes
+                ensureAllExamAveragesDisplayed();
+
+                // Calculer immédiatement après avoir mis à jour la moyenne actuelle
+                setTimeout(function() {
+                    calculateAnnualAverage();
+                }, 100);
+
+                // Recalculer après un délai plus long pour s'assurer que tous les éléments sont mis à jour
+                setTimeout(function() {
+                    ensureAllExamAveragesDisplayed();
+                    calculateAnnualAverage();
+
+                    // Test final de cohérence
+                    setTimeout(function() {
+                        console.log("=== TEST FINAL DE COHÉRENCE (SHOW) ===");
+                        @foreach($all_exams as $exam)
+                            var examAvg = $("#moyenne_exam_{{ $exam->id }}").text();
+                            console.log("{{ $exam->name }}: " + examAvg);
+                        @endforeach
+                        var finalAvg = $("#moyenne_annuelle_finale").text();
+                        console.log("Moyenne annuelle finale: " + finalAvg);
+                        console.log("=== FIN TEST (SHOW) ===");
+                    }, 500);
+                }, 1500);
             @endif
         }, 500); // Attendre 500ms pour s'assurer que la moyenne est calculée
     });

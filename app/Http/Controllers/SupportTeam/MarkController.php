@@ -693,18 +693,22 @@ class MarkController extends Controller
         // Valider les données
         $validated = $request->validate([
             'student_id' => 'required',
-            'exam_id' => 'required',
             'year' => 'required',
             'decision' => 'required|in:passant,redoublant',
-            'next_class' => 'nullable',
-            'observations' => 'nullable|string|max:500',
+            'classe_suivante' => 'nullable|string|max:100',
         ]);
 
+        // Récupérer l'enregistrement d'examen du 3ème trimestre pour cette année
+        $term3_exam = $this->exam->getExam(['term' => 3, 'year' => $validated['year']])->first();
+
+        if (!$term3_exam) {
+            return redirect()->back()->with('flash_error', 'Aucun examen du 3ème trimestre trouvé pour cette année.');
+        }
+
         // Enregistrer la décision dans la base de données
-        // Nous allons utiliser la table exam_records pour stocker ces informations
         $examRecord = $this->exam->getRecord([
             'student_id' => $validated['student_id'],
-            'exam_id' => $validated['exam_id'],
+            'exam_id' => $term3_exam->id,
             'year' => $validated['year']
         ])->first();
 
@@ -714,13 +718,15 @@ class MarkController extends Controller
                 ['id' => $examRecord->id],
                 [
                     'decision' => $validated['decision'],
-                    'next_class_id' => $validated['next_class'],
-                    'observations' => $validated['observations']
+                    'next_class_id' => null, // Nous stockons le nom de la classe dans observations
+                    'observations' => $validated['classe_suivante'] ? 'Classe suivante: ' . $validated['classe_suivante'] : null
                 ]
             );
-        }
 
-        return redirect()->back()->with('flash_success', 'Décision de fin d\'année enregistrée avec succès');
+            return redirect()->back()->with('flash_success', 'Décision de fin d\'année enregistrée avec succès');
+        } else {
+            return redirect()->back()->with('flash_error', 'Enregistrement d\'examen non trouvé pour cet étudiant.');
+        }
     }
 
 }

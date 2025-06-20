@@ -95,9 +95,14 @@
                 <tr>
                     <th>N°</th>
                     <th>Photo</th>
+                    <th>Prénom</th>
                     <th>Nom</th>
+                    <th>Statut</th>
+                    <th>Genre</th>
+                    <th>Classe</th>
                     <th>ADM_No</th>
-                    <th>Action</th>
+                    <th>Voir le bulletin</th>
+                    <th>Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -105,7 +110,40 @@
                     <tr>
                         <td>{{ $loop->iteration }}</td>
                         <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="{{ $s->user->photo }}" alt="photo"></td>
-                        <td>{{ $s->user->name }}</td>
+                        @php
+                            // Séparer le nom complet en prénom et nom
+                            $full_name = $s->user->name;
+                            $name_parts = explode(' ', $full_name, 2);
+                            $first_name = $name_parts[0] ?? '';
+                            $last_name = $name_parts[1] ?? '';
+                        @endphp
+                        <td>{{ $first_name }}</td>
+                        <td>{{ $last_name }}</td>
+                        <td>
+                            @if(isset($s->user->status))
+                                <span class="badge badge-{{ $s->user->status == 'active' ? 'success' : 'secondary' }}">
+                                    {{ ucfirst($s->user->status) }}
+                                </span>
+                            @else
+                                <span class="badge badge-success">Actif</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($s->user->gender)
+                                <span class="badge badge-{{ $s->user->gender == 'Male' ? 'primary' : 'info' }}">
+                                    {{ $s->user->gender == 'Male' ? 'Masculin' : 'Féminin' }}
+                                </span>
+                            @else
+                                <span class="text-muted">Non défini</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($s->my_class)
+                                <span class="badge badge-dark">{{ $s->my_class->name }}</span>
+                            @else
+                                <span class="text-muted">Non assigné</span>
+                            @endif
+                        </td>
                         <td>{{ $s->adm_no }}</td>
                         <td>
                             @php
@@ -116,18 +154,23 @@
                             @endphp
 
                             @if($has_marks)
+                                <a class="btn btn-success btn-sm" href="{{ route('marks.show', [Qs::hash($s->user_id), $year]) }}">
+                                    <i class="icon-eye mr-1"></i> Voir le bulletin
+                                </a>
+                            @else
+                                <span class="text-muted">Aucun bulletin</span>
+                            @endif
+                        </td>
+                        <td>
+                            @if($has_marks)
                                 <div class="dropdown">
-                                    <button type="button" class="btn btn-primary dropdown-toggle" data-toggle="dropdown">
+                                    <button type="button" class="btn btn-primary dropdown-toggle btn-sm" data-toggle="dropdown">
                                         <i class="icon-menu7 mr-1"></i> Actions
                                     </button>
                                     <div class="dropdown-menu">
-                                        <a class="dropdown-item" href="{{ route('marks.show', [Qs::hash($s->user_id), $year]) }}">
-                                            <i class="icon-eye mr-1"></i> Voir le bulletin
-                                        </a>
-                                        <div class="dropdown-divider"></div>
                                         <h6 class="dropdown-header">Options d'impression</h6>
-                                        <button type="button" class="dropdown-item print-report-btn" 
-                                                data-student-id="{{ Qs::hash($s->user_id) }}" 
+                                        <button type="button" class="dropdown-item print-report-btn"
+                                                data-student-id="{{ Qs::hash($s->user_id) }}"
                                                 data-year="{{ $year }}"
                                                 data-student-name="{{ $s->user->name }}">
                                             <i class="icon-printer mr-1"></i> Imprimer bulletin personnalisé
@@ -146,7 +189,7 @@
                                                 })
                                                 ->get();
                                         @endphp
-                                        
+
                                         @foreach($available_exams as $exam)
                                             <a class="dropdown-item" href="{{ route('marks.print', [Qs::hash($s->user_id), $exam->id, $year]) }}" target="_blank">
                                                 <i class="icon-printer2 mr-1"></i> {{ $exam->name }}
@@ -155,7 +198,7 @@
                                     </div>
                                 </div>
                             @else
-                                <span class="text-muted">Aucun bulletin disponible</span>
+                                <span class="text-muted">Aucune action</span>
                             @endif
                         </td>
                     </tr>
