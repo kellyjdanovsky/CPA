@@ -114,12 +114,18 @@
                         $sum = array_sum($values);
                         $count = count(array_filter($values, fn($value) => $value > 0));
                         $moyen_sans_coef = $count > 0 ? $sum / $count : 0;
-                        
-                        // Générer le commentaire basé sur la moyenne
-                        $comment = \App\Helpers\MarkComment::getComment($moyen_sans_coef);
-                        $commentColor = \App\Helpers\MarkComment::getCommentColor($moyen_sans_coef);
+
+                        // Générer le commentaire basé sur la moyenne seulement si l'étudiant a des notes
+                        $comment = '';
+                        $commentColor = 'text-muted';
+
+                        // Afficher les remarques seulement si l'étudiant a au moins une note dans DS1, DS2, ou examen
+                        if ($count > 0) {
+                            $comment = \App\Helpers\MarkComment::getComment($moyen_sans_coef);
+                            $commentColor = \App\Helpers\MarkComment::getCommentColor($moyen_sans_coef);
+                        }
                     @endphp
-                    
+
                     <span class="{{ $commentColor }}">{{ $comment ?: ($mk->comment ?: '-') }}</span>
                 </td>
             @endforeach

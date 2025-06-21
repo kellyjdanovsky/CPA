@@ -4,8 +4,8 @@
         <tr>
             <th rowspan="2">N°</th>
             <th rowspan="2">MATIÈRES</th>
-            <th rowspan="2">CA1<br>(20)</th>
-            <th rowspan="2">CA2<br>(20)</th>
+            <th rowspan="2">DS1<br>(20)</th>
+            <th rowspan="2">DS2<br>(20)</th>
             <th rowspan="2">EXAMENS<br>(20)</th>
             <th rowspan="2">Moyenne (/20)<br></th>
 
@@ -87,7 +87,7 @@
                         @endphp
                         {{ number_format($multipliedValue, 1) }}
                     </td>
-                    <td>
+                    <td class="remark-cell" data-mark-id="{{ $mk->id }}">
                         @php
                             // Récupérer les valeurs de t1, t2, et exm
                             $t1 = $mk->t1 ?: 0;
@@ -99,13 +99,47 @@
                             $sum = array_sum($values);
                             $count = count(array_filter($values, function($value) { return $value > 0; }));
                             $moyen_sans_coef = $count > 0 ? $sum / $count : 0;
-                            
-                            // Générer le commentaire basé sur la moyenne
-                            $comment = \App\Helpers\MarkComment::getComment($moyen_sans_coef);
-                            $commentColor = \App\Helpers\MarkComment::getCommentColor($moyen_sans_coef);
+
+                            // Générer le commentaire basé sur la moyenne seulement si l'étudiant a des notes
+                            $auto_comment = '';
+                            $commentColor = 'text-muted';
+
+                            // Afficher les remarques seulement si l'étudiant a au moins une note dans DS1, DS2, ou examen
+                            if ($count > 0) {
+                                $auto_comment = \App\Helpers\MarkComment::getComment($moyen_sans_coef);
+                                $commentColor = \App\Helpers\MarkComment::getCommentColor($moyen_sans_coef);
+                            }
+
+                            // Utiliser le commentaire personnalisé s'il existe, sinon le commentaire automatique
+                            $display_comment = $mk->comment ?: $auto_comment ?: '-';
                         @endphp
-                        
-                        <span class="{{ $commentColor }}">{{ $comment ?: ($mk->comment ?: '-') }}</span>
+
+                        @if(Qs::userIsTeamSAT())
+                            <div class="remark-display" style="cursor: pointer; min-height: 20px;">
+                                <span class="{{ $commentColor }} remark-text">{{ $display_comment }}</span>
+                                <i class="icon-pencil ml-2 text-muted" style="font-size: 12px;" title="Cliquer pour modifier"></i>
+                            </div>
+                            <div class="remark-edit" style="display: none;">
+                                <div class="input-group input-group-sm">
+                                    <input type="text" class="form-control remark-input" value="{{ $mk->comment }}" placeholder="Remarque personnalisée...">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-success btn-sm save-remark" type="button" title="Sauvegarder">
+                                            <i class="icon-checkmark"></i>
+                                        </button>
+                                        <button class="btn btn-secondary btn-sm cancel-remark" type="button" title="Annuler">
+                                            <i class="icon-cross"></i>
+                                        </button>
+                                        @if($mk->comment)
+                                            <button class="btn btn-danger btn-sm delete-remark" type="button" title="Supprimer">
+                                                <i class="icon-trash"></i>
+                                            </button>
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <span class="{{ $commentColor }}">{{ $display_comment }}</span>
+                        @endif
                     </td>
                 @endforeach
                 <script>
@@ -205,13 +239,36 @@
 
 <!-- Commentaire général de l'enseignant -->
 <div class="card mt-3">
-    <div class="card-header bg-light">
-        <h5 class="card-title">Commentaire de l'enseignant</h5>
+    <div class="card-header bg-light d-flex justify-content-between align-items-center">
+        <h5 class="card-title mb-0">Commentaire de l'enseignant</h5>
+        @if(Qs::userIsTeamSAT())
+            <button class="btn btn-sm btn-outline-primary edit-general-comment" data-exam-id="{{ $ex->id }}" data-comment-type="teacher">
+                <i class="icon-pencil"></i> Modifier
+            </button>
+        @endif
     </div>
     <div class="card-body">
-        <div id="commentaire_general_{{ $ex->id }}" class="p-3 bg-light rounded">
+        <div id="commentaire_general_display_{{ $ex->id }}" class="p-3 bg-light rounded">
             <!-- Le commentaire sera inséré ici par JavaScript -->
         </div>
+        @if(Qs::userIsTeamSAT())
+            <div id="commentaire_general_edit_{{ $ex->id }}" class="mt-3" style="display: none;">
+                <div class="form-group">
+                    <textarea class="form-control" rows="3" placeholder="Commentaire personnalisé de l'enseignant..."></textarea>
+                </div>
+                <div class="text-right">
+                    <button class="btn btn-success btn-sm save-general-comment" data-exam-id="{{ $ex->id }}" data-comment-type="teacher">
+                        <i class="icon-checkmark"></i> Sauvegarder
+                    </button>
+                    <button class="btn btn-secondary btn-sm cancel-general-comment" data-exam-id="{{ $ex->id }}">
+                        <i class="icon-cross"></i> Annuler
+                    </button>
+                    <button class="btn btn-danger btn-sm delete-general-comment" data-exam-id="{{ $ex->id }}" data-comment-type="teacher">
+                        <i class="icon-trash"></i> Supprimer
+                    </button>
+                </div>
+            </div>
+        @endif
     </div>
 </div>
 

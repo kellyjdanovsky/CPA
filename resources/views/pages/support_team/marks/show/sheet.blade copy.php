@@ -4,8 +4,8 @@
         <tr>
             <th rowspan="2">N°</th>
             <th rowspan="2">MATIÈRES</th>
-            <th rowspan="2">CA1<br>(20)</th>
-            <th rowspan="2">CA2<br>(20)</th>
+            <th rowspan="2">DS1<br>(20)</th>
+            <th rowspan="2">DS2<br>(20)</th>
             <th rowspan="2">EXAMENS<br>(20)</th>
             <th rowspan="2">Moyenne (/20)<br></th>
 
@@ -69,7 +69,22 @@
                         @endphp
                         {{ number_format($multipliedValue, 1) }}
                     </td>
-                    <td>{{ $mk->grade ? $mk->grade->remark : '-' }}</td>
+                    <td>
+                        @php
+                            // Récupérer les valeurs de t1, t2, et exm
+                            $t1 = $mk->t1 ?: 0;
+                            $t2 = $mk->t2 ?: 0;
+                            $exm = $mk->exm ?: 0;
+
+                            // Vérifier si l'étudiant a au moins une note
+                            $hasGrades = ($t1 > 0 || $t2 > 0 || $exm > 0);
+
+                            // Afficher les remarques seulement si l'étudiant a des notes
+                            $remark = $hasGrades ? ($mk->grade ? $mk->grade->remark : '-') : '-';
+                        @endphp
+
+                        {{ $remark }}
+                    </td>
                 @endforeach
                 <script>
                     $(document).ready(function() {
@@ -111,8 +126,7 @@
 
                 //dd($exr->where('student_id', $sr->user->id));
 
-                $rang = ExamRecord::where('my_class_id', $my_class->id)->where('student_id', $sr->user->id)->where('exam_id',$ex->id);
-                dd($rang);
+                $rang = ExamRecord::where('my_class_id', $my_class->id)->where('student_id', $sr->user->id)->where('exam_id',$ex->id)->first();
                 $positionEnFrancais = '';
                 
                 // Tableau de correspondance pour les numéros ordinaux

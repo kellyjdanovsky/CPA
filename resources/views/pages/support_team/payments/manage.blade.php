@@ -129,11 +129,6 @@
                         <i class="icon-stack mr-2"></i> Gestion des paiements
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="{{ route('payments.adra_team3') }}" class="nav-link">
-                        <i class="icon-printer4 mr-2"></i> Reçu ADRA & TEAM 3
-                    </a>
-                </li>
             </ul>
 
             <div class="tab-content">

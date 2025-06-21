@@ -127,6 +127,14 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('export_unpaid', 'PaymentController@exportUnpaidExcel')->name('payments.export_unpaid');
             Route::get('filter', 'PaymentController@select')->name('payments.filter');
 
+            // ADRA & TEAM 3 Payment Management
+            Route::get('adra-team3/filter', 'PaymentController@adraTeam3Filter')->name('payments.adra_team3.filter');
+            Route::get('adra-team3/get-payments', 'PaymentController@getClassPayments')->name('payments.adra_team3.get_payments');
+            Route::get('adra-team3/get-students', 'PaymentController@getPaymentStudents')->name('payments.adra_team3.get_students');
+            Route::post('adra-team3/update-reference', 'PaymentController@updateReference')->name('payments.adra_team3.update_reference');
+            Route::post('adra-team3/print-receipt/{student_id}', 'PaymentController@printAdraTeam3Receipt')->name('payments.adra_team3.print_receipt');
+            Route::post('adra-team3/print-batch', 'PaymentController@printBatchReceipts')->name('payments.adra_team3.print_batch');
+            Route::get('adra-team3/export-excel', 'PaymentController@exportAdraTeam3Excel')->name('payments.adra_team3.export_excel');
 
             Route::get('manage/{class_id?}', 'PaymentController@manage')->name('payments.manage');
             Route::get('invoice/{id}/{year?}', 'PaymentController@invoice')->name('payments.invoice');
@@ -141,15 +149,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('journal/filter', 'PaymentController@journalFilter')->name('payments.journal.filter');
             Route::get('journal/export/excel', 'PaymentController@journalExportExcel')->name('payments.journal.export.excel');
             
-            // Routes pour l'onglet "Reçu ADRA & TEAM 3"
-            Route::get('adra-team3', 'PaymentController@adraTeam3')->name('payments.adra_team3');
-            Route::get('adra-team3/filter', 'PaymentController@adraTeam3Filter')->name('payments.adra_team3.filter');
-            Route::post('adra-team3/generate-receipt', 'PaymentController@generateAdraTeam3Receipt')->name('payments.adra_team3.generate_receipt');
-            Route::get('adra-team3/print-receipt/{id}', 'PaymentController@printAdraTeam3Receipt')->name('payments.adra_team3.print_receipt');
-            Route::get('adra-team3/export-excel', 'PaymentController@exportAdraTeam3Excel')->name('payments.adra_team3.export_excel');
-            Route::post('adra-team3/save-reference', 'PaymentController@saveAdraTeam3Reference')->name('payments.adra_team3.save_reference');
-            Route::post('adra-team3/bulk-generate-receipts', 'PaymentController@bulkGenerateAdraTeam3Receipts')->name('payments.adra_team3.bulk_generate_receipts');
-            Route::get('adra-team3/bulk-print-receipts/{class_id}/{payment_ids}/{status?}', 'PaymentController@bulkPrintAdraTeam3Receipts')->name('payments.adra_team3.bulk_print_receipts');
+
 
         });
 
@@ -181,6 +181,7 @@ Route::group(['middleware' => 'auth'], function () {
                 Route::get('manage/{exam}/{class}/{section}/{subject}', 'MarkController@manage')->name('marks.manage');
                 Route::put('update/{exam}/{class}/{section}/{subject}', 'MarkController@update')->name('marks.update');
                 Route::put('comment_update/{exr_id}', 'MarkController@comment_update')->name('marks.comment_update');
+                Route::put('remark_update/{mark_id}', 'MarkController@remark_update')->name('marks.remark_update');
                 Route::put('skills_update/{skill}/{exr_id}', 'MarkController@skills_update')->name('marks.skills_update');
                 Route::post('selector', 'MarkController@selector')->name('marks.selector');
                 Route::get('bulk/{class?}/{section?}', 'MarkController@bulk')->name('marks.bulk');

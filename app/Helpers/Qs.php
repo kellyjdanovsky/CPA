@@ -408,4 +408,91 @@ class Qs
             return '';
         }
     }
+
+    /**
+     * Convert number to words in French
+     *
+     * @param int $number
+     * @return string
+     */
+    public static function convertToWords($number)
+    {
+        if ($number == 0) {
+            return 'zéro';
+        }
+
+        $units = [
+            '', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf',
+            'dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf'
+        ];
+
+        $tens = [
+            '', '', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'soixante-dix', 'quatre-vingt', 'quatre-vingt-dix'
+        ];
+
+        $hundreds = ['', 'cent', 'deux cents', 'trois cents', 'quatre cents', 'cinq cents', 'six cents', 'sept cents', 'huit cents', 'neuf cents'];
+
+        if ($number < 20) {
+            return $units[$number];
+        } elseif ($number < 100) {
+            $ten = intval($number / 10);
+            $unit = $number % 10;
+
+            if ($ten == 7 || $ten == 9) {
+                $ten--;
+                $unit += 10;
+            }
+
+            $result = $tens[$ten];
+            if ($unit > 0) {
+                if ($ten == 8 && $unit == 1) {
+                    $result .= '-un';
+                } else {
+                    $result .= '-' . $units[$unit];
+                }
+            }
+            return $result;
+        } elseif ($number < 1000) {
+            $hundred = intval($number / 100);
+            $remainder = $number % 100;
+
+            $result = $hundreds[$hundred];
+            if ($remainder > 0) {
+                $result .= ' ' . self::convertToWords($remainder);
+            }
+            return $result;
+        } elseif ($number < 1000000) {
+            $thousand = intval($number / 1000);
+            $remainder = $number % 1000;
+
+            $result = '';
+            if ($thousand == 1) {
+                $result = 'mille';
+            } else {
+                $result = self::convertToWords($thousand) . ' mille';
+            }
+
+            if ($remainder > 0) {
+                $result .= ' ' . self::convertToWords($remainder);
+            }
+            return $result;
+        } elseif ($number < 1000000000) {
+            $million = intval($number / 1000000);
+            $remainder = $number % 1000000;
+
+            $result = '';
+            if ($million == 1) {
+                $result = 'un million';
+            } else {
+                $result = self::convertToWords($million) . ' millions';
+            }
+
+            if ($remainder > 0) {
+                $result .= ' ' . self::convertToWords($remainder);
+            }
+            return $result;
+        }
+
+        return 'nombre trop grand';
+    }
 }

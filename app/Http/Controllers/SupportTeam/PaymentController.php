@@ -39,6 +39,7 @@ class PaymentController extends Controller
     {
         $d['selected'] = false;
         $d['years'] = $this->pay->getPaymentYears();
+        $d['my_classes'] = $this->my_class->all(); // Add classes for ADRA & TEAM 3 tab
 
         return view('pages.support_team.payments.index', $d);
     }
@@ -1215,6 +1216,479 @@ public function filter(Request $request)
     ]);
 }
 
+/**
+ * ADRA & TEAM 3 Payment Management Interface
+ */
+public function adraTeam3Filter(Request $request)
+{
+    $classId = $request->get('class_id', 1);
+
+    // Get all classes for the dropdown
+    $classes = $this->my_class->all();
+
+    // Get selected class
+    $selectedClass = $this->my_class->find($classId);
+
+    return view('pages.support_team.payments.adra_team3_filter', [
+        'classes' => $classes,
+        'selectedClass' => $selectedClass,
+        'selectedClassId' => $classId,
+        'studentsData' => collect(), // Empty collection for initial load
+        'year' => $this->year
+    ]);
+}
+
+/**
+ * Get payments for a specific class (AJAX)
+ */
+public function getClassPayments(Request $request)
+{
+    $classId = $request->get('class_id');
+
+    if (!$classId) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Class ID is required'
+        ]);
+    }
+
+    try {
+        // Debug: Log the request
+        \Log::info('Getting payments for class', ['class_id' => $classId, 'year' => $this->year]);
+
+        // Get payments for this specific class
+        $classPayments = Payment::where('my_class_id', $classId)
+            ->where('year', $this->year)
+            ->get();
+
+        // Get general payments (for all classes)
+        $generalPayments = Payment::whereNull('my_class_id')
+            ->where('year', $this->year)
+            ->get();
+
+        // Debug: Log the results
+        \Log::info('Found payments', [
+            'class_payments' => $classPayments->count(),
+            'general_payments' => $generalPayments->count()
+        ]);
+
+        // Merge class-specific and general payments
+        $allPayments = $classPayments->merge($generalPayments);
+
+        $paymentsArray = $allPayments->map(function($payment) {
+            return [
+                'id' => $payment->id,
+                'title' => $payment->title,
+                'amount' => $payment->amount
+            ];
+        })->values()->all();
+
+        \Log::info('Returning payments', ['count' => count($paymentsArray)]);
+
+        return response()->json([
+            'success' => true,
+            'payments' => $paymentsArray,
+            'debug' => [
+                'class_id' => $classId,
+                'year' => $this->year,
+                'class_payments_count' => $classPayments->count(),
+                'general_payments_count' => $generalPayments->count(),
+                'total_count' => count($paymentsArray)
+            ]
+        ]);
+
+    } catch (\Exception $e) {
+        \Log::error('Error loading payments', ['error' => $e->getMessage()]);
+
+        return response()->json([
+            'success' => false,
+            'message' => 'Error loading payments: ' . $e->getMessage()
+        ]);
+    }
+}
+
+/**
+ * Get students for a specific payment (AJAX)
+ */
+public function getPaymentStudents(Request $request)
+{
+    $classId = $request->get('class_id');
+    $paymentId = $request->get('payment_id');
+
+    if (!$classId || !$paymentId) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Class ID and Payment ID are required'
+        ]);
+    }
+
+    try {
+        // Get students from the selected class with ADRA or TEAM3 status
+        $students = StudentRecord::with(['user', 'my_class'])
+            ->where('my_class_id', $classId)
+            ->whereHas('user', function($query) {
+                $query->whereIn('status', ['ADRA', 'TEAM3']);
+            })
+            ->get();
+
+        // Get payment details
+        $payment = Payment::find($paymentId);
+
+        if (!$payment) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment not found'
+            ]);
+        }
+
+        $studentsData = $students->map(function($student) use ($payment) {
+            // Get existing payment record for this student and payment
+            $paymentRecord = PaymentRecord::where('student_id', $student->user_id)
+                ->where('payment_id', $payment->id)
+                ->where('year', $this->year)
+                ->first();
+
+            return [
+                'id' => $student->user_id,
+                'name' => $student->user->name,
+                'adm_no' => $student->adm_no,
+                'class_name' => $student->my_class->name,
+                'status' => $student->user->status,
+                'reference_code' => $paymentRecord->ref_no ?? 'REF-' . mt_rand(100000, 999999)
+            ];
+        });
+
+        return response()->json([
+            'success' => true,
+            'students' => $studentsData
+        ]);
+
+    } catch (\Exception $e) {
+        return response()->json([
+            'success' => false,
+            'message' => 'Error loading students: ' . $e->getMessage()
+        ]);
+    }
+}
+
+/**
+ * Update reference code for ADRA/TEAM3 payment
+ */
+public function updateReference(Request $request)
+{
+    $studentId = $request->student_id;
+    $referenceCode = $request->reference_code;
+
+    // Update all payment records for this student
+    PaymentRecord::where('student_id', $studentId)
+        ->where('year', $this->year)
+        ->update(['ref_no' => $referenceCode]);
+
+    return response()->json(['success' => true, 'message' => 'Code de référence mis à jour']);
+}
+
+/**
+ * Print individual ADRA/TEAM3 receipt for multiple payments
+ */
+public function printAdraTeam3Receipt(Request $request, $studentId)
+{
+    $selectedPayments = json_decode($request->selected_payments, true);
+    $totalAmount = $request->total_amount;
+    $status = $request->status;
+    $referenceCode = $request->reference_code;
+
+    // Get student information
+    $student = StudentRecord::with(['user', 'my_class'])
+        ->where('user_id', $studentId)
+        ->first();
+
+    if (!$student) {
+        return response()->json(['error' => 'Étudiant non trouvé'], 404);
+    }
+
+    // Get payment information
+    $payments = Payment::whereIn('id', $selectedPayments)->get();
+    if ($payments->isEmpty()) {
+        return response()->json(['error' => 'Paiements non trouvés'], 404);
+    }
+
+    // Calculate amounts based on status
+    $amountToPay = $status === 'ADRA' ? ($totalAmount * 0.75) : $totalAmount;
+    $cashAmount = $status === 'ADRA' ? ($totalAmount * 0.25) : 0;
+
+    // Create or update payment records for each selected payment
+    $paymentRecords = [];
+    $timestamp = time(); // Unique timestamp for this transaction
+
+    foreach ($payments as $index => $payment) {
+        // Generate unique reference code for each payment
+        $uniqueRefCode = $referenceCode . '-P' . $payment->id . '-' . $timestamp;
+
+        // Get existing payment record or create new one
+        $paymentRecord = PaymentRecord::where([
+            'student_id' => $studentId,
+            'payment_id' => $payment->id,
+            'year' => $this->year
+        ])->first();
+
+        if (!$paymentRecord) {
+            $paymentRecord = PaymentRecord::create([
+                'student_id' => $studentId,
+                'payment_id' => $payment->id,
+                'year' => $this->year,
+                'amt_paid' => 0,
+                'balance' => $payment->amount,
+                'paid' => 0,
+                'ref_no' => $uniqueRefCode
+            ]);
+        }
+
+        // Calculate proportional amounts for this payment
+        $paymentProportion = $payment->amount / $totalAmount;
+        $paymentAmountToPay = $amountToPay * $paymentProportion;
+        $paymentCashAmount = $cashAmount * $paymentProportion;
+
+        // Update payment record with unique reference (only if not already paid)
+        if (!$paymentRecord->paid) {
+            $paymentRecord->update([
+                'paid' => 1,
+                'amt_paid' => $paymentAmountToPay,
+                'balance' => $paymentCashAmount,
+                'methode' => $status,
+                'ref_no' => $uniqueRefCode
+            ]);
+        }
+
+        $paymentRecords[] = $paymentRecord;
+    }
+
+    // Create receipt record for journal (one receipt for all payments)
+    $receiptData = [
+        'pr_id' => $paymentRecords[0]->id, // Use first payment record as reference
+        'amt_paid' => $amountToPay,
+        'balance' => $cashAmount,
+        'year' => $this->year,
+        'methode' => $status,
+        'payment_method' => $status,
+        'reference_number' => $referenceCode,
+        'amount' => $amountToPay,
+        'description' => 'Paiement ' . $status . ' - ' . $payments->count() . ' paiements',
+        'created_by' => auth()->id()
+    ];
+
+    $receipt = Receipt::create($receiptData);
+
+    // Prepare data for thermal receipt
+    $receiptData = [
+        'student' => $student,
+        'payments' => $payments,
+        'totalAmount' => $totalAmount,
+        'amountToPay' => $amountToPay,
+        'cashAmount' => $cashAmount,
+        'status' => $status,
+        'referenceCode' => $referenceCode,
+        'receipt' => $receipt
+    ];
+
+    return view('pages.support_team.payments.adra_team3_thermal_receipt', $receiptData);
+}
+
+/**
+ * Print batch receipts for multiple students with multiple payments
+ */
+public function printBatchReceipts(Request $request)
+{
+    $studentsData = json_decode($request->students_data, true);
+    $receiptsData = [];
+
+    foreach ($studentsData as $studentData) {
+        $studentId = $studentData['student_id'];
+        $selectedPayments = $studentData['selected_payments'];
+        $totalAmount = $studentData['total_amount'];
+        $status = $studentData['status'];
+        $referenceCode = $studentData['reference_code'];
+
+        // Get student information
+        $student = StudentRecord::with(['user', 'my_class'])
+            ->where('user_id', $studentId)
+            ->first();
+
+        if (!$student) continue;
+
+        // Get payment information
+        $payments = Payment::whereIn('id', $selectedPayments)->get();
+        if ($payments->isEmpty()) continue;
+
+        // Calculate amounts
+        $amountToPay = $status === 'ADRA' ? ($totalAmount * 0.75) : $totalAmount;
+        $cashAmount = $status === 'ADRA' ? ($totalAmount * 0.25) : 0;
+
+        // Create or update payment records for each selected payment
+        $paymentRecords = [];
+        $timestamp = time(); // Unique timestamp for this transaction
+
+        foreach ($payments as $index => $payment) {
+            // Generate unique reference code for each payment
+            $uniqueRefCode = $referenceCode . '-P' . $payment->id . '-' . $timestamp;
+
+            // Get existing payment record or create new one
+            $paymentRecord = PaymentRecord::where([
+                'student_id' => $studentId,
+                'payment_id' => $payment->id,
+                'year' => $this->year
+            ])->first();
+
+            if (!$paymentRecord) {
+                $paymentRecord = PaymentRecord::create([
+                    'student_id' => $studentId,
+                    'payment_id' => $payment->id,
+                    'year' => $this->year,
+                    'amt_paid' => 0,
+                    'balance' => $payment->amount,
+                    'paid' => 0,
+                    'ref_no' => $uniqueRefCode
+                ]);
+            }
+
+            // Calculate proportional amounts for this payment
+            $paymentProportion = $payment->amount / $totalAmount;
+            $paymentAmountToPay = $amountToPay * $paymentProportion;
+            $paymentCashAmount = $cashAmount * $paymentProportion;
+
+            // Update payment record with unique reference (only if not already paid)
+            if (!$paymentRecord->paid) {
+                $paymentRecord->update([
+                    'paid' => 1,
+                    'amt_paid' => $paymentAmountToPay,
+                    'balance' => $paymentCashAmount,
+                    'methode' => $status,
+                    'ref_no' => $uniqueRefCode
+                ]);
+            }
+
+            $paymentRecords[] = $paymentRecord;
+        }
+
+        // Create receipt record for journal
+        $receiptData = [
+            'pr_id' => $paymentRecords[0]->id,
+            'amt_paid' => $amountToPay,
+            'balance' => $cashAmount,
+            'year' => $this->year,
+            'methode' => $status,
+            'payment_method' => $status,
+            'reference_number' => $referenceCode,
+            'amount' => $amountToPay,
+            'description' => 'Paiement ' . $status . ' - ' . $payments->count() . ' paiements',
+            'created_by' => auth()->id()
+        ];
+
+        $receipt = Receipt::create($receiptData);
+
+        $receiptsData[] = [
+            'student' => $student,
+            'payments' => $payments,
+            'totalAmount' => $totalAmount,
+            'amountToPay' => $amountToPay,
+            'cashAmount' => $cashAmount,
+            'status' => $status,
+            'referenceCode' => $referenceCode,
+            'receipt' => $receipt
+        ];
+    }
+
+    return view('pages.support_team.payments.adra_team3_batch_receipts', [
+        'receiptsData' => $receiptsData
+    ]);
+}
+
+/**
+ * Generate unique reference code to avoid duplicates
+ */
+private function generateUniqueRefCode($baseRefCode, $studentId, $paymentId)
+{
+    // Use timestamp and payment ID to ensure uniqueness
+    $timestamp = time();
+    $uniqueRefCode = $baseRefCode . '-' . $timestamp . '-' . $paymentId;
+
+    // If still exists (very unlikely), add random number
+    if (PaymentRecord::where('ref_no', $uniqueRefCode)->exists()) {
+        $uniqueRefCode = $baseRefCode . '-' . $timestamp . '-' . $paymentId . '-' . rand(100, 999);
+    }
+
+    return $uniqueRefCode;
+}
+
+/**
+ * Export ADRA/TEAM3 data to Excel
+ */
+public function exportAdraTeam3Excel(Request $request)
+{
+    $classId = $request->get('class_id', 1);
+
+    // Get students data (reuse logic from adraTeam3Filter)
+    $students = StudentRecord::with(['user', 'my_class', 'section'])
+        ->where('my_class_id', $classId)
+        ->whereHas('user', function($query) {
+            $query->whereIn('status', ['ADRA', 'TEAM3']);
+        })
+        ->get();
+
+    $paymentRecords = PaymentRecord::with(['payment', 'student', 'receipt'])
+        ->whereIn('student_id', $students->pluck('user_id'))
+        ->where('year', $this->year)
+        ->get()
+        ->groupBy('student_id');
+
+    $exportData = [];
+    $exportData[] = [
+        'Nom & Prénoms',
+        'Classe',
+        'Statut',
+        'Code Référence',
+        'Paiements sélectionnés',
+        'Montant Total (100%)',
+        'Montant à Payer (statut)',
+        'Méthode de Paiement',
+        'Date Export'
+    ];
+
+    foreach ($students as $student) {
+        $studentPayments = $paymentRecords->get($student->user_id, collect());
+        $totalAmount = $studentPayments->sum('payment.amount');
+        $status = $student->user->status;
+        $amountToPay = $status === 'ADRA' ? ($totalAmount * 0.75) : $totalAmount;
+
+        $exportData[] = [
+            $student->user->name,
+            $student->my_class->name,
+            $status,
+            $studentPayments->first()->ref_no ?? mt_rand(100000, 99999999),
+            $studentPayments->pluck('payment.title')->implode(', '),
+            number_format($totalAmount, 0, ',', ' ') . ' Ar',
+            number_format($amountToPay, 0, ',', ' ') . ' Ar',
+            $status,
+            date('Y-m-d H:i:s')
+        ];
+    }
+
+    // Create CSV content
+    $filename = 'ADRA_TEAM3_Payments_Class_' . $classId . '_' . date('Y-m-d') . '.csv';
+    $csvContent = '';
+
+    foreach ($exportData as $row) {
+        $csvContent .= '"' . implode('","', $row) . '"' . "\n";
+    }
+
+    // Return CSV download
+    return response($csvContent)
+        ->header('Content-Type', 'text/csv')
+        ->header('Content-Disposition', 'attachment; filename="' . $filename . '"')
+        ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0');
+}
+
 public function journalExportExcel(Request $request)
 {
     // Récupérer les paramètres de filtrage
@@ -1505,751 +1979,9 @@ public function journalExportExcel(Request $request)
     return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
 }
 
-    /**
-     * Affiche la page de gestion des reçus ADRA & TEAM 3
-     */
-    public function adraTeam3()
-    {
-        $d['my_classes'] = $this->my_class->all();
-        $d['selected'] = false;
-        $d['my_class_id'] = null; // Initialiser my_class_id à null
-        $d['payments'] = $this->pay->getActivePayments()->get();
-        $d['payment_records'] = collect([]); // Collection vide pour éviter les erreurs
-        $d['students'] = collect([]); // Collection vide pour éviter les erreurs
-        
-        return view('pages.support_team.payments.adra_team3', $d);
-    }
 
-    /**
-     * Filtre les élèves ADRA & TEAM 3 par classe
-     */
-    public function adraTeam3Filter(Request $request)
-    {
-        $class_id = $request->class_id;
-        $selected_status = $request->status ?? ['ADRA', 'TEAM3'];
-        $selected_payment_ids = $request->payments ?? [];
-        
-        $d['my_classes'] = $this->my_class->all();
-        $d['selected'] = true;
-        $d['my_class_id'] = $class_id;
-        
-        // Récupérer tous les paiements actifs
-        $all_payments = $this->pay->getActivePayments()->get();
-        $d['payments'] = $all_payments;
-        
-        // Si des paiements spécifiques sont sélectionnés
-        if (!empty($selected_payment_ids)) {
-            $selected_payments = $all_payments->whereIn('id', $selected_payment_ids);
-            $d['selected_payments'] = $selected_payments;
-        } else {
-            $d['selected_payments'] = collect([]);
-        }
-        
-        // Récupérer les élèves ADRA et TEAM 3 de la classe sélectionnée
-        try {
-            // Récupérer tous les élèves de la classe
-            $allStudents = $this->student->getRecord(['my_class_id' => $class_id])->with(['user', 'my_class'])->get();
-            
-            // Filtrer pour ne garder que les élèves avec les statuts sélectionnés
-            $students = $allStudents->filter(function($student) use ($selected_status) {
-                if (!$student->user) {
-                    return false;
-                }
-                $status = $student->user->status ?? 'Normal';
-                return in_array($status, (array)$selected_status);
-            });
-            
-            // Log pour débogage
-            \Log::info('Classe ID: ' . $class_id);
-            \Log::info('Statuts sélectionnés: ' . implode(', ', (array)$selected_status));
-            \Log::info('Paiements sélectionnés: ' . implode(', ', (array)$selected_payment_ids));
-            \Log::info('Nombre total d\'élèves dans la classe: ' . $allStudents->count());
-            \Log::info('Nombre d\'élèves filtrés: ' . $students->count());
-            
-            $d['students'] = $students;
-        } catch (\Exception $e) {
-            \Log::error('Erreur lors de la récupération des élèves: ' . $e->getMessage());
-            \Log::error('Trace: ' . $e->getTraceAsString());
-            $d['students'] = collect([]);
-        }
-        
-        // Récupérer tous les enregistrements de paiement pour ces élèves
-        $student_ids = $students->pluck('user_id')->toArray();
-        $d['payment_records'] = $this->pay->getAllPRForStudents($student_ids)->get();
-        
-        return view('pages.support_team.payments.adra_team3', $d);
-    }
-    
-    /**
-     * Génère un reçu pour les élèves ADRA & TEAM 3
-     */
-    public function generateAdraTeam3Receipt(Request $request)
-    {
-        try {
-            // Log les données reçues pour le débogage
-            \Log::info('Données reçues pour la génération de reçu:', $request->all());
-            
-            // Valider les données du formulaire avec des messages personnalisés
-            $validator = \Validator::make($request->all(), [
-                'student_id' => 'required|exists:users,id',
-                'payments' => 'required|array',
-                'payments.*' => 'exists:payments,id',
-                'reference_code' => 'nullable|string|max:50',
-            ], [
-                'student_id.required' => 'L\'identifiant de l\'élève est requis',
-                'student_id.exists' => 'L\'élève spécifié n\'existe pas',
-                'payments.required' => 'Veuillez sélectionner au moins un paiement',
-                'payments.array' => 'Le format des paiements est invalide',
-                'payments.*.exists' => 'Un des paiements sélectionnés n\'existe pas',
-            ]);
-            
-            if ($validator->fails()) {
-                \Log::error('Erreurs de validation:', $validator->errors()->toArray());
-                return back()->withErrors($validator)->withInput();
-            }
-            
-            $student_id = $request->student_id;
-            $payment_ids = $request->payments;
-            $reference_code = $request->reference_code;
-            
-            // Log les données validées
-            \Log::info('Données validées:', [
-                'student_id' => $student_id,
-                'payment_ids' => $payment_ids,
-                'reference_code' => $reference_code
-            ]);
-            
-            // Récupérer l'élève
-            $student = $this->student->findByUserId($student_id)->with('user')->first();
-            if (!$student) {
-                return back()->with('flash_danger', 'Élève introuvable');
-            }
-            
-            // Vérifier le statut de l'élève
-            $status = $student->user->status ?? 'Normal';
-            if (!in_array($status, ['ADRA', 'TEAM3'])) {
-                return back()->with('flash_danger', 'L\'élève n\'a pas le statut ADRA ou TEAM3');
-            }
-            
-            // Calculer le pourcentage à appliquer selon le statut
-            $percentage = ($status === 'ADRA') ? 0.75 : 1.0;
-            
-            $totalAmount = 0;
-            $paymentDetails = [];
-            $receiptIds = [];
-            
-            // Vérifier que des paiements ont été sélectionnés
-            if (empty($payment_ids)) {
-                \Log::error('Aucun paiement sélectionné pour l\'élève ID: ' . $student_id);
-                return back()->with('flash_danger', 'Veuillez sélectionner au moins un paiement')->withInput();
-            }
-            
-            \Log::info('Traitement des paiements pour l\'élève ID: ' . $student_id . ', Nombre de paiements: ' . count($payment_ids));
-            
-            // Pour chaque paiement sélectionné
-            foreach ($payment_ids as $payment_id) {
-                // Récupérer le paiement
-                $payment = $this->pay->find($payment_id);
-                if (!$payment) {
-                    \Log::warning('Paiement non trouvé, ID: ' . $payment_id);
-                    continue;
-                }
-                
-                \Log::info('Traitement du paiement: ' . $payment->title . ' (ID: ' . $payment_id . ')');
-                
-                // Trouver ou créer l'enregistrement de paiement
-                $pr = $this->pay->findMyPR($student_id, $payment_id)->first();
-                
-                // Générer un numéro de référence unique
-                $baseRefNo = $reference_code ?: 'CPA/' . $student->my_class->class_type->code . $student->my_class->id . '/' . $this->year;
-                $uniqueRefNo = $this->generateUniqueRefNo($baseRefNo, $payment_id);
-                
-                if (!$pr) {
-                    \Log::info('Création d\'un nouvel enregistrement de paiement pour l\'élève ID: ' . $student_id . ', Paiement ID: ' . $payment_id);
-                    
-                    $pr_data = [
-                        'student_id' => $student_id,
-                        'payment_id' => $payment_id,
-                        'year' => $this->year,
-                        'ref_no' => $uniqueRefNo
-                    ];
-                    $pr = $this->pay->createRecord($pr_data);
-                } else {
-                    \Log::info('Mise à jour de l\'enregistrement de paiement existant, ID: ' . $pr->id);
-                    
-                    // Mettre à jour le code de référence
-                    $pr->ref_no = $uniqueRefNo;
-                    $pr->save();
-                }
-                
-                try {
-                    // Calculer le montant à facturer
-                    $originalAmount = $payment->amount;
-                    $amountToBill = $originalAmount * $percentage;
-                    
-                    \Log::info('Création du reçu pour le paiement: ' . $payment->title . ', Montant: ' . $amountToBill);
-                    
-                    // Créer un reçu
-                    $receipt_data = [
-                        'pr_id' => $pr->id,
-                        'amt_paid' => $amountToBill,
-                        'balance' => ($status === 'ADRA') ? ($originalAmount - $amountToBill) : 0,
-                        'year' => $this->year,
-                        'methode' => $status,
-                        'payment_method' => $status,
-                        'created_by' => auth()->user()->name,
-                        'reference_number' => $pr->ref_no, // Utiliser le numéro de référence unique généré
-                        'observations' => "Reçu {$status} généré automatiquement",
-                    ];
-                    
-                    $receipt = $this->pay->createReceipt($receipt_data);
-                    
-                    if ($receipt) {
-                        \Log::info('Reçu créé avec succès, ID: ' . $receipt->id);
-                        
-                        // Mettre à jour l'enregistrement de paiement
-                        $pr->amt_paid = $amountToBill;
-                        
-                        // Pour les élèves ADRA, le solde est de 25%
-                        if ($status === 'ADRA') {
-                            $pr->balance = $originalAmount - $amountToBill;
-                            $pr->paid = 0; // Pas encore payé complètement
-                        } else {
-                            // Pour les élèves TEAM3, marquer comme payé
-                            $pr->balance = 0;
-                            $pr->paid = 1;
-                        }
-                        
-                        $pr->methode = $status;
-                        $pr->save();
-                        
-                        $totalAmount += $amountToBill;
-                        $receiptIds[] = $pr->id;
-                        
-                        // Ajouter les détails du paiement
-                        $paymentDetails[] = [
-                            'title' => $payment->title,
-                            'original_amount' => $originalAmount,
-                            'paid_amount' => $amountToBill,
-                            'percentage' => $percentage * 100
-                        ];
-                    } else {
-                        \Log::error('Échec de la création du reçu pour le paiement ID: ' . $payment_id);
-                    }
-                } catch (\Exception $e) {
-                    \Log::error('Erreur lors de la création du reçu pour le paiement ID: ' . $payment_id . ', Erreur: ' . $e->getMessage());
-                    \Log::error('Trace: ' . $e->getTraceAsString());
-                }
-            }
-            
-            // Vérifier que des reçus ont été générés
-            if (empty($receiptIds)) {
-                \Log::error('Aucun reçu généré pour l\'élève ID: ' . $student_id);
-                return back()->with('flash_danger', 'Aucun reçu n\'a pu être généré. Veuillez réessayer.')->withInput();
-            }
-            
-            \Log::info('Reçus générés avec succès, IDs: ' . implode(', ', $receiptIds));
-            
-            // Stocker les données dans la session pour l'impression
-            session([
-                'adra_team3_receipt' => [
-                    'student' => $student,
-                    'status' => $status,
-                    'reference_code' => $reference_code ?: 'Multiple', // Indiquer qu'il y a plusieurs références
-                    'payment_details' => $paymentDetails,
-                    'total_amount' => $totalAmount,
-                    'receipt_ids' => $receiptIds,
-                    'receipt_date' => now()->format('d/m/Y'),
-                ]
-            ]);
-            
-            \Log::info('Redirection vers la page d\'impression du reçu');
-            
-            return redirect()->route('payments.adra_team3.print_receipt', ['id' => implode(',', $receiptIds)])
-                ->with('flash_success', 'Reçu généré avec succès');
-                
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            // Log l'erreur de validation
-            \Log::error('Erreur de validation lors de la génération du reçu ADRA/TEAM3:', $e->errors());
-            
-            // Retourner les erreurs de validation
-            return back()->withErrors($e->errors())->withInput()->with('flash_danger', 'Veuillez corriger les erreurs de validation.');
-        } catch (\Exception $e) {
-            // Log l'erreur pour le débogage
-            \Log::error('Erreur lors de la génération du reçu ADRA/TEAM3: ' . $e->getMessage());
-            \Log::error('Trace: ' . $e->getTraceAsString());
-            
-            // Retourner un message d'erreur convivial
-            return back()->with('flash_danger', 'Une erreur est survenue lors de la génération du reçu: ' . $e->getMessage())->withInput();
-        }
-    }
-    
-    /**
-     * Imprime un reçu ADRA & TEAM 3
-     */
-    public function printAdraTeam3Receipt($id)
-    {
-        // Récupérer les données de la session
-        $receiptData = session('adra_team3_receipt');
-        
-        if (!$receiptData) {
-            // Si les données ne sont pas dans la session, essayer de les récupérer à partir de l'ID
-            $ids = explode(',', $id);
-            $firstId = $ids[0] ?? null;
-            
-            if (!$firstId) {
-                return redirect()->route('payments.adra_team3')
-                    ->with('flash_danger', 'Données du reçu introuvables');
-            }
-            
-            try {
-                $pr = $this->pay->findRecord($firstId);
-                $student = $this->student->findByUserId($pr->student_id)->with('user')->first();
-                $status = $student->user->status ?? 'Normal';
-                
-                // Récupérer tous les reçus associés
-                $receipts = [];
-                $paymentDetails = [];
-                $totalAmount = 0;
-                
-                foreach ($ids as $receiptId) {
-                    $record = $this->pay->findRecord($receiptId);
-                    if ($record) {
-                        $payment = $this->pay->find($record->payment_id);
-                        $receipt = $record->receipt->first();
-                        
-                        if ($payment && $receipt) {
-                            $paymentDetails[] = [
-                                'title' => $payment->title,
-                                'original_amount' => $payment->amount,
-                                'paid_amount' => $receipt->amt_paid,
-                                'percentage' => ($status === 'ADRA') ? 75 : 100
-                            ];
-                            
-                            $totalAmount += $receipt->amt_paid;
-                        }
-                    }
-                }
-                
-                // Collecter tous les numéros de référence
-                $refNos = [];
-                foreach ($ids as $receiptId) {
-                    $record = $this->pay->findRecord($receiptId);
-                    if ($record && $record->ref_no) {
-                        $refNos[] = $record->ref_no;
-                    }
-                }
-                
-                // Déterminer le code de référence à afficher
-                $referenceCode = count($refNos) === 1 ? $refNos[0] : 'Multiple';
-                
-                $receiptData = [
-                    'student' => $student,
-                    'status' => $status,
-                    'reference_code' => $referenceCode,
-                    'payment_details' => $paymentDetails,
-                    'total_amount' => $totalAmount,
-                    'receipt_ids' => $ids,
-                    'receipt_date' => now()->format('d/m/Y'),
-                    'reference_codes' => $refNos, // Stocker tous les codes de référence
-                ];
-            } catch (\Exception $e) {
-                return redirect()->route('payments.adra_team3')
-                    ->with('flash_danger', 'Erreur lors de la récupération des données du reçu: ' . $e->getMessage());
-            }
-        }
-        
-        // Préparer les données pour la vue
-        $d['student'] = $receiptData['student'];
-        $d['status'] = $receiptData['status'];
-        $d['reference_code'] = $receiptData['reference_code'];
-        $d['payment_details'] = $receiptData['payment_details'];
-        $d['total_amount'] = $receiptData['total_amount'];
-        $d['receipt_ids'] = $receiptData['receipt_ids'];
-        
-        // Ajouter les codes de référence et la date si disponibles
-        if (isset($receiptData['reference_codes'])) {
-            $d['reference_codes'] = $receiptData['reference_codes'];
-        }
-        if (isset($receiptData['receipt_date'])) {
-            $d['receipt_date'] = $receiptData['receipt_date'];
-        }
-        
-        $d['s'] = Setting::all()->flatMap(function($s){
-            return [$s->type => $s->description];
-        });
-        
-        // Utiliser le template de reçu thermique 58mm
-        return view('pages.support_team.payments.adra_team3_thermal_receipt', $d);
-    }
-    
-    /**
-     * Génère des reçus en masse pour les élèves ADRA & TEAM 3 d'une classe
-     */
-    public function bulkGenerateAdraTeam3Receipts(Request $request)
-    {
-        try {
-            // Valider les données du formulaire
-            $request->validate([
-                'class_id' => 'required|exists:my_classes,id',
-                'payments' => 'required|array',
-                'payments.*' => 'exists:payments,id',
-            ]);
-            
-            $class_id = $request->class_id;
-            $payment_ids = $request->payments;
-            $status_filter = $request->status ?? ['ADRA', 'TEAM3'];
-            
-            // Rediriger vers la page d'impression en masse
-            return redirect()->route('payments.adra_team3.bulk_print_receipts', [
-                'class_id' => $class_id,
-                'payment_ids' => implode(',', $payment_ids),
-                'status' => is_array($status_filter) ? implode(',', $status_filter) : $status_filter
-            ]);
-            
-        } catch (\Exception $e) {
-            // Log l'erreur pour le débogage
-            \Log::error('Erreur lors de la génération en masse des reçus: ' . $e->getMessage());
-            \Log::error('Trace: ' . $e->getTraceAsString());
-            
-            // Retourner un message d'erreur convivial
-            return back()->with('flash_danger', 'Une erreur est survenue lors de la génération en masse des reçus: ' . $e->getMessage());
-        }
-    }
-    
-    /**
-     * Imprime en masse les reçus des élèves ADRA & TEAM 3 d'une classe
-     */
-    public function bulkPrintAdraTeam3Receipts($class_id, $payment_ids, $status = null)
-    {
-        try {
-            // Convertir les IDs de paiement en tableau
-            $payment_ids = explode(',', $payment_ids);
-            $status_filter = $status ? explode(',', $status) : ['ADRA', 'TEAM3'];
-            
-            // Récupérer les élèves avec les statuts sélectionnés de la classe sélectionnée
-            $students = $this->student->getRecord(['my_class_id' => $class_id])->with(['user', 'my_class'])->get()
-                ->filter(function($student) use ($status_filter) {
-                    if (!$student->user) {
-                        return false;
-                    }
-                    $status = $student->user->status ?? 'Normal';
-                    return in_array($status, $status_filter);
-                });
-            
-            // Si aucun élève n'est trouvé, rediriger avec un message d'erreur
-            if ($students->isEmpty()) {
-                return redirect()->route('payments.adra_team3')
-                    ->with('flash_danger', 'Aucun élève avec les statuts sélectionnés trouvé dans cette classe');
-            }
-            
-            // Récupérer les paiements
-            $payments = $this->pay->findMany($payment_ids);
-            
-            // Si aucun paiement n'est trouvé, rediriger avec un message d'erreur
-            if ($payments->isEmpty()) {
-                return redirect()->route('payments.adra_team3')
-                    ->with('flash_danger', 'Aucun paiement sélectionné trouvé');
-            }
-            
-            // Préparer les données pour la vue
-            $receipts = [];
-            
-            foreach ($students as $student) {
-                $status = $student->user->status;
-                $percentage = ($status === 'ADRA') ? 0.75 : 1.0;
-                
-                $totalAmount = 0;
-                $paymentDetails = [];
-                $receiptIds = [];
-                $refNos = [];
-                
-                // Utiliser le code de référence existant ou en générer un nouveau
-                $baseRefNo = $student->adm_no ? $student->adm_no : 'CPA/' . $student->my_class->class_type->code . $student->my_class->id . '/' . $this->year;
-                
-                foreach ($payments as $payment) {
-                    // Calculer le montant à facturer
-                    $originalAmount = $payment->amount;
-                    $amountToBill = $originalAmount * $percentage;
-                    
-                    // Générer un numéro de référence unique pour ce paiement
-                    $uniqueRefNo = $this->generateUniqueRefNo($baseRefNo, $payment->id);
-                    $refNos[] = $uniqueRefNo;
-                    
-                    // Créer ou mettre à jour l'enregistrement de paiement
-                    $pr = $this->pay->findMyPR($student->user_id, $payment->id)->first();
-                    if (!$pr) {
-                        $pr_data = [
-                            'student_id' => $student->user_id,
-                            'payment_id' => $payment->id,
-                            'year' => $this->year,
-                            'ref_no' => $uniqueRefNo,
-                            'amt_paid' => $amountToBill,
-                            'balance' => ($status === 'ADRA') ? ($originalAmount - $amountToBill) : 0,
-                            'paid' => ($status === 'TEAM3') ? 1 : 0,
-                            'methode' => $status
-                        ];
-                        $pr = $this->pay->createRecord($pr_data);
-                    } else {
-                        $pr->ref_no = $uniqueRefNo;
-                        $pr->amt_paid = $amountToBill;
-                        $pr->balance = ($status === 'ADRA') ? ($originalAmount - $amountToBill) : 0;
-                        $pr->paid = ($status === 'TEAM3') ? 1 : 0;
-                        $pr->methode = $status;
-                        $pr->save();
-                    }
-                    
-                    // Créer un reçu
-                    $receipt_data = [
-                        'pr_id' => $pr->id,
-                        'amt_paid' => $amountToBill,
-                        'balance' => ($status === 'ADRA') ? ($originalAmount - $amountToBill) : 0,
-                        'year' => $this->year,
-                        'methode' => $status,
-                        'payment_method' => $status,
-                        'created_by' => auth()->user()->name,
-                        'reference_number' => $uniqueRefNo,
-                        'observations' => "Reçu {$status} généré automatiquement en masse"
-                    ];
-                    
-                    $receipt = $this->pay->createReceipt($receipt_data);
-                    if ($receipt) {
-                        $receiptIds[] = $receipt->id;
-                    }
-                    
-                    // Ajouter les détails du paiement
-                    $paymentDetails[] = [
-                        'title' => $payment->title,
-                        'original_amount' => $originalAmount,
-                        'paid_amount' => $amountToBill,
-                        'percentage' => $percentage * 100
-                    ];
-                    
-                    $totalAmount += $amountToBill;
-                }
-                
-                // Stocker les données du reçu pour cet élève
-                $receipts[] = [
-                    'student' => $student,
-                    'status' => $status,
-                    'reference_code' => $student->adm_no ?? (count($refNos) === 1 ? $refNos[0] : 'Multiple'),
-                    'reference_codes' => $refNos,
-                    'payment_details' => $paymentDetails,
-                    'total_amount' => $totalAmount,
-                    'receipt_date' => now()->format('d/m/Y'),
-                    'receipt_ids' => $receiptIds
-                ];
-            }
-            
-            // Préparer les données pour la vue
-            $d['receipts'] = $receipts;
-            $d['payments'] = $payments;
-            $d['class_id'] = $class_id;
-            $d['s'] = Setting::all()->flatMap(function($s){
-                return [$s->type => $s->description];
-            });
-            
-            return view('pages.support_team.payments.adra_team3_bulk_receipts', $d);
-            
-        } catch (\Exception $e) {
-            // Log l'erreur pour le débogage
-            \Log::error('Erreur lors de l\'impression en masse des reçus: ' . $e->getMessage());
-            \Log::error('Trace: ' . $e->getTraceAsString());
-            
-            // Retourner un message d'erreur convivial
-            return redirect()->route('payments.adra_team3')
-                ->with('flash_danger', 'Une erreur est survenue lors de l\'impression en masse des reçus: ' . $e->getMessage());
-        }
-    }
-    
-    /**
-     * Exporte les données des élèves ADRA & TEAM 3 au format Excel
-     */
-    public function exportAdraTeam3Excel(Request $request)
-    {
-        try {
-            $class_id = $request->class_id;
-            $payment_ids = $request->payments ? explode(',', $request->payments) : [];
-            $status_filter = $request->status ? explode(',', $request->status) : ['ADRA', 'TEAM3'];
-            
-            // Si aucune classe n'est sélectionnée, rediriger avec un message d'erreur
-            if (!$class_id) {
-                return back()->with('flash_danger', 'Veuillez sélectionner une classe');
-            }
-            
-            // Récupérer les élèves avec les statuts sélectionnés de la classe sélectionnée
-            $students = $this->student->getRecord(['my_class_id' => $class_id])->with(['user', 'my_class'])->get()
-                ->filter(function($student) use ($status_filter) {
-                    if (!$student->user) {
-                        return false;
-                    }
-                    $status = $student->user->status ?? 'Normal';
-                    return in_array($status, $status_filter);
-                });
-                
-            if ($students->isEmpty()) {
-                return back()->with('flash_danger', 'Aucun élève avec les statuts sélectionnés trouvé dans cette classe');
-            }
-            
-            // Récupérer tous les paiements actifs
-            $all_payments = $this->pay->getActivePayments()->get();
-            
-            // Filtrer les paiements si des IDs spécifiques sont fournis
-            $payments = !empty($payment_ids) 
-                ? $all_payments->whereIn('id', $payment_ids) 
-                : $all_payments;
-            
-            // Préparer les données pour l'export Excel
-            $exportData = [];
-            
-            // Ajouter l'en-tête
-            $headers = [
-                'Nom de l\'élève', 
-                'Classe', 
-                'Statut', 
-                'Code de référence', 
-                'Paiements sélectionnés', 
-                'Montant total payé', 
-                'Méthode de paiement'
-            ];
-            
-            $exportData[] = $headers;
-            
-            // Ajouter les données des élèves
-            foreach ($students as $student) {
-                $status = $student->user->status ?? 'Normal';
-                $percentage = ($status === 'ADRA') ? 0.75 : 1.0;
-                
-                $totalAmount = 0;
-                $paymentsList = [];
-                
-                // Calculer le montant total et préparer la liste des paiements
-                foreach ($payments as $payment) {
-                    $amountToBill = $payment->amount * $percentage;
-                    $totalAmount += $amountToBill;
-                    $paymentsList[] = $payment->title . ' (' . number_format($amountToBill, 0, ',', ' ') . ' Ar)';
-                }
-                
-                // Méthode de paiement selon le statut
-                $paymentMethod = ($status === 'ADRA') ? 'ADRA (75%)' : (($status === 'TEAM3') ? 'TEAM 3 (100%)' : 'Normal');
-                
-                // Préparer la ligne pour cet élève
-                $row = [
-                    $student->user->name,
-                    $student->my_class->name,
-                    $status,
-                    $student->adm_no ?? '',
-                    implode(', ', $paymentsList),
-                    number_format($totalAmount, 0, ',', ' ') . ' Ar',
-                    $paymentMethod
-                ];
-                
-                $exportData[] = $row;
-            }
-            
-            // Générer le fichier Excel
-            $filename = 'Eleves_' . implode('_', $status_filter) . '_' . date('Y-m-d') . '.csv';
-            $tempFile = tempnam(sys_get_temp_dir(), 'csv');
-            
-            $file = fopen($tempFile, 'w');
-            fprintf($file, chr(0xEF).chr(0xBB).chr(0xBF)); // Ajouter BOM pour UTF-8
-            
-            // Écrire les données dans le fichier CSV
-            foreach ($exportData as $row) {
-                fputcsv($file, $row, ';'); // Utiliser le point-virgule comme séparateur pour Excel
-            }
-            
-            fclose($file);
-            
-            // Télécharger le fichier CSV
-            return response()->download($tempFile, $filename, [
-                'Content-Type' => 'text/csv; charset=UTF-8',
-                'Content-Disposition' => 'attachment; filename="' . $filename . '"',
-            ])->deleteFileAfterSend(true);
-            
-        } catch (\Exception $e) {
-            // Log l'erreur pour le débogage
-            \Log::error('Erreur lors de l\'export Excel ADRA/TEAM3: ' . $e->getMessage());
-            \Log::error('Trace: ' . $e->getTraceAsString());
-            
-            // Retourner un message d'erreur convivial
-            return back()->with('flash_danger', 'Une erreur est survenue lors de l\'export Excel: ' . $e->getMessage());
-        }
-    }
-    
-    /**
-     * Génère un numéro de référence unique pour un paiement
-     * 
-     * @param string $baseRefNo Le numéro de référence de base
-     * @param int $paymentId L'ID du paiement
-     * @return string Le numéro de référence unique
-     */
-    private function generateUniqueRefNo($baseRefNo, $paymentId)
-    {
-        // Ajouter l'ID du paiement pour rendre le numéro unique par paiement
-        $refNo = $baseRefNo . '/' . $paymentId;
-        
-        // Vérifier si ce numéro existe déjà
-        $exists = \DB::table('payment_records')->where('ref_no', $refNo)->exists();
-        
-        // Si le numéro existe déjà, ajouter un suffixe aléatoire
-        if ($exists) {
-            $suffix = mt_rand(1000, 9999);
-            $refNo = $refNo . '-' . $suffix;
-            
-            // Vérifier à nouveau (au cas où)
-            while (\DB::table('payment_records')->where('ref_no', $refNo)->exists()) {
-                $suffix = mt_rand(1000, 9999);
-                $refNo = $baseRefNo . '/' . $paymentId . '-' . $suffix;
-            }
-        }
-        
-        return $refNo;
-    }
-    
-    /**
-     * Sauvegarde le code de référence d'un élève ADRA ou TEAM 3
-     */
-    public function saveAdraTeam3Reference(Request $request)
-    {
-        try {
-            // Valider les données
-            $request->validate([
-                'student_id' => 'required|exists:student_records,id',
-                'reference_code' => 'required|string|max:50',
-            ]);
-            
-            $student_id = $request->student_id;
-            $reference_code = $request->reference_code;
-            
-            // Récupérer l'élève
-            $student = $this->student->getRecord(['id' => $student_id])->first();
-            
-            if (!$student) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Élève introuvable'
-                ], 404);
-            }
-            
-            // Mettre à jour le code de référence (adm_no)
-            $student->adm_no = $reference_code;
-            $student->save();
-            
-            return response()->json([
-                'success' => true,
-                'message' => 'Code de référence enregistré avec succès',
-                'reference_code' => $reference_code
-            ]);
-            
-        } catch (\Exception $e) {
-            // Log l'erreur pour le débogage
-            \Log::error('Erreur lors de la sauvegarde du code de référence: ' . $e->getMessage());
-            
-            return response()->json([
-                'success' => false,
-                'message' => 'Une erreur est survenue: ' . $e->getMessage()
-            ], 500);
-        }
-    }
+
+
+
+
 }

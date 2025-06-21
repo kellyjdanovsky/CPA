@@ -505,6 +505,30 @@ class MarkController extends Controller
         return Qs::jsonUpdateOk();
     }
 
+    public function remark_update(Request $req, $mark_id)
+    {
+        $mark = \App\Models\Mark::find($mark_id);
+
+        if (!$mark) {
+            return response()->json(['ok' => false, 'msg' => 'Note non trouvée'], 404);
+        }
+
+        // Valider que l'utilisateur a les permissions
+        if (!Qs::userIsTeamSAT()) {
+            return response()->json(['ok' => false, 'msg' => 'Permission refusée'], 403);
+        }
+
+        $comment = $req->input('comment', '');
+
+        $mark->update(['comment' => $comment]);
+
+        return response()->json([
+            'ok' => true,
+            'msg' => $comment ? 'Remarque mise à jour avec succès' : 'Remarque supprimée avec succès',
+            'comment' => $comment
+        ]);
+    }
+
     public function skills_update(Request $req, $skill, $exr_id)
     {
         $d = [];

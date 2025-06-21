@@ -3,8 +3,8 @@
     <tr>
         <th rowspan="2">S/N</th>
         <th rowspan="2">SUBJECTS</th>
-        <th rowspan="2">CA1<br>(20)</th>
-        <th rowspan="2">CA2<br>(20)</th>
+        <th rowspan="2">DS1<br>(20)</th>
+        <th rowspan="2">DS2<br>(20)</th>
         <th rowspan="2">EXAMS<br>(60)</th>
         <th rowspan="2">TOTAL<br>(100)</th>
 
@@ -51,7 +51,22 @@
                 {{--Grade, Subject Position & Remarks--}}
                 <td>{{ ($mk->grade) ? $mk->grade->name : '-' }}</td>
                 <td>{!! ($mk->grade) ? Mk::getSuffix($mk->sub_pos) : '-' !!}</td>
-                <td>{{ ($mk->grade) ? $mk->grade->remark : '-' }}</td>
+                <td>
+                    @php
+                        // Récupérer les valeurs de t1, t2, et exm
+                        $t1 = $mk->t1 ?: 0;
+                        $t2 = $mk->t2 ?: 0;
+                        $exm = $mk->exm ?: 0;
+
+                        // Vérifier si l'étudiant a au moins une note
+                        $hasGrades = ($t1 > 0 || $t2 > 0 || $exm > 0);
+
+                        // Afficher les remarques seulement si l'étudiant a des notes
+                        $remark = $hasGrades ? (($mk->grade) ? $mk->grade->remark : '-') : '-';
+                    @endphp
+
+                    {{ $remark }}
+                </td>
             @endforeach
         </tr>
     @endforeach
