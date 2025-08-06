@@ -143,7 +143,7 @@ class AjaxController extends Controller
 
         try {
             // Déterminer si le champ appartient à la table users ou student_records
-            $user_fields = ['name', 'dob', 'status', 'nom_p', 'prof_p', 'nom_m', 'prof_m', 'phone', 'address', 'student_type', 'academic_status'];
+            $user_fields = ['name', 'dob', 'status', 'religion', 'nom_p', 'prof_p', 'nom_m', 'prof_m', 'phone', 'address', 'student_type', 'academic_status'];
             $student_fields = ['age', 'adm_no'];
 
             if (in_array($field_name, $user_fields)) {

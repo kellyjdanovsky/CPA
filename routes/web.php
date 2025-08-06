@@ -52,6 +52,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::put('not_graduated/{id}', 'StudentRecordController@not_graduated')->name('st.not_graduated');
             Route::get('list/{class_id}', 'StudentRecordController@listByClass')->name('students.list')->middleware('teamSAT');
             Route::get('list-all', 'StudentRecordController@listAll')->name('students.list_all')->middleware('teamSAT');
+            Route::get('statistics/detailed', 'StudentStatisticsController@getDetailedStatistics')->name('students.statistics.detailed')->middleware('teamSAT');
+            Route::get('statistics/export', 'StudentStatisticsController@exportStatistics')->name('students.statistics.export')->middleware('teamSAT');
 
             /* Promotions */
             Route::post('promote_selector', 'PromotionController@selector')->name('students.promote_selector');

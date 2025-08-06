@@ -2,43 +2,8 @@
 @section('page_title', 'Informations sur l\'étudiant - '.$my_class->name)
 
 @section('page_styles')
+<link rel="stylesheet" href="{{ asset('assets/css/inline_editing.css') }}">
 <style>
-    .table-responsive {
-        overflow-x: auto;
-    }
-    .datatable-button-html5-columns {
-        width: 100%;
-        white-space: nowrap;
-    }
-    .datatable-button-html5-columns th, .datatable-button-html5-columns td {
-        padding: 8px 10px;
-        vertical-align: middle;
-    }
-    .datatable-button-html5-columns th {
-        font-weight: bold;
-        background-color: #f5f5f5;
-    }
-    .editable {
-        cursor: pointer;
-        position: relative;
-    }
-    .editable:hover {
-        background-color: #f9f9f9;
-    }
-    .editable:hover::after {
-        content: "\f044"; /* FontAwesome edit icon */
-        font-family: "Font Awesome 5 Free";
-        font-weight: 900;
-        position: absolute;
-        right: 5px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #777;
-        font-size: 12px;
-    }
-    .editing {
-        padding: 0 !important;
-    }
     .editing input, .editing select {
         width: 100%;
         padding: 8px;
@@ -116,6 +81,7 @@
                             <th>Date de naissance</th>
                             <th>Âge</th>
                             <th>Adresse</th>
+                            <th>Religion</th>
                             <th>Statut</th>
                             <th>Type</th>
                             <th>Statut académique</th>
@@ -130,22 +96,29 @@
                         <tbody>
                         @foreach($students as $s)
                             <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="{{ $s->user->photo }}" alt="photo"></td>
-                                <td class="editable" data-field="name" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->name }}</td>
-                                <td class="editable" data-field="adm_no" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->adm_no }}</td>
+                                <td class="number-column">{{ $loop->iteration }}</td>
+                                <td class="photo-column"><img class="rounded-circle" src="{{ $s->user->photo }}" alt="photo"></td>
+                                <td class="editable editable-cell" data-field="name" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->name }}">{{ $s->user->name }}</td>
+                                <td class="editable editable-cell" data-field="adm_no" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->adm_no }}">{{ $s->adm_no }}</td>
                                 <td>{{ $my_class->name.' '.$s->section->name }}</td>
-                                <td class="editable" data-field="dob" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->dob }}</td>
-                                <td class="age-display" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->age }}</td>
-                                <td class="editable" data-field="address" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->address }}</td>
-                                <td class="editable" data-field="status" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->status ?? 'Normal' }}</td>
-                                <td class="editable" data-field="student_type" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->student_type ?? 'Nouveau' }}</td>
-                                <td class="editable" data-field="academic_status" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->academic_status ?? 'Passant' }}</td>
-                                <td class="editable" data-field="nom_p" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->nom_p }}</td>
-                                <td class="editable" data-field="prof_p" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->prof_p }}</td>
-                                <td class="editable" data-field="nom_m" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->nom_m }}</td>
-                                <td class="editable" data-field="prof_m" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->prof_m }}</td>
-                                <td class="editable" data-field="phone" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->phone }}</td>
+                                <td class="editable editable-cell" data-field="dob" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->dob }}">{{ $s->user->dob }}</td>
+                                <td class="age-display age-column" data-student-id="{{ Qs::hash($s->id) }}" data-dob="{{ $s->user->dob }}">
+                                    @if($s->user->dob)
+                                        {{ \App\Helpers\Qs::calculateAge($s->user->dob) }}
+                                    @else
+                                        -
+                                    @endif
+                                </td>
+                                <td class="editable editable-cell" data-field="address" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->address }}">{{ $s->user->address }}</td>
+                                <td class="editable editable-cell" data-field="religion" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->religion }}">{{ $s->user->religion }}</td>
+                                <td class="editable editable-cell" data-field="status" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->status ?? 'Normal' }}">{{ $s->user->status ?? 'Normal' }}</td>
+                                <td class="editable editable-cell" data-field="student_type" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->student_type ?? 'Nouveau' }}">{{ $s->user->student_type ?? 'Nouveau' }}</td>
+                                <td class="editable editable-cell" data-field="academic_status" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->academic_status ?? 'Passant' }}">{{ $s->user->academic_status ?? 'Passant' }}</td>
+                                <td class="editable editable-cell" data-field="nom_p" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->nom_p }}">{{ $s->user->nom_p }}</td>
+                                <td class="editable editable-cell" data-field="prof_p" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->prof_p }}">{{ $s->user->prof_p }}</td>
+                                <td class="editable editable-cell" data-field="nom_m" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->nom_m }}">{{ $s->user->nom_m }}</td>
+                                <td class="editable editable-cell" data-field="prof_m" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->prof_m }}">{{ $s->user->prof_m }}</td>
+                                <td class="editable editable-cell" data-field="phone" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->phone }}">{{ $s->user->phone }}</td>
                                 <td class="text-center">
                                     <div class="list-icons">
                                         <div class="dropdown">
@@ -285,7 +258,13 @@
                                     <td>{{ $s->adm_no }}</td>
                                     <td>{{ $my_class->name.' '.$s->section->name }}</td>
                                     <td class="editable" data-field="dob" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->dob }}</td>
-                                    <td class="age-display" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->age }}</td>
+                                    <td class="age-display" data-student-id="{{ Qs::hash($s->id) }}" data-dob="{{ $s->user->dob }}">
+                                        @if($s->user->dob)
+                                            {{ \App\Helpers\Qs::calculateAge($s->user->dob) }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td class="editable" data-field="address" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->address }}</td>
                                     <td class="editable" data-field="status" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->status ?? 'Normal' }}</td>
                                     <td class="editable" data-field="student_type" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->student_type ?? 'Nouveau' }}</td>
@@ -361,7 +340,13 @@
                                     <td>{{ $s->adm_no }}</td>
                                     <td>{{ $mc->name.' '.$s->section->name }}</td>
                                     <td class="editable" data-field="dob" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->dob }}</td>
-                                    <td class="age-display" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->age }}</td>
+                                    <td class="age-display" data-student-id="{{ Qs::hash($s->id) }}" data-dob="{{ $s->user->dob }}">
+                                        @if($s->user->dob)
+                                            {{ \App\Helpers\Qs::calculateAge($s->user->dob) }}
+                                        @else
+                                            -
+                                        @endif
+                                    </td>
                                     <td class="editable" data-field="address" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->address }}</td>
                                     <td class="editable" data-field="status" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->status ?? 'Normal' }}</td>
                                     <td class="editable" data-field="student_type" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->student_type ?? 'Nouveau' }}</td>
@@ -410,218 +395,15 @@
 @endsection
 
 @section('scripts')
+<script src="{{ asset('assets/js/inline_editing.js') }}"></script>
 <script>
     $(document).ready(function() {
-        // Initialiser les champs éditables
-        initializeEditableFields();
-        
-        // Calculer l'âge pour tous les étudiants
-        calculateAllAges();
+        // Le système d'édition en ligne est maintenant géré par inline_editing.js
+        // Configuration du token CSRF
+        window.inlineEditor.options.csrfToken = '{{ csrf_token() }}';
+        window.inlineEditor.options.saveUrl = '{{ route("ajax.update_student_field") }}';
+    });
 
-        // Fonction pour calculer l'âge à partir de la date de naissance
-        function calculateAge(dob) {
-            if (!dob) return '';
-            
-            const birthDate = new Date(dob);
-            if (isNaN(birthDate.getTime())) return '';
-            
-            const today = new Date();
-            let age = today.getFullYear() - birthDate.getFullYear();
-            
-            // Ajuster l'âge si l'anniversaire n'est pas encore passé cette année
-            if (today.getMonth() < birthDate.getMonth() || 
-                (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
-                age--;
-            }
-            
-            return age;
-        }
-        
-        // Fonction pour calculer l'âge pour tous les étudiants
-        function calculateAllAges() {
-            $('.editable[data-field="dob"]').each(function() {
-                const dob = $(this).text().trim();
-                const studentId = $(this).data('student-id');
-                const age = calculateAge(dob);
-                
-                if (age !== '') {
-                    $('.age-display[data-student-id="' + studentId + '"]').text(age);
-                }
-            });
-        }
-        
-        // Fonction pour initialiser les champs éditables
-        function initializeEditableFields() {
-            // Gérer le clic sur un champ éditable
-            $('.editable').on('click', function() {
-                // Ne rien faire si on est déjà en mode édition
-                if ($(this).hasClass('editing')) {
-                    return;
-                }
-
-                const field = $(this).data('field');
-                const studentId = $(this).data('student-id');
-                const currentValue = $(this).text().trim();
-
-                // Créer l'élément d'édition approprié selon le type de champ
-                let editElement = '';
-
-                if (field === 'status') {
-                    // Créer un menu déroulant pour le statut
-                    editElement = `
-                        <select class="edit-input">
-                            <option value="Normal" ${currentValue === 'Normal' ? 'selected' : ''}>Normal</option>
-                            <option value="ADRA" ${currentValue === 'ADRA' ? 'selected' : ''}>ADRA</option>
-                            <option value="TEAM3" ${currentValue === 'TEAM3' ? 'selected' : ''}>TEAM3</option>
-                        </select>
-                        <span class="save-indicator"><i class="icon-spinner2 spinner"></i></span>
-                    `;
-                } else if (field === 'student_type') {
-                    // Créer un menu déroulant pour le type d'étudiant
-                    editElement = `
-                        <select class="edit-input">
-                            <option value="Nouveau" ${currentValue === 'Nouveau' ? 'selected' : ''}>Nouveau</option>
-                            <option value="Ancien" ${currentValue === 'Ancien' ? 'selected' : ''}>Ancien</option>
-                        </select>
-                        <span class="save-indicator"><i class="icon-spinner2 spinner"></i></span>
-                    `;
-                } else if (field === 'academic_status') {
-                    // Créer un menu déroulant pour le statut académique
-                    editElement = `
-                        <select class="edit-input">
-                            <option value="Passant" ${currentValue === 'Passant' ? 'selected' : ''}>Passant</option>
-                            <option value="Redoublant" ${currentValue === 'Redoublant' ? 'selected' : ''}>Redoublant</option>
-                        </select>
-                        <span class="save-indicator"><i class="icon-spinner2 spinner"></i></span>
-                    `;
-                } else if (field === 'dob') {
-                    // Créer un sélecteur de date pour la date de naissance
-                    editElement = `
-                        <input type="text" class="edit-input datepicker" value="${currentValue}">
-                        <span class="save-indicator"><i class="icon-spinner2 spinner"></i></span>
-                    `;
-                } else {
-                    // Créer un champ de texte pour les autres champs
-                    editElement = `
-                        <input type="text" class="edit-input" value="${currentValue}">
-                        <span class="save-indicator"><i class="icon-spinner2 spinner"></i></span>
-                    `;
-                }
-
-                // Remplacer le contenu par l'élément d'édition
-                $(this).html(editElement).addClass('editing');
-
-                // Initialiser le datepicker si nécessaire
-                if (field === 'dob') {
-                    $(this).find('.datepicker').datepicker({
-                        format: 'yyyy-mm-dd',
-                        autoclose: true,
-                        todayHighlight: true,
-                        endDate: new Date()
-                    });
-                }
-
-                // Focus sur l'élément d'édition
-                $(this).find('.edit-input').focus();
-
-                // Gérer la perte de focus (pour sauvegarder)
-                $(this).find('.edit-input').on('blur', function() {
-                    const newValue = $(this).val().trim();
-                    saveField(field, newValue, studentId, $(this).closest('.editable'));
-                });
-
-                // Gérer la touche Entrée
-                $(this).find('.edit-input').on('keypress', function(e) {
-                    if (e.which === 13) { // Touche Entrée
-                        const newValue = $(this).val().trim();
-                        saveField(field, newValue, studentId, $(this).closest('.editable'));
-                    }
-                });
-
-                // Pour le datepicker, sauvegarder lors de la sélection d'une date
-                if (field === 'dob') {
-                    $(this).find('.datepicker').on('changeDate', function() {
-                        const newValue = $(this).val().trim();
-                        saveField(field, newValue, studentId, $(this).closest('.editable'));
-                    });
-                }
-
-                // Pour les selects, sauvegarder lors du changement
-                if (field === 'status' || field === 'student_type' || field === 'academic_status') {
-                    $(this).find('select').on('change', function() {
-                        const newValue = $(this).val();
-                        saveField(field, newValue, studentId, $(this).closest('.editable'));
-                    });
-                }
-            });
-        }
-
-        // Fonction pour sauvegarder un champ
-        function saveField(field, value, studentId, element) {
-            // Afficher l'indicateur de sauvegarde
-            element.find('.save-indicator').show();
-
-            // Envoyer la requête AJAX
-            $.ajax({
-                url: '{{ route("ajax.update_student_field") }}',
-                type: 'POST',
-                data: {
-                    _token: '{{ csrf_token() }}',
-                    student_id: studentId,
-                    field_name: field,
-                    field_value: value
-                },
-                success: function(response) {
-                    if (response.ok) {
-                        // Mettre à jour l'affichage
-                        element.removeClass('editing').html(value);
-
-                        // Si c'est une date de naissance, calculer et mettre à jour l'âge
-                        if (field === 'dob') {
-                            const age = calculateAge(value);
-                            $('.age-display[data-student-id="' + studentId + '"]').text(age);
-                        }
-                        
-                        // Si c'est un champ lié aux types d'étudiants ou statuts académiques, mettre à jour les statistiques
-                        if (field === 'student_type' || field === 'academic_status') {
-                            // Si la fonction existe (dans list_all.blade.php)
-                            if (typeof calculateStudentTypeStats === 'function') {
-                                calculateStudentTypeStats();
-                            }
-                        }
-
-                        // Afficher un message de succès
-                        new PNotify({
-                            text: response.msg,
-                            type: 'success'
-                        });
-                    } else {
-                        // Afficher un message d'erreur
-                        element.removeClass('editing').html(value);
-                        new PNotify({
-                            text: response.msg,
-                            type: 'error'
-                        });
-                    }
-                },
-                error: function(xhr) {
-                    // Gérer les erreurs
-                    let errorMsg = 'Une erreur est survenue';
-                    if (xhr.responseJSON && xhr.responseJSON.msg) {
-                        errorMsg = xhr.responseJSON.msg;
-                    }
-
-                    // Restaurer la valeur précédente
-                    element.removeClass('editing').html(value);
-
-                    // Afficher un message d'erreur
-                    new PNotify({
-                        text: errorMsg,
-                        type: 'error'
-                    });
-                }
-            });
-        }
     });
 </script>
 @endsection

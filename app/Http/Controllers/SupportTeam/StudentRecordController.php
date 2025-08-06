@@ -92,7 +92,7 @@ class StudentRecordController extends Controller
         $sr['adm_no'] = $data['username'];
         $sr['user_id'] = $user->id;
         $sr['session'] = Qs::getSetting('current_session');
-        $sr['age'] = $req->age;
+        $sr['age'] = $req->age ?: Qs::calculateAge($req->dob);
 
         $this->student->createRecord($sr); // Create Student
         return Qs::jsonStoreOk();
@@ -190,6 +190,7 @@ class StudentRecordController extends Controller
         $d =  $req->only(Qs::getUserRecord());
         $d['name'] = ucwords($req->name);
         $d['status'] = $req->status;
+        $d['religion'] = $req->religion;
         $d['nom_p'] = $req->nom_p;
         $d['prof_p'] = $req->prof_p;
         $d['nom_m'] = $req->nom_m;
@@ -206,7 +207,7 @@ class StudentRecordController extends Controller
         $this->user->update($sr->user->id, $d); // Update User Details
 
         $srec = $req->only(Qs::getStudentData());
-        $srec['age'] = $req->age;
+        $srec['age'] = $req->age ?: Qs::calculateAge($req->dob);
 
         $this->student->updateRecord($sr_id, $srec); // Update St Rec
 
