@@ -25,6 +25,12 @@
 {{-- Dashboard Interactive CSS--}}
 <link href=" {{ asset('css/dashboard-interactive.css') }}" rel="stylesheet" type="text/css">
 
+{{-- Modern Dashboard CSS--}}
+<link href=" {{ asset('css/modern-dashboard.css') }}" rel="stylesheet" type="text/css">
+
+{{-- Google Fonts pour un design moderne --}}
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
 {{--   Core JS files --}}
     <script src="{{ asset('global_assets/js/main/jquery.min.js') }} "></script>
     <script src="{{ asset('global_assets/js/main/bootstrap.bundle.min.js') }} "></script>

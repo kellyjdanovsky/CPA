@@ -489,12 +489,66 @@ class PaymentController extends Controller
 
     public function store(PaymentCreate $req)
     {
-        $data = $req->all();
-        $data['year'] = $this->year;
-        $data['ref_no'] = Pay::genRefCode();
-        $this->pay->create($data);
+        try {
+            \DB::beginTransaction();
 
-        return Qs::jsonStoreOk();
+            $data = $req->all();
+            $data['year'] = $this->year;
+
+            // Vérifier si un paiement identique existe déjà (protection renforcée)
+            $existingPayment = \DB::table('payments')
+                ->where('title', $data['title'])
+                ->where('amount', $data['amount'])
+                ->where('year', $data['year'])
+                ->where(function($query) use ($data) {
+                    if (isset($data['my_class_id']) && $data['my_class_id']) {
+                        $query->where('my_class_id', $data['my_class_id']);
+                    } else {
+                        $query->whereNull('my_class_id');
+                    }
+                })
+                ->first();
+
+            if ($existingPayment) {
+                \DB::rollBack();
+                return response()->json([
+                    'ok' => false,
+                    'msg' => 'Un paiement identique existe déjà pour cette année scolaire.'
+                ], 422);
+            }
+
+            // Générer un code de référence unique avec vérification renforcée
+            $maxAttempts = 10;
+            $attempts = 0;
+            do {
+                $data['ref_no'] = Pay::genRefCode();
+                $refExists = \DB::table('payments')->where('ref_no', $data['ref_no'])->exists();
+                $attempts++;
+            } while ($refExists && $attempts < $maxAttempts);
+
+            if ($refExists) {
+                \DB::rollBack();
+                return response()->json([
+                    'ok' => false,
+                    'msg' => 'Impossible de générer un code de référence unique. Veuillez réessayer.'
+                ], 500);
+            }
+
+            $payment = $this->pay->create($data);
+
+            \DB::commit();
+
+            return Qs::jsonStoreOk();
+
+        } catch (\Exception $e) {
+            \DB::rollBack();
+            \Log::error('Erreur lors de la création du paiement: ' . $e->getMessage());
+
+            return response()->json([
+                'ok' => false,
+                'msg' => 'Erreur lors de la création du paiement. Veuillez réessayer.'
+            ], 500);
+        }
     }
 
     public function edit($id)

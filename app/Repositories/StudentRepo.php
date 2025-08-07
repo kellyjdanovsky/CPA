@@ -18,12 +18,22 @@ class StudentRepo {
 
     public function activeStudents()
     {
-        return StudentRecord::where(['grad' => 0]);
+        try {
+            $currentSession = app('selected_school_year');
+        } catch (\Exception $e) {
+            $currentSession = \App\Helpers\Qs::getCurrentSession();
+        }
+        return StudentRecord::where(['grad' => 0, 'session' => $currentSession]);
     }
 
     public function gradStudents()
     {
-        return StudentRecord::where(['grad' => 1])->orderByDesc('grad_date');
+        try {
+            $currentSession = app('selected_school_year');
+        } catch (\Exception $e) {
+            $currentSession = \App\Helpers\Qs::getCurrentSession();
+        }
+        return StudentRecord::where(['grad' => 1, 'session' => $currentSession])->orderByDesc('grad_date');
     }
 
     public function allGradStudents()

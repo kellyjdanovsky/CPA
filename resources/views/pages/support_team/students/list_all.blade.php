@@ -286,7 +286,7 @@
                             <div class="card stats-card bg-light">
                                 <div class="card-body text-center">
                                     <i class="icon-user-check icon-3x text-info"></i>
-                                    <h2 class="stats-value mt-2">{{ $students_by_status['ADRA'] + $students_by_status['TEAM3'] }}</h2>
+                                    <h2 class="stats-value mt-2">{{ ($students_by_status['ADRA'] ?? 0) + ($students_by_status['TEAM3'] ?? 0) }}</h2>
                                     <p class="stats-label">Étudiants avec statut spécial</p>
                                 </div>
                             </div>
@@ -319,7 +319,7 @@
                                                     <tr>
                                                         <td>{{ $status }}</td>
                                                         <td>{{ $count }}</td>
-                                                        <td>{{ number_format(($count / $total_students) * 100, 2) }}%</td>
+                                                        <td>{{ $total_students > 0 ? number_format(($count / $total_students) * 100, 2) : '0.00' }}%</td>
                                                     </tr>
                                                     @endforeach
                                                 </tbody>
@@ -351,7 +351,7 @@
                                             <tr>
                                                 <td>{{ $class['name'] }}</td>
                                                 <td>{{ $class['count'] }}</td>
-                                                <td>{{ number_format(($class['count'] / $total_students) * 100, 2) }}%</td>
+                                                <td>{{ $total_students > 0 ? number_format(($class['count'] / $total_students) * 100, 2) : '0.00' }}%</td>
                                             </tr>
                                             @endforeach
                                         </tbody>

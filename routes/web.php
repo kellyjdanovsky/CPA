@@ -42,6 +42,10 @@ Route::group(['middleware' => 'auth'], function () {
         Route::put('/change_password', 'MyAccountController@change_pass')->name('my_account.change_pass');
     });
 
+    /*************** Session Management (accessible à tous) *****************/
+    Route::post('sessions/change', 'SupportTeam\SessionController@changeSession')->name('sessions.change');
+    Route::get('sessions/get', 'SupportTeam\SessionController@getSessions')->name('sessions.get');
+
     /*************** Support Team *****************/
     Route::group(['namespace' => 'SupportTeam',], function(){
 
@@ -63,18 +67,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('promotion/{fc?}/{fs?}/{tc?}/{ts?}', 'PromotionController@promotion')->name('students.promotion');
             Route::post('promote/{fc}/{fs}/{tc}/{ts}', 'PromotionController@promote')->name('students.promote');
 
-            /* Réinscription */
-            Route::get('reenrollment/{prev_class_id?}/{prev_section_id?}/{new_class_id?}/{new_section_id?}', 'ReenrollmentController@index')->name('students.reenrollment');
-            Route::post('reenrollment/selector', 'ReenrollmentController@selector')->name('students.reenrollment.selector');
-            Route::post('reenrollment/reenroll/{prev_class_id}/{prev_section_id}/{new_class_id}/{new_section_id}', 'ReenrollmentController@reenroll')->name('students.reenrollment.reenroll');
-            Route::get('reenrollment/reenroll_all/{prev_class_id}/{prev_section_id}/{new_class_id}/{new_section_id}', 'ReenrollmentController@reenrollAll')->name('students.reenrollment.reenroll_all');
-            Route::post('reenrollment/search', 'ReenrollmentController@search')->name('students.reenrollment.search');
-            Route::post('reenrollment/reenroll_student/{student_id}', 'ReenrollmentController@reenrollStudent')->name('students.reenrollment.reenroll_student');
-            Route::get('reenrollment/export/{prev_class_id}/{prev_section_id}', 'ReenrollmentController@exportStudents')->name('students.reenrollment.export');
-            Route::get('reenrollment/import', 'ReenrollmentController@importForm')->name('students.reenrollment.import.form');
-            Route::post('reenrollment/import', 'ReenrollmentController@importStudents')->name('students.reenrollment.import');
-            Route::post('reenrollment/batch_reenroll', 'ReenrollmentController@batchReenroll')->name('students.reenrollment.batch_reenroll');
-            Route::post('reenrollment/batch_reenroll_submit', 'ReenrollmentController@batchReenrollSubmit')->name('students.reenrollment.batch_reenroll_submit');
+
 
         });
 
@@ -208,6 +201,10 @@ Route::group(['middleware' => 'auth'], function () {
         Route::resource('exams', 'ExamController');
         Route::resource('dorms', 'DormController');
         Route::resource('payments', 'PaymentController');
+
+        // Routes pour la gestion des sessions
+        Route::resource('sessions', 'SessionController');
+        Route::post('sessions/{id}/set-active', 'SessionController@setActive')->name('sessions.set_active');
 
 
 

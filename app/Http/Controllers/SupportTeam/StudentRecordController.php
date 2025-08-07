@@ -123,12 +123,21 @@ class StudentRecordController extends Controller
             'TEAM3' => $data['all_students']->where('user.status', 'TEAM3')->count(),
         ];
 
+        // S'assurer que les valeurs ne sont jamais nulles
+        $data['total_students'] = max(0, $data['total_students']);
+        foreach ($data['students_by_status'] as $key => $value) {
+            $data['students_by_status'][$key] = max(0, $value);
+        }
+
         // Compter les élèves par classe
-        foreach($data['my_classes'] as $class) {
-            $data['students_by_class'][$class->id] = [
-                'name' => $class->name,
-                'count' => $data['all_students']->where('my_class_id', $class->id)->count()
-            ];
+        if ($data['my_classes'] && $data['my_classes']->count() > 0) {
+            foreach($data['my_classes'] as $class) {
+                $count = $data['all_students']->where('my_class_id', $class->id)->count();
+                $data['students_by_class'][] = [
+                    'name' => $class->name ?? 'Classe sans nom',
+                    'count' => max(0, $count)
+                ];
+            }
         }
 
         return view('pages.support_team.students.list_all', $data);

@@ -209,9 +209,23 @@
         $(div).load( url );
     }
 
+    // Variable globale pour suivre les soumissions en cours
+    var submittingForms = {};
+
     function submitForm(form, formType){
+        var formId = form.attr('id') || form.attr('action');
         var btn = form.find('button[type=submit]');
+
+        // Vérifier si cette forme est déjà en cours de soumission
+        if (submittingForms[formId]) {
+            flash({msg: 'Opération en cours, veuillez patienter...', type: 'warning'});
+            return false;
+        }
+
+        // Marquer la forme comme en cours de soumission
+        submittingForms[formId] = true;
         disableBtn(btn);
+
         var ajaxOptions = {
             url:form.attr('action'),
             type:'POST',
@@ -227,8 +241,19 @@
                ? flash({msg:resp.msg, type:'success'})
                : flash({msg:resp.msg, type:'danger'});
             hideAjaxAlert();
-            enableBtn(btn);
-            formType == 'store' ? clearForm(form) : '';
+
+            // Pour les formulaires de création, ne pas réactiver le bouton immédiatement
+            if (formType == 'store') {
+                clearForm(form);
+                // Délai avant réactivation pour éviter les doubles clics
+                setTimeout(function() {
+                    enableBtn(btn);
+                    submittingForms[formId] = false;
+                }, 2000);
+            } else {
+                enableBtn(btn);
+                submittingForms[formId] = false;
+            }
             scrollTo('body');
             return resp;
         });
@@ -244,6 +269,7 @@
                displayAjaxErr([e.status + ' ' + e.statusText + ' - Requested Resource or Record Not Found'])
            }
             enableBtn(btn);
+            submittingForms[formId] = false;
             return e.status;
         });
     }
@@ -281,6 +307,78 @@
         form[0].reset();
     }
 
+    // Gestion du sélecteur de session
+    function loadSessionDropdown() {
+        $.ajax({
+            url: '{{ route("sessions.get") }}',
+            type: 'GET',
+            dataType: 'json',
+            success: function(response) {
+                var dropdown = $('#session-dropdown');
+                var currentSession = response.current_session;
+
+                // Vider le dropdown
+                dropdown.html('<div class="dropdown-header">Changer d\'année scolaire</div><div class="dropdown-divider"></div>');
+
+                // Ajouter les options
+                $.each(response.sessions, function(index, session) {
+                    var isActive = session.name === currentSession;
+                    var itemClass = isActive ? 'dropdown-item active' : 'dropdown-item';
+                    var checkIcon = isActive ? '<i class="icon-checkmark3 mr-2"></i>' : '<span class="mr-4"></span>';
+
+                    dropdown.append(
+                        '<a href="#" class="' + itemClass + '" data-session="' + session.name + '">' +
+                        checkIcon + session.name +
+                        (session.is_active ? ' <span class="badge badge-success ml-2">Défaut</span>' : '') +
+                        '</a>'
+                    );
+                });
+            },
+            error: function() {
+                $('#session-dropdown').html('<div class="dropdown-item text-danger">Erreur de chargement</div>');
+            }
+        });
+    }
+
+    function changeSession(sessionName) {
+        $.ajax({
+            url: '{{ route("sessions.change") }}',
+            type: 'POST',
+            data: {
+                session_name: sessionName,
+                _token: '{{ csrf_token() }}'
+            },
+            dataType: 'json',
+            success: function(response) {
+                if (response.success) {
+                    // Mettre à jour le badge
+                    $('#current-session-badge').text(response.session_name);
+
+                    // Recharger la page pour appliquer les filtres (comme dans les settings)
+                    location.reload();
+                } else {
+                    alert('Erreur: ' + response.message);
+                }
+            },
+            error: function() {
+                alert('Erreur lors du changement de session');
+            }
+        });
+    }
+
+    $(document).ready(function() {
+        // Charger le dropdown au clic
+        $('#session-dropdown').parent().on('show.bs.dropdown', function() {
+            loadSessionDropdown();
+        });
+
+        // Gérer le clic sur une session
+        $(document).on('click', '#session-dropdown .dropdown-item[data-session]', function(e) {
+            e.preventDefault();
+            var sessionName = $(this).data('session');
+            changeSession(sessionName);
+        });
+    });
 
 
 </script>

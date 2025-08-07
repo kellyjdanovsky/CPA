@@ -276,6 +276,17 @@ class Qs
             'lock_exam' => '0',
             'sch_name' => 'Collège Privé Adventiste Avaratetezana',
             'term' => 'Trimestre',
+            'term_ends' => now()->format('d/m/Y'),
+            'term_begins' => now()->subMonths(3)->format('d/m/Y'),
+            'alt_email' => '',
+            'email_host' => '',
+            'email_pass' => '',
+            'next_term_fees_j' => '20000',
+            'next_term_fees_pn' => '25000',
+            'next_term_fees_p' => '25000',
+            'next_term_fees_n' => '25600',
+            'next_term_fees_s' => '15600',
+            'next_term_fees_c' => '1600',
         ];
 
         return $defaults[$type] ?? null;
@@ -283,6 +294,13 @@ class Qs
 
     public static function getCurrentSession()
     {
+        // Priorité à la session sélectionnée par l'utilisateur (temporaire)
+        $selectedSession = session('selected_school_year');
+        if ($selectedSession) {
+            return $selectedSession;
+        }
+
+        // Utiliser le setting current_session (comme dans le système existant)
         return self::getSetting('current_session');
     }
 
