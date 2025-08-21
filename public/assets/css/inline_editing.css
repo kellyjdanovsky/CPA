@@ -1,0 +1,317 @@
+/**
+ * Styles pour l'édition en ligne des tableaux DataTables
+ */
+
+/* Cellules éditables */
+.editable-cell {
+    cursor: pointer;
+    position: relative;
+    transition: background-color 0.2s ease;
+}
+
+.editable-cell:hover {
+    background-color: #f8f9fa !important;
+}
+
+.editable-cell:hover::after {
+    content: "\f044"; /* FontAwesome edit icon */
+    font-family: "Font Awesome 5 Free", "FontAwesome";
+    font-weight: 900;
+    position: absolute;
+    right: 8px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d;
+    font-size: 12px;
+    opacity: 0.7;
+}
+
+/* Cellule en cours d'édition */
+.editing {
+    padding: 2px !important;
+    background-color: #fff3cd !important;
+    border: 2px solid #ffc107 !important;
+}
+
+.editing:hover::after {
+    display: none;
+}
+
+/* Éléments d'édition */
+.edit-input {
+    width: 100%;
+    border: none;
+    padding: 4px 8px;
+    font-size: 13px;
+    line-height: 1.4;
+    background: transparent;
+    box-shadow: none;
+    border-radius: 3px;
+}
+
+.edit-input:focus {
+    outline: none;
+    background-color: #ffffff;
+    border: 1px solid #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Indicateur de sauvegarde */
+.save-indicator {
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #28a745;
+    font-size: 14px;
+}
+
+.save-indicator .spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+/* Amélioration des DataTables */
+.datatable-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.datatable-header .dataTables_filter {
+    margin: 0;
+}
+
+.datatable-header .dataTables_length {
+    margin: 0;
+}
+
+.datatable-header .dt-buttons {
+    margin: 0;
+}
+
+.datatable-header .dt-buttons .btn {
+    margin-left: 5px;
+    font-size: 13px;
+    padding: 6px 12px;
+}
+
+/* Responsive pour les boutons */
+@media (max-width: 768px) {
+    .datatable-header {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .datatable-header .dt-buttons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    
+    .datatable-header .dt-buttons .btn {
+        flex: 1;
+        min-width: 120px;
+        margin: 0;
+    }
+}
+
+/* Amélioration du tableau */
+.datatable-button-html5-columns {
+    width: 100% !important;
+}
+
+.datatable-button-html5-columns th,
+.datatable-button-html5-columns td {
+    padding: 8px 10px;
+    vertical-align: middle;
+    white-space: nowrap;
+}
+
+.datatable-button-html5-columns th {
+    font-weight: 600;
+    background-color: #f8f9fa;
+    border-bottom: 2px solid #dee2e6;
+}
+
+/* Colonnes spécifiques */
+.datatable-button-html5-columns .photo-column {
+    width: 60px;
+    text-align: center;
+}
+
+.datatable-button-html5-columns .photo-column img {
+    width: 40px;
+    height: 40px;
+    object-fit: cover;
+    border-radius: 50%;
+}
+
+.datatable-button-html5-columns .action-column {
+    width: 100px;
+    text-align: center;
+}
+
+.datatable-button-html5-columns .age-column {
+    width: 60px;
+    text-align: center;
+}
+
+.datatable-button-html5-columns .number-column {
+    width: 50px;
+    text-align: center;
+}
+
+/* États des lignes */
+.datatable-button-html5-columns tbody tr:hover {
+    background-color: #f5f5f5;
+}
+
+.datatable-button-html5-columns tbody tr.selected {
+    background-color: #e3f2fd;
+}
+
+/* Datepicker dans les cellules */
+.editing .datepicker {
+    z-index: 9999;
+}
+
+/* Messages de notification */
+.alert {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    min-width: 300px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Amélioration des selects */
+.edit-input select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+    background-position: right 8px center;
+    background-repeat: no-repeat;
+    background-size: 16px 12px;
+    padding-right: 32px;
+}
+
+/* Loading state */
+.datatable-loading {
+    position: relative;
+}
+
+.datatable-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Validation errors */
+.edit-input.error {
+    border-color: #dc3545 !important;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.25) !important;
+}
+
+.validation-error {
+    color: #dc3545;
+    font-size: 11px;
+    margin-top: 2px;
+    display: block;
+}
+
+/* Amélioration de la pagination */
+.dataTables_paginate {
+    margin-top: 15px;
+}
+
+.dataTables_paginate .paginate_button {
+    padding: 6px 12px;
+    margin: 0 2px;
+    border: 1px solid #dee2e6;
+    border-radius: 4px;
+    background: #fff;
+    color: #495057;
+    text-decoration: none;
+}
+
+.dataTables_paginate .paginate_button:hover {
+    background: #e9ecef;
+    border-color: #adb5bd;
+}
+
+.dataTables_paginate .paginate_button.current {
+    background: #007bff;
+    border-color: #007bff;
+    color: #fff;
+}
+
+.dataTables_paginate .paginate_button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Info du tableau */
+.dataTables_info {
+    margin-top: 15px;
+    color: #6c757d;
+    font-size: 14px;
+}
+
+/* Recherche améliorée */
+.dataTables_filter input {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 6px 12px;
+    margin-left: 8px;
+}
+
+.dataTables_filter input:focus {
+    outline: none;
+    border-color: #007bff;
+    box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+}
+
+/* Sélecteur de longueur */
+.dataTables_length select {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 4px 8px;
+    margin: 0 8px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+    .datatable-button-html5-columns th,
+    .datatable-button-html5-columns td {
+        padding: 6px 8px;
+        font-size: 13px;
+    }
+}
+
+@media (max-width: 768px) {
+    .datatable-button-html5-columns th,
+    .datatable-button-html5-columns td {
+        padding: 4px 6px;
+        font-size: 12px;
+    }
+    
+    .editable-cell:hover::after {
+        display: none; /* Masquer l'icône d'édition sur mobile */
+    }
+}

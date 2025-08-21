@@ -65,35 +65,66 @@ class PromotionController extends Controller
         foreach($students as $st){
             $p = 'p-'.$st->id;
             $p = $req->$p;
-            if($p === 'P'){ // Promote
-                $d['my_class_id'] = $tc;
-                $d['section_id'] = $ts;
-                $d['session'] = $ny;
-            }
-            if($p === 'D'){ // Don't Promote
-                $d['my_class_id'] = $fc;
-                $d['section_id'] = $fs;
-                $d['session'] = $ny;
-            }
-            if($p === 'G'){ // Graduated
-                $d['my_class_id'] = $fc;
-                $d['section_id'] = $fs;
-                $d['grad'] = 1;
-                $d['grad_date'] = $oy;
+
+            if($p === 'P'){ // Réinscrire (Promouvoir) - Nouvelle classe dans la session suivante
+                // Créer un nouvel enregistrement pour la session suivante
+                $newStudentData = [
+                    'user_id' => $st->user_id,
+                    'my_class_id' => $tc,
+                    'section_id' => $ts,
+                    'session' => $ny,
+                    'adm_no' => $this->generateAdmissionNumber($ny),
+                    'my_parent_id' => $st->my_parent_id,
+                    'dorm_id' => $st->dorm_id,
+                    'dorm_room_no' => $st->dorm_room_no,
+                    'house' => $st->house,
+                    'age' => $st->age,
+                    'year_admitted' => $st->year_admitted,
+                    'grad' => 0,
+                ];
+                $this->student->createRecord($newStudentData);
             }
 
-            $this->student->updateRecord($st->id, $d);
+            if($p === 'D'){ // Redoubler - Même classe dans la session suivante
+                // Créer un nouvel enregistrement pour la session suivante (même classe)
+                $newStudentData = [
+                    'user_id' => $st->user_id,
+                    'my_class_id' => $fc, // Même classe
+                    'section_id' => $fs,  // Même section
+                    'session' => $ny,
+                    'adm_no' => $this->generateAdmissionNumber($ny),
+                    'my_parent_id' => $st->my_parent_id,
+                    'dorm_id' => $st->dorm_id,
+                    'dorm_room_no' => $st->dorm_room_no,
+                    'house' => $st->house,
+                    'age' => $st->age,
+                    'year_admitted' => $st->year_admitted,
+                    'grad' => 0,
+                ];
+                $this->student->createRecord($newStudentData);
+            }
 
-//            Insert New Promotion Data
-            $promote['from_class'] = $fc;
-            $promote['from_section'] = $fs;
-            $promote['grad'] = ($p === 'G') ? 1 : 0;
-            $promote['to_class'] = in_array($p, ['D', 'G']) ? $fc : $tc;
-            $promote['to_section'] = in_array($p, ['D', 'G']) ? $fs : $ts;
-            $promote['student_id'] = $st->user_id;
-            $promote['from_session'] = $oy;
-            $promote['to_session'] = $ny;
-            $promote['status'] = $p;
+            if($p === 'G'){ // Quitter (Diplômé) - Marquer comme diplômé dans la session actuelle
+                // Mettre à jour l'enregistrement actuel comme diplômé
+                $d = [
+                    'grad' => 1,
+                    'grad_date' => $oy,
+                ];
+                $this->student->updateRecord($st->id, $d);
+            }
+
+            // Créer l'enregistrement de promotion
+            $promote = [
+                'from_class' => $fc,
+                'from_section' => $fs,
+                'grad' => ($p === 'G') ? 1 : 0,
+                'to_class' => ($p === 'P') ? $tc : $fc, // Nouvelle classe si promu, même classe sinon
+                'to_section' => ($p === 'P') ? $ts : $fs, // Nouvelle section si promu, même section sinon
+                'student_id' => $st->user_id,
+                'from_session' => $oy,
+                'to_session' => ($p === 'G') ? $oy : $ny, // Session actuelle si diplômé, suivante sinon
+                'status' => $p,
+            ];
 
             $this->student->createPromotion($promote);
         }
@@ -105,6 +136,21 @@ class PromotionController extends Controller
         $data['promotions'] = $this->student->getAllPromotions();
         $data['old_year'] = Qs::getCurrentSession();
         $data['new_year'] = Qs::getNextSession();
+
+        // Calculer les statistiques de promotion
+        $promotions = $data['promotions'];
+        $data['stats'] = [
+            'total' => $promotions->count(),
+            'reinscrit' => $promotions->where('status', 'P')->count(), // Promus (Réinscrits)
+            'redouble' => $promotions->where('status', 'D')->count(),   // Non promus (Redoublants)
+            'quitte' => $promotions->where('status', 'G')->count(),     // Diplômés (Quittés)
+        ];
+
+        // Calculer les pourcentages
+        $total = $data['stats']['total'];
+        $data['stats']['reinscrit_percent'] = $total > 0 ? round(($data['stats']['reinscrit'] / $total) * 100, 1) : 0;
+        $data['stats']['redouble_percent'] = $total > 0 ? round(($data['stats']['redouble'] / $total) * 100, 1) : 0;
+        $data['stats']['quitte_percent'] = $total > 0 ? round(($data['stats']['quitte'] / $total) * 100, 1) : 0;
 
         return view('pages.support_team.students.promotion.reset', $data);
     }
@@ -153,4 +199,25 @@ class PromotionController extends Controller
 
         return $this->student->deletePromotion($promotion_id);
     }
+
+    /**
+     * Générer un numéro d'admission unique pour une session
+     */
+    private function generateAdmissionNumber($session)
+    {
+        $year = explode('-', $session)[1]; // Prendre la deuxième année
+        $prefix = 'CPA/PRS802/' . $year . '/';
+        $number = rand(1000, 9999);
+        $admNo = $prefix . $number;
+
+        // Vérifier l'unicité
+        while (\App\Models\StudentRecord::where('adm_no', $admNo)->exists()) {
+            $number = rand(1000, 9999);
+            $admNo = $prefix . $number;
+        }
+
+        return $admNo;
+    }
+
+
 }

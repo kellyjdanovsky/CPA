@@ -6,14 +6,29 @@
         </div>
 
         <div class="header-elements d-none">
-            <div class="d-flex justify-content-center">
-   {{--             <a href="#" class="btn btn-link btn-float text-default"><i class="icon-bars-alt text-primary"></i><span>Statistics</span></a>
-                <a href="#" class="btn btn-link btn-float text-default"><i class="icon-calculator text-primary"></i> <span>Invoices</span></a>
-                <a href="#" class="btn btn-link btn-float text-default"><i class="icon-calendar5 text-primary"></i> <span>Schedule</span></a>--}}
-                <a href="{{ Qs::userIsSuperAdmin() ? route('settings') : '' }}" class="btn btn-link btn-float text-default">
-                    <i class="icon-calendar text-primary"></i>
-                    <span class="font-weight-semibold">Année Scolaire: <span class="badge badge-primary">{{ Qs::getSetting('current_session') }}</span></span>
+            <div class="d-flex justify-content-center align-items-center">
+                <!-- Sélecteur d'année scolaire -->
+                <div class="dropdown mr-3">
+                    <button type="button" class="btn btn-link btn-float text-default dropdown-toggle" data-toggle="dropdown">
+                        <i class="icon-calendar text-primary"></i>
+                        <span class="font-weight-semibold">Année Scolaire: <span class="badge badge-primary" id="current-session-badge">{{ Qs::getSetting('current_session') }}</span></span>
+                    </button>
+                    <div class="dropdown-menu dropdown-menu-right" id="session-dropdown">
+                        <div class="dropdown-header">Changer d'année scolaire</div>
+                        <div class="dropdown-divider"></div>
+                        <!-- Les options seront chargées via AJAX -->
+                        <div class="text-center p-2">
+                            <i class="icon-spinner2 spinner"></i> Chargement...
+                        </div>
+                    </div>
+                </div>
+
+                @if(Qs::userIsSuperAdmin())
+                <a href="{{ route('settings') }}" class="btn btn-link btn-float text-default">
+                    <i class="icon-cog text-primary"></i>
+                    <span>Paramètres</span>
                 </a>
+                @endif
             </div>
         </div>
     </div>

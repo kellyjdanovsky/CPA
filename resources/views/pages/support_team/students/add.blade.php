@@ -165,6 +165,23 @@
                 </div>
 
                 <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="religion">Religion :</label>
+                            <select class="select form-control" id="religion" name="religion" data-fouc data-placeholder="Choisissez...">
+                                <option value=""></option>
+                                <option {{ (old('religion') == 'FLM') ? 'selected' : '' }} value="FLM">FLM</option>
+                                <option {{ (old('religion') == 'FJKM') ? 'selected' : '' }} value="FJKM">FJKM</option>
+                                <option {{ (old('religion') == 'Catholique') ? 'selected' : '' }} value="Catholique">Catholique</option>
+                                <option {{ (old('religion') == 'Adventiste') ? 'selected' : '' }} value="Adventiste">Adventiste</option>
+                                <option {{ (old('religion') == 'Islam') ? 'selected' : '' }} value="Islam">Islam</option>
+                                <option {{ (old('religion') == 'Judaïsme') ? 'selected' : '' }} value="Judaïsme">Judaïsme</option>
+                                <option {{ (old('religion') == 'Apokalipsy') ? 'selected' : '' }} value="Apokalipsy">Apokalipsy</option>
+                                <option {{ (old('religion') == 'Autres') ? 'selected' : '' }} value="Autres">Autres</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="col-md-6 cacher">
                         <div class="form-group">
                             <label for="bg_id">Groupe sanguin :</label>
@@ -267,7 +284,7 @@
         var dobInput = document.getElementById('dob');
         var ageInput = document.getElementById('age');
 
-        if (dobInput.value) {
+        if (dobInput && ageInput && dobInput.value) {
             // Format de date YYYY-MM-DD
             var dobValue = dobInput.value;
             var dob = new Date(dobValue);
@@ -283,13 +300,14 @@
             var age = today.getFullYear() - dob.getFullYear();
 
             // Ajuster l'âge si l'anniversaire n'est pas encore passé cette année
-            if (today.getMonth() < dob.getMonth() || 
+            if (today.getMonth() < dob.getMonth() ||
                 (today.getMonth() === dob.getMonth() && today.getDate() < dob.getDate())) {
                 age--;
             }
 
             ageInput.value = age;
-        } else {
+            console.log('Âge calculé:', age, 'pour la date:', dobValue);
+        } else if (ageInput) {
             ageInput.value = '';
         }
     }
@@ -297,6 +315,34 @@
     $(document).ready(function() {
         // Initialiser le calcul de l'âge au chargement de la page
         calculateAge();
+
+        // Améliorer l'initialisation du datepicker pour déclencher le calcul de l'âge
+        if ($('#dob').length) {
+            // Détruire l'instance existante du datepicker s'il y en a une
+            if ($.fn.datepicker && $('#dob').data('datepicker')) {
+                $('#dob').datepicker('destroy');
+            }
+
+            // Initialiser le datepicker avec notre configuration personnalisée
+            $('#dob').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
+                todayHighlight: true,
+                changeMonth: true,
+                changeYear: true,
+                yearRange: '-100:+0',
+                endDate: new Date(),
+            }).on('changeDate', function() {
+                calculateAge();
+            }).on('change', function() {
+                calculateAge();
+            });
+
+            // Écouter aussi les événements de saisie manuelle
+            $('#dob').on('input blur', function() {
+                setTimeout(calculateAge, 100);
+            });
+        }
     });
 </script>
 @endsection

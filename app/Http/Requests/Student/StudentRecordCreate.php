@@ -32,6 +32,7 @@ class StudentRecordCreate extends FormRequest
             'age' => 'sometimes|nullable|numeric',
             'photo' => 'sometimes|nullable|image|mimes:jpeg,gif,png,jpg|max:2048',
             'address' => 'required|string|min:6|max:120',
+            'religion' => 'sometimes|nullable|string|in:FLM,FJKM,Catholique,Adventiste,Islam,Judaïsme,Apokalipsy,Autres',
             'bg_id' => 'sometimes|nullable',
             'nom_p' => 'sometimes|nullable|string|max:100',
             'prof_p' => 'sometimes|nullable|string|max:100',

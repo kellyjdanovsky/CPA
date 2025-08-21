@@ -145,6 +145,23 @@
                 </div>
 
                 <div class="row">
+                    <div class="col-md-3">
+                        <div class="form-group">
+                            <label for="religion">Religion :</label>
+                            <select class="select form-control" id="religion" name="religion" data-fouc data-placeholder="Choisissez...">
+                                <option value=""></option>
+                                <option {{ ($sr->user->religion == 'FLM') ? 'selected' : '' }} value="FLM">FLM</option>
+                                <option {{ ($sr->user->religion == 'FJKM') ? 'selected' : '' }} value="FJKM">FJKM</option>
+                                <option {{ ($sr->user->religion == 'Catholique') ? 'selected' : '' }} value="Catholique">Catholique</option>
+                                <option {{ ($sr->user->religion == 'Adventiste') ? 'selected' : '' }} value="Adventiste">Adventiste</option>
+                                <option {{ ($sr->user->religion == 'Islam') ? 'selected' : '' }} value="Islam">Islam</option>
+                                <option {{ ($sr->user->religion == 'Judaïsme') ? 'selected' : '' }} value="Judaïsme">Judaïsme</option>
+                                <option {{ ($sr->user->religion == 'Apokalipsy') ? 'selected' : '' }} value="Apokalipsy">Apokalipsy</option>
+                                <option {{ ($sr->user->religion == 'Autres') ? 'selected' : '' }} value="Autres">Autres</option>
+                            </select>
+                        </div>
+                    </div>
+
                     <div class="col-md-6 cacher">
                         <div class="form-group">
                             <label for="bg_id">Groupe sanguin : </label>

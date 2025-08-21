@@ -13,6 +13,9 @@ class Pay
 
     public static function genRefCode()
     {
-        return date('Y').'/'.mt_rand(10000, 999999);
+        // Utiliser microtime pour une meilleure unicité
+        $timestamp = str_replace('.', '', microtime(true));
+        $random = mt_rand(1000, 9999);
+        return date('Y').'/'.substr($timestamp, -6).$random;
     }
 }

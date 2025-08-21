@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test de Protection Anti-Doublon - Paiements</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .test-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+        .success { background-color: #d4edda; border-color: #c3e6cb; }
+        .error { background-color: #f8d7da; border-color: #f5c6cb; }
+        .warning { background-color: #fff3cd; border-color: #ffeaa7; }
+        button { padding: 10px 15px; margin: 5px; cursor: pointer; }
+        .disabled { opacity: 0.6; cursor: not-allowed; }
+        #log { height: 200px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-top: 10px; }
+    </style>
+</head>
+<body>
+    <h1>🛡️ Test de Protection Anti-Doublon - Paiements</h1>
+    
+    <div class="test-section">
+        <h2>Test 1: Double Clic Rapide</h2>
+        <p>Ce test simule un utilisateur qui clique rapidement plusieurs fois sur le bouton de soumission.</p>
+        <button id="test-double-click" onclick="testDoubleClick()">Tester Double Clic</button>
+        <div id="double-click-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Soumissions Simultanées</h2>
+        <p>Ce test simule plusieurs requêtes AJAX simultanées.</p>
+        <button id="test-simultaneous" onclick="testSimultaneous()">Tester Soumissions Simultanées</button>
+        <div id="simultaneous-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Validation des Données Identiques</h2>
+        <p>Ce test vérifie que les données identiques sont rejetées côté backend.</p>
+        <button id="test-identical-data" onclick="testIdenticalData()">Tester Données Identiques</button>
+        <div id="identical-data-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Journal des Tests</h2>
+        <div id="log"></div>
+        <button onclick="clearLog()">Effacer le Journal</button>
+    </div>
+
+    <script>
+        // Variable globale pour suivre les soumissions en cours (copie de notre implémentation)
+        var submittingForms = {};
+        
+        function log(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logDiv = document.getElementById('log');
+            const className = type === 'error' ? 'error' : type === 'success' ? 'success' : 'warning';
+            logDiv.innerHTML += `<div class="${className}">[${timestamp}] ${message}</div>`;
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function clearLog() {
+            document.getElementById('log').innerHTML = '';
+        }
+
+        // Simulation de la fonction submitForm améliorée
+        function simulateSubmitForm(formId, formType) {
+            return new Promise((resolve, reject) => {
+                // Vérifier si cette forme est déjà en cours de soumission
+                if (submittingForms[formId]) {
+                    log(`❌ Soumission bloquée pour ${formId} - Opération en cours`, 'warning');
+                    resolve({ blocked: true, message: 'Opération en cours, veuillez patienter...' });
+                    return;
+                }
+                
+                // Marquer la forme comme en cours de soumission
+                submittingForms[formId] = true;
+                log(`🔄 Début de soumission pour ${formId}`, 'info');
+                
+                // Simuler une requête AJAX avec délai
+                setTimeout(() => {
+                    // Simuler une réponse réussie
+                    log(`✅ Soumission réussie pour ${formId}`, 'success');
+                    
+                    // Pour les formulaires de création, délai avant réactivation
+                    if (formType === 'store') {
+                        setTimeout(() => {
+                            submittingForms[formId] = false;
+                            log(`🔓 Formulaire ${formId} réactivé après délai`, 'info');
+                        }, 2000);
+                    } else {
+                        submittingForms[formId] = false;
+                    }
+                    
+                    resolve({ success: true, message: 'Paiement créé avec succès' });
+                }, Math.random() * 1000 + 500); // Délai aléatoire entre 500ms et 1.5s
+            });
+        }
+
+        async function testDoubleClick() {
+            log('🧪 Début du test de double clic', 'info');
+            const resultDiv = document.getElementById('double-click-result');
+            resultDiv.innerHTML = '<p>Test en cours...</p>';
+            
+            const formId = 'test-form-double-click';
+            const promises = [];
+            
+            // Simuler 5 clics rapides
+            for (let i = 0; i < 5; i++) {
+                promises.push(simulateSubmitForm(formId, 'store'));
+            }
+            
+            const results = await Promise.all(promises);
+            const successful = results.filter(r => r.success).length;
+            const blocked = results.filter(r => r.blocked).length;
+            
+            if (successful === 1 && blocked === 4) {
+                resultDiv.innerHTML = `<div class="success">✅ Test réussi: 1 soumission acceptée, 4 bloquées</div>`;
+                log('✅ Test de double clic réussi', 'success');
+            } else {
+                resultDiv.innerHTML = `<div class="error">❌ Test échoué: ${successful} acceptées, ${blocked} bloquées</div>`;
+                log('❌ Test de double clic échoué', 'error');
+            }
+        }
+
+        async function testSimultaneous() {
+            log('🧪 Début du test de soumissions simultanées', 'info');
+            const resultDiv = document.getElementById('simultaneous-result');
+            resultDiv.innerHTML = '<p>Test en cours...</p>';
+            
+            const promises = [];
+            
+            // Simuler 3 formulaires différents soumis simultanément
+            for (let i = 1; i <= 3; i++) {
+                promises.push(simulateSubmitForm(`test-form-${i}`, 'store'));
+            }
+            
+            const results = await Promise.all(promises);
+            const successful = results.filter(r => r.success).length;
+            
+            if (successful === 3) {
+                resultDiv.innerHTML = `<div class="success">✅ Test réussi: 3 formulaires différents traités simultanément</div>`;
+                log('✅ Test de soumissions simultanées réussi', 'success');
+            } else {
+                resultDiv.innerHTML = `<div class="error">❌ Test échoué: seulement ${successful}/3 formulaires traités</div>`;
+                log('❌ Test de soumissions simultanées échoué', 'error');
+            }
+        }
+
+        async function testIdenticalData() {
+            log('🧪 Début du test de données identiques', 'info');
+            const resultDiv = document.getElementById('identical-data-result');
+            resultDiv.innerHTML = '<p>Test en cours...</p>';
+            
+            // Simuler deux soumissions avec les mêmes données mais à des moments différents
+            const formId = 'test-form-identical';
+            
+            // Première soumission
+            const result1 = await simulateSubmitForm(formId, 'store');
+            
+            // Attendre que le premier formulaire soit réactivé
+            await new Promise(resolve => setTimeout(resolve, 2500));
+            
+            // Deuxième soumission avec les mêmes données
+            const result2 = await simulateSubmitForm(formId, 'store');
+            
+            if (result1.success && result2.success) {
+                resultDiv.innerHTML = `<div class="warning">⚠️ Attention: Les deux soumissions ont été acceptées (vérification backend nécessaire)</div>`;
+                log('⚠️ Test de données identiques: vérification backend requise', 'warning');
+            } else if (result1.success && !result2.success) {
+                resultDiv.innerHTML = `<div class="success">✅ Test réussi: Première soumission acceptée, deuxième rejetée</div>`;
+                log('✅ Test de données identiques réussi', 'success');
+            } else {
+                resultDiv.innerHTML = `<div class="error">❌ Test échoué: Comportement inattendu</div>`;
+                log('❌ Test de données identiques échoué', 'error');
+            }
+        }
+
+        // Initialisation
+        log('🚀 Tests de protection anti-doublon initialisés', 'info');
+        log('💡 Cliquez sur les boutons pour exécuter les tests', 'info');
+    </script>
+</body>
+</html>

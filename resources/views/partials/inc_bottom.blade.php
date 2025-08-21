@@ -46,4 +46,7 @@
 <!-- Dashboard Interactive -->
 <script src=" {{ asset('js/dashboard-interactive.js') }} "></script>
 
+<!-- Modern Dashboard -->
+<script src=" {{ asset('js/modern-dashboard.js') }} "></script>
+
 @include('partials.js.custom_js')

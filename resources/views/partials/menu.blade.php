@@ -141,17 +141,10 @@ if ($usertype == 'teacher') {
                             @if(Qs::userIsTeamSA())
 
                             {{--Student Promotion--}}
-                            <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['students.promotion', 'students.promotion_manage']) ? 'nav-item-expanded' : '' }}"><a href="#" class="nav-link {{ in_array(Route::currentRouteName(), ['students.promotion', 'students.promotion_manage' ]) ? 'active' : '' }}">Gerer l'admission</a>
+                            <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['students.promotion', 'students.promotion_manage']) ? 'nav-item-expanded' : '' }}"><a href="#" class="nav-link {{ in_array(Route::currentRouteName(), ['students.promotion', 'students.promotion_manage']) ? 'active' : '' }}">Gerer l'admission</a>
                             <ul class="nav nav-group-sub">
                                 <li class="nav-item"><a href="{{ url('/students/promotion') }}" class="nav-link">Admission Eleves</a></li>
                                 <li class="nav-item"><a href="{{ url('/students/promotion/manage') }}" class="nav-link">Liste d'admission</a></li>
-                            </ul>
-                            </li>
-
-                            {{--Student Reenrollment--}}
-                            <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['students.reenrollment']) ? 'nav-item-expanded' : '' }}"><a href="#" class="nav-link {{ in_array(Route::currentRouteName(), ['students.reenrollment']) ? 'active' : '' }}">Réinscription</a>
-                            <ul class="nav nav-group-sub">
-                                <li class="nav-item"><a href="{{ url('/students/reenrollment') }}" class="nav-link">Réinscrire des élèves</a></li>
                             </ul>
                             </li>
 
@@ -183,6 +176,20 @@ if ($usertype == 'teacher') {
                     {{--Manage Subjects--}}
                     <li class="nav-item">
                         <a href="{{ url('/subjects') }}" class="nav-link"><i class="icon-pin"></i> <span>Matieres</span></a>
+                    </li>
+
+                    {{--Manage Sessions--}}
+                    <li class="nav-item nav-item-submenu {{ Route::is('sessions.*') ? 'nav-item-expanded nav-item-open' : '' }}">
+                        <a href="#" class="nav-link {{ Route::is('sessions.*') ? 'active' : '' }}">
+                            <i class="icon-calendar"></i> <span>Années Scolaires</span>
+                        </a>
+                        <ul class="nav nav-group-sub">
+                            <li class="nav-item">
+                                <a href="{{ route('sessions.index') }}" class="nav-link {{ Route::is('sessions.index') ? 'active' : '' }}">
+                                    Gestion des Sessions
+                                </a>
+                            </li>
+                        </ul>
                     </li>
                 @endif
 
