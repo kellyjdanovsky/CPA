@@ -67,41 +67,57 @@ class PromotionController extends Controller
             $p = $req->$p;
 
             if($p === 'P'){ // Réinscrire (Promouvoir) - Nouvelle classe dans la session suivante
-                // Créer un nouvel enregistrement pour la session suivante
-                $newStudentData = [
+                // Vérifier si un enregistrement existe déjà pour cet élève dans la nouvelle session
+                $existing_record = $this->student->getRecord([
                     'user_id' => $st->user_id,
-                    'my_class_id' => $tc,
-                    'section_id' => $ts,
-                    'session' => $ny,
-                    'adm_no' => $this->generateAdmissionNumber($ny),
-                    'my_parent_id' => $st->my_parent_id,
-                    'dorm_id' => $st->dorm_id,
-                    'dorm_room_no' => $st->dorm_room_no,
-                    'house' => $st->house,
-                    'age' => $st->age,
-                    'year_admitted' => $st->year_admitted,
-                    'grad' => 0,
-                ];
-                $this->student->createRecord($newStudentData);
+                    'session' => $ny
+                ])->first();
+
+                if (!$existing_record) {
+                    // Créer un nouvel enregistrement pour la session suivante
+                    $newStudentData = [
+                        'user_id' => $st->user_id,
+                        'my_class_id' => $tc,
+                        'section_id' => $ts,
+                        'session' => $ny,
+                        'adm_no' => $this->generateAdmissionNumber($ny),
+                        'my_parent_id' => $st->my_parent_id,
+                        'dorm_id' => $st->dorm_id,
+                        'dorm_room_no' => $st->dorm_room_no,
+                        'house' => $st->house,
+                        'age' => $st->age,
+                        'year_admitted' => $st->year_admitted,
+                        'grad' => 0,
+                    ];
+                    $this->student->createRecord($newStudentData);
+                }
             }
 
             if($p === 'D'){ // Redoubler - Même classe dans la session suivante
-                // Créer un nouvel enregistrement pour la session suivante (même classe)
-                $newStudentData = [
+                // Vérifier si un enregistrement existe déjà pour cet élève dans la nouvelle session
+                $existing_record = $this->student->getRecord([
                     'user_id' => $st->user_id,
-                    'my_class_id' => $fc, // Même classe
-                    'section_id' => $fs,  // Même section
-                    'session' => $ny,
-                    'adm_no' => $this->generateAdmissionNumber($ny),
-                    'my_parent_id' => $st->my_parent_id,
-                    'dorm_id' => $st->dorm_id,
-                    'dorm_room_no' => $st->dorm_room_no,
-                    'house' => $st->house,
-                    'age' => $st->age,
-                    'year_admitted' => $st->year_admitted,
-                    'grad' => 0,
-                ];
-                $this->student->createRecord($newStudentData);
+                    'session' => $ny
+                ])->first();
+
+                if (!$existing_record) {
+                    // Créer un nouvel enregistrement pour la session suivante (même classe)
+                    $newStudentData = [
+                        'user_id' => $st->user_id,
+                        'my_class_id' => $fc, // Même classe
+                        'section_id' => $fs,  // Même section
+                        'session' => $ny,
+                        'adm_no' => $this->generateAdmissionNumber($ny),
+                        'my_parent_id' => $st->my_parent_id,
+                        'dorm_id' => $st->dorm_id,
+                        'dorm_room_no' => $st->dorm_room_no,
+                        'house' => $st->house,
+                        'age' => $st->age,
+                        'year_admitted' => $st->year_admitted,
+                        'grad' => 0,
+                    ];
+                    $this->student->createRecord($newStudentData);
+                }
             }
 
             if($p === 'G'){ // Quitter (Diplômé) - Marquer comme diplômé dans la session actuelle
@@ -136,6 +152,9 @@ class PromotionController extends Controller
         $data['promotions'] = $this->student->getAllPromotions();
         $data['old_year'] = Qs::getCurrentSession();
         $data['new_year'] = Qs::getNextSession();
+        
+        // Récupérer les élèves diplômés de la session actuelle
+        $data['graduated_students'] = $this->student->getGradRecord(['session' => $data['old_year']])->get();
 
         // Calculer les statistiques de promotion
         $promotions = $data['promotions'];
@@ -145,6 +164,10 @@ class PromotionController extends Controller
             'redouble' => $promotions->where('status', 'D')->count(),   // Non promus (Redoublants)
             'quitte' => $promotions->where('status', 'G')->count(),     // Diplômés (Quittés)
         ];
+
+        // Ajouter les statistiques des élèves diplômés
+        $data['stats']['graduated_total'] = $data['graduated_students']->count();
+        $data['stats']['combined_total'] = $data['stats']['total'] + $data['stats']['graduated_total'];
 
         // Calculer les pourcentages
         $total = $data['stats']['total'];
@@ -180,6 +203,42 @@ class PromotionController extends Controller
         return Qs::jsonUpdateOk();
     }
 
+    public function reset_graduated($student_id)
+    {
+        // Réinitialiser un élève diplômé - le remettre comme élève actif normal
+        $current_session = Qs::getCurrentSession();
+        
+        // Trouver l'enregistrement de l'élève diplômé
+        $graduated_record = $this->student->getGradRecord(['user_id' => $student_id, 'session' => $current_session])->first();
+        
+        if ($graduated_record) {
+            // Mettre à jour l'enregistrement existant pour le remettre comme élève actif
+            $data['grad'] = 0;
+            $data['grad_date'] = null;
+            $this->student->updateRecord($graduated_record->id, $data);
+        }
+        
+        return back()->with('flash_success', __('msg.update_ok'));
+    }
+
+    public function reset_all_graduated()
+    {
+        // Réinitialiser tous les élèves diplômés de la session actuelle
+        $current_session = Qs::getCurrentSession();
+        $graduated_students = $this->student->getGradRecord(['session' => $current_session])->get();
+        
+        if ($graduated_students->count() > 0) {
+            foreach ($graduated_students as $student) {
+                // Mettre à jour l'enregistrement existant pour le remettre comme élève actif
+                $data['grad'] = 0;
+                $data['grad_date'] = null;
+                $this->student->updateRecord($student->id, $data);
+            }
+        }
+        
+        return Qs::jsonUpdateOk();
+    }
+
     protected function delete_old_marks($student_id, $year)
     {
         Mark::where(['student_id' => $student_id, 'year' => $year])->delete();
@@ -189,13 +248,22 @@ class PromotionController extends Controller
     {
         $prom = $this->student->findPromotion($promotion_id);
 
-        $data['my_class_id'] = $prom->from_class;
-        $data['section_id'] = $prom->from_section;
-        $data['session'] = $prom->from_session;
-        $data['grad'] = 0;
-        $data['grad_date'] = null;
+        // Trouver l'enregistrement de l'élève pour la session spécifique
+        $student_record = $this->student->getRecord([
+            'user_id' => $prom->student_id,
+            'session' => $prom->from_session
+        ])->first();
 
-        $this->student->update(['user_id' => $prom->student_id], $data);
+        if ($student_record) {
+            // Mettre à jour l'enregistrement existant au lieu d'en créer un nouveau
+            $data['my_class_id'] = $prom->from_class;
+            $data['section_id'] = $prom->from_section;
+            $data['session'] = $prom->from_session;
+            $data['grad'] = 0;
+            $data['grad_date'] = null;
+
+            $this->student->updateRecord($student_record->id, $data);
+        }
 
         return $this->student->deletePromotion($promotion_id);
     }

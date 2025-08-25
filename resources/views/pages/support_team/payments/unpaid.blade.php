@@ -3,10 +3,17 @@
 @section('content')
     <div class="card">
         <div class="card-header header-elements-inline">
-            <h5 class="card-title"><i class="icon-cash2 mr-2"></i>Élèves impayés - Classe {{ $nom_classe->name }}</h5>
+            <h5 class="card-title">
+                <i class="icon-cash2 mr-2"></i>
+                @if($student_type == 'unpaid')
+                    Élèves impayés - Classe {{ $nom_classe->name }}
+                @else
+                    Tous les élèves - Classe {{ $nom_classe->name }}
+                @endif
+            </h5>
             <div class="header-elements">
                 <div class="list-icons">
-                    <a href="{{ route('payments.export_unpaid', ['payment_ids' => implode(',', $payment_ids), 'id_class' => $id_class, 'statuses' => implode(',', $statuses)]) }}" class="btn btn-success btn-sm">
+                    <a href="{{ route('payments.export_unpaid', ['payment_ids' => implode(',', $payment_ids), 'id_class' => $id_class, 'statuses' => implode(',', $statuses), 'student_type' => $student_type]) }}" class="btn btn-success btn-sm">
                         <i class="icon-file-excel mr-2"></i>Exporter en Excel
                     </a>
                     <a href="{{ route('payments.verified') }}" class="btn btn-info btn-sm ml-2">

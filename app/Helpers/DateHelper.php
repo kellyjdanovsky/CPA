@@ -21,7 +21,8 @@ class DateHelper
             }
 
             $carbon = $date instanceof Carbon ? $date : Carbon::parse($date);
-            return $carbon->locale('fr')->isoFormat($format);
+            // Convertir au fuseau horaire UTC+3 (Riyadh) pour tous les formats
+            return $carbon->setTimezone('Asia/Riyadh')->locale('fr')->isoFormat($format);
         } catch (\Exception $e) {
             return 'Date invalide';
         }
@@ -35,7 +36,17 @@ class DateHelper
      */
     public static function formatFrenchWithTime($date)
     {
-        return self::formatFrench($date, 'DD/MM/YYYY à HH:mm');
+        try {
+            if (!$date) {
+                return 'N/A';
+            }
+
+            $carbon = $date instanceof Carbon ? $date : Carbon::parse($date);
+            // Convertir au fuseau horaire UTC+3 (Riyadh)
+            return $carbon->setTimezone('Asia/Riyadh')->locale('fr')->isoFormat('DD/MM/YYYY à HH:mm');
+        } catch (\Exception $e) {
+            return 'Date invalide';
+        }
     }
 
     /**
@@ -90,7 +101,7 @@ class DateHelper
      */
     public static function now($format = 'DD/MM/YYYY à HH:mm')
     {
-        return Carbon::now()->locale('fr')->isoFormat($format);
+        return Carbon::now()->setTimezone('Asia/Riyadh')->locale('fr')->isoFormat($format);
     }
 
     /**
@@ -181,7 +192,8 @@ class DateHelper
     {
         try {
             $carbon = $date instanceof Carbon ? $date : Carbon::parse($date);
-            return $carbon->locale('fr')->diffForHumans();
+            // Convertir au fuseau horaire UTC+3 (Riyadh) pour les dates relatives
+            return $carbon->setTimezone('Asia/Riyadh')->locale('fr')->diffForHumans();
         } catch (\Exception $e) {
             return 'Date invalide';
         }

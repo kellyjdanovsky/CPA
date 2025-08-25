@@ -594,6 +594,7 @@ public function checkUnpaid(Request $request)
     $payment_ids = $request->my_payments_id;
     $id_class = $request->my_class_id;
     $statuses = $request->status ?? ['Normal', 'ADRA'];
+    $student_type = $request->student_type ?? 'unpaid';
 
     // Vérifier si les paiements sont sélectionnés
     if (empty($payment_ids)) {
@@ -744,16 +745,19 @@ public function checkUnpaid(Request $request)
             continue;
         }
 
-        // Pour les étudiants ADRA, vérifier s'ils ont payé au moins 25% du montant total
-        // Si oui, ne pas les inclure dans la liste
-        if ($status === 'ADRA' && $totalAmountDue === 0) {
-            continue;
-        }
+        // Si le type est "non payés", ne pas inclure les étudiants avec montant dû = 0
+        if ($student_type === 'unpaid') {
+            // Pour les étudiants ADRA, vérifier s'ils ont payé au moins 25% du montant total
+            // Si oui, ne pas les inclure dans la liste
+            if ($status === 'ADRA' && $totalAmountDue === 0) {
+                continue;
+            }
 
-        // Pour les étudiants normaux, vérifier s'ils ont payé complètement
-        // Si oui, ne pas les inclure dans la liste
-        if ($status === 'Normal' && $totalAmountDue === 0) {
-            continue;
+            // Pour les étudiants normaux, vérifier s'ils ont payé complètement
+            // Si oui, ne pas les inclure dans la liste
+            if ($status === 'Normal' && $totalAmountDue === 0) {
+                continue;
+            }
         }
 
         // Déterminer l'état du paiement
@@ -784,7 +788,8 @@ public function checkUnpaid(Request $request)
         'payments' => $payments,
         'payment_ids' => $payment_ids,
         'id_class' => $id_class,
-        'statuses' => $statuses
+        'statuses' => $statuses,
+        'student_type' => $student_type
     ]);
 }
 
@@ -793,6 +798,7 @@ public function exportUnpaidExcel(Request $request)
     $payment_ids = $request->payment_ids ? explode(',', $request->payment_ids) : [];
     $id_class = $request->id_class;
     $statuses = $request->statuses ? explode(',', $request->statuses) : ['Normal', 'ADRA'];
+    $student_type = $request->student_type ?? 'unpaid';
 
     // Vérifier si les paiements sont sélectionnés
     if (empty($payment_ids)) {
@@ -1023,7 +1029,7 @@ public function journal()
             ]);
         }
     ])
-    ->whereDate('created_at', $today)
+    ->whereDate('created_at', \Carbon\Carbon::parse($today)->setTimezone('UTC')->format('Y-m-d'))
     ->orderBy('created_at', 'desc')
     ->get();
 
@@ -1121,27 +1127,36 @@ public function journalFilter(Request $request)
     ])
     ->orderBy('created_at', 'desc');
 
-    // Filtrer selon la période sélectionnée
+    // Filtrer selon la période sélectionnée (en tenant compte du fuseau horaire UTC+3)
     if ($period == 'day') {
-        // Jour spécifique
-        $query->whereDate('created_at', $startDate);
+        // Jour spécifique - convertir au fuseau horaire UTC+3
+        $carbonDate = \Carbon\Carbon::parse($startDate)->setTimezone('Asia/Riyadh');
+        $startOfDay = $carbonDate->startOfDay()->setTimezone('UTC')->format('Y-m-d H:i:s');
+        $endOfDay = $carbonDate->endOfDay()->setTimezone('UTC')->format('Y-m-d H:i:s');
+        $query->whereBetween('created_at', [$startOfDay, $endOfDay]);
     } elseif ($period == 'week') {
-        // Semaine courante
-        $startOfWeek = date('Y-m-d', strtotime('monday this week'));
-        $endOfWeek = date('Y-m-d', strtotime('sunday this week'));
-        $query->whereBetween('created_at', [$startOfWeek.' 00:00:00', $endOfWeek.' 23:59:59']);
-        $startDate = $startOfWeek;
-        $endDate = $endOfWeek;
+        // Semaine courante - convertir au fuseau horaire UTC+3
+        $carbonDate = \Carbon\Carbon::parse($startDate)->setTimezone('Asia/Riyadh');
+        $startOfWeek = $carbonDate->startOfWeek()->setTimezone('UTC')->format('Y-m-d H:i:s');
+        $endOfWeek = $carbonDate->endOfWeek()->setTimezone('UTC')->format('Y-m-d H:i:s');
+        $query->whereBetween('created_at', [$startOfWeek, $endOfWeek]);
+        $startDate = $carbonDate->startOfWeek()->format('Y-m-d');
+        $endDate = $carbonDate->endOfWeek()->format('Y-m-d');
     } elseif ($period == 'month') {
-        // Mois courant
-        $startOfMonth = date('Y-m-01');
-        $endOfMonth = date('Y-m-t');
-        $query->whereBetween('created_at', [$startOfMonth.' 00:00:00', $endOfMonth.' 23:59:59']);
-        $startDate = $startOfMonth;
-        $endDate = $endOfMonth;
+        // Mois courant - convertir au fuseau horaire UTC+3
+        $carbonDate = \Carbon\Carbon::parse($startDate)->setTimezone('Asia/Riyadh');
+        $startOfMonth = $carbonDate->startOfMonth()->setTimezone('UTC')->format('Y-m-d H:i:s');
+        $endOfMonth = $carbonDate->endOfMonth()->setTimezone('UTC')->format('Y-m-d H:i:s');
+        $query->whereBetween('created_at', [$startOfMonth, $endOfMonth]);
+        $startDate = $carbonDate->startOfMonth()->format('Y-m-d');
+        $endDate = $carbonDate->endOfMonth()->format('Y-m-d');
     } elseif ($period == 'custom') {
-        // Période personnalisée
-        $query->whereBetween('created_at', [$startDate.' 00:00:00', $endDate.' 23:59:59']);
+        // Période personnalisée - convertir au fuseau horaire UTC+3
+        $carbonStartDate = \Carbon\Carbon::parse($startDate)->setTimezone('Asia/Riyadh');
+        $carbonEndDate = \Carbon\Carbon::parse($endDate)->setTimezone('Asia/Riyadh');
+        $startDateTime = $carbonStartDate->startOfDay()->setTimezone('UTC')->format('Y-m-d H:i:s');
+        $endDateTime = $carbonEndDate->endOfDay()->setTimezone('UTC')->format('Y-m-d H:i:s');
+        $query->whereBetween('created_at', [$startDateTime, $endDateTime]);
     }
 
     // Filtrer par méthode de paiement si spécifié

@@ -38,6 +38,7 @@ class Kernel extends HttpKernel
             \App\Http\Middleware\VerifyCsrfToken::class,
             \Illuminate\Routing\Middleware\SubstituteBindings::class,
             \App\Http\Middleware\Custom\SessionManager::class,
+            \App\Http\Middleware\PreventDuplicateRequests::class,
         ],
 
         'api' => [
@@ -69,6 +70,6 @@ class Kernel extends HttpKernel
         'teamSAT' => \App\Http\Middleware\Custom\TeamSAT::class,
         'teamAccount' => \App\Http\Middleware\Custom\TeamAccount::class,
         'examIsLocked' => \App\Http\Middleware\Custom\ExamIsLocked::class,
-        'my_parent' => \App\Http\Middleware\Custom\MyParent::class,
+        'prevent_duplicates' => \App\Http\Middleware\PreventDuplicateRequests::class,
     ];
 }
