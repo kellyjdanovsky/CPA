@@ -139,6 +139,8 @@
     <div class="card">
         <div class="card-body text-center">
             <button id="promotion-reset-all" class="btn btn-danger btn-large">Réinitialiser toutes les promotions pour la session</button>
+            <button id="graduated-reset-all" class="btn btn-warning btn-large ml-2">Réinitialiser tous les diplômés</button>
+            <button id="reset-all-combined" class="btn btn-dark btn-large ml-2">Réinitialiser tout (promotions + diplômés)</button>
         </div>
     </div>
 
@@ -188,6 +190,49 @@
             </table>
         </div>
     </div>
+
+{{-- Étudiants diplômés --}}
+@if($graduated_students && $graduated_students->count() > 0)
+    <div class="card mt-4">
+        <div class="card-header header-elements-inline">
+            <h5 class="card-title font-weight-bold">Étudiants diplômés - Session <span class="text-danger">{{ $old_year }}</span></h5>
+            <span class="badge badge-danger">{{ $graduated_students->count() }} élève(s)</span>
+            {!! Qs::getPanelOptions() !!}
+        </div>
+
+        <div class="card-body">
+            <table id="graduated-list" class="table datatable-button-html5-columns">
+                <thead>
+                <tr>
+                    <th>S/N</th>
+                    <th>Photo</th>
+                    <th>Nom</th>
+                    <th>Classe</th>
+                    <th>Section</th>
+                    <th>Date de diplôme</th>
+                    <th>Action</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach($graduated_students->sortBy('my_class.name')->sortBy('user.name') as $gs)
+                    <tr>
+                        <td>{{ $loop->iteration }}</td>
+                        <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="{{ $gs->user->photo }}" alt="photo"></td>
+                        <td>{{ $gs->user->name }}</td>
+                        <td>{{ $gs->my_class->name }}</td>
+                        <td>{{ $gs->section->name }}</td>
+                        <td>{{ $gs->grad_date }}</td>
+                        <td class="text-center">
+                            <button data-id="{{ $gs->user_id }}" class="btn btn-warning graduated-reset">Réinitialiser</button>
+                            <form id="graduated-reset-{{ $gs->user_id }}" method="post" action="{{ route('students.promotion_reset_graduated', $gs->user_id) }}">@csrf @method('DELETE')</form>
+                        </td>
+                    </tr>
+                @endforeach
+                </tbody>
+            </table>
+        </div>
+    </div>
+@endif
 
 @endsection
 
@@ -267,6 +312,67 @@
                 })
             }
             return false;
-        })
+        });
+
+        /* Réinitialiser tous les diplômés */
+        $('#graduated-reset-all').on('click', function () {
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser tous les élèves diplômés ?')){
+                $.ajax({
+                    url:"{{ route('students.promotion_reset_all_graduated') }}",
+                    type:'DELETE',
+                    data:{ '_token' : $('#csrf-token').attr('content') },
+                    success:function (resp) {
+                        $('table#graduated-list > tbody').fadeOut().remove();
+                        flash({msg : resp.msg, type : 'success'});
+
+                        // Recharger la page pour mettre à jour les statistiques
+                        setTimeout(function() {
+                            location.reload();
+                        }, 1500);
+                    }
+                })
+            }
+            return false;
+        });
+
+        /* Réinitialiser tout (promotions + diplômés) */
+        $('#reset-all-combined').on('click', function () {
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser toutes les promotions ET tous les diplômés ? Cette action est irréversible !')){
+                // D'abord réinitialiser les promotions
+                $.ajax({
+                    url:"{{ route('students.promotion_reset_all') }}",
+                    type:'DELETE',
+                    data:{ '_token' : $('#csrf-token').attr('content') },
+                    success:function (resp) {
+                        flash({msg : 'Promotions réinitialisées avec succès', type : 'success'});
+                        
+                        // Ensuite réinitialiser les diplômés
+                        $.ajax({
+                            url:"{{ route('students.promotion_reset_all_graduated') }}",
+                            type:'DELETE',
+                            data:{ '_token' : $('#csrf-token').attr('content') },
+                            success:function (resp) {
+                                flash({msg : 'Diplômés réinitialisés avec succès', type : 'success'});
+
+                                // Recharger la page pour mettre à jour les statistiques
+                                setTimeout(function() {
+                                    location.reload();
+                                }, 1500);
+                            }
+                        });
+                    }
+                });
+            }
+            return false;
+        });
+
+        /* Réinitialiser individuellement les diplômés */
+        $('.graduated-reset').on('click', function () {
+            let sid = $(this).data('id');
+            if (confirm('Êtes-vous sûr de vouloir réinitialiser cet élève diplômé ?')){
+                $('form#graduated-reset-'+sid).submit();
+            }
+            return false;
+        });
     </script>
 @endsection

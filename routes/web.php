@@ -64,6 +64,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('promotion/manage', 'PromotionController@manage')->name('students.promotion_manage');
             Route::delete('promotion/reset/{pid}', 'PromotionController@reset')->name('students.promotion_reset');
             Route::delete('promotion/reset_all', 'PromotionController@reset_all')->name('students.promotion_reset_all');
+            Route::delete('promotion/reset_graduated/{student_id}', 'PromotionController@reset_graduated')->name('students.promotion_reset_graduated');
+            Route::delete('promotion/reset_all_graduated', 'PromotionController@reset_all_graduated')->name('students.promotion_reset_all_graduated');
             Route::get('promotion/{fc?}/{fs?}/{tc?}/{ts?}', 'PromotionController@promotion')->name('students.promotion');
             Route::post('promote/{fc}/{fs}/{tc}/{ts}', 'PromotionController@promote')->name('students.promote');
 
