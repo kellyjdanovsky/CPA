@@ -526,10 +526,10 @@
         <p>{{ $payment->title }} - <strong>{{ DateHelper::formatAmount($payment->amount) }}</strong></p>
     </div>
 
-    <!-- Historique des paiements simplifié -->
+    <!-- Historique des paiements -->
     @if($sortedReceipts->count() > 0)
     <div class="payment-history">
-        <div class="payment-history-title">Historique</div>
+        <div class="payment-history-title">Historique des Paiements</div>
         <table class="payment-history-table">
             <thead>
                 <tr>
@@ -539,7 +539,7 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach($sortedReceipts->take(2) as $r)
+                @foreach($sortedReceipts as $r)
                     @if($r->amt_paid != 0)
                     <tr>
                         <td>{{ DateHelper::formatForPaymentHistory($r->created_at) }}</td>
@@ -561,10 +561,17 @@
     <!-- Résumé simplifié -->
     <div class="payment-summary">
         <table class="payment-summary-table">
+            @if($pr->balance == 0)
+            <tr class="highlight-row">
+                <td class="amount-label">Statut:</td>
+                <td class="amount-value amount" style="color: #28a745;">Paiement Acquitté</td>
+            </tr>
+            @else
             <tr class="highlight-row">
                 <td class="amount-label">Reste à payer:</td>
                 <td class="amount-value amount">{{ DateHelper::formatAmount($pr->balance) }}</td>
             </tr>
+            @endif
         </table>
     </div>
 

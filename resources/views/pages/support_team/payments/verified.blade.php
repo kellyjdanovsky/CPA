@@ -40,6 +40,21 @@
                                         <input class="form-check-input" type="checkbox" name="status[]" id="status_adra" value="ADRA" checked>
                                         <label class="form-check-label" for="status_adra">ADRA</label>
                                     </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="checkbox" name="status[]" id="status_team3" value="TEAM3">
+                                        <label class="form-check-label" for="status_team3">TEAM3</label>
+                                    </div>
+                                </div>
+                                <div class="form-group">
+                                    <label class="col-form-label font-weight-bold">Type d'élèves à afficher :</label>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="student_type" id="type_unpaid" value="unpaid" checked>
+                                        <label class="form-check-label" for="type_unpaid">Non payés</label>
+                                    </div>
+                                    <div class="form-check form-check-inline">
+                                        <input class="form-check-input" type="radio" name="student_type" id="type_all" value="all">
+                                        <label class="form-check-label" for="type_all">Tous</label>
+                                    </div>
                                 </div>
                             </div>
 

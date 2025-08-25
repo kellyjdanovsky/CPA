@@ -249,6 +249,25 @@ Route::group(['namespace' => 'SuperAdmin','middleware' => 'super_admin', 'prefix
     Route::get('/settings', 'SettingController@index')->name('settings');
     Route::put('/settings', 'SettingController@update')->name('settings.update');
 
+    /*************** Duplicate Management *****************/
+    Route::group(['prefix' => 'duplicate_management'], function(){
+        Route::get('dashboard', 'DuplicateManagementController@dashboard')->name('duplicate.dashboard');
+        Route::get('logs', 'DuplicateManagementController@logs')->name('duplicate.logs');
+        Route::get('locks', 'DuplicateManagementController@locks')->name('duplicate.locks');
+        Route::get('report', 'DuplicateManagementController@generateReport')->name('duplicate.report');
+        Route::get('statistics', 'DuplicateManagementController@getStatistics')->name('duplicate.statistics');
+        Route::get('search', 'DuplicateManagementController@searchDuplicates')->name('duplicate.search');
+        Route::get('export/logs', 'DuplicateManagementController@exportLogs')->name('duplicate.export.logs');
+        
+        Route::post('locks/{id}/release', 'DuplicateManagementController@releaseLock')->name('duplicate.locks.release');
+        Route::post('locks/cleanup', 'DuplicateManagementController@cleanupLocks')->name('duplicate.locks.cleanup');
+        Route::post('logs/cleanup', 'DuplicateManagementController@cleanupLogs')->name('duplicate.logs.cleanup');
+        Route::post('remove', 'DuplicateManagementController@removeDuplicates')->name('duplicate.remove');
+        
+        Route::get('settings', 'DuplicateManagementController@getSettings')->name('duplicate.settings');
+        Route::put('settings', 'DuplicateManagementController@updateSettings')->name('duplicate.settings.update');
+    });
+
 });
 
 /************************ PARENT ****************************/
