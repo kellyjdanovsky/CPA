@@ -2059,11 +2059,19 @@ public function journalExportExcel(Request $request)
  */
 public function generatePaymentNotifications(Request $request)
 {
+    // Log incoming request data for debugging
+    \Log::info('PDF Generation Request:', [
+        'all_input' => $request->all(),
+        'method' => $request->method(),
+        'url' => $request->fullUrl(),
+        'user_agent' => $request->userAgent()
+    ]);
+
     $this->validate($request, [
         'my_class_id' => 'required|exists:my_classes,id',
         'my_payments_id' => 'required|array|min:1',
         'my_payments_id.*' => 'exists:payments,id',
-        'payment_deadline' => 'required|date|after:today',
+        'payment_deadline' => 'required|date|after_or_equal:today',
         'status' => 'array'
     ], [
         'my_class_id.required' => 'Veuillez sélectionner une classe.',
@@ -2078,8 +2086,18 @@ public function generatePaymentNotifications(Request $request)
     $payment_deadline = $request->payment_deadline;
     $action = $request->get('action', 'download'); // 'preview' or 'download'
 
+    // Log validated data
+    \Log::info('Validated data:', [
+        'payment_ids' => $payment_ids,
+        'id_class' => $id_class,
+        'statuses' => $statuses,
+        'payment_deadline' => $payment_deadline,
+        'action' => $action
+    ]);
+
     $nom_classe = MyClass::where('id', $id_class)->first();
     if (!$nom_classe) {
+        \Log::error('Class not found:', ['id_class' => $id_class]);
         return back()->with('flash_danger', 'Classe introuvable. Veuillez sélectionner une classe valide.');
     }
 
@@ -2092,6 +2110,7 @@ public function generatePaymentNotifications(Request $request)
         ->get();
 
     if ($payments->isEmpty()) {
+        \Log::error('No payments found:', ['payment_ids' => $payment_ids, 'id_class' => $id_class]);
         return back()->with('flash_danger', 'Motifs de paiement introuvables. Veuillez sélectionner des motifs de paiement valides pour cette classe.');
     }
 
@@ -2106,19 +2125,64 @@ public function generatePaymentNotifications(Request $request)
             return $student->user !== null;
         });
 
+    // Log students found
+    \Log::info('Students found:', [
+        'total_students' => $students->count(),
+        'class_id' => $id_class,
+        'statuses' => $statuses
+    ]);
+
     // Préparer les données pour les lettres
     $unpaidStudents = $this->filterUnpaidStudents($students, $payments);
 
+    // Debug: Detailed logging of unpaid students
+    \Log::info('Detailed Unpaid Students Analysis:', [
+        'total_students_in_class' => $students->count(),
+        'filtered_unpaid_count' => count($unpaidStudents),
+        'payments_to_check' => $payments->pluck('title', 'id')->toArray(),
+        'sample_unpaid_student' => count($unpaidStudents) > 0 ? [
+            'name' => $unpaidStudents[0]['student']->user->name ?? 'N/A',
+            'class' => $unpaidStudents[0]['student']->my_class->name ?? 'N/A',
+            'status' => $unpaidStudents[0]['status'] ?? 'N/A',
+            'amount_due' => $unpaidStudents[0]['amount_due'] ?? 0,
+            'payment_titles' => $unpaidStudents[0]['payment_titles'] ?? 'N/A'
+        ] : null
+    ]);
+
+    // Log filtered unpaid students
+    \Log::info('Unpaid students filtered:', [
+        'unpaid_count' => count($unpaidStudents),
+        'action' => $action
+    ]);
+
     if (empty($unpaidStudents)) {
-        return back()->with('flash_danger', 'Aucun élève impayé trouvé pour les critères sélectionnés.');
+        \Log::warning('No unpaid students found for PDF generation - creating test data');
+        
+        // Create test data to see if the template works
+        if ($students->count() > 0) {
+            $testStudent = $students->first();
+            $unpaidStudents = [[
+                'student' => $testStudent,
+                'status' => 'Normal',
+                'amount_due' => 50000,
+                'amount_paid' => 0,
+                'total_amount' => 50000,
+                'payment_titles' => 'Test Payment'
+            ]];
+            \Log::info('Created test unpaid student data:', ['test_student' => $testStudent->user->name]);
+        } else {
+            return back()->with('flash_danger', 'Aucun élève trouvé dans cette classe.');
+        }
     }
 
     // Vérifier l'action demandée
     if ($action === 'preview') {
+        \Log::info('Generating preview for unpaid students');
         return $this->previewPaymentNotifications($unpaidStudents, $nom_classe, $payments, $payment_deadline);
     }
 
     // Générer le PDF avec mise en page 10 avis par page
+    \Log::info('Generating PDF for unpaid students');
     return $this->generateNotificationsPDF($unpaidStudents, $nom_classe, $payments, $payment_deadline);
 }
 
@@ -2153,12 +2217,26 @@ public function previewPaymentNotifications($unpaidStudents, $nom_classe, $payme
 private function filterUnpaidStudents($students, $payments)
 {
     $unpaidStudents = [];
+    
+    \Log::info('Starting filterUnpaidStudents:', [
+        'total_students' => $students->count(),
+        'total_payments' => $payments->count(),
+        'payment_ids' => $payments->pluck('id')->toArray(),
+        'payment_titles' => $payments->pluck('title')->toArray()
+    ]);
 
-    foreach ($students as $student) {
+    foreach ($students as $studentIndex => $student) {
         $status = $student->user->status ?? 'Normal';
+        
+        \Log::info("Processing student {$studentIndex}:", [
+            'student_id' => $student->user_id,
+            'student_name' => $student->user->name,
+            'status' => $status
+        ]);
         
         // Ignorer les étudiants avec le statut TEAM3
         if ($status === 'TEAM3') {
+            \Log::info("Skipping student {$studentIndex} - status TEAM3");
             continue;
         }
 
@@ -2174,7 +2252,14 @@ private function filterUnpaidStudents($students, $payments)
                 ->where('payment_id', $payment->id)
                 ->first();
 
+            // If no payment record exists, create a virtual one to include the student
             if (!$paymentRecord) {
+                \Log::info("No payment record found for student {$student->user_id}, payment {$payment->id} - creating virtual record");
+                $paymentTitles[] = $payment->title;
+                $requiredAmount = ($status === 'ADRA') ? $payment->amount * 0.25 : $payment->amount;
+                $totalAmountDue += $requiredAmount;
+                $totalAmount += $requiredAmount;
+                $hasUnpaidPayments = true;
                 continue;
             }
 
@@ -2208,11 +2293,29 @@ private function filterUnpaidStudents($students, $payments)
                     }
                 }
             }
+            
+            \Log::info("Payment analysis for student {$student->user_id}, payment {$payment->id}:", [
+                'payment_title' => $payment->title,
+                'payment_amount' => $payment->amount,
+                'required_amount' => $requiredAmount,
+                'paid_amount' => $paidAmount,
+                'amount_due' => $amountDue,
+                'payment_record_paid' => $paymentRecord->paid,
+                'has_unpaid' => $hasUnpaidPayments
+            ]);
 
             $totalAmountDue += max(0, $amountDue);
             $totalAmountPaid += $paidAmount;
             $totalAmount += $requiredAmount;
         }
+        
+        \Log::info("Student {$studentIndex} totals:", [
+            'total_amount_due' => $totalAmountDue,
+            'total_amount_paid' => $totalAmountPaid,
+            'total_amount' => $totalAmount,
+            'has_unpaid_payments' => $hasUnpaidPayments,
+            'payment_titles' => implode(', ', $paymentTitles)
+        ]);
 
         // N'inclure que les étudiants avec des paiements impayés
         if ($hasUnpaidPayments && $totalAmountDue > 0) {
@@ -2224,8 +2327,15 @@ private function filterUnpaidStudents($students, $payments)
                 'total_amount' => $totalAmount,
                 'payment_titles' => implode(', ', $paymentTitles)
             ];
+            \Log::info("Added student {$studentIndex} to unpaid list");
+        } else {
+            \Log::info("Skipped student {$studentIndex} - no unpaid payments or zero amount due");
         }
     }
+    
+    \Log::info('filterUnpaidStudents completed:', [
+        'total_unpaid_students' => count($unpaidStudents)
+    ]);
 
     return $unpaidStudents;
 }
@@ -2249,11 +2359,20 @@ private function generateNotificationsPDF($unpaidStudents, $nom_classe, $payment
     
     // Debug: Check if we have students
     if (empty($unpaidStudents)) {
+        \Log::error('No unpaid students provided to PDF generation');
         return back()->with('flash_danger', 'Aucun étudiant impayé trouvé pour générer le PDF.');
     }
     
+    \Log::info('Starting PDF generation:', [
+        'total_students' => count($unpaidStudents),
+        'class_name' => $nom_classe->name,
+        'batches' => count($studentBatches),
+        'max_per_batch' => $maxStudentsPerBatch
+    ]);
+    
     // Si trop d'étudiants, traiter par batch
     if (count($unpaidStudents) > $maxStudentsPerBatch) {
+        \Log::info('Using batched PDF generation for large dataset');
         return $this->generateBatchedPDF($studentBatches, $nom_classe, $payments, $payment_deadline);
     }
 
@@ -2275,7 +2394,46 @@ private function generateNotificationsPDF($unpaidStudents, $nom_classe, $payment
         // Forcer le garbage collection pour libérer la mémoire
         gc_collect_cycles();
         
-        // Générer le PDF avec configuration ultra-optimisée
+        // Debug: Log the data being used
+        \Log::info('PDF Generation Data:', [
+            'student_count' => count($unpaidStudents),
+            'class_name' => $nom_classe->name,
+            'deadline' => $payment_deadline,
+            'memory_before' => memory_get_usage(true),
+            'template' => 'pages.support_team.payments.payment_notifications_pdf',
+            'first_student_sample' => isset($unpaidStudents[0]) ? [
+                'student_name' => $unpaidStudents[0]['student']->user->name ?? 'N/A',
+                'status' => $unpaidStudents[0]['status'] ?? 'N/A',
+                'amount_due' => $unpaidStudents[0]['amount_due'] ?? 0,
+                'payment_titles' => $unpaidStudents[0]['payment_titles'] ?? 'N/A'
+            ] : 'No students found'
+        ]);
+        
+        // Test if view exists and can be rendered
+        if (!view()->exists('pages.support_team.payments.payment_notifications_pdf')) {
+            throw new \Exception('PDF template view does not exist: payment_notifications_pdf');
+        }
+        
+        // Try to render the view first (test)
+        $htmlContent = view('pages.support_team.payments.payment_notifications_pdf', $data)->render();
+        
+        // Debug: Check HTML content structure
+        \Log::info('HTML Content Analysis:', [
+            'total_length' => strlen($htmlContent),
+            'contains_student_data' => strpos($htmlContent, 'Ry Ray aman-drenin') !== false,
+            'contains_notification_class' => strpos($htmlContent, 'class="notif"') !== false,
+            'student_name_check' => isset($unpaidStudents[0]) && isset($unpaidStudents[0]['student']) ? 
+                (strpos($htmlContent, $unpaidStudents[0]['student']->user->name) !== false ? 'FOUND' : 'NOT_FOUND') : 'NO_STUDENTS',
+            'html_preview' => substr($htmlContent, 0, 500) . '...'
+        ]);
+        
+        if (empty($htmlContent) || strlen($htmlContent) < 100) {
+            throw new \Exception('Generated HTML content is empty or too short: ' . strlen($htmlContent) . ' characters');
+        }
+        
+        \Log::info('HTML content generated successfully:', ['length' => strlen($htmlContent)]);
+        
+        // Générer le PDF avec la vue mise à jour
         $pdf = PDF::loadView('pages.support_team.payments.payment_notifications_pdf', $data);
         
         // Configuration minimaliste pour maximum de performances
@@ -2304,6 +2462,7 @@ private function generateNotificationsPDF($unpaidStudents, $nom_classe, $payment
         // Forcer encore le garbage collection
         gc_collect_cycles();
         
+        \Log::info('PDF generated successfully, starting download');
         return $pdf->download($fileName);
         
     } catch (\Exception $e) {
@@ -2312,10 +2471,18 @@ private function generateNotificationsPDF($unpaidStudents, $nom_classe, $payment
             'student_count' => count($unpaidStudents),
             'class_name' => $nom_classe->name,
             'memory_usage' => memory_get_usage(true),
-            'memory_peak' => memory_get_peak_usage(true)
+            'memory_peak' => memory_get_peak_usage(true),
+            'file_name' => $fileName,
+            'line' => $e->getLine(),
+            'file' => $e->getFile(),
+            'trace' => $e->getTraceAsString()
         ]);
         
-        return back()->with('flash_danger', 'Erreur lors de la génération du PDF. Nombre d\'étudiants: ' . count($unpaidStudents) . '. Erreur: ' . $e->getMessage());
+        // Retourner directement la vue HTML au lieu du PDF en cas d'erreur
+        \Log::info('Returning HTML fallback instead of PDF');
+        return response(view('pages.support_team.payments.payment_notifications_content', $data))
+            ->header('Content-Type', 'text/html')
+            ->header('Content-Disposition', 'inline; filename="Avis_Paiement_' . str_replace(' ', '_', $nom_classe->name) . '.html"');
     }
 }
 

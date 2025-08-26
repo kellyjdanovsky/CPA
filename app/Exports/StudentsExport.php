@@ -2,14 +2,14 @@
 
 namespace App\Exports;
 
+use Illuminate\Support\Collection;
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithMapping;
 use Maatwebsite\Excel\Concerns\WithStyles;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
-use Illuminate\Support\Collection;
 
-class StudentsExport implements FromCollection, WithHeadings, WithMapping, WithStyles
+class StudentsExport implements FromCollection, WithHeadings, WithStyles, ShouldAutoSize
 {
     protected $students;
 
@@ -23,7 +23,19 @@ class StudentsExport implements FromCollection, WithHeadings, WithMapping, WithS
      */
     public function collection()
     {
-        return $this->students;
+        return $this->students->map(function ($student) {
+            return [
+                'id' => $student->user_id,
+                'name' => $student->user->name ?? 'N/A',
+                'adm_no' => $student->adm_no,
+                'class' => $student->my_class->name ?? 'N/A',
+                'section' => $student->section->name ?? 'N/A',
+                'year_admitted' => $student->year_admitted,
+                'house' => $student->house,
+                'age' => $student->age,
+                'session' => $student->session,
+            ];
+        });
     }
 
     /**
@@ -35,49 +47,24 @@ class StudentsExport implements FromCollection, WithHeadings, WithMapping, WithS
             'ID',
             'Nom de l\'élève',
             'Numéro d\'admission',
-            'Classe précédente',
-            'Section précédente',
-            'Statut',
-        ];
-    }
-
-    /**
-     * @param mixed $row
-     *
-     * @return array
-     */
-    public function map($student): array
-    {
-        // Vérifier si l'élève est déjà inscrit pour l'année en cours
-        $current_year = \App\Helpers\Qs::getSetting('current_session');
-        $exists = \App\Models\StudentRecord::where('user_id', $student->user_id)
-            ->where('session', $current_year)
-            ->exists();
-
-        return [
-            $student->user_id,
-            $student->user->name,
-            $student->adm_no,
-            $student->my_class->name,
-            $student->section->name,
-            $exists ? 'Déjà inscrit' : 'Non inscrit',
+            'Classe',
+            'Section',
+            'Année d\'admission',
+            'Maison',
+            'Âge',
+            'Session',
         ];
     }
 
     /**
      * @param Worksheet $sheet
+     * @return array
      */
     public function styles(Worksheet $sheet)
     {
-        $sheet->getStyle('A1:F1')->getFont()->setBold(true);
-        $sheet->getStyle('A1:F1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FFCCCCCC');
-        
-        // Ajuster la largeur des colonnes
-        $sheet->getColumnDimension('A')->setWidth(10);
-        $sheet->getColumnDimension('B')->setWidth(30);
-        $sheet->getColumnDimension('C')->setWidth(20);
-        $sheet->getColumnDimension('D')->setWidth(20);
-        $sheet->getColumnDimension('E')->setWidth(20);
-        $sheet->getColumnDimension('F')->setWidth(15);
+        return [
+            // Style the first row as bold text.
+            1 => ['font' => ['bold' => true]],
+        ];
     }
 }

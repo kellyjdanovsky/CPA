@@ -238,6 +238,24 @@
                         <span class="badge badge-success mr-1">👥</span> TEAM 3
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="#encaissements-tab" class="nav-link" data-toggle="tab">
+                        <i class="icon-wallet mr-2"></i> Encaissements
+                        <span class="badge badge-primary ml-1">Nouveau</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#recettes-tab" class="nav-link" data-toggle="tab">
+                        <i class="icon-coins mr-2"></i> Recettes
+                        <span class="badge badge-success ml-1">Consolidé</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#decaissements-tab" class="nav-link" data-toggle="tab">
+                        <i class="icon-file-text2 mr-2"></i> Décaissements
+                        <span class="badge badge-warning ml-1">OP</span>
+                    </a>
+                </li>
                 <li class="nav-item dropdown">
                     <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown"><i class="icon-filter3 mr-2"></i> Par Classe</a>
                     <div class="dropdown-menu dropdown-menu-right">
@@ -532,6 +550,379 @@
 
                     </div>
                 @endforeach
+
+                <!-- Encaissements Tab Content -->
+                <div class="tab-pane fade" id="encaissements-tab">
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="alert alert-primary border-0 alert-dismissible">
+                                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                                <div class="d-flex align-items-center">
+                                    <div class="alert-icon mr-3">
+                                        <i class="icon-wallet text-primary" style="font-size: 2rem;"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="alert-heading mb-1">Module Encaissements</h6>
+                                        <p class="mb-0">
+                                            Gérez les encaissements spécialisés : <strong>75% ADRA</strong> et <strong>100% TEAM 3</strong>.
+                                            Sélectionnez une classe, des paiements et processez automatiquement les encaissements.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card border-left-primary">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="icon-plus-circle2 text-primary" style="font-size: 3rem;"></i>
+                                    </div>
+                                    <h5 class="card-title">Nouvel Encaissement</h5>
+                                    <p class="card-text text-muted mb-3">Créer un nouvel encaissement ADRA ou TEAM3</p>
+                                    <a href="{{ route('payments.encaissements.create') }}" class="btn btn-primary">
+                                        <i class="icon-plus3 mr-2"></i>Créer
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card border-left-success">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="icon-list text-success" style="font-size: 3rem;"></i>
+                                    </div>
+                                    <h5 class="card-title">Gérer les Encaissements</h5>
+                                    <p class="card-text text-muted mb-3">Voir et gérer tous les encaissements</p>
+                                    <a href="{{ route('payments.encaissements.index') }}" class="btn btn-success">
+                                        <i class="icon-eye mr-2"></i>Voir tout
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                            <div class="card border-left-info">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="icon-file-text text-info" style="font-size: 3rem;"></i>
+                                    </div>
+                                    <h5 class="card-title">Journal</h5>
+                                    <p class="card-text text-muted mb-3">Consulter le journal des encaissements</p>
+                                    <a href="{{ route('payments.encaissements.journal') }}" class="btn btn-info">
+                                        <i class="icon-book mr-2"></i>Journal
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0">
+                                        <i class="icon-info22 mr-2"></i>Fonctionnalités des Encaissements
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <ul class="list-unstyled">
+                                                <li class="mb-2">
+                                                    <i class="icon-checkmark3 text-success mr-2"></i>
+                                                    Calcul automatique des montants (75% ADRA, 100% TEAM3)
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i class="icon-checkmark3 text-success mr-2"></i>
+                                                    Sélection par classe et type de paiement
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i class="icon-checkmark3 text-success mr-2"></i>
+                                                    Génération automatique des références
+                                                </li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <ul class="list-unstyled">
+                                                <li class="mb-2">
+                                                    <i class="icon-checkmark3 text-success mr-2"></i>
+                                                    Intégration automatique aux recettes
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i class="icon-checkmark3 text-success mr-2"></i>
+                                                    Export Excel et impression de reçus
+                                                </li>
+                                                <li class="mb-2">
+                                                    <i class="icon-checkmark3 text-success mr-2"></i>
+                                                    Journal détaillé avec statistiques
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Recettes Tab Content -->
+                <div class="tab-pane fade" id="recettes-tab">
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="alert alert-success border-0 alert-dismissible">
+                                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                                <div class="d-flex align-items-center">
+                                    <div class="alert-icon mr-3">
+                                        <i class="icon-coins text-success" style="font-size: 2rem;"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="alert-heading mb-1">Module Recettes</h6>
+                                        <p class="mb-0">
+                                            Centralisez tous les encaissements entrants : cash, ADRA, TEAM3, et frais divers.
+                                            Vue consolidée avec filtres avancés et exports.
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card border-left-success">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="icon-eye text-success" style="font-size: 3rem;"></i>
+                                    </div>
+                                    <h5 class="card-title">Voir Recettes</h5>
+                                    <p class="card-text text-muted mb-3">Consulter toutes les recettes</p>
+                                    <a href="{{ route('payments.recettes.index') }}" class="btn btn-success">
+                                        <i class="icon-list mr-2"></i>Consulter
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <div class="card border-left-info">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="icon-plus-circle2 text-info" style="font-size: 3rem;"></i>
+                                    </div>
+                                    <h5 class="card-title">Recette Manuelle</h5>
+                                    <p class="card-text text-muted mb-3">Ajouter une recette diverse</p>
+                                    <a href="{{ route('payments.recettes.create') }}" class="btn btn-info">
+                                        <i class="icon-plus3 mr-2"></i>Ajouter
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <div class="card border-left-warning">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="icon-sync text-warning" style="font-size: 3rem;"></i>
+                                    </div>
+                                    <h5 class="card-title">Synchronisation</h5>
+                                    <p class="card-text text-muted mb-3">Synchroniser avec les reçus</p>
+                                    <button class="btn btn-warning" onclick="syncReceipts()">
+                                        <i class="icon-sync mr-2"></i>Synchroniser
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <div class="card border-left-primary">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="icon-stats-bars text-primary" style="font-size: 3rem;"></i>
+                                    </div>
+                                    <h5 class="card-title">Tableau de Bord</h5>
+                                    <p class="card-text text-muted mb-3">Statistiques détaillées</p>
+                                    <a href="{{ route('payments.recettes.dashboard') }}" class="btn btn-primary">
+                                        <i class="icon-stats-dots mr-2"></i>Statistiques
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-12">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0">
+                                        <i class="icon-info22 mr-2"></i>Colonnes et Filtres Disponibles
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-md-6">
+                                            <h6 class="text-primary">Colonnes Principales :</h6>
+                                            <ul class="list-unstyled">
+                                                <li class="mb-1"><i class="icon-arrow-right8 text-muted mr-2"></i>Date</li>
+                                                <li class="mb-1"><i class="icon-arrow-right8 text-muted mr-2"></i>Élève / Bénéficiaire</li>
+                                                <li class="mb-1"><i class="icon-arrow-right8 text-muted mr-2"></i>Classe</li>
+                                                <li class="mb-1"><i class="icon-arrow-right8 text-muted mr-2"></i>Paiement concerné</li>
+                                                <li class="mb-1"><i class="icon-arrow-right8 text-muted mr-2"></i>Montant encaissé</li>
+                                                <li class="mb-1"><i class="icon-arrow-right8 text-muted mr-2"></i>Mode de paiement</li>
+                                                <li class="mb-1"><i class="icon-arrow-right8 text-muted mr-2"></i>Référence</li>
+                                            </ul>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <h6 class="text-success">Filtres Disponibles :</h6>
+                                            <ul class="list-unstyled">
+                                                <li class="mb-1"><i class="icon-arrow-right8 text-muted mr-2"></i>Par date (période)</li>
+                                                <li class="mb-1"><i class="icon-arrow-right8 text-muted mr-2"></i>Par classe</li>
+                                                <li class="mb-1"><i class="icon-arrow-right8 text-muted mr-2"></i>Par statut (Normal, ADRA, TEAM 3)</li>
+                                                <li class="mb-1"><i class="icon-arrow-right8 text-muted mr-2"></i>Par mode de paiement</li>
+                                                <li class="mb-1"><i class="icon-arrow-right8 text-muted mr-2"></i>Export Excel/PDF</li>
+                                                <li class="mb-1"><i class="icon-arrow-right8 text-muted mr-2"></i>Recherche par nom/référence</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Décaissements Tab Content -->
+                <div class="tab-pane fade" id="decaissements-tab">
+                    <div class="row mb-4">
+                        <div class="col-md-12">
+                            <div class="alert alert-warning border-0 alert-dismissible">
+                                <button type="button" class="close" data-dismiss="alert"><span>&times;</span></button>
+                                <div class="d-flex align-items-center">
+                                    <div class="alert-icon mr-3">
+                                        <i class="icon-file-text2 text-warning" style="font-size: 2rem;"></i>
+                                    </div>
+                                    <div>
+                                        <h6 class="alert-heading mb-1">Module Décaissements (Ordres de Paiement)</h6>
+                                        <p class="mb-0">
+                                            Gérez les ordres de paiement (OP) avec workflow d'approbation, pièces justificatives,
+                                            et impression professionnelle (2 par page A4).
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="card border-left-warning">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="icon-plus-circle2 text-warning" style="font-size: 3rem;"></i>
+                                    </div>
+                                    <h5 class="card-title">Créer OP</h5>
+                                    <p class="card-text text-muted mb-3">Nouveau ordre de paiement</p>
+                                    <a href="{{ route('payments.decaissements.create') }}" class="btn btn-warning">
+                                        <i class="icon-plus3 mr-2"></i>Créer OP
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <div class="card border-left-primary">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="icon-list text-primary" style="font-size: 3rem;"></i>
+                                    </div>
+                                    <h5 class="card-title">Gérer OP</h5>
+                                    <p class="card-text text-muted mb-3">Voir tous les décaissements</p>
+                                    <a href="{{ route('payments.decaissements.index') }}" class="btn btn-primary">
+                                        <i class="icon-eye mr-2"></i>Gérer
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <div class="card border-left-success">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="icon-printer text-success" style="font-size: 3rem;"></i>
+                                    </div>
+                                    <h5 class="card-title">Impression</h5>
+                                    <p class="card-text text-muted mb-3">OP avec en-tête et signatures</p>
+                                    <a href="{{ route('payments.decaissements.index') }}?print=1" class="btn btn-success">
+                                        <i class="icon-printer mr-2"></i>Imprimer
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-3">
+                            <div class="card border-left-info">
+                                <div class="card-body text-center">
+                                    <div class="mb-3">
+                                        <i class="icon-file-text text-info" style="font-size: 3rem;"></i>
+                                    </div>
+                                    <h5 class="card-title">Journal</h5>
+                                    <p class="card-text text-muted mb-3">Journal des décaissements</p>
+                                    <a href="{{ route('payments.decaissements.journal') }}" class="btn btn-info">
+                                        <i class="icon-book mr-2"></i>Journal
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="row mt-4">
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0">
+                                        <i class="icon-list mr-2"></i>Colonnes Principales
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2"><i class="icon-arrow-right8 text-muted mr-2"></i>Date</li>
+                                        <li class="mb-2"><i class="icon-arrow-right8 text-muted mr-2"></i>Référence OP</li>
+                                        <li class="mb-2"><i class="icon-arrow-right8 text-muted mr-2"></i>Bénéficiaire</li>
+                                        <li class="mb-2"><i class="icon-arrow-right8 text-muted mr-2"></i>Montant (chiffres et lettres)</li>
+                                        <li class="mb-2"><i class="icon-arrow-right8 text-muted mr-2"></i>Motif</li>
+                                        <li class="mb-2"><i class="icon-arrow-right8 text-muted mr-2"></i>Mode de paiement</li>
+                                        <li class="mb-2"><i class="icon-arrow-right8 text-muted mr-2"></i>Projet / Rubrique budgétaire</li>
+                                        <li class="mb-2"><i class="icon-arrow-right8 text-muted mr-2"></i>Pièce justificative (✔️/❌)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title mb-0">
+                                        <i class="icon-cog mr-2"></i>Fonctions Disponibles
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <ul class="list-unstyled">
+                                        <li class="mb-2"><i class="icon-checkmark3 text-success mr-2"></i>Création OP avec formulaire complet</li>
+                                        <li class="mb-2"><i class="icon-checkmark3 text-success mr-2"></i>Téléversement pièces justificatives</li>
+                                        <li class="mb-2"><i class="icon-checkmark3 text-success mr-2"></i>Workflow d'approbation</li>
+                                        <li class="mb-2"><i class="icon-checkmark3 text-success mr-2"></i>Impression OP (2 par page A4)</li>
+                                        <li class="mb-2"><i class="icon-checkmark3 text-success mr-2"></i>En-tête école et signatures</li>
+                                        <li class="mb-2"><i class="icon-checkmark3 text-success mr-2"></i>Journal avec filtres et exports</li>
+                                        <li class="mb-2"><i class="icon-checkmark3 text-success mr-2"></i>Statuts : En attente, Approuvé, Payé, Annulé</li>
+                                        <li class="mb-2"><i class="icon-checkmark3 text-success mr-2"></i>Montants automatiques en lettres</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -539,4 +930,89 @@
 
     {{--Liste des paiements terminée--}}
 
+@endsection
+
+@section('page_script')
+<script>
+    // Fonction de synchronisation des recettes
+    function syncReceipts() {
+        if (confirm('Voulez-vous synchroniser les recettes avec les reçus existants ?')) {
+            // Afficher un loader
+            let button = event.target;
+            let originalText = button.innerHTML;
+            button.innerHTML = '<i class="icon-spinner2 spinner mr-2"></i>Synchronisation...';
+            button.disabled = true;
+            
+            // Effectuer la synchronisation via Ajax
+            fetch('{{ route("payments.recettes.sync_receipts") }}', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                body: JSON.stringify({
+                    year: '{{ $year ?? date("Y") }}'
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Afficher un message de succès
+                    showNotification('Succès', data.message, 'success');
+                } else {
+                    showNotification('Erreur', data.message, 'danger');
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+                showNotification('Erreur', 'Une erreur est survenue lors de la synchronisation.', 'danger');
+            })
+            .finally(() => {
+                // Restaurer le bouton
+                button.innerHTML = originalText;
+                button.disabled = false;
+            });
+        }
+    }
+
+    // Fonction pour afficher les notifications
+    function showNotification(title, message, type) {
+        // Créer une notification Bootstrap toast ou alert
+        let alertClass = 'alert-' + type;
+        let alertHtml = `
+            <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                <strong>${title}:</strong> ${message}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+        `;
+        
+        // Ajouter la notification en haut de la page
+        let container = document.querySelector('.content');
+        let alertDiv = document.createElement('div');
+        alertDiv.innerHTML = alertHtml;
+        container.insertBefore(alertDiv, container.firstChild);
+        
+        // Supprimer automatiquement après 5 secondes
+        setTimeout(() => {
+            alertDiv.remove();
+        }, 5000);
+    }
+
+    // Initialisation des tooltips
+    $(document).ready(function() {
+        $('[data-toggle="tooltip"]').tooltip();
+        
+        // Animation des cartes au survol
+        $('.card').hover(
+            function() {
+                $(this).addClass('shadow-lg').css('cursor', 'pointer');
+            }, 
+            function() {
+                $(this).removeClass('shadow-lg');
+            }
+        );
+    });
+</script>
 @endsection

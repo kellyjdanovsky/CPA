@@ -122,6 +122,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('selectpaymetns', 'PaymentController@select')->name('payments.select');
             Route::get('check_unpaid', 'PaymentController@checkUnpaid')->name('payments.check_unpaid');
             Route::get('export_unpaid', 'PaymentController@exportUnpaidExcel')->name('payments.export_unpaid');
+            Route::post('generate_notifications', 'PaymentController@generatePaymentNotifications')->name('payments.generate_notifications');
             Route::get('filter', 'PaymentController@select')->name('payments.filter');
 
             // ADRA & TEAM 3 Payment Management
@@ -146,7 +147,80 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('journal/filter', 'PaymentController@journalFilter')->name('payments.journal.filter');
             Route::get('journal/export/excel', 'PaymentController@journalExportExcel')->name('payments.journal.export.excel');
             
+            /*************** Encaissements *****************/
+            Route::group(['prefix' => 'encaissements'], function(){
+                Route::get('/', 'EncaissementController@index')->name('payments.encaissements.index');
+                Route::get('create', 'EncaissementController@create')->name('payments.encaissements.create');
+                Route::post('process', 'EncaissementController@processEncaissement')->name('payments.encaissements.process');
+                Route::get('show/{id}', 'EncaissementController@show')->name('payments.encaissements.show');
+                Route::get('edit/{id}', 'EncaissementController@edit')->name('payments.encaissements.edit');
+                Route::put('update/{id}', 'EncaissementController@update')->name('payments.encaissements.update');
+                Route::delete('destroy/{id}', 'EncaissementController@destroy')->name('payments.encaissements.destroy');
+                
+                // Ajax routes
+                Route::get('get-class-payments', 'EncaissementController@getClassPayments')->name('payments.encaissements.get_class_payments');
+                Route::get('get-eligible-students', 'EncaissementController@getEligibleStudents')->name('payments.encaissements.get_eligible_students');
+                
+                // Export and print
+                Route::get('export/excel', 'EncaissementController@exportExcel')->name('payments.encaissements.export_excel');
+                Route::post('print/receipts', 'EncaissementController@printReceipts')->name('payments.encaissements.print_receipts');
+                
+                // Statistics and journal
+                Route::get('statistics', 'EncaissementController@getStatistics')->name('payments.encaissements.statistics');
+                Route::get('journal', 'EncaissementController@journal')->name('payments.encaissements.journal');
+            });
 
+            /*************** Recettes *****************/
+            Route::group(['prefix' => 'recettes'], function(){
+                Route::get('/', 'RecetteController@index')->name('payments.recettes.index');
+                Route::get('create', 'RecetteController@create')->name('payments.recettes.create');
+                Route::post('store', 'RecetteController@store')->name('payments.recettes.store');
+                Route::get('show/{id}', 'RecetteController@show')->name('payments.recettes.show');
+                Route::get('edit/{id}', 'RecetteController@edit')->name('payments.recettes.edit');
+                Route::put('update/{id}', 'RecetteController@update')->name('payments.recettes.update');
+                Route::delete('destroy/{id}', 'RecetteController@destroy')->name('payments.recettes.destroy');
+                
+                // Synchronization
+                Route::post('sync-receipts', 'RecetteController@syncWithReceipts')->name('payments.recettes.sync_receipts');
+                
+                // Export
+                Route::get('export/excel', 'RecetteController@exportExcel')->name('payments.recettes.export_excel');
+                Route::get('export/pdf', 'RecetteController@exportPdf')->name('payments.recettes.export_pdf');
+                
+                // Statistics and dashboard
+                Route::get('statistics', 'RecetteController@getStatistics')->name('payments.recettes.statistics');
+                Route::get('chart-data', 'RecetteController@getChartData')->name('payments.recettes.chart_data');
+                Route::get('dashboard', 'RecetteController@dashboard')->name('payments.recettes.dashboard');
+            });
+
+            /*************** Décaissements *****************/
+            Route::group(['prefix' => 'decaissements'], function(){
+                Route::get('/', 'DecaissementController@index')->name('payments.decaissements.index');
+                Route::get('create', 'DecaissementController@create')->name('payments.decaissements.create');
+                Route::post('store', 'DecaissementController@store')->name('payments.decaissements.store');
+                Route::get('show/{id}', 'DecaissementController@show')->name('payments.decaissements.show');
+                Route::get('edit/{id}', 'DecaissementController@edit')->name('payments.decaissements.edit');
+                Route::put('update/{id}', 'DecaissementController@update')->name('payments.decaissements.update');
+                Route::delete('destroy/{id}', 'DecaissementController@destroy')->name('payments.decaissements.destroy');
+                
+                // Workflow actions
+                Route::post('approve/{id}', 'DecaissementController@approve')->name('payments.decaissements.approve');
+                Route::post('mark-paid/{id}', 'DecaissementController@markAsPaid')->name('payments.decaissements.mark_paid');
+                Route::post('cancel/{id}', 'DecaissementController@cancel')->name('payments.decaissements.cancel');
+                
+                // Piece justificative
+                Route::post('validate-piece/{id}', 'DecaissementController@validatePieceJustificative')->name('payments.decaissements.validate_piece');
+                Route::get('download-piece/{id}', 'DecaissementController@downloadPieceJustificative')->name('payments.decaissements.download_piece');
+                
+                // Print and export
+                Route::get('print-op/{id}', 'DecaissementController@printOP')->name('payments.decaissements.print_op');
+                Route::post('print-multiple', 'DecaissementController@printMultipleOP')->name('payments.decaissements.print_multiple');
+                Route::get('export/excel', 'DecaissementController@exportExcel')->name('payments.decaissements.export_excel');
+                
+                // Statistics and journal
+                Route::get('statistics', 'DecaissementController@getStatistics')->name('payments.decaissements.statistics');
+                Route::get('journal', 'DecaissementController@journal')->name('payments.decaissements.journal');
+            });
 
         });
 
@@ -170,6 +244,12 @@ Route::group(['middleware' => 'auth'], function () {
                 Route::get('tabulation/{exam?}/{class?}/{sec_id?}', 'MarkController@tabulation')->name('marks.tabulation');
                 Route::post('tabulation', 'MarkController@tabulation_select')->name('marks.tabulation_select');
                 Route::get('tabulation/print/{exam}/{class}/{sec_id}', 'MarkController@print_tabulation')->name('marks.print_tabulation');
+                
+                // Weighted Grades Tabulation
+                Route::get('weighted-grades/{exam?}/{class?}/{sec_id?}', 'MarkController@weighted_grades')->name('marks.weighted_grades');
+                Route::post('weighted-grades', 'MarkController@weighted_grades_select')->name('marks.weighted_grades_select');
+                Route::get('weighted-grades/print/{exam}/{class}/{sec_id}', 'MarkController@print_weighted_grades')->name('marks.print_weighted_grades');
+                Route::get('weighted-grades/export/{exam}/{class}/{sec_id}', 'MarkController@export_weighted_grades')->name('marks.export_weighted_grades');
             });
 
             // FOR teamSAT
@@ -183,6 +263,12 @@ Route::group(['middleware' => 'auth'], function () {
                 Route::post('selector', 'MarkController@selector')->name('marks.selector');
                 Route::get('bulk/{class?}/{section?}', 'MarkController@bulk')->name('marks.bulk');
                 Route::post('bulk', 'MarkController@bulk_select')->name('marks.bulk_select');
+                
+                // Real-time editing AJAX routes
+                Route::post('comment/update', 'MarkController@ajaxCommentUpdate')->name('marks.comment.update');
+                Route::post('comment/delete', 'MarkController@ajaxCommentDelete')->name('marks.comment.delete');
+                Route::post('general-comment/update', 'MarkController@ajaxGeneralCommentUpdate')->name('marks.general.comment.update');
+                Route::post('general-comment/delete', 'MarkController@ajaxGeneralCommentDelete')->name('marks.general.comment.delete');
             });
 
             Route::get('select_year/{id}', 'MarkController@year_selector')->name('marks.year_selector');

@@ -11,6 +11,22 @@ class Mark extends Eloquent
     use DuplicateDetection;
     protected $fillable = ['t1', 't2', 't3', 't4', 'tca', 'exm', 'tex1', 'tex2', 'tex3', 'sub_pos', 'cum', 'cum_ave', 'grade_id', 'comment', 'year', 'exam_id', 'subject_id', 'my_class_id', 'student_id', 'section_id', 'operation_uuid'];
 
+    /**
+     * Cast attributes to proper types for decimal handling
+     */
+    protected $casts = [
+        't1' => 'decimal:2',
+        't2' => 'decimal:2', 
+        't3' => 'decimal:2',
+        't4' => 'decimal:2',
+        'tca' => 'decimal:2',
+        'exm' => 'decimal:2',
+        'tex1' => 'decimal:2',
+        'tex2' => 'decimal:2',
+        'tex3' => 'decimal:2',
+        'cum' => 'decimal:2'
+    ];
+
     public function exam()
     {
         return $this->belongsTo(Exam::class);
@@ -27,6 +43,11 @@ class Mark extends Eloquent
     }
 
     public function user()
+    {
+        return $this->belongsTo(User::class, 'student_id');
+    }
+
+    public function student()
     {
         return $this->belongsTo(User::class, 'student_id');
     }

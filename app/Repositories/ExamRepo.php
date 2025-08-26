@@ -122,7 +122,7 @@ class ExamRepo
 
     public function getMark($data)
     {
-        return Mark::where($data)->with('grade')->get();
+        return Mark::where($data)->with(['grade', 'student', 'subject'])->get();
     }
 
     /*********** Skills ***************/

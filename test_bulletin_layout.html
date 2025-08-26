@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Bulletin Layout</title>
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 5mm; /* 5mm margins as requested */
+        }
+        
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 8px; /* Ultra-compact font */
+            line-height: 1.0;
+            margin: 0;
+            padding: 0;
+            width: 100vw;
+            height: 100vh;
+            /* Automatic centering */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #f0f0f0; /* Light background to see centering effect */
+        }
+        
+        .bulletin-container {
+            background: white;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+            transform: scale(0.9);
+            transform-origin: center center;
+            max-width: calc(100vw - 10mm);
+            max-height: calc(100vh - 10mm);
+            overflow: visible;
+            padding: 5mm;
+        }
+        
+        .school-header {
+            text-align: center;
+            margin-bottom: 3mm;
+            padding: 2mm;
+            border-bottom: 1px solid #000;
+        }
+        
+        .school-header h2 {
+            font-size: 14px; /* Compact header */
+            margin: 0 0 1mm 0;
+        }
+        
+        .school-header p {
+            font-size: 8px; /* Very small */
+            margin: 0.3mm 0;
+        }
+        
+        .student-info {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1mm 0;
+        }
+        
+        .student-info td {
+            padding: 1mm 1.5mm; /* Very compact */
+            border: 1px solid #000;
+            font-size: 7px;
+            line-height: 1.0;
+        }
+        
+        .marks-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0.5px 0;
+            table-layout: fixed;
+        }
+        
+        .marks-table th,
+        .marks-table td {
+            padding: 2px 1px; /* Ultra-compact */
+            border: 1px solid #000;
+            text-align: center;
+            font-size: 8px; /* Small but readable */
+            line-height: 1.0;
+        }
+        
+        .marks-table th {
+            background-color: #f5f5f5;
+            font-weight: bold;
+            font-size: 9px;
+        }
+        
+        .total-row {
+            background-color: #fbbf24;
+            font-weight: bold;
+            font-size: 9px;
+        }
+        
+        .signature-section {
+            margin-top: 1px;
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 6px; /* Very small */
+        }
+        
+        .signature-box {
+            width: 33.33%;
+            text-align: center;
+            border-top: 1px solid #000;
+            padding-top: 1px;
+            line-height: 1.0;
+        }
+        
+        /* Column widths optimized for 5mm margins */
+        .col-numero { width: 3%; }
+        .col-matiere { width: 22%; text-align: left; }
+        .col-ds1 { width: 7%; }
+        .col-ds2 { width: 7%; }
+        .col-exam { width: 7%; }
+        .col-moyenne { width: 9%; }
+        .col-coef { width: 5%; }
+        .col-total { width: 10%; }
+        .col-remarques { width: 30%; text-align: left; }
+    </style>
+</head>
+<body>
+    <div class="bulletin-container">
+        <div class="school-header">
+        <h2>ÉTABLISSEMENT SCOLAIRE</h2>
+        <p>BULLETIN DE NOTES OFFICIEL</p>
+        <p>Adresse: Adresse de l'établissement | Tél: Téléphone | Email: contact@etablissement.mg</p>
+    </div>
+
+    <table class="student-info">
+        <tbody>
+            <tr>
+                <td><strong>NOM ET PRÉNOMS:</strong> ÉTUDIANT TEST</td>
+                <td><strong>NUMÉRO D'ADMISSION:</strong> 2024001</td>
+                <td><strong>CLASSE:</strong> 6ÈME A</td>
+                <td><strong>SECTION:</strong> GÉNÉRALE</td>
+            </tr>
+            <tr>
+                <td><strong>BULLETIN DE NOTES POUR 1ER TRIMESTRE</strong></td>
+                <td><strong>ANNÉE ACADÉMIQUE:</strong> 2024</td>
+                <td><strong>ÂGE:</strong> 12 ans</td>
+                <td><strong>NUMÉRO ÉLÈVE:</strong> 123</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table class="marks-table">
+        <thead>
+            <tr style="background-color: #2563eb; color: white;">
+                <th class="col-numero">N°</th>
+                <th class="col-matiere">MATIÈRES</th>
+                <th class="col-ds1">DS1</th>
+                <th class="col-ds2">DS2</th>
+                <th class="col-exam">EXM</th>
+                <th class="col-moyenne">Moy</th>
+                <th class="col-coef">Cf</th>
+                <th class="col-total">Total</th>
+                <th class="col-remarques">REMARQUES</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>1</td>
+                <td style="text-align: left;">Mathématiques</td>
+                <td>15</td>
+                <td>14</td>
+                <td>16</td>
+                <td>15.00</td>
+                <td>4</td>
+                <td>60.00</td>
+                <td style="text-align: left;">Bon travail</td>
+            </tr>
+            <tr>
+                <td>2</td>
+                <td style="text-align: left;">Français</td>
+                <td>13</td>
+                <td>15</td>
+                <td>14</td>
+                <td>14.00</td>
+                <td>4</td>
+                <td>56.00</td>
+                <td style="text-align: left;">Bien</td>
+            </tr>
+            <tr>
+                <td>3</td>
+                <td style="text-align: left;">Histoire-Géographie</td>
+                <td>12</td>
+                <td>13</td>
+                <td>15</td>
+                <td>13.33</td>
+                <td>3</td>
+                <td>40.00</td>
+                <td style="text-align: left;">Assez bien</td>
+            </tr>
+            <tr>
+                <td>4</td>
+                <td style="text-align: left;">Sciences</td>
+                <td>16</td>
+                <td>15</td>
+                <td>17</td>
+                <td>16.00</td>
+                <td>3</td>
+                <td>48.00</td>
+                <td style="text-align: left;">Très bien</td>
+            </tr>
+            <tr>
+                <td>5</td>
+                <td style="text-align: left;">Anglais</td>
+                <td>11</td>
+                <td>12</td>
+                <td>13</td>
+                <td>12.00</td>
+                <td>2</td>
+                <td>24.00</td>
+                <td style="text-align: left;">Passable</td>
+            </tr>
+            <tr>
+                <td>6</td>
+                <td style="text-align: left;">Éducation Physique</td>
+                <td>14</td>
+                <td>15</td>
+                <td>16</td>
+                <td>15.00</td>
+                <td>1</td>
+                <td>15.00</td>
+                <td style="text-align: left;">Très bien</td>
+            </tr>
+            <tr>
+                <td>7</td>
+                <td style="text-align: left;">Arts Plastiques</td>
+                <td>13</td>
+                <td>14</td>
+                <td>15</td>
+                <td>14.00</td>
+                <td>1</td>
+                <td>14.00</td>
+                <td style="text-align: left;">Bien</td>
+            </tr>
+            <tr>
+                <td>8</td>
+                <td style="text-align: left;">Musique</td>
+                <td>16</td>
+                <td>17</td>
+                <td>18</td>
+                <td>17.00</td>
+                <td>1</td>
+                <td>17.00</td>
+                <td style="text-align: left;">Excellent</td>
+            </tr>
+            <tr class="total-row">
+                <td colspan="3"><strong>TOTAL</strong></td>
+                <td><strong>274.00</strong></td>
+                <td><strong>MOYENNE</strong></td>
+                <td><strong>14.42/20</strong></td>
+                <td><strong>RANG</strong></td>
+                <td colspan="2"><strong>5ème / 30</strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <div style="margin-top: 4mm; border: 1.5px solid #2563eb; background: #f8fafc; padding: 2mm;">
+        <h4 style="background: #2563eb; color: white; margin: 0; padding: 2mm; text-align: center; font-size: 9px;">
+            OBSERVATIONS ET COMMENTAIRES PÉDAGOGIQUES
+        </h4>
+        <div style="padding: 2mm; background: white; margin: 1mm;">
+            <div style="margin-bottom: 2mm;">
+                <strong style="font-size: 8px;">Commentaire du professeur:</strong>
+                <div style="font-size: 8px; margin-top: 1mm;">Bon travail général, continuer ainsi.</div>
+            </div>
+        </div>
+    </div>
+
+    <table class="signature-section">
+        <tr>
+            <td class="signature-box">
+                <div style="border-bottom: 1px solid #000; height: 10mm; margin-bottom: 2mm;"></div>
+                <p style="font-weight: bold; margin: 0;">Le Professeur Principal</p>
+            </td>
+            <td class="signature-box">
+                <div style="border-bottom: 1px solid #000; height: 10mm; margin-bottom: 2mm;"></div>
+                <p style="font-weight: bold; margin: 0;">Le Directeur des Études</p>
+            </td>
+            <td class="signature-box">
+                <div style="border-bottom: 1px solid #000; height: 10mm; margin-bottom: 2mm;"></div>
+                <p style="font-weight: bold; margin: 0;">Le Parent/Tuteur</p>
+            </td>
+        </tr>
+    </table>
+
+    <div style="margin-top: 3mm; border-top: 1px solid #e5e7eb; padding-top: 2mm; text-align: center;">
+        <p style="font-size: 6px; color: #6b7280; margin: 0;">
+            Document officiel - Généré le 26/08/2024
+        </p>
+    </div>
+    </div> <!-- Close bulletin-container -->
+</body>
+</html>

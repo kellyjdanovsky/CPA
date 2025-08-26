@@ -4,6 +4,7 @@ namespace App\Http\Controllers\SupportTeam;
 
 use App\Helpers\Qs;
 use App\Helpers\Mk;
+use App\Helpers\NumberFormat;
 use App\Http\Requests\Mark\MarkSelector;
 use App\Models\Setting;
 use App\Repositories\ExamRepo;
@@ -12,21 +13,23 @@ use App\Repositories\MyClassRepo;
 use App\Http\Controllers\Controller;
 use App\Models\Subject;
 use App\Repositories\StudentRepo;
+use App\Services\MarkTabulationCacheService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Session;
 
 class MarkController extends Controller
 {
-    protected $my_class, $exam, $student, $year, $user, $mark;
+    protected $my_class, $exam, $student, $year, $user, $mark, $cacheService;
 
-    public function __construct(MyClassRepo $my_class, ExamRepo $exam, StudentRepo $student, MarkRepo $mark)
+    public function __construct(MyClassRepo $my_class, ExamRepo $exam, StudentRepo $student, MarkRepo $mark, MarkTabulationCacheService $cacheService)
     {
         $this->exam =  $exam;
         $this->mark =  $mark;
         $this->student =  $student;
         $this->my_class =  $my_class;
         $this->year =  Qs::getSetting('current_session');
+        $this->cacheService = $cacheService;
 
        // $this->middleware('teamSAT', ['except' => ['show', 'year_selected', 'year_selector', 'print_view'] ]);
     }
@@ -81,7 +84,20 @@ class MarkController extends Controller
         $d['exam_records'] = $exr = $this->exam->getRecord($wh);
         $d['exams'] = $this->exam->getExam(['year' => $year]);
         $d['sr'] = $this->student->getRecord(['user_id' => $student_id])->first();
-        $d['my_class'] = $mc = $this->my_class->getMC(['id' => $exr->first()->my_class_id])->first();
+        
+        // Check if exam records exist and get the first one
+        $first_exam_record = $exr->first();
+        if (!$first_exam_record || !$first_exam_record->my_class_id) {
+            return $this->noStudentRecord();
+        }
+        
+        $d['my_class'] = $mc = $this->my_class->getMC(['id' => $first_exam_record->my_class_id])->first();
+        
+        // Check if class exists
+        if (!$mc) {
+            return $this->noStudentRecord();
+        }
+        
         $d['class_type'] = $this->my_class->findTypeByClass($mc->id);
         $d['subjects'] = $this->my_class->findSubjectByClass($mc->id);
         $d['year'] = $year;
@@ -95,6 +111,42 @@ class MarkController extends Controller
         // Assuming $d['sr']->ave holds the overall annual average. This might need adjustment.
         $annual_average = $d['sr']->ave ?? 0; // Default to 0 if 'ave' is not set
         $d['director_comment'] = $this->getDirectorComment($annual_average);
+        
+        // Calculate additional statistics for each exam record
+        foreach($exr as $exam_record) {
+            $exam_id = $exam_record->exam_id;
+            
+            // Calculate total students in class for this exam
+            $class_students_count = $this->exam->getRecord([
+                'exam_id' => $exam_id, 
+                'my_class_id' => $exam_record->my_class_id,
+                'year' => $year
+            ])->count();
+            
+            // Calculate class average and position details if not already set
+            if (!$exam_record->class_ave || $exam_record->class_ave == 0) {
+                $class_average = $this->exam->getRecord([
+                    'exam_id' => $exam_id, 
+                    'my_class_id' => $exam_record->my_class_id,
+                    'year' => $year
+                ])->avg('ave');
+                
+                // Update the exam record with calculated class average
+                if ($class_average) {
+                    $this->exam->updateRecord(
+                        ['id' => $exam_record->id],
+                        ['class_ave' => round($class_average, 2)]
+                    );
+                    $exam_record->class_ave = round($class_average, 2);
+                }
+            }
+        }
+        
+        // Add class statistics
+        $d['class_statistics'] = [
+            'total_students' => $this->student->getRecord(['my_class_id' => $mc->id, 'session' => $year])->count(),
+            'class_name' => $mc->name . ' ' . ($mc->section->first()->name ?? ''),
+        ];
 
         return view('pages.support_team.marks.show.index', $d);
     }
@@ -122,7 +174,19 @@ class MarkController extends Controller
         $d['marks'] = $mks = $this->exam->getMark($wh);
         // dd($d['marks']);
         $d['exr'] = $exr = $this->exam->getRecord($wh)->first();
+        
+        // Check if exam record exists
+        if (!$exr || !$exr->my_class_id) {
+            return $this->noStudentRecord();
+        }
+        
         $d['my_class'] = $mc = $this->my_class->find($exr->my_class_id);
+        
+        // Check if class exists
+        if (!$mc) {
+            return $this->noStudentRecord();
+        }
+        
         $d['section_id'] = $exr->section_id;
         $d['ex'] = $exam = $this->exam->find($exam_id);
         $d['tex'] = 'tex'.$exam->term;
@@ -529,6 +593,156 @@ class MarkController extends Controller
         ]);
     }
 
+    // Real-time AJAX methods for mark comments/remarks
+    public function ajaxCommentUpdate(Request $req)
+    {
+        if (!Qs::userIsTeamSAT()) {
+            return response()->json(['success' => false, 'message' => 'Permission refusée'], 403);
+        }
+
+        $mark = \App\Models\Mark::find($req->mark_id);
+        if (!$mark) {
+            return response()->json(['success' => false, 'message' => 'Note non trouvée'], 404);
+        }
+
+        $comment = $req->input('comment', '');
+        $mark->update(['comment' => $comment]);
+
+        // Generate auto comment if no custom comment provided
+        $auto_comment = '';
+        $comment_color = 'text-muted';
+        
+        if (!$comment) {
+            // Calculate subject average to generate auto comment
+            $t1 = $mark->t1 ?: 0;
+            $t2 = $mark->t2 ?: 0;
+            $exm = $mark->exm ?: 0;
+            
+            $values = [$t1, $t2, $exm];
+            $sum = array_sum($values);
+            $count = count(array_filter($values, fn($value) => $value > 0));
+            $average = $count > 0 ? $sum / $count : 0;
+            
+            if ($count > 0) {
+                $auto_comment = \App\Helpers\MarkComment::getComment($average);
+                $comment_color = \App\Helpers\MarkComment::getCommentColor($average);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Remarque mise à jour avec succès',
+            'auto_comment' => $auto_comment,
+            'comment_color' => $comment_color
+        ]);
+    }
+
+    public function ajaxCommentDelete(Request $req)
+    {
+        if (!Qs::userIsTeamSAT()) {
+            return response()->json(['success' => false, 'message' => 'Permission refusée'], 403);
+        }
+
+        $mark = \App\Models\Mark::find($req->mark_id);
+        if (!$mark) {
+            return response()->json(['success' => false, 'message' => 'Note non trouvée'], 404);
+        }
+
+        $mark->update(['comment' => null]);
+
+        // Generate auto comment based on average
+        $t1 = $mark->t1 ?: 0;
+        $t2 = $mark->t2 ?: 0;
+        $exm = $mark->exm ?: 0;
+        
+        $values = [$t1, $t2, $exm];
+        $sum = array_sum($values);
+        $count = count(array_filter($values, fn($value) => $value > 0));
+        $average = $count > 0 ? $sum / $count : 0;
+        
+        $auto_comment = '';
+        $comment_color = 'text-muted';
+        
+        if ($count > 0) {
+            $auto_comment = \App\Helpers\MarkComment::getComment($average);
+            $comment_color = \App\Helpers\MarkComment::getCommentColor($average);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Remarque supprimée avec succès',
+            'auto_comment' => $auto_comment,
+            'comment_color' => $comment_color
+        ]);
+    }
+
+    public function ajaxGeneralCommentUpdate(Request $req)
+    {
+        if (!Qs::userIsTeamSAT()) {
+            return response()->json(['success' => false, 'message' => 'Permission refusée'], 403);
+        }
+
+        $exam_id = $req->exam_id;
+        $student_id = $req->student_id;
+        $comment_type = $req->comment_type; // 't_comment' or 'p_comment'
+        $comment = $req->input('comment', '');
+
+        // Find the exam record
+        $exam_record = \App\Models\ExamRecord::where([
+            'exam_id' => $exam_id,
+            'student_id' => $student_id
+        ])->first();
+
+        if (!$exam_record) {
+            return response()->json(['success' => false, 'message' => 'Enregistrement d\'examen non trouvé'], 404);
+        }
+
+        // Update the appropriate comment field
+        $update_data = [$comment_type => $comment];
+        $exam_record->update($update_data);
+
+        $auto_comment = $comment ?: 'Commentaire automatique basé sur la moyenne';
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Commentaire général mis à jour avec succès',
+            'auto_comment' => $auto_comment
+        ]);
+    }
+
+    public function ajaxGeneralCommentDelete(Request $req)
+    {
+        if (!Qs::userIsTeamSAT()) {
+            return response()->json(['success' => false, 'message' => 'Permission refusée'], 403);
+        }
+
+        $exam_id = $req->exam_id;
+        $student_id = $req->student_id;
+        $comment_type = $req->comment_type; // 't_comment' or 'p_comment'
+
+        // Find the exam record
+        $exam_record = \App\Models\ExamRecord::where([
+            'exam_id' => $exam_id,
+            'student_id' => $student_id
+        ])->first();
+
+        if (!$exam_record) {
+            return response()->json(['success' => false, 'message' => 'Enregistrement d\'examen non trouvé'], 404);
+        }
+
+        // Clear the comment field
+        $update_data = [$comment_type => null];
+        $exam_record->update($update_data);
+
+        $auto_comment = 'Commentaire automatique basé sur la moyenne';
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Commentaire général supprimé avec succès',
+            'auto_comment' => $auto_comment
+        ]);
+    }
+
     public function skills_update(Request $req, $skill, $exr_id)
     {
         $d = [];
@@ -580,36 +794,103 @@ class MarkController extends Controller
         $d['my_classes'] = $this->my_class->all();
         $d['exams'] = $this->exam->getExam(['year' => $this->year]);
         $d['selected'] = FALSE;
+        
+        // Initialize variables to prevent undefined variable errors
+        $d['students'] = collect();
+        $d['subjects'] = collect();
+        $d['marks'] = collect();
+        $d['exr'] = collect();
+        $d['sections'] = $this->my_class->getAllSections();
+        $d['my_class'] = null;
+        $d['section'] = null;
+        $d['ex'] = null;
+        $d['tex'] = null;
+        $d['year'] = $this->year;
+        $d['my_class_id'] = $class_id;
+        $d['section_id'] = $section_id;
+        $d['exam_id'] = $exam_id;
 
         if($class_id && $exam_id && $section_id){
 
-            $wh = ['my_class_id' => $class_id, 'section_id' => $section_id, 'exam_id' => $exam_id, 'year' => $this->year];
+            // First, let's check if there are any marks for this exam without year filter
+            $wh_no_year = ['my_class_id' => $class_id, 'section_id' => $section_id, 'exam_id' => $exam_id];
+            
+            // Get the actual year from existing marks if any
+            $existing_year = \App\Models\Mark::where($wh_no_year)
+                                            ->select('year')
+                                            ->distinct()
+                                            ->first();
+            
+            $year_to_use = $existing_year ? $existing_year->year : $this->year;
+            
+            $wh = ['my_class_id' => $class_id, 'section_id' => $section_id, 'exam_id' => $exam_id, 'year' => $year_to_use];
 
-            $sub_ids = $this->mark->getSubjectIDs($wh);
-            $st_ids = $this->mark->getStudentIDs($wh);
+            // Try to get cached data first
+            $cacheKey = [
+                'exam_id' => $exam_id,
+                'class_id' => $class_id,
+                'section_id' => $section_id,
+                'year' => $year_to_use
+            ];
 
-            if(count($sub_ids) < 1 OR count($st_ids) < 1) {
-                return Qs::goWithDanger('marks.tabulation', __('msg.srnf'));
+            // Check if we have cached data
+            $cachedData = $this->cacheService->getTabulationData($cacheKey);
+            
+            if (!empty($cachedData)) {
+                // Use cached data
+                $d['subjects'] = $cachedData['subjects'];
+                $d['students'] = $cachedData['students'];
+                $d['marks'] = $cachedData['marks'];
+                $d['exr'] = $cachedData['exam_records'];
+                $d['statistics'] = $cachedData['statistics'];
+                $d['selected'] = TRUE;
+            } else {
+                // Generate fresh data and cache it
+                $sub_ids = $this->mark->getSubjectIDs($wh);
+                $st_ids = $this->mark->getStudentIDs($wh);
+
+                // If no data found with year filter, try without year filter
+                if(count($sub_ids) < 1 OR count($st_ids) < 1) {
+                    $sub_ids = $this->mark->getSubjectIDs($wh_no_year);
+                    $st_ids = $this->mark->getStudentIDs($wh_no_year);
+                    $wh = $wh_no_year; // Use query without year filter
+                }
+
+                if(count($sub_ids) < 1 OR count($st_ids) < 1) {
+                    // Keep selected as FALSE, but set other variables
+                    $d['my_class'] = $this->my_class->find($class_id);
+                    $d['section'] = $this->my_class->findSection($section_id);
+                    $d['ex'] = $this->exam->find($exam_id);
+                    $d['year'] = $year_to_use;
+                } else {
+                    // Eager load relationships to avoid N+1 queries
+                    $d['subjects'] = $this->my_class->getSubjectsByIDs($sub_ids);
+                    $d['students'] = $this->student->getRecordByUserIDs($st_ids)->with('user')->get()->sortBy('user.name');
+
+                    $d['selected'] = TRUE;
+                    $d['year'] = $year_to_use;
+                    
+                    // Optimize by loading all related data in fewer queries
+                    $d['marks'] = $mks = $this->exam->getMark($wh)->load('grade');
+                    $d['exr'] = $exr = $this->exam->getRecord($wh)->load('student');
+
+                    $d['my_class'] = $mc = $this->my_class->find($class_id);
+                    $d['section'] = $this->my_class->findSection($section_id);
+                    $d['ex'] = $exam = $this->exam->find($exam_id);
+                    $d['tex'] = 'tex'.$exam->term;
+
+                    // Cache the generated data
+                    $dataToCache = [
+                        'subjects' => $d['subjects'],
+                        'students' => $d['students'],
+                        'marks' => $d['marks'],
+                        'exam_records' => $d['exr'],
+                        'statistics' => $this->cacheService->getStatistics($cacheKey)
+                    ];
+                    
+                    $this->cacheService->getTabulationData($cacheKey); // This will cache the data
+                }
             }
-
-            $d['subjects'] = $this->my_class->getSubjectsByIDs($sub_ids);
-            $d['students'] = $this->student->getRecordByUserIDs($st_ids)->get()->sortBy('user.name');
-            $d['sections'] = $this->my_class->getAllSections();
-
-            $d['selected'] = TRUE;
-            $d['my_class_id'] = $class_id;
-            $d['section_id'] = $section_id;
-            $d['exam_id'] = $exam_id;
-            $d['year'] = $this->year;
-            $d['marks'] = $mks = $this->exam->getMark($wh);
-            $d['exr'] = $exr = $this->exam->getRecord($wh);
-
-            $d['my_class'] = $mc = $this->my_class->find($class_id);
-            $d['section']  = $this->my_class->findSection($section_id);
-            $d['ex'] = $exam = $this->exam->find($exam_id);
-            $d['tex'] = 'tex'.$exam->term;
-            //$d['class_type'] = $this->my_class->findTypeByClass($mc->id);
-            //$d['ct'] = $ct = $d['class_type']->code;
         }
 
         return view('pages.support_team.marks.tabulation.index', $d);
@@ -750,6 +1031,321 @@ class MarkController extends Controller
             return redirect()->back()->with('flash_success', 'Décision de fin d\'année enregistrée avec succès');
         } else {
             return redirect()->back()->with('flash_error', 'Enregistrement d\'examen non trouvé pour cet étudiant.');
+        }
+    }
+
+    /**
+     * Weighted Grades Tabulation - Display weighted grades with coefficients
+     */
+    public function weighted_grades($exam_id = NULL, $class_id = NULL, $section_id = NULL)
+    {
+        $d['my_classes'] = $this->my_class->all();
+        $d['exams'] = $this->exam->getExam(['year' => $this->year]);
+        $d['selected'] = FALSE;
+        
+        // Initialize variables to prevent undefined variable errors
+        $d['students'] = collect();
+        $d['subjects'] = collect();
+        $d['marks'] = collect();
+        $d['exr'] = collect();
+        $d['sections'] = $this->my_class->getAllSections();
+        $d['my_class'] = null;
+        $d['section'] = null;
+        $d['ex'] = null;
+        $d['tex'] = null;
+        $d['year'] = $this->year;
+        $d['my_class_id'] = $class_id;
+        $d['section_id'] = $section_id;
+        $d['exam_id'] = $exam_id;
+        $d['weighted_results'] = [];
+
+        if($class_id && $exam_id && $section_id){
+
+            // First, let's check if there are any marks for this exam without year filter
+            $wh_no_year = ['my_class_id' => $class_id, 'section_id' => $section_id, 'exam_id' => $exam_id];
+            
+            // Get the actual year from existing marks if any
+            $existing_year = \App\Models\Mark::where($wh_no_year)
+                                            ->select('year')
+                                            ->distinct()
+                                            ->first();
+            
+            $year_to_use = $existing_year ? $existing_year->year : $this->year;
+            
+            $wh = ['my_class_id' => $class_id, 'section_id' => $section_id, 'exam_id' => $exam_id, 'year' => $year_to_use];
+
+            $sub_ids = $this->mark->getSubjectIDs($wh);
+            $st_ids = $this->mark->getStudentIDs($wh);
+
+            // If no data found with year filter, try without year filter
+            if(count($sub_ids) < 1 OR count($st_ids) < 1) {
+                $sub_ids = $this->mark->getSubjectIDs($wh_no_year);
+                $st_ids = $this->mark->getStudentIDs($wh_no_year);
+                $wh = $wh_no_year; // Use query without year filter
+            }
+
+            if(count($sub_ids) < 1 OR count($st_ids) < 1) {
+                // Keep selected as FALSE, but set other variables
+                $d['my_class'] = $this->my_class->find($class_id);
+                $d['section'] = $this->my_class->findSection($section_id);
+                $d['ex'] = $this->exam->find($exam_id);
+                $d['year'] = $year_to_use;
+            } else {
+                // Eager load relationships to avoid N+1 queries
+                $d['subjects'] = $this->my_class->getSubjectsByIDs($sub_ids);
+                $d['students'] = $this->student->getRecordByUserIDs($st_ids)->with('user')->get()->sortBy('user.name');
+
+                $d['selected'] = TRUE;
+                $d['year'] = $year_to_use;
+                
+                // Load marks and exam records
+                $d['marks'] = $mks = $this->exam->getMark($wh)->load('grade');
+                $d['exr'] = $exr = $this->exam->getRecord($wh)->load('student');
+
+                $d['my_class'] = $mc = $this->my_class->find($class_id);
+                $d['section'] = $this->my_class->findSection($section_id);
+                $d['ex'] = $exam = $this->exam->find($exam_id);
+                $d['tex'] = 'tex'.$exam->term;
+
+                // Calculate weighted grades for each student
+                $d['weighted_results'] = $this->calculateWeightedGrades($d['students'], $d['subjects'], $d['marks'], $exam->term);
+            }
+        }
+
+        return view('pages.support_team.marks.weighted_grades.index', $d);
+    }
+
+    /**
+     * Print weighted grades tabulation
+     */
+    public function print_weighted_grades($exam_id, $class_id, $section_id)
+    {
+        $wh = ['my_class_id' => $class_id, 'section_id' => $section_id, 'exam_id' => $exam_id, 'year' => $this->year];
+
+        $sub_ids = $this->mark->getSubjectIDs($wh);
+        $st_ids = $this->mark->getStudentIDs($wh);
+
+        if(count($sub_ids) < 1 OR count($st_ids) < 1) {
+            return Qs::goWithDanger('marks.weighted_grades', __('msg.srnf'));
+        }
+
+        $d['subjects'] = $this->my_class->getSubjectsByIDs($sub_ids);
+        $d['students'] = $this->student->getRecordByUserIDs($st_ids)->get()->sortBy('user.name');
+
+        $d['my_class_id'] = $class_id;
+        $d['exam_id'] = $exam_id;
+        $d['year'] = $this->year;
+        $wh = ['exam_id' => $exam_id, 'my_class_id' => $class_id];
+        $d['marks'] = $mks = $this->exam->getMark($wh);
+        $d['exr'] = $exr = $this->exam->getRecord($wh);
+
+        $d['my_class'] = $mc = $this->my_class->find($class_id);
+        $d['section']  = $this->my_class->findSection($section_id);
+        $d['ex'] = $exam = $this->exam->find($exam_id);
+        $d['tex'] = 'tex'.$exam->term;
+        $d['s'] = Setting::all()->flatMap(function($s){
+            return [$s->type => $s->description];
+        });
+
+        // Calculate weighted grades
+        $d['weighted_results'] = $this->calculateWeightedGrades($d['students'], $d['subjects'], $d['marks'], $exam->term);
+
+        return view('pages.support_team.marks.weighted_grades.print', $d);
+    }
+
+    /**
+     * Export weighted grades to Excel
+     */
+    public function export_weighted_grades($exam_id, $class_id, $section_id)
+    {
+        $wh = ['my_class_id' => $class_id, 'section_id' => $section_id, 'exam_id' => $exam_id, 'year' => $this->year];
+
+        $sub_ids = $this->mark->getSubjectIDs($wh);
+        $st_ids = $this->mark->getStudentIDs($wh);
+
+        if(count($sub_ids) < 1 OR count($st_ids) < 1) {
+            return Qs::goWithDanger('marks.weighted_grades', __('msg.srnf'));
+        }
+
+        $subjects = $this->my_class->getSubjectsByIDs($sub_ids);
+        $students = $this->student->getRecordByUserIDs($st_ids)->get()->sortBy('user.name');
+        $marks = $this->exam->getMark($wh);
+        $exam = $this->exam->find($exam_id);
+        $my_class = $this->my_class->find($class_id);
+        $section = $this->my_class->findSection($section_id);
+
+        // Calculate weighted grades
+        $weighted_results = $this->calculateWeightedGrades($students, $subjects, $marks, $exam->term);
+
+        // Create CSV content
+        $filename = 'notes_ponderees_' . $my_class->name . '_' . $section->name . '_' . $exam->name . '_' . date('Y-m-d') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => 'attachment; filename="' . $filename . '"',
+        ];
+
+        $callback = function() use ($subjects, $weighted_results) {
+            $file = fopen('php://output', 'w');
+            
+            // Add BOM for proper UTF-8 encoding in Excel
+            fwrite($file, "\xEF\xBB\xBF");
+            
+            // Header row
+            $header = ['Rang', 'Étudiant'];
+            foreach($subjects as $subject) {
+                $header[] = $subject->name . ' (Coef: ' . $subject->coef . ')';
+            }
+            $header[] = 'Total Points';
+            $header[] = 'Moyenne';
+            $header[] = 'Mention';
+            
+            fputcsv($file, $header, ';');
+            
+            // Data rows
+            foreach($weighted_results as $result) {
+                $row = [
+                    $result['rank'],
+                    $result['student_name']
+                ];
+                
+                foreach($result['subject_marks'] as $mark) {
+                    $row[] = $mark['weighted_mark'] !== null ? NumberFormat::formatWithoutRounding($mark['weighted_mark'], 2) : 'N/A';
+                }
+                
+                $row[] = NumberFormat::formatWithoutRounding($result['total_points'], 2);
+                $row[] = NumberFormat::formatWithoutRounding($result['average'], 2);
+                $row[] = $result['mention'];
+                
+                fputcsv($file, $row, ';');
+            }
+            
+            fclose($file);
+        };
+
+        return response()->stream($callback, 200, $headers);
+    }
+
+    /**
+     * Select weighted grades parameters
+     */
+    public function weighted_grades_select(Request $req)
+    {
+        return redirect()->route('marks.weighted_grades', [$req->exam_id, $req->my_class_id, $req->section_id]);
+    }
+
+    /**
+     * Calculate weighted grades for students
+     */
+    private function calculateWeightedGrades($students, $subjects, $marks, $term)
+    {
+        $results = [];
+        $tex = 'tex' . $term;
+        
+        foreach($students as $student) {
+            $student_marks = $marks->where('student_id', $student->user_id);
+            $total_weighted_points = 0;
+            $total_coefficients = 0;
+            $total_subject_grades = 0;  // Sum of individual subject grades
+            $subject_marks = [];
+            
+            foreach($subjects as $subject) {
+                $mark = $student_marks->where('subject_id', $subject->id)->first();
+                
+                if($mark) {
+                    // Get individual grades (same as in marks/show)
+                    $t1 = $mark->t1 ?: 0;
+                    $t2 = $mark->t2 ?: 0;
+                    $exm = $mark->exm ?: 0;
+                    
+                    // Calculate average from DS1, DS2, Exam (same logic as marks/show)
+                    $values = [$t1, $t2, $exm];
+                    $sum = array_sum($values);
+                    $count = count(array_filter($values, function($value) { return $value > 0; }));
+                    $moyenne_sur_20 = $count > 0 ? $sum / $count : 0;
+                    
+                    if($moyenne_sur_20 > 0) {
+                        // Apply formula: moyenne × coefficient
+                        $totalAvecCoef = $moyenne_sur_20 * $subject->coef;
+                        
+                        // Calculate weighted points for average calculation
+                        $total_weighted_points += $totalAvecCoef;
+                        $total_coefficients += $subject->coef;
+                        
+                        // Add calculated value to total points
+                        $total_subject_grades += $totalAvecCoef;
+                        
+                        $subject_marks[] = [
+                            'subject_id' => $subject->id,
+                            'subject_name' => $subject->name,
+                            'coefficient' => $subject->coef,
+                            'raw_mark' => $moyenne_sur_20,
+                            'weighted_mark' => $totalAvecCoef  // (average/20) × coefficient
+                        ];
+                    } else {
+                        $subject_marks[] = [
+                            'subject_id' => $subject->id,
+                            'subject_name' => $subject->name,
+                            'coefficient' => $subject->coef,
+                            'raw_mark' => null,
+                            'weighted_mark' => null
+                        ];
+                    }
+                } else {
+                    $subject_marks[] = [
+                        'subject_id' => $subject->id,
+                        'subject_name' => $subject->name,
+                        'coefficient' => $subject->coef,
+                        'raw_mark' => null,
+                        'weighted_mark' => null
+                    ];
+                }
+            }
+            
+            // Calculate average = Sum of (Total avec Coef values) / Sum of Coefficients
+            $average = $total_coefficients > 0 ? $total_subject_grades / $total_coefficients : 0;
+            
+            // Determine mention based on average
+            $mention = $this->getMention($average);
+            
+            $results[] = [
+                'student_id' => $student->user_id,
+                'student_name' => $student->user->name,
+                'subject_marks' => $subject_marks,
+                'total_points' => $total_subject_grades,  // Sum of all subject grades
+                'total_coefficients' => $total_coefficients,
+                'average' => $average,  // Total Points / Sum of Coefficients
+                'mention' => $mention
+            ];
+        }
+        
+        // Sort by average (descending) and add ranking
+        usort($results, function($a, $b) {
+            return $b['average'] <=> $a['average'];
+        });
+        
+        foreach($results as $index => $result) {
+            $results[$index]['rank'] = $index + 1;
+        }
+        
+        return $results;
+    }
+    
+    /**
+     * Get mention based on average
+     */
+    private function getMention($average)
+    {
+        if ($average >= 16) {
+            return 'Très Bien';
+        } elseif ($average >= 14) {
+            return 'Bien';
+        } elseif ($average >= 12) {
+            return 'Assez Bien';
+        } elseif ($average >= 10) {
+            return 'Passable';
+        } else {
+            return 'Insuffisant';
         }
     }
 

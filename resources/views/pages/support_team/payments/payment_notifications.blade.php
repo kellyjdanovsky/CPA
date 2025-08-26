@@ -1,0 +1,1 @@
+@include('pages.support_team.payments.payment_notifications_content')

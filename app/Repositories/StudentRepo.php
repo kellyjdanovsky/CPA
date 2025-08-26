@@ -63,12 +63,12 @@ class StudentRepo {
 
     public function getRecord(array $data)
     {
-        return $this->activeStudents()->where($data)->with('user');
+        return $this->activeStudents()->where($data)->with(['user', 'my_class', 'section']);
     }
 
     public function getRecordByUserIDs($ids)
     {
-        return $this->activeStudents()->whereIn('user_id', $ids)->with('user');
+        return $this->activeStudents()->whereIn('user_id', $ids)->with(['user', 'my_class', 'section']);
     }
 
     public function findByUserId($st_id)

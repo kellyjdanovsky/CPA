@@ -218,6 +218,11 @@ if ($usertype == 'teacher') {
                                 <a href="{{ url('/marks/tabulation') }}" class="nav-link">Rang</a>
                             </li>
 
+                            {{--Weighted Grades Tabulation--}}
+                            <li class="nav-item">
+                                <a href="{{ url('/marks/weighted-grades') }}" class="nav-link">Notes Pondérées</a>
+                            </li>
+
 
                         @endif
 

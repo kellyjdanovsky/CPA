@@ -141,33 +141,60 @@ class MarkRepo
 
     public function getPos($st_id, $exam, $class_id, $sec_id, $year)
     {
-        $d = ['student_id' => $st_id, 'exam_id' => $exam->id, 'my_class_id' => $class_id, 'section_id' => $sec_id, 'year' => $year ]; $all_mks = [];
+        $d = ['student_id' => $st_id, 'exam_id' => $exam->id, 'my_class_id' => $class_id, 'section_id' => $sec_id, 'year' => $year ];
         $tex = 'tex'.$exam->term;
 
+        // Get current student's total marks
         $my_mk = Mark::where($d)->select($tex)->sum($tex);
 
         /*if($exam->term == 3){
             $my_mk = Mark::where($d)->select('cum')->sum('cum');
         }*/
 
-        unset($d['student_id']);
-        $mk = Mark::where($d);
-        $students = $mk->select('student_id')->distinct()->get();
-        foreach($students as $s){
-            $all_mks[] = $this->getExamTotalTerm($exam, $s->student_id, $class_id, $year);
+        // Get all students from the SAME SECTION only (not entire class)
+        $section_filter = ['exam_id' => $exam->id, 'my_class_id' => $class_id, 'section_id' => $sec_id, 'year' => $year];
+        
+        // Get distinct student IDs from the same section who have marks for this exam
+        $section_students = Mark::where($section_filter)
+            ->whereNotNull($tex)
+            ->where($tex, '>', 0)
+            ->select('student_id')
+            ->distinct()
+            ->get();
+        
+        // Calculate exam totals for each student in the section
+        $all_mks = [];
+        foreach($section_students as $s){
+            // Use section-specific total calculation
+            $student_total = Mark::where([
+                'student_id' => $s->student_id,
+                'exam_id' => $exam->id, 
+                'my_class_id' => $class_id, 
+                'section_id' => $sec_id,  // Ensure we only count marks from same section
+                'year' => $year
+            ])->select($tex)->sum($tex);
+            
+            if($student_total > 0) {
+                $all_mks[] = $student_total;
+            }
         }
+        
+        // Sort marks in descending order (highest first)
         rsort($all_mks);
-        return array_search($my_mk, $all_mks) + 1;
+        
+        // Find position of current student's marks
+        $position = array_search($my_mk, $all_mks);
+        return $position !== false ? $position + 1 : count($all_mks) + 1;
     }
 
     public function getSubjectIDs($data)
     {
-        return Mark::distinct()->select('subject_id')->where($data)->get()->pluck('subject_id');
+        return Mark::distinct()->select('subject_id')->where($data)->pluck('subject_id');
     }
 
     public function getStudentIDs($data)
     {
-        return Mark::distinct()->select('student_id')->where($data)->get()->pluck('student_id');
+        return Mark::distinct()->select('student_id')->where($data)->pluck('student_id');
     }
 
 }

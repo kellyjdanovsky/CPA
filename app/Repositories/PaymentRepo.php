@@ -20,6 +20,17 @@ class PaymentRepo
         return Payment::where($data)->with('my_class');
     }
 
+    public function getPaymentWithYear($data, $year = null)
+    {
+        $query = Payment::where($data)->with('my_class');
+        
+        if ($year) {
+            $query->where('year', $year);
+        }
+        
+        return $query;
+    }
+
     public function getGeneralPayment($data)
     {
         return Payment::whereNull('my_class_id')->where($data)->with('my_class');

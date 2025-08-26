@@ -1,208 +1,884 @@
-{{-- <!--NOM, CLASSE ET AUTRES INFORMATIONS --> --}}
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@php
+    // IMPORTANT: Définir toutes les variables nécessaires au début pour éviter les erreurs "undefined variable"
+    // Calculer la position et les informations de classement
+    $rang = \App\Models\ExamRecord::where('my_class_id', $my_class->id)
+                 ->where('student_id', $sr->user->id)
+                 ->where('exam_id', $ex->id)
+                 ->first();
+    
+    // Calculer la moyenne de la classe pour cet examen avec la même méthode que tabulation
+    // Récupérer tous les étudiants de la classe/section qui ont des notes pour cet examen
+    // (consistent with weighted-grades approach)
+    $current_section_id = $sr->section_id;
+    
+    // Get student IDs who have exam records for this exam
+    $exam_student_ids = \App\Models\ExamRecord::where('my_class_id', $my_class->id)
+                                              ->where('exam_id', $ex->id)
+                                              ->where('year', $year)
+                                              ->pluck('student_id')
+                                              ->toArray();
+    
+    $all_students = \App\Models\StudentRecord::where('my_class_id', $my_class->id)
+                                                ->where('section_id', $current_section_id)
+                                                ->where('grad_date', null)
+                                                ->whereIn('user_id', $exam_student_ids)
+                                                ->get();
+    
+    // Récupérer toutes les matières
+    $all_subjects = \App\Models\Subject::where('my_class_id', $my_class->id)->get();
+    
+    // Récupérer toutes les notes pour cette classe et cet examen
+    $all_marks = \App\Models\Mark::where([
+        'exam_id' => $ex->id,
+        'my_class_id' => $my_class->id,
+        'year' => $year
+    ])->get();
+    
+    $class_averages_collection = collect();
+    
+    foreach($all_students as $student) {
+        // Utiliser la même méthode de calcul que dans le tableau tabulation
+        $totalPoints = 0;
+        $usedCoef = 0;
+        
+        foreach($all_subjects as $subject) {
+            $markRecord = $all_marks->where('student_id', $student->user_id)->where('subject_id', $subject->id)->first();
+            if ($markRecord) {
+                $t1 = $markRecord->t1 ?: 0;
+                $t2 = $markRecord->t2 ?: 0;
+                $exm = $markRecord->exm ?: 0;
+                
+                $values = [$t1, $t2, $exm];
+                $sum = array_sum($values);
+                $count = count(array_filter($values, fn($value) => $value > 0));
+                
+                if ($count > 0) {
+                    $subjectAverage = $sum / $count;
+                    $totalPoints += ($subjectAverage * $subject->coef);
+                    $usedCoef += $subject->coef;
+                }
+            }
+        }
+        
+        if ($usedCoef > 0) {
+            $average = $totalPoints / $usedCoef;
+            $class_averages_collection->push($average);
+        }
+    }
+    
+    $class_average = $class_averages_collection->count() > 0 ? ($class_averages_collection->sum() / $class_averages_collection->count()) : 0;
+    $total_students = $class_averages_collection->count();
+    
+    // Calculer le nombre total d'étudiants dans la section qui ont des notes pour cet examen
+    // (consistent with weighted-grades: only students with exam records)
+    $total_eleve = \App\Models\StudentRecord::where('my_class_id', $my_class->id)
+                                            ->where('section_id', $current_section_id)
+                                            ->where('grad_date', null)
+                                            ->whereIn('user_id', $exam_student_ids)
+                                            ->count();
+    
+    // Générer la position française formatée
+    $positionEnFrancais = '-';
+    if ($rang && $rang->pos) {
+        $position = Mk::getSuffix($rang->pos);
+        
+        // Extract the text part without HTML tags for lookup
+        $positionText = strip_tags($position); // Remove <sup> tags
+        
+        // Tableau de correspondance pour les numéros ordinaux français
+        $positionsEnFrancais = [
+            '1st' => '1<sup>er</sup>',
+            '2nd' => '2<sup>e</sup>',
+            '3rd' => '3<sup>e</sup>',
+            '4th' => '4<sup>e</sup>',
+            '5th' => '5<sup>e</sup>',
+            '6th' => '6<sup>e</sup>',
+            '7th' => '7<sup>e</sup>',
+            '8th' => '8<sup>e</sup>',
+            '9th' => '9<sup>e</sup>',
+            '10th' => '10<sup>e</sup>',
+            '11th' => '11<sup>e</sup>',
+            '12th' => '12<sup>e</sup>',
+            '13th' => '13<sup>e</sup>',
+            '14th' => '14<sup>e</sup>',
+            '15th' => '15<sup>e</sup>',
+            '16th' => '16<sup>e</sup>',
+            '17th' => '17<sup>e</sup>',
+            '18th' => '18<sup>e</sup>',
+            '19th' => '19<sup>e</sup>',
+            '20th' => '20<sup>e</sup>',
+        ];
+        
+        // Vérifier si la position est dans le tableau de correspondance
+        if (array_key_exists($positionText, $positionsEnFrancais)) {
+            $positionEnFrancais = $positionsEnFrancais[$positionText];
+        } else {
+            // Fallback transformation for other positions beyond 20
+            // First extract number and suffix separately
+            if (preg_match('/^(\d+)<sup>(st|nd|rd|th)<\/sup>$/', $position, $matches)) {
+                $number = $matches[1];
+                // For French: 1er for first, all others get 'e'
+                if ($number == '1') {
+                    $positionEnFrancais = $number . '<sup>er</sup>';
+                } else {
+                    $positionEnFrancais = $number . '<sup>e</sup>';
+                }
+            } else {
+                // Fallback: simple text replacement
+                $positionEnFrancais = str_replace(['<sup>st</sup>', '<sup>nd</sup>', '<sup>rd</sup>', '<sup>th</sup>'], ['<sup>er</sup>', '<sup>e</sup>', '<sup>e</sup>', '<sup>e</sup>'], $position);
+            }
+        }
+    }
+@endphp
 
-<table style="width:100%; border-collapse:collapse; ">
-    <tbody>
-        <tr>
-            <td><strong>NOM:</strong> {{ strtoupper($sr->user->name) }}</td>
+{{-- Optimized Print Styles for A4 Landscape with Enhanced Quality and Professional Layout --}}
+<style>
+@media screen {
+    /* Screen preview styling with centering */
+    body {
+        background: #f8f9fa !important;
+        padding: 20px !important;
+        min-height: 100vh !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    .print-preview {
+        background: #f8f9fa;
+        padding: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+    }
+    
+    .print-container {
+        background: white;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        overflow: hidden;
+        max-width: 1200px;
+        margin: 0 auto;
+        transform: scale(0.85);
+        transform-origin: center center;
+        position: relative;
+    }
+}
 
+@media print {
+    @page {
+        size: A4 landscape;
+        margin: 5mm; /* Set to 5mm as requested */
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+    
+    * {
+        -webkit-print-color-adjust: exact !important;
+        color-adjust: exact !important;
+        box-sizing: border-box !important;
+    }
+    
+    body {
+        font-family: 'Arial', 'Helvetica', sans-serif !important;
+        font-size: 9px !important; /* Reduced from 10px to fit single page */
+        line-height: 1.0 !important; /* Tighter line height for single page */
+        margin: 0 !important;
+        padding: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        background: white !important;
+        color: #000 !important;
+        overflow: visible !important;
+        /* Flexbox centering */
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    /* Disable JavaScript execution during print */
+    script {
+        display: none !important;
+    }
+    
+    /* Optimized Student Info Section - compact for single page */
+    .student-info {
+        width: 100% !important;
+        margin: 1mm 0 !important; /* Reduced margin */
+        border-collapse: collapse !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .student-info td {
+        padding: 1.5mm 2mm !important; /* Reduced padding */
+        border: 1px solid #000 !important;
+        font-size: 8px !important; /* Reduced from 9px */
+        text-align: left !important;
+        vertical-align: middle !important;
+        background: white !important;
+        color: #000 !important;
+        font-weight: 600 !important;
+        line-height: 1.0 !important;
+    }
+    
+    /* Enhanced Main Table Design - optimized for single page */
+    .marks-table {
+        width: 100% !important;
+        border-collapse: collapse !important;
+        margin: 0.5px 0 !important; /* Minimal margins */
+        table-layout: fixed !important;
+        background: white !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .marks-table th {
+        padding: 2px 1px !important; /* Reduced padding for single page */
+        border: 1px solid #000 !important;
+        font-size: 10px !important; /* Reduced from 11px */
+        font-weight: bold !important;
+        text-align: center !important;
+        vertical-align: middle !important;
+        background-color: #f5f5f5 !important;
+        color: #000 !important;
+        line-height: 1.0 !important;
+    }
+    
+    .marks-table td {
+        padding: 2px 1px !important; /* Reduced padding for single page */
+        border: 1px solid #000 !important;
+        font-size: 9px !important; /* Reduced from 10px */
+        text-align: center !important;
+        vertical-align: middle !important;
+        background: white !important;
+        color: #000 !important;
+        line-height: 1.0 !important;
+        font-weight: 600 !important;
+    }
+    
+    /* Enhanced number display - optimized for single page */
+    .marks-table td.moyen_sans_coef,
+    .marks-table td.notetotalaveccoef,
+    .marks-table td.coef {
+        font-size: 10px !important; /* Reduced from 11px */
+        font-weight: 900 !important;
+    }
+    
+    /* Score cells - optimized */
+    .marks-table tbody tr td:nth-child(3),
+    .marks-table tbody tr td:nth-child(4),
+    .marks-table tbody tr td:nth-child(5) {
+        font-size: 10px !important; /* Reduced from 11px */
+        font-weight: 900 !important;
+        background-color: #f8f9fa !important;
+    }
+    
+    /* Average and total columns - optimized */
+    .marks-table tbody tr td:nth-child(6),
+    .marks-table tbody tr td:nth-child(8) {
+        font-size: 10px !important; /* Reduced from 11px */
+        font-weight: 900 !important;
+        background-color: #fff3cd !important;
+    }
+    
+    /* Coefficient column - optimized */
+    .marks-table tbody tr td:nth-child(7) {
+        font-size: 9px !important; /* Reduced from 10px */
+        font-weight: bold !important;
+        background-color: #e8f4fd !important;
+        color: #0066cc !important;
+    }
+    
+    /* Optimized Column Widths for maximum space utilization */
+    .col-numero { width: 3% !important; }
+    .col-matiere { width: 22% !important; text-align: left !important; }
+    .col-ds1 { width: 7% !important; }
+    .col-ds2 { width: 7% !important; }
+    .col-exam { width: 7% !important; }
+    .col-moyenne { width: 9% !important; }
+    .col-coef { width: 5% !important; }
+    .col-total { width: 10% !important; }
+    .col-remarques { width: 30% !important; text-align: left !important; }
+    
+    /* Enhanced Total Row - optimized for single page */
+    .total-row {
+        background-color: #e5e7eb !important;
+        font-weight: bold !important;
+        font-size: 10px !important; /* Reduced from 11px */
+        border: 1px solid #000 !important;
+    }
+    
+    .total-row td {
+        padding: 2px 1px !important; /* Reduced padding */
+        border: 1px solid #000 !important;
+        font-weight: bold !important;
+        color: #000 !important;
+        font-size: 10px !important; /* Reduced from 11px */
+        line-height: 1.0 !important;
+    }
+    
+    /* Special styling for total numbers - compact */
+    .total-row .P_totalpoi,
+    .total-row .P_moyenne-1 {
+        font-size: 11px !important; /* Reduced from 12px */
+        font-weight: 900 !important;
+    }
+    
+    /* Formula explanation - compact */
+    .formula-row {
+        background-color: #f8f9fa !important;
+        font-size: 7px !important; /* Reduced from 8px */
+        text-align: center !important;
+        padding: 0.5px !important; /* Minimal padding */
+        border: 1px solid #000 !important;
+        font-weight: bold !important;
+        color: #000 !important;
+        line-height: 1.0 !important;
+    }
+    
+    /* Enhanced Grade Scale - compact */
+    .grade-scale {
+        font-size: 7px !important; /* Reduced from 8px */
+        background-color: #f3f4f6 !important;
+        border: 1px solid #000 !important;
+        text-align: center !important;
+        padding: 1px !important; /* Minimal padding */
+        font-weight: bold !important;
+        color: #000 !important;
+        line-height: 1.0 !important;
+    }
+    
+    /* Class Statistics Enhancement - compact for single page */
+    .class-stats {
+        background-color: #f9fafb !important;
+        border: 1px solid #000 !important;
+        margin: 1px 0 !important; /* Minimal margin */
+        padding: 1px !important; /* Minimal padding */
+    }
+    
+    .class-stats td {
+        font-size: 7px !important; /* Reduced from 8px */
+        padding: 1px !important; /* Minimal padding */
+        border: 1px solid #000 !important;
+        font-weight: bold !important;
+        color: #000 !important;
+        line-height: 1.0 !important;
+    }
+    
+    /* Annual Averages Section - compact for single page */
+    .annual-averages {
+        margin-top: 2px !important; /* Minimal margin */
+        font-size: 7px !important; /* Reduced from 8px */
+        border: 1px solid #000 !important;
+        padding: 1px !important; /* Minimal padding */
+        background: white !important;
+        page-break-inside: avoid !important;
+    }
+    
+    .annual-averages h5 {
+        font-size: 8px !important; /* Reduced from 9px */
+        margin: 0 0 1px 0 !important;
+        text-align: center !important;
+        background: #000 !important;
+        color: white !important;
+        padding: 1px !important; /* Minimal padding */
+        line-height: 1.0 !important;
+    }
+    
+    /* Comments Section Optimization - minimal for single page */
+    .comments-section {
+        margin-top: 0.5px !important; /* Minimal margin */
+        font-size: 7px !important; /* Reduced from 8px */
+        page-break-inside: avoid !important;
+        border: 1px solid #333 !important;
+        padding: 1px !important; /* Minimal padding */
+    }
+    
+    .comments-section h4 {
+        font-size: 7px !important; /* Reduced from 8px */
+        margin: 0 0 0.5px 0 !important;
+        border-bottom: 1px solid #ccc !important;
+        padding-bottom: 0.5px !important;
+        line-height: 1.0 !important;
+    }
+    
+    .comments-section div {
+        font-size: 7px !important; /* Reduced from 8px */
+        line-height: 1.0 !important;
+        padding: 0.5px !important;
+    }
+    
+    /* Signature lines - minimal for single page */
+    .signature-section {
+        margin-top: 1px !important; /* Minimal margin */
+        width: 100% !important;
+        border-collapse: collapse !important;
+        font-size: 7px !important; /* Reduced from 8px */
+        color: #000 !important;
+    }
+    
+    .signature-box {
+        width: 33.33% !important;
+        text-align: center !important;
+        border-top: 1px solid #000 !important;
+        padding-top: 1px !important; /* Minimal padding */
+        font-weight: bold !important;
+        display: table-cell !important;
+        vertical-align: top !important;
+        line-height: 1.0 !important;
+    }
+    
+    /* Hide screen-only elements */
+    .no-print {
+        display: none !important;
+    }
+    
+    /* Ensure all print elements are visible */
+    .print-visible {
+        display: block !important;
+        visibility: visible !important;
+    }
+    
+    /* Ensure page doesn't break in middle of important sections */
+    .page-break-avoid {
+        page-break-inside: avoid !important;
+    }
+    
+    /* Watermark styling for print */
+    .watermark {
+        position: fixed !important;
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
+        opacity: 0.03 !important;
+        z-index: -1 !important;
+        font-size: 150px !important;
+        font-weight: bold !important;
+        color: #000 !important;
+        pointer-events: none !important;
+        text-align: center !important;
+        line-height: 0.8 !important;
+        white-space: nowrap !important;
+    }
+    
+    /* Force single page layout - automatic scaling and centering */
+    .main-content {
+        width: 100% !important;
+        max-width: calc(100vw - 10mm) !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
+        transform-origin: center center !important;
+        /* Ensure content is centered and scaled appropriately */
+        max-height: calc(100vh - 10mm) !important;
+        overflow: visible !important;
+        /* Flexbox child properties */
+        flex-shrink: 0 !important;
+    }
+    
+    /* Simplified print container for single page fit with centering */
+    .print-container,
+    .preview-container {
+        width: 100% !important;
+        max-width: calc(100vw - 10mm) !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
+        /* Center content and auto-scale */
+        transform-origin: center center !important;
+        max-height: calc(100vh - 10mm) !important;
+        /* Ensure content is properly contained and centered */
+        display: block !important;
+        position: relative !important;
+        /* Auto-scale to fit content */
+        transform: scale(0.95) !important; /* Increased for better single page fit */
+    }
+    
+    /* Ensure table fits on single page */
+    .marks-table {
+        page-break-inside: avoid !important;
+        page-break-before: avoid !important;
+        page-break-after: avoid !important;
+        width: 100% !important;
+        table-layout: fixed !important;
+    }
+    
+    /* Optimize space usage for all elements */
+    .student-info,
+    .class-stats,
+    .annual-averages,
+    .comments-section,
+    .signature-section {
+        page-break-inside: avoid !important;
+        page-break-before: avoid !important;
+        page-break-after: avoid !important;
+    }
+    
+    /* Force all content into single page - enhanced */
+    * {
+        page-break-inside: avoid !important;
+        page-break-before: avoid !important;
+        page-break-after: avoid !important;
+    }
+    
+    /* Force single page layout with specific height constraint */
+    .preview-container {
+        max-height: calc(100vh - 10mm) !important;
+        overflow: hidden !important;
+        page-break-inside: avoid !important;
+        page-break-after: avoid !important;
+    }
+    
+    /* Ensure all tables fit within page */
+    table {
+        page-break-inside: avoid !important;
+        page-break-before: avoid !important;
+        page-break-after: avoid !important;
+    }
+    
+    /* Force content to fit in viewport */
+    html {
+        overflow: hidden !important;
+    }
+    
+    /* Automatic content scaling for single page with centering */
+    @media print {
+        html, body {
+            height: 100vh !important;
+            width: 100vw !important;
+            overflow: visible !important;
+            /* Ensure body maintains flexbox centering */
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+        }
+        
+        /* Scale down entire content if needed and maintain centering */
+        .preview-container {
+            transform: scale(0.95) !important; /* Increased scale for better single page fit */
+            transform-origin: center center !important;
+            /* Ensure content stays centered */
+            display: block !important;
+            position: relative !important;
+        }
+    }
+}
 
-            <td><strong>NUMÉRO D'ADMISSION:</strong> {{ $sr->adm_no }}</td>
-            <td><strong>CLASSE:</strong> {{ strtoupper($my_class->name) }}</td>
-        </tr>
-        <tr>
-            <td><strong>BULLETIN DE NOTES POUR</strong> {!! strtoupper(Mk::getSuffix($ex->term)) !!} TRIMESTRE</td>
-            <td><strong>ANNÉE ACADÉMIQUE:</strong> {{ $ex->year }}</td>
-            <td><strong>ÂGE:</strong>
-                {{ $sr->age ?: ($sr->user->dob ? date_diff(date_create($sr->user->dob), date_create('now'))->y : '-') }}
-            </td>
-        </tr>
+/* Print button styling for screen */
+@media screen {
+    .print-actions {
+        background: white;
+        padding: 15px;
+        border-bottom: 1px solid #dee2e6;
+        text-align: center;
+        position: sticky;
+        top: 0;
+        z-index: 1000;
+    }
+    .print-btn {
+        background: linear-gradient(135deg, #28a745, #20c997);
+        color: white;
+        border: none;
+        padding: 12px 24px;
+        border-radius: 8px;
+        font-weight: 600;
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+        transition: all 0.3s ease;
+        margin: 0 10px;
+    }
+    .print-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+        color: white;
+    }
+    .preview-container {
+        max-width: 1200px;
+        margin: 20px auto;
+        background: white;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+}
 
-    </tbody>
-</table>
+/* General table styling for both print and screen */
+.marks-table {
+    border-collapse: collapse;
+    margin: 10px 0;
+}
 
+.marks-table th,
+.marks-table td {
+    padding: 6px 4px;
+    border: 1px solid #000;
+    text-align: center;
+    vertical-align: middle;
+}
 
-<table style="width:100%; border-collapse:collapse; border: 1px solid #000; margin: 10px auto;" border="1">
-    {{-- Tableau des examens --}}
-    <thead>
-        <tr>
-            <th rowspan="2">N°</th>
-            <th rowspan="2">MATIÈRES</th>
-            <th rowspan="2">DS1<br>(20)</th>
-            <th rowspan="2">DS2<br>(20)</th>
-            <th rowspan="2">EXAMENS<br>(20)</th>
-            <th rowspan="2">Moyenne (/20)<br></th>
+.marks-table th {
+    background-color: #f0f0f0;
+    font-weight: bold;
+}
 
-            {{-- @if ($ex->term == 3) --}}{{-- 3e trimestre --}}{{--
-            <th rowspan="2">TOTAL <br>(100%) 3<sup>e</sup> TRIMESTRE</th>
-            <th rowspan="2">1<sup>er</sup> <br> TRIMESTRE</th>
-            <th rowspan="2">2<sup>e</sup> <br> TRIMESTRE</th>
-            <th rowspan="2">CUM (300%) <br> 1<sup>er</sup> + 2<sup>e</sup> + 3<sup>e</sup></th>
-            <th rowspan="2">CUM MOY</th>
-            @endif --}}
+.total-row {
+    background-color: #e8e8e8;
+    font-weight: bold;
+}
 
-            <th rowspan="2">coefficient</th>
-            <th rowspan="2">total avec Coef</th>
-            <th rowspan="2">REMARQUES</th>
-        </tr>
-    </thead>
+.class-stats {
+    background-color: #f9f9f9;
+    border: 2px solid #ddd;
+    margin: 10px 0;
+    padding: 8px;
+    border-radius: 5px;
+}
 
-    <tbody>
-        @foreach ($subjects as $sub)
-        <tr>
-            <td>{{ $loop->iteration }}</td>
-            <td>{{ $sub->name }}</td>
+.comments-section {
+    margin-top: 15px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 5px;
+}
+</style>
 
-            @foreach ($marks->where('subject_id', $sub->id)->where('exam_id', $ex->id) as $mk)
-                <td>{{ $mk->t1 ?: '-' }}</td>
-                <td>{{ $mk->t2 ?: '-' }}</td>
-                <td>{{ $mk->exm ?: '-' }}</td>
+{{-- Professional Print Header --}}
+<div class="no-print print-actions">
+    <button onclick="printBulletin()" class="print-btn">
+        <i class="icon-printer"></i> Imprimer le Bulletin
+    </button>
+    <button onclick="window.close()" class="print-btn" style="background: linear-gradient(135deg, #6c757d, #495057);">
+        <i class="icon-cross"></i> Fermer
+    </button>
+</div>
 
-                <!-- Calcul de la moyenne sans coefficient -->
-                <td class="moyen_sans_coef">
-                    @php
-                        // Récupérer les valeurs de t1, t2, et exm
-                        $t1 = $mk->t1 ?: 0; // Si t1 est null, on le considère comme 0
-                        $t2 = $mk->t2 ?: 0; // Si t2 est null, on le considère comme 0
-                        $exm = $mk->exm ?: 0; // Si exm est null, on le considère comme 0
+<script>
+function printBulletin() {
+    // Simple print function without complex JavaScript
+    try {
+        window.print();
+    } catch(e) {
+        alert('Erreur lors de l\'impression. Veuillez utiliser Ctrl+P.');
+    }
+}
+</script>
 
-                        // Calcul de la moyenne sans coefficient (en ne divisant que si on a des valeurs)
-                        $values = [$t1, $t2, $exm];
-                        $sum = array_sum($values); // Additionner toutes les notes
-                        $count = count(array_filter($values, fn($value) => $value > 0)); // Compter combien de valeurs sont supérieures à 0
-
-                        // Si count est supérieur à 0 (au moins une note), on calcule la moyenne
-                        $moyen_sans_coef = $count > 0 ? $sum / $count : 0;
-                    @endphp
-
-                    {{ number_format($moyen_sans_coef, 2) }} <!-- Afficher la moyenne, formatée avec 2 décimales -->
+{{-- Main bulletin content wrapper --}}
+<div class="preview-container">
+    {{-- Student Information Header --}}
+    <table class="student-info print-visible">
+        <tbody>
+            <tr>
+                <td><strong>NOM ET PRÉNOMS:</strong> {{ strtoupper($sr->user->name) }}</td>
+                <td><strong>NUMÉRO D'ADMISSION:</strong> {{ $sr->adm_no }}</td>
+                <td><strong>CLASSE:</strong> {{ strtoupper($my_class->name) }}</td>
+                <td><strong>SECTION:</strong> {{ strtoupper($sr->section->name ?? 'N/A') }}</td>
+            </tr>
+            <tr>
+                <td><strong>BULLETIN DE NOTES POUR</strong> {!! strtoupper(Mk::getSuffix($ex->term)) !!} <strong>TRIMESTRE</strong></td>
+                <td><strong>ANNÉE ACADÉMIQUE:</strong> {{ $ex->year }}</td>
+                <td><strong>ÂGE:</strong>
+                    {{ $sr->age ?: ($sr->user->dob ? date_diff(date_create($sr->user->dob), date_create('now'))->y : '-') }} ans
                 </td>
-
-                <td class="coef">{{ $sub->coef }}</td>
-
-                <td class="notetotalaveccoef">
-                    @php
-                    // Récupérer les valeurs de t1, t2, et exm
-                    $t1 = $mk->t1 ?: 0; // Si t1 est null, on le considère comme 0
-                    $t2 = $mk->t2 ?: 0; // Si t2 est null, on le considère comme 0
-                    $exm = $mk->exm ?: 0; // Si exm est null, on le considère comme 0
-
-                    // Calcul de la moyenne sans coefficient (en ne divisant que si on a des valeurs)
-                    $values = [$t1, $t2, $exm];
-                    $sum = array_sum($values); // Additionner toutes les notes
-                    $count = count(array_filter($values, fn($value) => $value > 0)); // Compter combien de valeurs sont supérieures à 0
-
-                    // Si count est supérieur à 0 (au moins une note), on calcule la moyenne
-                    $moyen_sans_coef = $count > 0 ? $sum / $count : 0;
-                    $moyen_sans_coef = $moyen_sans_coef * $sub->coef
-                @endphp
-
-                {{ number_format($moyen_sans_coef, 2) }} <!-- Afficher la moyenne, formatée avec 2 décimales -->
-
+                <td><strong>NUMÉRO ÉLÈVE:</strong> {{ $sr->id }}</td>
+            </tr>
+            <tr class="class-stats">
+                <td colspan="2">
+                    <strong>STATISTIQUES DE LA CLASSE:</strong> 
+                    Moyenne générale: <strong>{{ number_format($class_average, 2) }}/20</strong> | 
+                    Étudiants: <strong>{{ $total_students }}</strong>
                 </td>
-
-                <td>
+                <td colspan="2">
+                    <strong>CLASSEMENT SECTION:</strong>
+                    Rang: <strong>{!! $positionEnFrancais !!} / {{ $total_eleve }}</strong> |
                     @php
-                        // Récupérer les valeurs de t1, t2, et exm
-                        $t1 = $mk->t1 ?: 0;
-                        $t2 = $mk->t2 ?: 0;
-                        $exm = $mk->exm ?: 0;
-
-                        // Calcul de la moyenne sans coefficient
-                        $values = [$t1, $t2, $exm];
-                        $sum = array_sum($values);
-                        $count = count(array_filter($values, fn($value) => $value > 0));
-                        $moyen_sans_coef = $count > 0 ? $sum / $count : 0;
-
-                        // Générer le commentaire basé sur la moyenne seulement si l'étudiant a des notes
-                        $comment = '';
-                        $commentColor = 'text-muted';
-
-                        // Afficher les remarques seulement si l'étudiant a au moins une note dans DS1, DS2, ou examen
-                        if ($count > 0) {
-                            $comment = \App\Helpers\MarkComment::getComment($moyen_sans_coef);
-                            $commentColor = \App\Helpers\MarkComment::getCommentColor($moyen_sans_coef);
+                        $student_average = $rang ? $rang->ave : 0;
+                        $performance_text = 'À évaluer';
+                        $performance_color = '#6b7280';
+                        
+                        if($student_average >= 16) { 
+                            $performance_text = 'Excellent'; 
+                            $performance_color = '#059669'; 
+                        } elseif($student_average >= 14) { 
+                            $performance_text = 'Très Bien'; 
+                            $performance_color = '#0ea5e9'; 
+                        } elseif($student_average >= 12) { 
+                            $performance_text = 'Bien'; 
+                            $performance_color = '#3b82f6'; 
+                        } elseif($student_average >= 10) { 
+                            $performance_text = 'Passable'; 
+                            $performance_color = '#f59e0b'; 
+                        } elseif($student_average > 0) { 
+                            $performance_text = 'Insuffisant'; 
+                            $performance_color = '#ef4444'; 
                         }
                     @endphp
-
-                    <span class="{{ $commentColor }}">{{ $comment ?: ($mk->comment ?: '-') }}</span>
+                    Niveau: <strong style="color: {{ $performance_color }}">{{ $performance_text }}</strong>
                 </td>
-            @endforeach
-        </tr>
-    @endforeach
+            </tr>
+        </tbody>
+    </table>
 
+    {{-- Professional Marks Table --}}
+    <table class="marks-table print-visible">
+        <thead>
+            <tr style="background-color: #2563eb !important; color: white !important;">
+                <th class="col-numero">N°</th>
+                <th class="col-matiere">MATIÈRES</th>
+                <th class="col-ds1">DS1<br><small>(20)</small></th>
+                <th class="col-ds2">DS2<br><small>(20)</small></th>
+                <th class="col-exam">EXAMEN<br><small>(20)</small></th>
+                <th class="col-moyenne">Moyenne<br><small>(/20)</small></th>
+                <th class="col-coef">Coeff</th>
+                <th class="col-total">Total avec<br><small>Coeff</small></th>
+                <th class="col-remarques">REMARQUES</th>
+            </tr>
+            <tr class="formula-row">
+                <th colspan="9" style="background-color: #e5e7eb !important; color: #000 !important; font-size: 7px !important; padding: 1.5mm; text-align: center;">
+                    <strong>FORMULE:</strong> Moyenne = (DS1 + DS2 + EXAMEN) ÷ Nombre de notes saisies | Total avec Coeff = Moyenne × Coefficient
+                </th>
+            </tr>
+        </thead>
 
-        {{-- TOTAL ELEVE POUR RANG --}}
+        <tbody>
+            @foreach ($subjects as $sub)
+            <tr>
+                <td>{{ $loop->iteration }}</td>
+                <td class="col-matiere">{{ $sub->name }}</td>
 
-        @php
+                @foreach ($marks->where('subject_id', $sub->id)->where('exam_id', $ex->id) as $mk)
+                    <td>{{ $mk->t1 ?: '-' }}</td>
+                    <td>{{ $mk->t2 ?: '-' }}</td>
+                    <td>{{ $mk->exm ?: '-' }}</td>
 
-            use App\Models\StudentRecord;
-            use App\Models\ExamRecord;
-
-            use App\Models\Section;
-
-            // $section = Section::where('my_class_id',$my_class->id)->get();
-
-
-
-            $section =  $sr->section_id;
-
-
-            $total_eleve = StudentRecord::where('my_class_id', $my_class->id)->where('section_id',$section)->where('grad_date',null)->count();
-            $rang = ExamRecord::where('my_class_id', $my_class->id)->where('student_id', $sr->user->id)->where('exam_id',$ex->id)->first();
-            // dd($total_eleve);
-        @endphp
-
-        <tr>
-            <td colspan="4" class="P_totalpoi"><strong>TOTAL DES POINTS OBTENUS :</strong></td>
-            <td colspan="3" class="P_moyenne-{{$ex->id}}"><strong>MOYENNE FINALE :</strong></td>
-            <td colspan="2"><strong>RANG: {!! $rang->pos !!} / {!! $total_eleve !!}</strong></td>
-        </tr>
-        
-        @if($ex->term == 3)
-        <tr>
-            <td colspan="9" style="padding: 8px; background-color: #f8f9fa; border: 1px solid #ddd;">
-                <div style="background-color: white; border: 1px solid #ccc; border-radius: 4px; padding: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
-                    <div style="background-color: #e9ecef; padding: 6px; border-radius: 3px; margin-bottom: 8px; text-align: center;">
-                        <h5 style="margin: 0; font-size: 11px; font-weight: bold; color: #495057;">MOYENNES ANNUELLES</h5>
-                    </div>
-                    <div style="padding: 6px;">
+                    {{-- Calculate subject average --}}
+                    <td class="moyen_sans_coef">
                         @php
-                            // Récupérer tous les examens créés pour cette année
-                            $all_exams_print = \App\Models\Exam::where('year', $year)->orderBy('term')->get();
+                            $t1 = $mk->t1 ?: 0;
+                            $t2 = $mk->t2 ?: 0;
+                            $exm = $mk->exm ?: 0;
+
+                            $values = [$t1, $t2, $exm];
+                            $sum = array_sum($values);
+                            $count = count(array_filter($values, fn($value) => $value > 0));
+                            $moyen_sans_coef = $count > 0 ? $sum / $count : 0;
                         @endphp
+                        {{ number_format($moyen_sans_coef, 2) }}
+                    </td>
 
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                            @foreach($all_exams_print as $exam_print)
-                                <div style="flex: 1; margin: 0 4px; text-align: center;">
-                                    <div style="margin-bottom: 3px;">
-                                        <label style="font-weight: bold; font-size: 9px; color: #495057; display: block;">{{ $exam_print->name }} :</label>
-                                        <div style="background-color: #f8f9fa; border: 1px solid #dee2e6; padding: 4px; border-radius: 3px; font-size: 10px; font-weight: bold; color: #212529;" class="exam-average" data-exam-id="{{ $exam_print->id }}" id="moyenne_exam_{{ $exam_print->id }}">
-                                            Calcul...
-                                        </div>
-                                    </div>
-                                </div>
-                            @endforeach
-                        </div>
+                    <td class="coef">{{ $sub->coef }}</td>
 
-                        <div style="text-align: center; border-top: 1px solid #dee2e6; padding-top: 6px;">
-                            <h4 style="margin: 0; font-size: 10px; font-weight: bold; color: #495057;">
-                                MOYENNE GÉNÉRALE ANNUELLE :
-                                <span id="moyenne_annuelle_finale" style="color: #007bff; font-size: 11px;">Calcul...</span>
-                            </h4>
-                        </div>
+                    {{-- Calculate weighted total --}}
+                    <td class="notetotalaveccoef">
+                        @php
+                            $moyen_avec_coef = $moyen_sans_coef * $sub->coef;
+                        @endphp
+                        {{ number_format($moyen_avec_coef, 2) }}
+                    </td>
+
+                    {{-- Display remarks --}}
+                    <td class="remarks-cell">
+                        @php
+                            $display_comment = '';
+                            if (!empty($mk->comment)) {
+                                $display_comment = $mk->comment;
+                            } elseif ($count > 0) {
+                                $display_comment = \App\Helpers\MarkComment::getComment($moyen_sans_coef);
+                            } else {
+                                $display_comment = 'Aucune note';
+                            }
+                        @endphp
+                        <span style="font-weight: 600;">{{ $display_comment }}</span>
+                    </td>
+                @endforeach
+            </tr>
+            @endforeach
+
+            {{-- Enhanced Total Row --}}
+            <tr class="total-row" style="background-color: #fbbf24 !important;">
+                <td colspan="3" style="text-align: center; font-weight: bold;"><strong>TOTAL DES POINTS</strong></td>
+                <td class="P_totalpoi" style="color: #dc2626 !important; font-weight: 900;"><strong>{{ number_format($rang->total ?? 0, 2) }}</strong></td>
+                <td style="text-align: center; font-weight: bold;"><strong>MOYENNE GÉNÉRALE</strong></td>
+                <td class="P_moyenne-{{$ex->id}}" style="color: #059669 !important; font-weight: 900;"><strong>{{ number_format($rang->ave ?? 0, 2) }}/20</strong></td>
+                <td style="text-align: center; font-weight: bold;"><strong>RANG</strong></td>
+                <td colspan="2" style="text-align: center; font-weight: bold;">
+                    <strong>{!! $positionEnFrancais !!} / {{ $total_eleve }}</strong>
+                </td>
+            </tr>
+            
+            {{-- Grade Scale Reference --}}
+            <tr class="grade-scale-row">
+                <td colspan="9" style="background-color: #f3f4f6 !important; font-size: 7px !important; text-align: center; padding: 1.5mm; font-weight: 600; border: 1px solid #000;">
+                    <strong>ÉCHELLE D'ÉVALUATION:</strong>
+                    18-20: Excellent | 16-17.9: Très Bien | 14-15.9: Bien | 12-13.9: Assez Bien | 10-11.9: Passable | &lt;10: Insuffisant
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    
+    @if($ex->term == 3)
+    <!-- Section des moyennes annuelles optimisée pour impression -->
+    <div class="annual-averages print-visible" style="margin-top: 6px; border: 2px solid #1e3a8a; background-color: #eff6ff;">
+        <h5 style="background-color: #1e3a8a; color: white; text-align: center; margin: 0; padding: 3px; font-size: 9px;">
+            MOYENNES ANNUELLES - BILAN COMPLET
+        </h5>
+        @php
+            // Récupérer tous les examens créés pour cette année
+            $all_exams_print = \App\Models\Exam::where('year', $year)->orderBy('term')->get();
+        @endphp
+        
+        <div style="display: flex; justify-content: space-between; margin: 4px 2px; background-color: white; padding: 2px; border: 1px solid #1e3a8a;">
+            @foreach($all_exams_print as $exam_print)
+                <div style="flex: 1; margin: 0 1px; text-align: center; border-right: 1px solid #e5e7eb;">
+                    <label style="font-weight: bold; font-size: 8px; color: #1e3a8a;">{{ $exam_print->name }}:</label>
+                    <div class="exam-average" data-exam-id="{{ $exam_print->id }}" id="moyenne_exam_{{ $exam_print->id }}" style="font-size: 8px; font-weight: bold;">
+                        Calcul...
                     </div>
                 </div>
-            </td>
-        </tr>
-        @endif
-    </tbody>
-</table>
+            @endforeach
+        </div>
+        
+        <div style="text-align: center; border-top: 2px solid #1e3a8a; padding: 3px; background-color: #fbbf24; margin-top: 2px;">
+            <strong style="font-size: 9px; color: #1e3a8a;">MOYENNE GÉNÉRALE ANNUELLE:</strong>
+            <span id="moyenne_annuelle_finale" style="font-weight: bold; font-size: 10px; color: #dc2626;">Calcul...</span>
+            <span style="font-size: 7px; color: #374151;"> | Objectif: 10/20 minimum pour le passage</span>
+        </div>
+        
+        @php
+            // Déterminer la décision de passage basée sur la moyenne annuelle (sera calculée par JS)
+            $decision_passage = "En cours d'évaluation...";
+            $decision_couleur = "#6b7280";
+        @endphp
+        
+        <div style="text-align: center; background-color: #f9fafb; padding: 2px; margin-top: 2px; border-top: 1px solid #e5e7eb;">
+            <strong style="font-size: 8px; color: #374151;">DÉCISION PROVISOIRE:</strong>
+            <span id="decision_passage" style="font-size: 8px; font-weight: bold; color: {{ $decision_couleur }};">{{ $decision_passage }}</span>
+        </div>
+    </div>
+    @endif
+
+{{-- jQuery Loading --}}
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
 {{-- TOTAL NOTE AVEC COEF SUR TOUTE MATIERE --}}
 <script>
     $(document).ready(function() {
+        // Fonction pour ajuster l'affichage selon le mode (print/screen)
+        function adjustDisplayMode() {
+            if (window.matchMedia && window.matchMedia('print').matches) {
+                // Mode impression - optimisations spécifiques
+                $('body').addClass('print-mode');
+                $('.marks-table').addClass('print-optimized');
+            }
+        }
+        
+        // Ajuster lors du chargement
+        adjustDisplayMode();
+        
+        // Ajuster lors de l'impression
+        window.addEventListener('beforeprint', adjustDisplayMode);
+        
         // Attendre que la moyenne soit calculée
         setTimeout(function() {
             var totalpoint = 0;
@@ -227,12 +903,13 @@
             var moyenne = total_coef > 0 ? totalpoint / total_coef : 0;
             var moyenne_sur_20 = moyenne;
 
-            var soratra = "TOTALE DES POINTS OBTENUS: " + totalpoint.toFixed(2);
-            var soratra2 = "Moyenne " + moyenne.toFixed(2);
+            // Show only the numbers without labels
+            var totalDisplay = totalpoint.toFixed(2);
+            var averageDisplay = moyenne.toFixed(2) + "/20";
 
-            // Display the concatenated total value wherever you want
-            $(".P_totalpoi").text(soratra);
-            $(".P_moyenne-{{$ex->id}}").text(soratra2);
+            // Display only the numbers in the total cells with enhanced styling
+            $(".P_totalpoi").html('<strong style="font-size: 18px; font-weight: 900;">' + totalDisplay + '</strong>');
+            $(".P_moyenne-{{$ex->id}}").html('<strong style="font-size: 18px; font-weight: 900;">' + averageDisplay + '</strong>');
 
             // Stocker la moyenne pour le commentaire général
             window.moyenne_generale = moyenne_sur_20;
@@ -297,7 +974,7 @@
                             totalAverage += examAverage;
                             validExams++;
                             console.log("Examen {{ $exam->name }}: " + examAverage.toFixed(2));
-                            $("#moyenne_exam_{{ $exam->id }}").text(examAverage.toFixed(2) + "/20");
+                            $("#moyenne_exam_{{ $exam->id }}").html('<strong style="font-size: 16px; font-weight: 900;">' + examAverage.toFixed(2) + '/20</strong>');
                         } else {
                             // Priorité 1: Calculer manuellement d'abord (plus fiable que la DB)
                             @php
@@ -347,7 +1024,7 @@
                                 totalAverage += calculatedAverage;
                                 validExams++;
                                 console.log("Examen {{ $exam->name }} (calculé manuellement): " + calculatedAverage.toFixed(2));
-                                $("#moyenne_exam_{{ $exam->id }}").text(calculatedAverage.toFixed(2) + "/20");
+                                $("#moyenne_exam_{{ $exam->id }}").html('<strong style="font-size: 16px; font-weight: 900;">' + calculatedAverage.toFixed(2) + '/20</strong>');
                             @else
                                 // Priorité 2: Fallback vers la base de données si calcul manuel échoue
                                 @php
@@ -365,10 +1042,10 @@
                                     totalAverage += fallbackAverage;
                                     validExams++;
                                     console.log("Examen {{ $exam->name }} (fallback DB): " + fallbackAverage.toFixed(2));
-                                    $("#moyenne_exam_{{ $exam->id }}").text(fallbackAverage.toFixed(2) + "/20");
+                                    $("#moyenne_exam_{{ $exam->id }}").html('<strong style="font-size: 16px; font-weight: 900;">' + fallbackAverage.toFixed(2) + '/20</strong>');
                                 @else
                                     console.log("Impossible de calculer la moyenne pour {{ $exam->name }}");
-                                    $("#moyenne_exam_{{ $exam->id }}").text("0.00/20");
+                                    $("#moyenne_exam_{{ $exam->id }}").html('<span style="font-size: 16px; font-weight: 600;">0.00/20</span>');
                                 @endif
                             @endif
                         }
@@ -385,11 +1062,28 @@
                         var annualAverage = validateAverage(totalAverage / validExams, "Moyenne annuelle");
 
                         console.log("Moyenne annuelle finale (PRINT): " + annualAverage.toFixed(2));
-                        $("#moyenne_annuelle_finale").text(annualAverage.toFixed(2) + "/20");
+                        $("#moyenne_annuelle_finale").html('<strong style="font-size: 18px; font-weight: 900;">' + annualAverage.toFixed(2) + '/20</strong>');
 
                         // Stocker la moyenne annuelle pour utilisation ultérieure et comparaison
                         window.moyenne_annuelle_finale_print = annualAverage;
                         window.moyenne_annuelle_finale = annualAverage;
+                        
+                        // Déterminer la décision de passage automatiquement
+                        var decision_passage = "";
+                        var decision_couleur = "";
+                        
+                        if (annualAverage >= 10) {
+                            decision_passage = "ADMIS(E) - PASSAGE AUTORISÉ";
+                            decision_couleur = "#059669"; // Vert
+                        } else if (annualAverage >= 8) {
+                            decision_passage = "ADMIS(E) AVEC RÉSERVE - SUIVI RENFORCÉ";
+                            decision_couleur = "#d97706"; // Orange
+                        } else {
+                            decision_passage = "REDOUBLEMENT RECOMMANDÉ";
+                            decision_couleur = "#dc2626"; // Rouge
+                        }
+                        
+                        $("#decision_passage").text(decision_passage).css("color", decision_couleur);
 
                         // Vérifier la cohérence avec la vue show si disponible
                         if (typeof window.moyenne_annuelle_finale_show !== 'undefined') {
@@ -507,141 +1201,158 @@
                 }, 1500);
             @endif
         }, 500); // Attendre 500ms pour s'assurer que la moyenne est calculée
+        
+        // Génération des commentaires après calcul de la moyenne
+        setTimeout(function() {
+            var moyenne = window.moyenne_generale || 0;
+            
+            // Commentaire de l'enseignant
+            var commentaire_enseignant = "";
+            if (moyenne >= 0 && moyenne < 5) {
+                commentaire_enseignant = "Moyenne très faible. Il faut persévérer, chaque progrès compte.";
+            } else if (moyenne >= 5 && moyenne < 8) {
+                commentaire_enseignant = "Résultats insuffisants, mais des efforts peuvent relancer la dynamique.";
+            } else if (moyenne >= 8 && moyenne < 10) {
+                commentaire_enseignant = "Moyenne fragile. Du potentiel à développer avec plus de régularité.";
+            } else if (moyenne >= 10 && moyenne < 12) {
+                commentaire_enseignant = "Moyenne juste. Des bases sont posées, il faut les renforcer.";
+            } else if (moyenne >= 12 && moyenne < 14) {
+                commentaire_enseignant = "Moyenne correcte. Il faut continuer à s'investir pour consolider les acquis.";
+            } else if (moyenne >= 14 && moyenne < 16) {
+                commentaire_enseignant = "Bon travail. Un bel investissement à maintenir.";
+            } else if (moyenne >= 16 && moyenne < 18) {
+                commentaire_enseignant = "Très bon niveau. L'élève est sérieux et régulier.";
+            } else if (moyenne >= 18 && moyenne <= 20) {
+                commentaire_enseignant = "Excellent parcours. Un exemple à suivre, bravo !";
+            }
+            
+            // Commentaire du directeur
+            var commentaire_directeur = "";
+            if (moyenne >= 0 && moyenne < 5) {
+                commentaire_directeur = "Ne lâche rien, chaque effort t'aidera à avancer.";
+            } else if (moyenne >= 5 && moyenne < 8) {
+                commentaire_directeur = "Courage et persévérance mèneront à la réussite.";
+            } else if (moyenne >= 8 && moyenne < 10) {
+                commentaire_directeur = "Continue à progresser, tu en es capable.";
+            } else if (moyenne >= 10 && moyenne < 12) {
+                commentaire_directeur = "Des bases posées, à renforcer pas à pas.";
+            } else if (moyenne >= 12 && moyenne < 14) {
+                commentaire_directeur = "Des efforts visibles, poursuis dans cette voie.";
+            } else if (moyenne >= 14 && moyenne < 16) {
+                commentaire_directeur = "Bon travail, garde cette motivation.";
+            } else if (moyenne >= 16 && moyenne < 18) {
+                commentaire_directeur = "Excellente implication, continue ainsi !";
+            } else if (moyenne >= 18 && moyenne <= 20) {
+                commentaire_directeur = "Félicitations ! Un parcours remarquable.";
+            }
+            
+            // Afficher les commentaires
+            $("#commentaire_general").text(commentaire_enseignant);
+            $("#commentaire_directeur").text(commentaire_directeur);
+        }, 600);
     });
 </script>
 
-<!-- Commentaire général de l'enseignant -->
-<div style="margin-top: 10px; border: 1px solid #ddd; padding: 5px; border-radius: 5px;">
-    <h4 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 5px; font-size: 11px;">Commentaire de l'enseignant</h4>
-    <div id="commentaire_general" style="font-style: italic; padding: 5px; background-color: #f9f9f9; border-radius: 5px; font-size: 10px;">
-        <!-- Le commentaire sera inséré ici par JavaScript -->
-    </div>
+    <!-- Professional Comments and Decision Section -->
+    @if(!empty($rang->t_comment) || !empty($rang->p_comment) || $ex->term == 3)
+    <div class="comments-section print-visible" style="margin-top: 4mm; border: 1.5px solid #2563eb; background: #f8fafc; page-break-inside: avoid;">
+    <h4 style="background: #2563eb; color: white; margin: 0; padding: 2mm; text-align: center; font-size: 9px; font-weight: bold;">
+        OBSERVATIONS ET COMMENTAIRES PÉDAGOGIQUES
+    </h4>
     
-    <script>
-        $(document).ready(function() {
-            // Attendre que la moyenne soit calculée
-            setTimeout(function() {
-                var moyenne = window.moyenne_generale || 0;
-                var commentaire = "";
-                var commentaireClass = "";
-                
-                // Déterminer le commentaire en fonction de la moyenne
-                if (moyenne >= 0 && moyenne < 5) {
-                    commentaire = "Moyenne très faible. Il faut persévérer, chaque progrès compte.";
-                    commentaireClass = "text-danger";
-                } else if (moyenne >= 5 && moyenne < 8) {
-                    commentaire = "Résultats insuffisants, mais des efforts peuvent relancer la dynamique.";
-                    commentaireClass = "text-warning";
-                } else if (moyenne >= 8 && moyenne < 10) {
-                    commentaire = "Moyenne fragile. Du potentiel à développer avec plus de régularité.";
-                    commentaireClass = "text-warning";
-                } else if (moyenne >= 10 && moyenne < 12) {
-                    commentaire = "Moyenne juste. Des bases sont posées, il faut les renforcer.";
-                    commentaireClass = "text-primary";
-                } else if (moyenne >= 12 && moyenne < 14) {
-                    commentaire = "Moyenne correcte. Il faut continuer à s'investir pour consolider les acquis.";
-                    commentaireClass = "text-primary";
-                } else if (moyenne >= 14 && moyenne < 16) {
-                    commentaire = "Bon travail. Un bel investissement à maintenir.";
-                    commentaireClass = "text-success";
-                } else if (moyenne >= 16 && moyenne < 18) {
-                    commentaire = "Très bon niveau. L'élève est sérieux et régulier.";
-                    commentaireClass = "text-success";
-                } else if (moyenne >= 18 && moyenne <= 20) {
-                    commentaire = "Excellent parcours. Un exemple à suivre, bravo !";
-                    commentaireClass = "text-purple";
-                }
-                
-                // Afficher le commentaire avec la classe de couleur appropriée
-                $("#commentaire_general").html('<span class="' + commentaireClass + '">' + commentaire + '</span>');
-            }, 500); // Attendre 500ms pour s'assurer que la moyenne est calculée
-        });
-    </script>
-</div>
-
-<!-- Commentaire du directeur/directrice -->
-<div style="margin-top: 5px; border: 1px solid #ddd; padding: 5px; border-radius: 5px;">
-    <h4 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 5px; font-size: 11px;">Commentaire du directeur/directrice</h4>
-    <div id="commentaire_directeur" style="font-style: italic; padding: 5px; background-color: #f9f9f9; border-radius: 5px; font-weight: bold; font-size: 10px;">
-        <!-- Le commentaire sera inséré ici par JavaScript -->
+    <div style="padding: 3mm; background: white; margin: 1mm;">
+        @if(!empty($rang->t_comment))
+            <div style="margin-bottom: 2mm; border-left: 3px solid #059669; padding-left: 2mm;">
+                <strong style="font-size: 8px; color: #2563eb;">Commentaire du professeur:</strong>
+                <div style="font-size: 8px; line-height: 1.2; margin-top: 1mm; font-style: italic;">{{ $rang->t_comment }}</div>
+            </div>
+        @endif
+        
+        @if(!empty($rang->p_comment))
+            <div style="margin-bottom: 2mm; border-left: 3px solid #dc2626; padding-left: 2mm;">
+                <strong style="font-size: 8px; color: #2563eb;">Commentaire de la direction:</strong>
+                <div style="font-size: 8px; line-height: 1.2; margin-top: 1mm; font-style: italic;">{{ $rang->p_comment }}</div>
+            </div>
+        @endif
+        
+        @if($ex->term == 3)
+            <div style="border-top: 1px solid #e5e7eb; padding-top: 2mm; margin-top: 2mm; text-align: center;">
+                <strong style="font-size: 9px; color: #dc2626;">DÉCISION DE FIN D'ANNÉE:</strong>
+                <div id="decision_finale" style="font-size: 9px; font-weight: bold; margin-top: 1mm; padding: 1mm; background: #fef3c7; border: 1px solid #f59e0b; border-radius: 3px;">
+                    En cours d'évaluation...
+                </div>
+            </div>
+        @endif
     </div>
-    
-    <script>
-        $(document).ready(function() {
-            // Attendre que la moyenne soit calculée
-            setTimeout(function() {
-                var moyenne = window.moyenne_generale || 0;
-                var commentaire = "";
-                var commentaireClass = "";
-                
-                // Déterminer le commentaire du directeur en fonction de la moyenne
-                if (moyenne >= 0 && moyenne < 5) {
-                    commentaire = "Ne lâche rien, chaque effort t'aidera à avancer.";
-                    commentaireClass = "text-danger";
-                } else if (moyenne >= 5 && moyenne < 8) {
-                    commentaire = "Courage et persévérance mèneront à la réussite.";
-                    commentaireClass = "text-warning";
-                } else if (moyenne >= 8 && moyenne < 10) {
-                    commentaire = "Continue à progresser, tu en es capable.";
-                    commentaireClass = "text-warning";
-                } else if (moyenne >= 10 && moyenne < 12) {
-                    commentaire = "Des bases posées, à renforcer pas à pas.";
-                    commentaireClass = "text-primary";
-                } else if (moyenne >= 12 && moyenne < 14) {
-                    commentaire = "Des efforts visibles, poursuis dans cette voie.";
-                    commentaireClass = "text-primary";
-                } else if (moyenne >= 14 && moyenne < 16) {
-                    commentaire = "Bon travail, garde cette motivation.";
-                    commentaireClass = "text-success";
-                } else if (moyenne >= 16 && moyenne < 18) {
-                    commentaire = "Excellente implication, continue ainsi !";
-                    commentaireClass = "text-success";
-                } else if (moyenne >= 18 && moyenne <= 20) {
-                    commentaire = "Félicitations ! Un parcours remarquable.";
-                    commentaireClass = "text-purple";
-                }
-                
-                // Afficher le commentaire avec la classe de couleur appropriée
-                $("#commentaire_directeur").html('<span class="' + commentaireClass + '">' + commentaire + '</span>');
-            }, 500); // Attendre 500ms pour s'assurer que la moyenne est calculée
-        });
-    </script>
-</div>
+    </div>
+    @endif
 
-@if($ex->term == 3)
-<!-- Section de passage/redoublement (uniquement pour le 3ème trimestre) -->
-<div style="margin-top: 5px; border: 1px solid #ddd; padding: 8px; border-radius: 5px;">
-    <h4 style="border-bottom: 1px solid #eee; padding-bottom: 5px; margin-bottom: 10px; font-size: 11px; text-align: center;">Décision de fin d'année</h4>
+    @if($ex->term == 3)
+    <!-- Administrative Decision Section for Final Term -->
+    <div class="comments-section print-visible" style="background-color: #fef3c7; border: 2px solid #f59e0b; margin-top: 3mm; page-break-inside: avoid;">
+    <h4 style="color: #92400e; background-color: #fbbf24; text-align: center; margin: 0 0 2mm 0; padding: 2mm; font-size: 9px;">DÉCISION ADMINISTRATIVE FINALE</h4>
+    <div style="padding: 2mm;">
+        <table style="width: 100%; border-collapse: collapse; margin-bottom: 2mm; font-size: 8px;">
+            <tr>
+                <td style="width: 50%; padding: 0;">
+                    <span style="font-weight: bold;">Décision finale:</span>
+                    <span style="margin-left: 5px;">☐ Passant</span>
+                    <span style="margin-left: 10px;">☐ Redoublant</span>
+                    <span style="margin-left: 10px;">☐ Orientation</span>
+                </td>
+                <td style="width: 50%; text-align: right; padding: 0;">
+                    <span style="font-weight: bold;">Date du conseil:</span>
+                    <span style="margin-left: 5px; border-bottom: 1px solid #000; display: inline-block; width: 60px; height: 10px;"></span>
+                </td>
+            </tr>
+        </table>
+        <div style="margin-bottom: 2mm; font-size: 8px;">
+            <span style="font-weight: bold;">Classe d'affectation {{ intval($ex->year) + 1 }}:</span>
+            <span style="margin-left: 5px; border-bottom: 1px solid #000; display: inline-block; width: 150px; height: 10px;"></span>
+        </div>
+        <div style="font-size: 6px; font-style: italic; color: #6b7280; text-align: center; margin-top: 1mm;">
+            Cette décision est prise par le conseil de classe selon les critères académiques de l'établissement.
+        </div>
+    </div>
+    </div>
+    @endif
 
-    <div style="margin-bottom: 8px;">
-        <span style="font-weight: bold; font-size: 10px;">Décision finale :</span>
-        <span style="margin-left: 10px; font-size: 10px;">Passant</span>
-        <span style="margin-left: 15px; border-bottom: 1px solid #000; display: inline-block; width: 15px; height: 12px;"></span>
-        <span style="margin-left: 15px; font-size: 10px;">ou</span>
-        <span style="margin-left: 15px; font-size: 10px;">Redoublant</span>
-        <span style="margin-left: 15px; border-bottom: 1px solid #000; display: inline-block; width: 15px; height: 12px;"></span>
+    <!-- Professional Signature Section -->
+    <table class="signature-section print-visible" style="margin-top: 4mm; border-top: 2px solid #2563eb; padding-top: 3mm; page-break-inside: avoid; width: 100%; border-collapse: collapse;">
+    <tr>
+        <td class="signature-box" style="width: 33.33%; text-align: center; border-top: 2px solid #000; padding-top: 3mm; vertical-align: top;">
+            <div style="border-bottom: 1.5px solid #000; height: 15mm; margin-bottom: 2mm;"></div>
+            <p style="font-weight: bold; font-size: 8px; margin: 0;">Le Professeur Principal</p>
+            <p style="font-size: 7px; margin: 0; color: #6b7280;">Signature et cachet</p>
+        </td>
+        <td class="signature-box" style="width: 33.33%; text-align: center; border-top: 2px solid #000; padding-top: 3mm; vertical-align: top;">
+            <div style="border-bottom: 1.5px solid #000; height: 15mm; margin-bottom: 2mm;"></div>
+            <p style="font-weight: bold; font-size: 8px; margin: 0;">Le Directeur des Études</p>
+            <p style="font-size: 7px; margin: 0; color: #6b7280;">Signature et cachet</p>
+        </td>
+        <td class="signature-box" style="width: 33.33%; text-align: center; border-top: 2px solid #000; padding-top: 3mm; vertical-align: top;">
+            <div style="border-bottom: 1.5px solid #000; height: 15mm; margin-bottom: 2mm;"></div>
+            <p style="font-weight: bold; font-size: 8px; margin: 0;">Le Parent/Tuteur</p>
+            <p style="font-size: 7px; margin: 0; color: #6b7280;">Lu et approuvé le: ___/___/____</p>
+        </td>
+    </tr>
+    </table>
+        
+    <!-- Official Stamp Section -->
+    <div style="text-align: center; margin-top: 3mm; border: 1px dashed #6b7280; padding: 3mm; background: #f9fafb;">
+        <p style="font-size: 7px; color: #6b7280; margin: 0; font-weight: bold;">
+            ESPACE RÉSERVÉ AU CACHET OFFICIEL DE L'ÉTABLISSEMENT
+        </p>
+        <div style="height: 15mm;"></div>
+    </div>
+        
+    <!-- Legal Information Footer -->
+    <div style="margin-top: 3mm; border-top: 1px solid #e5e7eb; padding-top: 2mm; text-align: center;">
+        <p style="font-size: 6px; color: #6b7280; margin: 0; line-height: 1.2;">
+            Document officiel du {{ Qs::getSetting('system_name') ?: 'Collège Privé Adventiste' }} - Toute reproduction ou falsification est interdite<br>
+            Généré le {{ date('d/m/Y à H:i') }} par {{ Auth::user()->name ?? 'Système' }} | 
+            Pour vérification: {{ Qs::getSetting('phone') ?: 'Contactez l\'établissement' }}
+        </p>
     </div>
 
-    <div style="margin-bottom: 8px;">
-        <span style="font-weight: bold; font-size: 10px;">Classe :</span>
-        <span style="margin-left: 10px; border-bottom: 1px solid #000; display: inline-block; width: 200px; height: 12px;"></span>
-    </div>
-</div>
-@endif
-
-<!-- Signature de l'enseignant et du parent -->
-<div style="margin-top: 5px; display: flex; justify-content: space-between;">
-    <div style="width: 30%; text-align: center;">
-        <div style="border-bottom: 1px solid #000; height: 20px;"></div>
-        <p style="margin-top: 2px; font-size: 9px;">Signature de l'enseignant</p>
-    </div>
-    <div style="width: 30%; text-align: center;">
-        <div style="border-bottom: 1px solid #000; height: 20px;"></div>
-        <p style="margin-top: 2px; font-size: 9px;">Signature du directeur</p>
-    </div>
-    <div style="width: 30%; text-align: center;">
-        <div style="border-bottom: 1px solid #000; height: 20px;"></div>
-        <p style="margin-top: 2px; font-size: 9px;">Signature du parent</p>
-    </div>
-</div>
-
+</div> {{-- End preview-container --}}

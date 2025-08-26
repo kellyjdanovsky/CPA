@@ -56,11 +56,26 @@
                                         <label class="form-check-label" for="type_all">Tous</label>
                                     </div>
                                 </div>
+                                <div class="form-group">
+                                    <label for="payment_deadline" class="col-form-label font-weight-bold">Date limite de paiement :</label>
+                                    <input type="date" id="payment_deadline" name="payment_deadline" class="form-control" required>
+                                    <small class="form-text text-muted">Cette date sera utilisée pour générer les lettres d'avis de paiement (10 avis par page A4)</small>
+                                </div>
                             </div>
 
                             <div class="col-md-2 mt-4">
                                 <div class="text-right mt-1">
                                     <button type="submit" class="btn btn-primary">Vérifier <i class="icon-search4 ml-2"></i></button>
+                                </div>
+                                <div class="text-right mt-2">
+                                    <button type="button" id="preview-notifications" class="btn btn-info btn-block" disabled>
+                                        <i class="icon-eye mr-2"></i>Aperçu
+                                    </button>
+                                </div>
+                                <div class="text-right mt-1">
+                                    <button type="button" id="generate-notifications" class="btn btn-success btn-block" disabled>
+                                        <i class="icon-file-pdf mr-2"></i>Avis de Paiement
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -91,14 +106,109 @@
                                 $.each(res,function(key,value){
                                     $("#payments").append('<option value="'+value.id+'">'+value.title+'</option>');
                                 });
+                                updateGenerateButton();
                             }else{
                                 $("#payments").empty();
+                                updateGenerateButton();
                             }
                         }
                     });
                 }else{
                    alert("Classe non trouvée");
                 }
+            });
+
+            // Vérifier si le bouton de génération peut être activé
+            function updateGenerateButton() {
+                var classId = $('#my_class_id').val();
+                var paymentIds = $('#payments').val();
+                var paymentDeadline = $('#payment_deadline').val();
+                
+                if (classId && paymentIds && paymentIds.length > 0 && paymentDeadline) {
+                    $('#generate-notifications').prop('disabled', false);
+                    $('#preview-notifications').prop('disabled', false);
+                } else {
+                    $('#generate-notifications').prop('disabled', true);
+                    $('#preview-notifications').prop('disabled', true);
+                }
+            }
+
+            // Événements pour mettre à jour le bouton
+            $('#payments, #payment_deadline').change(updateGenerateButton);
+
+            // Fonction commune pour générer les données du formulaire
+            function generateFormData(action) {
+                var classId = $('#my_class_id').val();
+                var paymentIds = $('#payments').val();
+                var paymentDeadline = $('#payment_deadline').val();
+                var statuses = [];
+                
+                $('input[name="status[]"]:checked').each(function() {
+                    statuses.push($(this).val());
+                });
+                
+                if (!classId || !paymentIds || paymentIds.length === 0 || !paymentDeadline) {
+                    alert('Veuillez sélectionner une classe, des motifs de paiement et une date limite.');
+                    return null;
+                }
+                
+                return {
+                    classId: classId,
+                    paymentIds: paymentIds,
+                    paymentDeadline: paymentDeadline,
+                    statuses: statuses,
+                    action: action
+                };
+            }
+
+            // Aperçu des avis de paiement
+            $('#preview-notifications').click(function() {
+                var formData = generateFormData('preview');
+                if (!formData) return;
+                
+                // Créer et soumettre le formulaire pour l'aperçu
+                var form = $('<form method="POST" action="{{ route('payments.generate_notifications') }}">').appendTo('body');
+                form.append('@csrf');
+                form.append('<input name="my_class_id" value="' + formData.classId + '">');
+                form.append('<input name="payment_deadline" value="' + formData.paymentDeadline + '">');
+                form.append('<input name="action" value="preview">');
+                
+                // Ajouter les IDs de paiement
+                formData.paymentIds.forEach(function(id) {
+                    form.append('<input name="my_payments_id[]" value="' + id + '">');
+                });
+                
+                // Ajouter les statuts
+                formData.statuses.forEach(function(status) {
+                    form.append('<input name="status[]" value="' + status + '">');
+                });
+                
+                form.submit();
+            });
+
+            // Générer les avis de paiement (PDF)
+            $('#generate-notifications').click(function() {
+                var formData = generateFormData('download');
+                if (!formData) return;
+                
+                // Créer et soumettre le formulaire pour le téléchargement
+                var form = $('<form method="POST" action="{{ route('payments.generate_notifications') }}">').appendTo('body');
+                form.append('@csrf');
+                form.append('<input name="my_class_id" value="' + formData.classId + '">');
+                form.append('<input name="payment_deadline" value="' + formData.paymentDeadline + '">');
+                form.append('<input name="action" value="download">');
+                
+                // Ajouter les IDs de paiement
+                formData.paymentIds.forEach(function(id) {
+                    form.append('<input name="my_payments_id[]" value="' + id + '">');
+                });
+                
+                // Ajouter les statuts
+                formData.statuses.forEach(function(status) {
+                    form.append('<input name="status[]" value="' + status + '">');
+                });
+                
+                form.submit();
             });
         });
     </script>
