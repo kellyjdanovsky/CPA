@@ -14,7 +14,9 @@ class AddMethodeToReceiptsTable extends Migration
     public function up()
     {
         Schema::table('receipts', function (Blueprint $table) {
-            $table->string('methode')->nullable()->after('year');
+            if (!Schema::hasColumn('receipts', 'methode')) {
+                $table->string('methode')->nullable()->after('year');
+            }
         });
     }
 
@@ -26,7 +28,9 @@ class AddMethodeToReceiptsTable extends Migration
     public function down()
     {
         Schema::table('receipts', function (Blueprint $table) {
-            $table->dropColumn('methode');
+            if (Schema::hasColumn('receipts', 'methode')) {
+                $table->dropColumn('methode');
+            }
         });
     }
 }
