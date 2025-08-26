@@ -24,7 +24,12 @@ class Receipt extends Eloquent
      */
     protected function getDuplicateCheckFields()
     {
-        return ['pr_id', 'reference_number'];
+        // Only check reference_number if it's not null
+        if (!empty($this->reference_number)) {
+            return ['pr_id', 'reference_number'];
+        }
+        
+        return ['pr_id'];
     }
 
     /**

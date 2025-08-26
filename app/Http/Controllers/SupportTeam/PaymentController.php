@@ -177,39 +177,45 @@ class PaymentController extends Controller
                 return response()->json(['message' => 'Paiement introuvable'], 404);
             }
 
+            // Récupérer le montant réellement payé depuis les reçus existants
+            $existingPaidAmount = $pr->getTotalPaidFromReceipts();
+            
+            // Calculer le solde restant en fonction des reçus existants
+            $remainingBalance = $payment->amount - $existingPaidAmount;
+            
             // Vérifier si le montant payé est supérieur au solde restant
-            if ($req->amt_paid > ($payment->amount - $pr->amt_paid)) {
-                return response()->json(['message' => 'Le montant payé ne peut pas être supérieur au solde restant'], 422);
+            if ($req->amt_paid > $remainingBalance) {
+                return response()->json(['message' => 'Le montant payé ne peut pas être supérieur au solde restant de ' . $remainingBalance], 422);
             }
 
-            // Mettre à jour l'enregistrement de paiement
-            $d['amt_paid'] = $amt_p = $pr->amt_paid + $req->amt_paid;
-            $d['balance'] = $bal = $payment->amount - $amt_p;
-            $d['paid'] = $bal < 1 ? 1 : 0;
-
-            $this->pay->updateRecord($pr_id, $d);
-
-            // Créer un reçu
+            // Créer un reçu avec une référence unique
             $d2['amt_paid'] = $req->amt_paid;
-            $d2['balance'] = $bal;
+            $d2['balance'] = $remainingBalance - $req->amt_paid;
             $d2['pr_id'] = $pr_id;
             $d2['year'] = $this->year;
             $d2['methode'] = $req->methode;
             $d2['payment_method'] = $req->payment_method ?? $req->methode;
-            $d2['reference_number'] = $req->reference_number ?? null;
+            $d2['reference_number'] = $req->reference_number ?? \App\Models\Receipt::generateReferenceNumber();
             $d2['observations'] = $req->observations ?? null;
             $d2['created_by'] = auth()->user()->name;
+            // Générer un UUID unique pour éviter les doublons
+            $d2['operation_uuid'] = (string) \Illuminate\Support\Str::uuid();
 
-            $receipt = $this->pay->createReceipt($d2);
+            // Utiliser createSafeReceipt au lieu de createReceipt pour éviter les doublons
+            $receipt = \App\Models\Receipt::createSafeReceipt($d2);
 
             if (!$receipt) {
                 throw new \Exception('Impossible de créer le reçu');
             }
 
+            // Le modèle Receipt mettra à jour automatiquement l'enregistrement de paiement
+            // via les événements de modèle dans le trait DuplicateDetection
+            
             return Qs::jsonUpdateOk();
         } catch (\Exception $e) {
             // Log l'erreur pour le débogage
             \Log::error('Erreur lors du paiement: ' . $e->getMessage());
+            \Log::error('Stack trace: ' . $e->getTraceAsString());
 
             // Retourner un message d'erreur convivial
             return response()->json([
@@ -2048,6 +2054,365 @@ public function journalExportExcel(Request $request)
     return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
 }
 
+/**
+ * Générer les avis de paiement en malgache
+ */
+public function generatePaymentNotifications(Request $request)
+{
+    $this->validate($request, [
+        'my_class_id' => 'required|exists:my_classes,id',
+        'my_payments_id' => 'required|array|min:1',
+        'my_payments_id.*' => 'exists:payments,id',
+        'payment_deadline' => 'required|date|after:today',
+        'status' => 'array'
+    ], [
+        'my_class_id.required' => 'Veuillez sélectionner une classe.',
+        'my_payments_id.required' => 'Veuillez sélectionner au moins un motif de paiement.',
+        'payment_deadline.required' => 'Veuillez spécifier une date limite de paiement.',
+        'payment_deadline.after' => 'La date limite doit être future.'
+    ]);
+
+    $payment_ids = $request->my_payments_id;
+    $id_class = $request->my_class_id;
+    $statuses = $request->status ?? ['Normal', 'ADRA'];
+    $payment_deadline = $request->payment_deadline;
+    $action = $request->get('action', 'download'); // 'preview' or 'download'
+
+    $nom_classe = MyClass::where('id', $id_class)->first();
+    if (!$nom_classe) {
+        return back()->with('flash_danger', 'Classe introuvable. Veuillez sélectionner une classe valide.');
+    }
+
+    // Récupérer tous les paiements sélectionnés
+    $payments = Payment::whereIn('id', $payment_ids)
+        ->where(function($query) use ($id_class) {
+            $query->where('my_class_id', $id_class)
+                  ->orWhereNull('my_class_id');
+        })
+        ->get();
+
+    if ($payments->isEmpty()) {
+        return back()->with('flash_danger', 'Motifs de paiement introuvables. Veuillez sélectionner des motifs de paiement valides pour cette classe.');
+    }
+
+    // Récupérer tous les étudiants de la classe avec le statut spécifié
+    $students = StudentRecord::where('my_class_id', $id_class)
+        ->with(['user' => function($query) use ($statuses) {
+            $query->whereIn('status', $statuses)
+                  ->orWhereNull('status');
+        }])
+        ->get()
+        ->filter(function($student) {
+            return $student->user !== null;
+        });
+
+    // Préparer les données pour les lettres
+    $unpaidStudents = $this->filterUnpaidStudents($students, $payments);
+
+    if (empty($unpaidStudents)) {
+        return back()->with('flash_danger', 'Aucun élève impayé trouvé pour les critères sélectionnés.');
+    }
+
+    // Vérifier l'action demandée
+    if ($action === 'preview') {
+        return $this->previewPaymentNotifications($unpaidStudents, $nom_classe, $payments, $payment_deadline);
+    }
+
+    // Générer le PDF avec mise en page 10 avis par page
+    return $this->generateNotificationsPDF($unpaidStudents, $nom_classe, $payments, $payment_deadline);
+}
+
+/**
+ * Afficher un aperçu des avis de paiement avant impression
+ */
+public function previewPaymentNotifications($unpaidStudents, $nom_classe, $payments, $payment_deadline)
+{
+    // Récupérer les paramètres de l'école
+    $school_settings = Setting::all()->flatMap(function($s){
+        return [$s->type => $s->description];
+    });
+
+    // Préparer les données pour la vue
+    $data = [
+        'unpaid_students' => $unpaidStudents,
+        'class_name' => $nom_classe->name,
+        'payments' => $payments,
+        'payment_deadline' => $payment_deadline,
+        'school_settings' => $school_settings,
+        'generated_date' => now()->format('d/m/Y'),
+        'is_preview' => true
+    ];
+
+    // Retourner la vue de prévisualisation
+    return view('pages.support_team.payments.payment_notifications_preview', $data);
+}
+
+/**
+ * Filtrer les étudiants impayés
+ */
+private function filterUnpaidStudents($students, $payments)
+{
+    $unpaidStudents = [];
+
+    foreach ($students as $student) {
+        $status = $student->user->status ?? 'Normal';
+        
+        // Ignorer les étudiants avec le statut TEAM3
+        if ($status === 'TEAM3') {
+            continue;
+        }
+
+        $totalAmountDue = 0;
+        $totalAmountPaid = 0;
+        $totalAmount = 0;
+        $paymentTitles = [];
+        $hasUnpaidPayments = false;
+
+        foreach ($payments as $payment) {
+            $paymentRecord = PaymentRecord::with('receipt')
+                ->where('student_id', $student->user_id)
+                ->where('payment_id', $payment->id)
+                ->first();
+
+            if (!$paymentRecord) {
+                continue;
+            }
+
+            $paymentTitles[] = $payment->title;
+            
+            // Récupérer le montant total des reçus
+            $totalReceiptAmount = 0;
+            $receipts = $paymentRecord->receipt;
+            if ($receipts && $receipts->count() > 0) {
+                $totalReceiptAmount = $receipts->sum('amt_paid');
+            }
+
+            $paidAmount = $totalReceiptAmount > 0 ? $totalReceiptAmount : ($paymentRecord->amt_paid ?: 0);
+
+            // Calculer le montant dû selon le statut
+            $amountDue = 0;
+            $requiredAmount = 0;
+            
+            if ($status === 'ADRA') {
+                $requiredAmount = $payment->amount * 0.25;
+                if ($paidAmount < $requiredAmount) {
+                    $amountDue = $requiredAmount - $paidAmount;
+                    $hasUnpaidPayments = true;
+                }
+            } else {
+                $requiredAmount = $payment->amount;
+                if (!$paymentRecord->paid) {
+                    $amountDue = $payment->amount - $paidAmount;
+                    if ($amountDue > 0) {
+                        $hasUnpaidPayments = true;
+                    }
+                }
+            }
+
+            $totalAmountDue += max(0, $amountDue);
+            $totalAmountPaid += $paidAmount;
+            $totalAmount += $requiredAmount;
+        }
+
+        // N'inclure que les étudiants avec des paiements impayés
+        if ($hasUnpaidPayments && $totalAmountDue > 0) {
+            $unpaidStudents[] = [
+                'student' => $student,
+                'status' => $status,
+                'amount_due' => $totalAmountDue,
+                'amount_paid' => $totalAmountPaid,
+                'total_amount' => $totalAmount,
+                'payment_titles' => implode(', ', $paymentTitles)
+            ];
+        }
+    }
+
+    return $unpaidStudents;
+}
+
+/**
+ * Générer le PDF des avis de paiement avec optimisations avancées
+ */
+private function generateNotificationsPDF($unpaidStudents, $nom_classe, $payments, $payment_deadline)
+{
+    // Optimisations agressives pour éviter les timeouts
+    set_time_limit(0); // Supprimer la limite de temps
+    ini_set('memory_limit', '1024M'); // Augmenter encore plus la mémoire
+    ini_set('max_execution_time', 0); // Supprimer la limite d'exécution
+    
+    // Éviter les requêtes inutiles en prenant seulement les données essentielles
+    $school_settings = [];
+    
+    // Limiter le nombre d'étudiants pour éviter les gros PDFs
+    $maxStudentsPerBatch = 50; // Maximum 50 étudiants par batch
+    $studentBatches = array_chunk($unpaidStudents, $maxStudentsPerBatch);
+    
+    // Debug: Check if we have students
+    if (empty($unpaidStudents)) {
+        return back()->with('flash_danger', 'Aucun étudiant impayé trouvé pour générer le PDF.');
+    }
+    
+    // Si trop d'étudiants, traiter par batch
+    if (count($unpaidStudents) > $maxStudentsPerBatch) {
+        return $this->generateBatchedPDF($studentBatches, $nom_classe, $payments, $payment_deadline);
+    }
+
+    // Préparer les données minimales pour le PDF
+    $data = [
+        'unpaid_students' => $unpaidStudents,
+        'class_name' => $nom_classe->name,
+        'payments' => $payments,
+        'payment_deadline' => $payment_deadline,
+        'school_settings' => $school_settings,
+        'generated_date' => now()->format('d/m/Y'),
+        'is_pdf' => true
+    ];
+
+    // Générer le nom du fichier
+    $fileName = 'Avis_Paiement_' . str_replace(' ', '_', $nom_classe->name) . '_' . date('Y-m-d') . '.pdf';
+
+    try {
+        // Forcer le garbage collection pour libérer la mémoire
+        gc_collect_cycles();
+        
+        // Générer le PDF avec configuration ultra-optimisée
+        $pdf = PDF::loadView('pages.support_team.payments.payment_notifications_pdf', $data);
+        
+        // Configuration minimaliste pour maximum de performances
+        $pdf->setPaper('A4', 'portrait');
+        $pdf->setOptions([
+            'isHtml5ParserEnabled' => false, // Désactiver le parser HTML5 complexe
+            'isRemoteEnabled' => false,
+            'isFontSubsettingEnabled' => false, // Désactiver le subsetting des polices
+            'defaultFont' => 'Arial',
+            'dpi' => 72, // Réduire la résolution pour accélérer
+            'defaultPaperSize' => 'A4',
+            'chroot' => public_path(),
+            'tempDir' => sys_get_temp_dir(),
+            'enableCssFloat' => true,
+            'enableHtml5Parser' => false,
+            'debugKeepTemp' => false,
+            'debugCss' => false,
+            'debugLayout' => false,
+            'debugLayoutLines' => false,
+            'debugLayoutBlocks' => false,
+            'debugLayoutInline' => false,
+            'debugLayoutPaddingBox' => false,
+            'logOutputFile' => null
+        ]);
+        
+        // Forcer encore le garbage collection
+        gc_collect_cycles();
+        
+        return $pdf->download($fileName);
+        
+    } catch (\Exception $e) {
+        // Log détaillé pour debugging
+        \Log::error('PDF Generation Error: ' . $e->getMessage(), [
+            'student_count' => count($unpaidStudents),
+            'class_name' => $nom_classe->name,
+            'memory_usage' => memory_get_usage(true),
+            'memory_peak' => memory_get_peak_usage(true)
+        ]);
+        
+        return back()->with('flash_danger', 'Erreur lors de la génération du PDF. Nombre d\'étudiants: ' . count($unpaidStudents) . '. Erreur: ' . $e->getMessage());
+    }
+}
+
+/**
+ * Générer le PDF par batches pour de gros volumes
+ */
+private function generateBatchedPDF($studentBatches, $nom_classe, $payments, $payment_deadline)
+{
+    $zipFiles = [];
+    $tempDir = sys_get_temp_dir() . '/payment_notifications_' . uniqid();
+    
+    if (!file_exists($tempDir)) {
+        mkdir($tempDir, 0755, true);
+    }
+    
+    try {
+        foreach ($studentBatches as $index => $batch) {
+            $data = [
+                'unpaid_students' => $batch,
+                'class_name' => $nom_classe->name,
+                'payments' => $payments,
+                'payment_deadline' => $payment_deadline,
+                'school_settings' => [],
+                'generated_date' => now()->format('d/m/Y'),
+                'is_pdf' => true
+            ];
+            
+            $fileName = 'Avis_Paiement_' . str_replace(' ', '_', $nom_classe->name) . '_Batch_' . ($index + 1) . '_' . date('Y-m-d') . '.pdf';
+            $filePath = $tempDir . '/' . $fileName;
+            
+            $pdf = PDF::loadView('pages.support_team.payments.payment_notifications_pdf', $data);
+            $pdf->setPaper('A4', 'portrait');
+            $pdf->setOptions([
+                'isHtml5ParserEnabled' => false,
+                'isRemoteEnabled' => false,
+                'defaultFont' => 'Arial',
+                'dpi' => 72
+            ]);
+            
+            $pdf->save($filePath);
+            $zipFiles[] = $filePath;
+            
+            // Libérer la mémoire
+            unset($pdf, $data);
+            gc_collect_cycles();
+        }
+        
+        // Créer un ZIP avec tous les fichiers
+        $zipFileName = 'Avis_Paiement_' . str_replace(' ', '_', $nom_classe->name) . '_Complet_' . date('Y-m-d') . '.zip';
+        $zipPath = $tempDir . '/' . $zipFileName;
+        
+        $zip = new \ZipArchive();
+        if ($zip->open($zipPath, \ZipArchive::CREATE) === TRUE) {
+            foreach ($zipFiles as $file) {
+                $zip->addFile($file, basename($file));
+            }
+            $zip->close();
+            
+            return response()->download($zipPath, $zipFileName)->deleteFileAfterSend(true);
+        } else {
+            throw new \Exception('Impossible de créer le fichier ZIP');
+        }
+        
+    } catch (\Exception $e) {
+        // Nettoyer les fichiers temporaires
+        foreach ($zipFiles as $file) {
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+        if (file_exists($tempDir)) {
+            rmdir($tempDir);
+        }
+        
+        \Log::error('Batched PDF Generation Error: ' . $e->getMessage());
+        return back()->with('flash_danger', 'Erreur lors de la génération des PDFs groupés: ' . $e->getMessage());
+    }
+}
+
+/**
+ * Générer le texte en malgache pour un étudiant
+ */
+private function generateMalagasyText($student, $paymentTitles, $amount, $deadline)
+{
+    $text = "Ry Ray aman-drenin'i {$student->user->name} ({$student->my_class->name})";
+    if ($student->section) {
+        $text = "Ry Ray aman-drenin'i {$student->user->name} ({$student->my_class->name} {$student->section->name})";
+    }
+    
+    $text .= ",\n";
+    $text .= "Ampahafantarina fa mbola tsy voaloa ny {$paymentTitles}.\n";
+    $text .= "Vola tokony haloanareo : " . number_format($amount, 0, ',', ' ') . " Ar.\n";
+    $text .= "Daty farany hanaovana fandoavam-bola : " . date('d/m/Y', strtotime($deadline)) . ".\n";
+    $text .= "Misaotra amin'ny fiaraha-miasa sy ny fandraisana andraikitra.";
+    
+    return $text;
+}
 
 
 
