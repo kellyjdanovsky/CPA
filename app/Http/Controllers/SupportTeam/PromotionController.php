@@ -68,10 +68,9 @@ class PromotionController extends Controller
 
             if($p === 'P'){ // Réinscrire (Promouvoir) - Nouvelle classe dans la session suivante
                 // Vérifier si un enregistrement existe déjà pour cet élève dans la nouvelle session
-                $existing_record = $this->student->getRecord([
-                    'user_id' => $st->user_id,
-                    'session' => $ny
-                ])->first();
+                $existing_record = $this->student->getRecordForSession([
+                    'user_id' => $st->user_id
+                ], $ny)->first();
 
                 if (!$existing_record) {
                     // Créer un nouvel enregistrement pour la session suivante
@@ -95,10 +94,9 @@ class PromotionController extends Controller
 
             if($p === 'D'){ // Redoubler - Même classe dans la session suivante
                 // Vérifier si un enregistrement existe déjà pour cet élève dans la nouvelle session
-                $existing_record = $this->student->getRecord([
-                    'user_id' => $st->user_id,
-                    'session' => $ny
-                ])->first();
+                $existing_record = $this->student->getRecordForSession([
+                    'user_id' => $st->user_id
+                ], $ny)->first();
 
                 if (!$existing_record) {
                     // Créer un nouvel enregistrement pour la session suivante (même classe)
@@ -187,8 +185,9 @@ class PromotionController extends Controller
 
     public function reset_all()
     {
+        $current_session = Qs::getCurrentSession();
         $next_session = Qs::getNextSession();
-        $where = ['from_session' => Qs::getCurrentSession(), 'to_session' => $next_session];
+        $where = ['from_session' => $current_session, 'to_session' => $next_session];
         $proms = $this->student->getPromotions($where);
 
         if ($proms->count()){
@@ -198,6 +197,21 @@ class PromotionController extends Controller
               // Delete Marks if Already Inserted for New Session
               $this->delete_old_marks($prom->student_id, $next_session);
           }
+        }
+
+        // Supprimer tous les enregistrements d'élèves créés dans la session suivante
+        // Ces enregistrements ont été créés lors de la promotion et doivent être supprimés
+        $students_in_next_session = $this->student->getRecordForSession([], $next_session)->get();
+        
+        foreach ($students_in_next_session as $student_record) {
+            // Vérifier s'il existe un enregistrement pour cet élève dans la session actuelle
+            $existing_record = $this->student->getRecordForSession([
+                'user_id' => $student_record->user_id
+            ], $current_session)->first();
+            
+            // Supprimer l'enregistrement de la session suivante
+            // L'élève devrait être dans la session actuelle après réinitialisation
+            $this->student->deleteRecord($student_record->id);
         }
 
         return Qs::jsonUpdateOk();
@@ -248,21 +262,27 @@ class PromotionController extends Controller
     {
         $prom = $this->student->findPromotion($promotion_id);
 
-        // Trouver l'enregistrement de l'élève pour la session spécifique
-        $student_record = $this->student->getRecord([
-            'user_id' => $prom->student_id,
-            'session' => $prom->from_session
-        ])->first();
+        // Trouver l'enregistrement de l'élève pour la session suivante (nouvelle session)
+        $student_records = $this->student->getRecordForSession([
+            'user_id' => $prom->student_id
+        ], $prom->to_session)->get();
 
-        if ($student_record) {
-            // Mettre à jour l'enregistrement existant au lieu d'en créer un nouveau
-            $data['my_class_id'] = $prom->from_class;
-            $data['section_id'] = $prom->from_section;
-            $data['session'] = $prom->from_session;
+        // Supprimer tous les enregistrements trouvés dans la session suivante
+        // Ces enregistrements ont été créés lors de la promotion
+        foreach ($student_records as $record) {
+            $this->student->deleteRecord($record->id);
+        }
+
+        // Trouver l'enregistrement de l'élève dans la session d'origine
+        $original_record = $this->student->getRecordForSession([
+            'user_id' => $prom->student_id
+        ], $prom->from_session)->first();
+        
+        // Si trouvé, s'assurer qu'il n'est pas marqué comme diplômé
+        if ($original_record) {
             $data['grad'] = 0;
             $data['grad_date'] = null;
-
-            $this->student->updateRecord($student_record->id, $data);
+            $this->student->updateRecord($original_record->id, $data);
         }
 
         return $this->student->deletePromotion($promotion_id);

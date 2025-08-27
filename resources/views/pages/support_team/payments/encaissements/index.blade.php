@@ -98,20 +98,23 @@
         <!-- Navigation -->
         <ul class="nav nav-tabs nav-tabs-highlight mb-4">
             <li class="nav-item">
-                <a href="#nouveau-encaissement" class="nav-link active" data-toggle="tab">
+                <a href="#nouveau-encaissement" class="nav-link {{ (!isset($encaissements) || $encaissements->count() == 0) && !request()->has('tab') ? 'active' : '' }}" data-toggle="tab">
                     <i class="icon-plus-circle2 mr-2"></i>Nouvel Encaissement
                 </a>
             </li>
             <li class="nav-item">
-                <a href="#liste-encaissements" class="nav-link" data-toggle="tab">
+                <a href="#liste-encaissements" class="nav-link {{ (isset($encaissements) && $encaissements->count() > 0) || request()->get('tab') == 'liste' ? 'active' : '' }}" data-toggle="tab">
                     <i class="icon-list mr-2"></i>Liste des Encaissements
+                    @if(isset($encaissements) && $encaissements->count() > 0)
+                        <span class="badge badge-primary ml-1">{{ $encaissements->count() }}</span>
+                    @endif
                 </a>
             </li>
         </ul>
 
         <div class="tab-content">
             <!-- Nouveau Encaissement -->
-            <div class="tab-pane fade show active" id="nouveau-encaissement">
+            <div class="tab-pane fade {{ (!isset($encaissements) || $encaissements->count() == 0) && !request()->has('tab') ? 'show active' : '' }}" id="nouveau-encaissement">
                 <form id="encaissement-form">
                     @csrf
                     <div class="row">
@@ -244,7 +247,7 @@
             </div>
 
             <!-- Liste des Encaissements -->
-            <div class="tab-pane fade" id="liste-encaissements">
+            <div class="tab-pane fade {{ (isset($encaissements) && $encaissements->count() > 0) || request()->get('tab') == 'liste' ? 'show active' : '' }}" id="liste-encaissements">
                 @if(isset($encaissements) && $encaissements->count() > 0)
                 <div class="table-responsive">
                     <table class="table table-striped datatable-button-html5-columns">
@@ -540,9 +543,17 @@ function processEncaissement() {
     .done(function(response) {
         if (response.success) {
             showNotification('success', 'Encaissement traité avec succès !');
+            
+            // Basculer vers l'onglet Liste des Encaissements après 1 seconde
             setTimeout(function() {
-                location.reload();
-            }, 1500);
+                // Activer l'onglet "Liste des Encaissements"
+                $('a[href="#liste-encaissements"]').tab('show');
+                
+                // Recharger la page après 1 seconde supplémentaire pour voir les nouveaux encaissements
+                setTimeout(function() {
+                    location.reload();
+                }, 1000);
+            }, 1000);
         } else {
             showNotification('error', 'Erreur : ' + (response.message || 'Une erreur est survenue'));
         }
@@ -557,6 +568,7 @@ function processEncaissement() {
 }
 
 $(document).ready(function() {
+    // Initialiser DataTable si présent
     if ($('.datatable-button-html5-columns').length) {
         $('.datatable-button-html5-columns').DataTable({
             language: {
@@ -564,6 +576,30 @@ $(document).ready(function() {
             }
         });
     }
+    
+    // Gérer la navigation par hash dans l'URL
+    function handleHashNavigation() {
+        const hash = window.location.hash;
+        if (hash === '#liste-encaissements') {
+            $('a[href="#liste-encaissements"]').tab('show');
+        } else if (hash === '#nouveau-encaissement') {
+            $('a[href="#nouveau-encaissement"]').tab('show');
+        }
+    }
+    
+    // Appliquer la navigation par hash au chargement de la page
+    handleHashNavigation();
+    
+    // Écouter les changements de hash
+    $(window).on('hashchange', handleHashNavigation);
+    
+    // Mettre à jour l'URL quand on change d'onglet
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+        const target = $(e.target).attr('href');
+        if (target) {
+            window.location.hash = target;
+        }
+    });
 });
 </script>
 @endsection

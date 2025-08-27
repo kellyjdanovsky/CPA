@@ -67,16 +67,14 @@ class EncaissementController extends Controller
             $class_id = $request->class_id;
             
             // Récupérer les paiements spécifiques à la classe
-            $payments = $this->paymentRepo->getPaymentWithYear([
-                'my_class_id' => $class_id,
-                'year' => $this->year
-            ])->get();
+            $payments = $this->payment->getPaymentWithYear([
+                'my_class_id' => $class_id
+            ], $this->year)->get();
 
             // Inclure aussi les paiements généraux (non spécifiques à une classe)
-            $general_payments = $this->paymentRepo->getPaymentWithYear([
-                'my_class_id' => null,
-                'year' => $this->year
-            ])->get();
+            $general_payments = $this->payment->getPaymentWithYear([
+                'my_class_id' => null
+            ], $this->year)->get();
 
             $all_payments = $payments->merge($general_payments);
 

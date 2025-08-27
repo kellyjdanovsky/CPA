@@ -56,6 +56,11 @@ class StudentRepo {
         return StudentRecord::find($id)->update($data);
     }
 
+    public function deleteRecord($id)
+    {
+        return StudentRecord::destroy($id);
+    }
+
     public function update(array $where, array $data)
     {
         return StudentRecord::where($where)->update($data);
@@ -64,6 +69,11 @@ class StudentRepo {
     public function getRecord(array $data)
     {
         return $this->activeStudents()->where($data)->with(['user', 'my_class', 'section']);
+    }
+
+    public function getRecordForSession(array $data, $session)
+    {
+        return StudentRecord::where(array_merge($data, ['session' => $session]))->with(['user', 'my_class', 'section']);
     }
 
     public function getRecordByUserIDs($ids)
