@@ -123,6 +123,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('check_unpaid', 'PaymentController@checkUnpaid')->name('payments.check_unpaid');
             Route::get('export_unpaid', 'PaymentController@exportUnpaidExcel')->name('payments.export_unpaid');
             Route::post('generate_notifications', 'PaymentController@generatePaymentNotifications')->name('payments.generate_notifications');
+            Route::post('export_notifications_excel', 'PaymentController@exportExcelForNotifications')->name('payments.export_notifications_excel');
+            Route::post('export_notifications_word', 'PaymentController@exportWordForNotifications')->name('payments.export_notifications_word');
             Route::get('filter', 'PaymentController@select')->name('payments.filter');
 
             // ADRA & TEAM 3 Payment Management

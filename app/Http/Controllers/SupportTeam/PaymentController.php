@@ -20,6 +20,8 @@ use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Payment\PaymentCreate;
 use App\Http\Requests\Payment\PaymentUpdate;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use PhpOffice\PhpSpreadsheet\Spreadsheet;
+use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
 class PaymentController extends Controller
 {
@@ -816,7 +818,7 @@ public function exportUnpaidExcel(Request $request)
         return back()->with('flash_danger', 'Classe introuvable. Veuillez sélectionner une classe valide.');
     }
 
-    // Récupérer tous les paiements sélectionnés
+    // Retrieve all selected payments
     $payments = Payment::whereIn('id', $payment_ids)
         ->where(function($query) use ($id_class) {
             $query->where('my_class_id', $id_class)
@@ -828,7 +830,7 @@ public function exportUnpaidExcel(Request $request)
         return back()->with('flash_danger', 'Motifs de paiement introuvables. Veuillez sélectionner des motifs de paiement valides pour cette classe.');
     }
 
-    // Récupérer tous les étudiants de la classe avec le statut spécifié
+    // Retrieve all students in the class with specified status
     $students = StudentRecord::where('my_class_id', $id_class)
         ->with(['user' => function($query) use ($statuses) {
             $query->whereIn('status', $statuses)
@@ -839,165 +841,400 @@ public function exportUnpaidExcel(Request $request)
             return $student->user !== null;
         });
 
-    // Préparer les données pour l'export
+    // Prepare data for unpaid students
+    $unpaidStudents = $this->filterUnpaidStudents($students, $payments);
+
+    // Prepare data for Excel export
     $data = [];
 
-    // En-tête du tableau
+    // Header row
     $data[] = [
-        'Nom de l\'élève', 
-        'Classe', 
-        'Statut', 
-        'Motifs de paiement', 
-        'Montant total à payer', 
-        'Montant déjà payé', 
-        'Date du paiement', 
-        'Montant restant à payer'
+        'Nom de l\'élève',
+        'Classe',
+        'Statut',
+        'Motifs de paiement',
+        'Montant total à payer (Ar)',
+        'Montant déjà payé (Ar)',
+        'Montant restant à payer (Ar)',
     ];
 
-    foreach ($students as $student) {
-        // Récupérer le statut de l'étudiant
-        $status = $student->user->status ?? 'Normal';
+    // Add student data
+    foreach ($unpaidStudents as $studentData) {
+        $student = $studentData['student'];
+        $status = $studentData['status'];
+        $amountDue = $studentData['amount_due'];
+        $amountPaid = $studentData['amount_paid'] ?? 0;
+        $totalAmount = $studentData['total_amount'] ?? ($amountDue + $amountPaid);
+        $paymentTitles = $studentData['payment_titles'];
 
-        // Ignorer les étudiants avec le statut TEAM3
-        if ($status === 'TEAM3') {
-            continue;
-        }
-
-        // Initialiser les variables pour ce student
-        $totalAmountToPay = 0;
-        $totalAmountPaid = 0;
-        $totalAmountDue = 0;
-        $lastPaymentDate = null;
-        $paymentTitles = [];
-        $includeStudent = false;
-
-        // Pour chaque paiement sélectionné
-        foreach ($payments as $payment) {
-            // Récupérer l'enregistrement de paiement avec les reçus
-            $paymentRecord = PaymentRecord::with('receipt')
-                ->where('student_id', $student->user_id)
-                ->where('payment_id', $payment->id)
-                ->first();
-
-            if (!$paymentRecord) {
-                continue; // Ignorer si aucun enregistrement de paiement n'existe
-            }
-
-            // Ajouter le titre du paiement à la liste
-            $paymentTitles[] = $payment->title;
-
-            // Récupérer le montant total des reçus pour cet enregistrement
-            $totalReceiptAmount = 0;
-            $receipts = $paymentRecord->receipt;
-            if ($receipts && $receipts->count() > 0) {
-                $totalReceiptAmount = $receipts->sum('amt_paid');
-                
-                // Mettre à jour la date du dernier paiement si nécessaire
-                $receiptDate = $receipts->sortByDesc('created_at')->first()->created_at;
-                if (!$lastPaymentDate || $receiptDate > $lastPaymentDate) {
-                    $lastPaymentDate = $receiptDate;
-                }
-            }
-
-            // Utiliser le montant des reçus si disponible, sinon utiliser amt_paid de l'enregistrement
-            $paidAmount = $totalReceiptAmount > 0 ? $totalReceiptAmount : ($paymentRecord->amt_paid ?: 0);
-
-            // Calculer le montant dû selon le statut
-            $amountDue = 0;
-            if ($status === 'ADRA') {
-                // Pour les élèves ADRA, le montant total à payer est 25% du montant total
-                $minimumRequired = $payment->amount * 0.25;
-                $totalAmountToPay += $minimumRequired;
-
-                // Si l'élève a déjà payé au moins 25%, le montant dû est 0
-                if ($paidAmount >= $minimumRequired) {
-                    $amountDue = 0;
-                } else {
-                    // Sinon, le montant dû est ce qui reste à payer pour atteindre 25%
-                    $amountDue = $minimumRequired - $paidAmount;
-                    $includeStudent = true;
-                }
-            } else {
-                // Pour les autres statuts, le montant total à payer est le montant total
-                $totalAmountToPay += $payment->amount;
-                
-                // Le montant dû est le montant total moins le montant payé
-                $amountDue = $payment->amount - $paidAmount;
-                
-                // Si le paiement est marqué comme payé, le montant dû est 0
-                if ($paymentRecord->paid) {
-                    $amountDue = 0;
-                } else {
-                    $includeStudent = true;
-                }
-            }
-
-            // Si le montant dû est négatif, le mettre à 0
-            if ($amountDue < 0) {
-                $amountDue = 0;
-            }
-
-            // Ajouter le montant payé au total
-            $totalAmountPaid += $paidAmount;
-            
-            // Ajouter le montant dû au total
-            $totalAmountDue += $amountDue;
-        }
-
-        // Si aucun paiement n'a été trouvé pour cet étudiant ou si l'étudiant a tout payé, passer au suivant
-        if (empty($paymentTitles) || !$includeStudent) {
-            continue;
-        }
-
-        // Formater la date du dernier paiement
-        $formattedLastPaymentDate = $lastPaymentDate ? date('d/m/Y', strtotime($lastPaymentDate)) : '-';
-
-        // Ajouter les données de l'étudiant au tableau
         $data[] = [
             $student->user->name,
-            $nom_classe->name . ' ' . $student->section->name,
+            $nom_classe->name,
             $status,
-            implode(', ', $paymentTitles),
-            number_format($totalAmountToPay, 0, ',', ' ') . ' Ar',
-            number_format($totalAmountPaid, 0, ',', ' ') . ' Ar',
-            $formattedLastPaymentDate,
-            number_format($totalAmountDue, 0, ',', ' ') . ' Ar'
+            $paymentTitles,
+            number_format($totalAmount, 0, ',', ' '),
+            number_format($amountPaid, 0, ',', ' '),
+            number_format($amountDue, 0, ',', ' ')
         ];
     }
 
-    // Générer le fichier Excel
-    $fileName = 'Impayés_' . $nom_classe->name . '_' . date('Y-m-d') . '.xlsx';
+    // Generate Excel file
+    $fileName = 'Impayés_' . str_replace(' ', '_', $nom_classe->name) . '_' . date('Y-m-d') . '.xlsx';
 
-    // Créer un fichier temporaire
+    // Create temporary file
     $tempFile = tempnam(sys_get_temp_dir(), 'excel');
 
-    // Créer le fichier Excel
-    $spreadsheet = new \PhpOffice\PhpSpreadsheet\Spreadsheet();
+    // Create Excel spreadsheet
+    $spreadsheet = new Spreadsheet();
     $sheet = $spreadsheet->getActiveSheet();
 
-    // Ajouter les données au fichier Excel
+    // Add data to spreadsheet
     $sheet->fromArray($data, null, 'A1');
 
-    // Mettre en forme le fichier Excel
+    // Format header row
+    $sheet->getStyle('A1:G1')->getFont()->setBold(true);
+    $sheet->getStyle('A1:G1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FFCCCCCC');
+
+    // Auto-size columns
+    foreach (range('A', 'G') as $col) {
+        $sheet->getColumnDimension($col)->setAutoSize(true);
+    }
+
+    // Save Excel file
+    $writer = new Xlsx($spreadsheet);
+    $writer->save($tempFile);
+
+    // Download Excel file
+    return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
+}
+
+/**
+ * Export payment notifications data to Excel
+ */
+public function exportExcelForNotifications(Request $request)
+{
+    // Validate the request data
+    $this->validate($request, [
+        'my_class_id' => 'required|exists:my_classes,id',
+        'my_payments_id' => 'required|array|min:1',
+        'my_payments_id.*' => 'exists:payments,id',
+        'payment_deadline' => 'required|date|after_or_equal:today',
+        'status' => 'array'
+    ]);
+
+    $payment_ids = $request->my_payments_id;
+    $id_class = $request->my_class_id;
+    $statuses = $request->status ?? ['Normal', 'ADRA'];
+    $payment_deadline = $request->payment_deadline;
+
+    $nom_classe = MyClass::where('id', $id_class)->first();
+    if (!$nom_classe) {
+        return back()->with('flash_danger', 'Classe introuvable. Veuillez sélectionner une classe valide.');
+    }
+
+    // Retrieve all selected payments
+    $payments = Payment::whereIn('id', $payment_ids)
+        ->where(function($query) use ($id_class) {
+            $query->where('my_class_id', $id_class)
+                  ->orWhereNull('my_class_id');
+        })
+        ->get();
+
+    if ($payments->isEmpty()) {
+        return back()->with('flash_danger', 'Motifs de paiement introuvables. Veuillez sélectionner des motifs de paiement valides pour cette classe.');
+    }
+
+    // Retrieve all students in the class with specified status
+    $students = StudentRecord::where('my_class_id', $id_class)
+        ->with(['user' => function($query) use ($statuses) {
+            $query->whereIn('status', $statuses)
+                  ->orWhereNull('status');
+        }])
+        ->get()
+        ->filter(function($student) {
+            return $student->user !== null;
+        });
+
+    // Prepare data for unpaid students
+    $unpaidStudents = $this->filterUnpaidStudents($students, $payments);
+
+    // Prepare data for Excel export
+    $data = [];
+
+    // Header row
+    $data[] = [
+        'Nom de l\'élève',
+        'Classe',
+        'Statut',
+        'Motifs de paiement',
+        'Montant total à payer (Ar)',
+        'Montant déjà payé (Ar)',
+        'Montant restant à payer (Ar)',
+        'Date limite de paiement'
+    ];
+
+    // Add student data
+    foreach ($unpaidStudents as $studentData) {
+        $student = $studentData['student'];
+        $status = $studentData['status'];
+        $amountDue = $studentData['amount_due'];
+        $amountPaid = $studentData['amount_paid'] ?? 0;
+        $totalAmount = $studentData['total_amount'] ?? ($amountDue + $amountPaid);
+        $paymentTitles = $studentData['payment_titles'];
+
+        $data[] = [
+            $student->user->name,
+            $nom_classe->name,
+            $status,
+            $paymentTitles,
+            number_format($totalAmount, 0, ',', ' '),
+            number_format($amountPaid, 0, ',', ' '),
+            number_format($amountDue, 0, ',', ' '),
+            date('d/m/Y', strtotime($payment_deadline))
+        ];
+    }
+
+    // Generate Excel file
+    $fileName = 'Avis_Paiement_' . str_replace(' ', '_', $nom_classe->name) . '_' . date('Y-m-d') . '.xlsx';
+
+    // Create temporary file
+    $tempFile = tempnam(sys_get_temp_dir(), 'excel');
+
+    // Create Excel spreadsheet
+    $spreadsheet = new Spreadsheet();
+    $sheet = $spreadsheet->getActiveSheet();
+
+    // Add data to spreadsheet
+    $sheet->fromArray($data, null, 'A1');
+
+    // Format header row
     $sheet->getStyle('A1:H1')->getFont()->setBold(true);
     $sheet->getStyle('A1:H1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FFCCCCCC');
 
-    // Ajuster la largeur des colonnes
-    $sheet->getColumnDimension('A')->setWidth(30);
-    $sheet->getColumnDimension('B')->setWidth(20);
-    $sheet->getColumnDimension('C')->setWidth(15);
-    $sheet->getColumnDimension('D')->setWidth(40);
-    $sheet->getColumnDimension('E')->setWidth(25);
-    $sheet->getColumnDimension('F')->setWidth(25);
-    $sheet->getColumnDimension('G')->setWidth(20);
-    $sheet->getColumnDimension('H')->setWidth(25);
+    // Auto-size columns
+    foreach (range('A', 'H') as $col) {
+        $sheet->getColumnDimension($col)->setAutoSize(true);
+    }
 
-    // Enregistrer le fichier Excel
-    $writer = new \PhpOffice\PhpSpreadsheet\Writer\Xlsx($spreadsheet);
+    // Save Excel file
+    $writer = new Xlsx($spreadsheet);
     $writer->save($tempFile);
 
-    // Télécharger le fichier Excel
+    // Download Excel file
     return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
+}
+
+/**
+ * Export payment notifications data to Word
+ */
+public function exportWordForNotifications(Request $request)
+{
+    // Validate the request data
+    $this->validate($request, [
+        'my_class_id' => 'required|exists:my_classes,id',
+        'my_payments_id' => 'required|array|min:1',
+        'my_payments_id.*' => 'exists:payments,id',
+        'payment_deadline' => 'required|date|after_or_equal:today',
+        'status' => 'array'
+    ]);
+
+    $payment_ids = $request->my_payments_id;
+    $id_class = $request->my_class_id;
+    $statuses = $request->status ?? ['Normal', 'ADRA'];
+    $payment_deadline = $request->payment_deadline;
+
+    $nom_classe = MyClass::where('id', $id_class)->first();
+    if (!$nom_classe) {
+        return back()->with('flash_danger', 'Classe introuvable. Veuillez sélectionner une classe valide.');
+    }
+
+    // Retrieve all selected payments
+    $payments = Payment::whereIn('id', $payment_ids)
+        ->where(function($query) use ($id_class) {
+            $query->where('my_class_id', $id_class)
+                  ->orWhereNull('my_class_id');
+        })
+        ->get();
+
+    if ($payments->isEmpty()) {
+        return back()->with('flash_danger', 'Motifs de paiement introuvables. Veuillez sélectionner des motifs de paiement valides pour cette classe.');
+    }
+
+    // Retrieve all students in the class with specified status
+    $students = StudentRecord::where('my_class_id', $id_class)
+        ->with(['user' => function($query) use ($statuses) {
+            $query->whereIn('status', $statuses)
+                  ->orWhereNull('status');
+        }])
+        ->get()
+        ->filter(function($student) {
+            return $student->user !== null;
+        });
+
+    // Prepare data for unpaid students
+    $unpaidStudents = $this->filterUnpaidStudents($students, $payments);
+
+    // Generate Word document content with improved Malagasy formatting
+    $htmlContent = '
+    <!DOCTYPE html>
+    <html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Avis de Paiement - ' . $nom_classe->name . '</title>
+        <style>
+            body {
+                font-family: Arial, sans-serif;
+                font-size: 12px;
+                line-height: 1.4;
+                margin: 20px;
+            }
+            .header {
+                text-align: center;
+                margin-bottom: 20px;
+                border-bottom: 2px solid #333;
+                padding-bottom: 10px;
+            }
+            .class-info {
+                font-size: 16px;
+                font-weight: bold;
+                margin-bottom: 10px;
+            }
+            .deadline-info {
+                font-size: 14px;
+                margin-bottom: 20px;
+            }
+            .student-table {
+                width: 100%;
+                border-collapse: collapse;
+                margin-top: 20px;
+            }
+            .student-table th {
+                background-color: #f2f2f2;
+                border: 1px solid #ddd;
+                padding: 8px;
+                text-align: left;
+            }
+            .student-table td {
+                border: 1px solid #ddd;
+                padding: 8px;
+                vertical-align: top;
+            }
+            .student-table tr:nth-child(even) {
+                background-color: #f9f9f9;
+            }
+            .payment-details {
+                border: 1px solid #ddd;
+                padding: 8px;
+                margin: 5px 0;
+            }
+            .payment-line {
+                margin: 3px 0;
+            }
+            .label-text {
+                font-weight: normal;
+            }
+            .amount-value {
+                font-weight: bold;
+            }
+            .amount-value.due {
+                font-size: 1.1em;
+                color: #d32f2f;
+            }
+            .highlight {
+                background-color: #fef3c7;
+                border: 1px solid #f59e0b;
+                padding: 5px;
+                margin: 5px 0;
+            }
+            .deadline-date {
+                display: inline-block;
+                border: 1px solid #333;
+                padding: 3px 8px;
+                font-weight: bold;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="header">
+            <h1>FAMPAHAFANTARANA FANDOAVAM-BOLA</h1>
+            <div class="class-info">Classe: ' . $nom_classe->name . '</div>
+            <div class="deadline-info">Date limite de paiement: ' . date('d/m/Y', strtotime($payment_deadline)) . '</div>
+        </div>
+        
+        <table class="student-table">
+            <thead>
+                <tr>
+                    <th>Nom de l\'élève</th>
+                    <th>Statut</th>
+                    <th>Détails de paiement</th>
+                    <th>Montant total (Ar)</th>
+                    <th>Montant payé (Ar)</th>
+                    <th>Montant restant (Ar)</th>
+                </tr>
+            </thead>
+            <tbody>';
+
+    // Add student data with improved formatting
+    foreach ($unpaidStudents as $studentData) {
+        $student = $studentData['student'];
+        $status = $studentData['status'];
+        $amountDue = $studentData['amount_due'];
+        $amountPaid = $studentData['amount_paid'] ?? 0;
+        $totalAmount = $studentData['total_amount'] ?? ($amountDue + $amountPaid);
+        $paymentTitles = $studentData['payment_titles'];
+
+        // Format payment details with the new Malagasy format
+        $formattedPaymentDetails = '
+        <div class="payment-details">
+            <div><strong>Antony tsy voaloa:</strong><br>' . $paymentTitles . '</div>
+            <div style="font-size: 11px; margin: 5px 0;">
+                <strong>ID Élève:</strong> ' . $student->user_id . ' | <strong>ID Classe:</strong> ' . $student->my_class_id . '
+            </div>
+            <div class="payment-line">
+                <span class="label-text">• Vola rehetra tokony haloa:</span><br>
+                <span class="amount-value">' . number_format($totalAmount, 0, ',', ' ') . ' Ariary</span>
+            </div>
+            <div class="payment-line">
+                <span class="label-text">• Vola efa naloa:</span><br>
+                <span class="amount-value">' . number_format($amountPaid, 0, ',', ' ') . ' Ariary</span>
+            </div>
+            <div class="payment-line highlight">
+                <span class="label-text">• Vola mbola tokony haloa:</span><br>
+                <span class="amount-value due">' . number_format($amountDue, 0, ',', ' ') . ' Ariary</span>
+            </div>
+            <div style="margin-top: 10px;">
+                <strong>Daty farany hanaovana fandoavam-bola:</strong><br>
+                <span class="deadline-date">' . date('d/m/Y', strtotime($payment_deadline)) . '</span>
+            </div>
+        </div>';
+
+        $htmlContent .= '
+                <tr>
+                    <td>' . $student->user->name . '</td>
+                    <td>' . $status . '</td>
+                    <td>' . $formattedPaymentDetails . '</td>
+                    <td>' . number_format($totalAmount, 0, ',', ' ') . '</td>
+                    <td>' . number_format($amountPaid, 0, ',', ' ') . '</td>
+                    <td>' . number_format($amountDue, 0, ',', ' ') . '</td>
+                </tr>';
+    }
+
+    $htmlContent .= '
+            </tbody>
+        </table>
+    </body>
+    </html>';
+
+    // Generate Word file name
+    $fileName = 'Avis_Paiement_' . str_replace(' ', '_', $nom_classe->name) . '_' . date('Y-m-d') . '.doc';
+
+    // Return Word document as download
+    return response($htmlContent)
+        ->header('Content-Type', 'application/msword')
+        ->header('Content-Disposition', 'attachment; filename="' . $fileName . '"')
+        ->header('Cache-Control', 'no-cache, no-store, must-revalidate')
+        ->header('Pragma', 'no-cache')
+        ->header('Expires', '0');
 }
 
 public function select(Request $request)
@@ -2580,9 +2817,5 @@ private function generateMalagasyText($student, $paymentTitles, $amount, $deadli
     
     return $text;
 }
-
-
-
-
 
 }

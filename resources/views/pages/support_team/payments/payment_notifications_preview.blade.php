@@ -12,7 +12,13 @@
                     <button onclick="downloadPDF()" class="btn btn-primary btn-sm">
                         <i class="icon-file-pdf mr-2"></i>Télécharger PDF
                     </button>
-                    <a href="{{ route('payments.verified') }}" class="btn btn-secondary btn-sm">
+                    <button onclick="exportExcel()" class="btn btn-secondary btn-sm">
+                        <i class="icon-file-excel mr-2"></i>Exporter Excel
+                    </button>
+                    <button onclick="exportWord()" class="btn btn-info btn-sm">
+                        <i class="icon-file-word mr-2"></i>Exporter Word
+                    </button>
+                    <a href="{{ route('payments.verified') }}" class="btn btn-dark btn-sm">
                         <i class="icon-arrow-left8 mr-2"></i>Retour
                     </a>
                 </div>
@@ -1085,6 +1091,202 @@
             // Submit form
             document.body.appendChild(form);
             console.log('Submitting form for PDF download with form elements:');
+            console.log('Form action:', form.action);
+            console.log('Form elements:', form.elements.length);
+            
+            // Debug: Log all form data before submission
+            const formDataForDebug = new FormData(form);
+            for (let [key, value] of formDataForDebug) {
+                console.log('Form field:', key, '=', value);
+            }
+            
+            form.submit();
+            
+            // Clean up after a delay
+            setTimeout(() => {
+                if (document.body.contains(form)) {
+                    document.body.removeChild(form);
+                }
+            }, 2000);
+        }
+        
+        function exportExcel() {
+            console.log('Starting Excel export...');
+            
+            // Get current form data from the request - ensuring we have all the data
+            const formData = {
+                my_class_id: @json(request()->input('my_class_id') ?: request()->get('my_class_id', '')),
+                payment_deadline: @json($payment_deadline ?? ''),
+                my_payments_id: @json(request()->input('my_payments_id', []) ?: request()->get('my_payments_id', [])),
+                status: @json(request()->input('status') ?: request()->get('status') ?: ['Normal', 'ADRA'])
+            };
+            
+            console.log('Form data for Excel:', formData);
+            
+            // Validate data
+            if (!formData.my_class_id || !formData.my_payments_id || formData.my_payments_id.length === 0) {
+                console.error('Missing form data for Excel export:', formData);
+                alert('Données de formulaire manquantes pour l\'export Excel. ' +
+                      'Classe ID: ' + formData.my_class_id + ' | ' +
+                      'Paiements: ' + JSON.stringify(formData.my_payments_id) + ' | ' +
+                      'Veuillez retourner à la page précédente et ressayer.');
+                return;
+            }
+            
+            // Create and submit form dynamically for Excel export
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("payments.export_notifications_excel") }}';
+            form.style.display = 'none';
+            
+            // Add CSRF token
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = '_token';
+            csrfToken.value = '{{ csrf_token() }}';
+            form.appendChild(csrfToken);
+            
+            // Add class ID
+            const classInput = document.createElement('input');
+            classInput.type = 'hidden';
+            classInput.name = 'my_class_id';
+            classInput.value = formData.my_class_id;
+            form.appendChild(classInput);
+            
+            // Add payment deadline
+            const deadlineInput = document.createElement('input');
+            deadlineInput.type = 'hidden';
+            deadlineInput.name = 'payment_deadline';
+            deadlineInput.value = formData.payment_deadline;
+            form.appendChild(deadlineInput);
+            
+            // Add payment IDs
+            if (Array.isArray(formData.my_payments_id)) {
+                formData.my_payments_id.forEach(function(paymentId) {
+                    if (paymentId) { // Only add non-empty payment IDs
+                        const paymentInput = document.createElement('input');
+                        paymentInput.type = 'hidden';
+                        paymentInput.name = 'my_payments_id[]';
+                        paymentInput.value = paymentId;
+                        form.appendChild(paymentInput);
+                    }
+                });
+            }
+            
+            // Add statuses
+            if (Array.isArray(formData.status)) {
+                formData.status.forEach(function(status) {
+                    if (status) { // Only add non-empty statuses
+                        const statusInput = document.createElement('input');
+                        statusInput.type = 'hidden';
+                        statusInput.name = 'status[]';
+                        statusInput.value = status;
+                        form.appendChild(statusInput);
+                    }
+                });
+            }
+            
+            // Submit form
+            document.body.appendChild(form);
+            console.log('Submitting form for Excel export with form elements:');
+            console.log('Form action:', form.action);
+            console.log('Form elements:', form.elements.length);
+            
+            // Debug: Log all form data before submission
+            const formDataForDebug = new FormData(form);
+            for (let [key, value] of formDataForDebug) {
+                console.log('Form field:', key, '=', value);
+            }
+            
+            form.submit();
+            
+            // Clean up after a delay
+            setTimeout(() => {
+                if (document.body.contains(form)) {
+                    document.body.removeChild(form);
+                }
+            }, 2000);
+        }
+        
+        function exportWord() {
+            console.log('Starting Word export...');
+            
+            // Get current form data from the request - ensuring we have all the data
+            const formData = {
+                my_class_id: @json(request()->input('my_class_id') ?: request()->get('my_class_id', '')),
+                payment_deadline: @json($payment_deadline ?? ''),
+                my_payments_id: @json(request()->input('my_payments_id', []) ?: request()->get('my_payments_id', [])),
+                status: @json(request()->input('status') ?: request()->get('status') ?: ['Normal', 'ADRA'])
+            };
+            
+            console.log('Form data for Word:', formData);
+            
+            // Validate data
+            if (!formData.my_class_id || !formData.my_payments_id || formData.my_payments_id.length === 0) {
+                console.error('Missing form data for Word export:', formData);
+                alert('Données de formulaire manquantes pour l\'export Word. ' +
+                      'Classe ID: ' + formData.my_class_id + ' | ' +
+                      'Paiements: ' + JSON.stringify(formData.my_payments_id) + ' | ' +
+                      'Veuillez retourner à la page précédente et ressayer.');
+                return;
+            }
+            
+            // Create and submit form dynamically for Word export
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{{ route("payments.export_notifications_word") }}';
+            form.style.display = 'none';
+            
+            // Add CSRF token
+            const csrfToken = document.createElement('input');
+            csrfToken.type = 'hidden';
+            csrfToken.name = '_token';
+            csrfToken.value = '{{ csrf_token() }}';
+            form.appendChild(csrfToken);
+            
+            // Add class ID
+            const classInput = document.createElement('input');
+            classInput.type = 'hidden';
+            classInput.name = 'my_class_id';
+            classInput.value = formData.my_class_id;
+            form.appendChild(classInput);
+            
+            // Add payment deadline
+            const deadlineInput = document.createElement('input');
+            deadlineInput.type = 'hidden';
+            deadlineInput.name = 'payment_deadline';
+            deadlineInput.value = formData.payment_deadline;
+            form.appendChild(deadlineInput);
+            
+            // Add payment IDs
+            if (Array.isArray(formData.my_payments_id)) {
+                formData.my_payments_id.forEach(function(paymentId) {
+                    if (paymentId) { // Only add non-empty payment IDs
+                        const paymentInput = document.createElement('input');
+                        paymentInput.type = 'hidden';
+                        paymentInput.name = 'my_payments_id[]';
+                        paymentInput.value = paymentId;
+                        form.appendChild(paymentInput);
+                    }
+                });
+            }
+            
+            // Add statuses
+            if (Array.isArray(formData.status)) {
+                formData.status.forEach(function(status) {
+                    if (status) { // Only add non-empty statuses
+                        const statusInput = document.createElement('input');
+                        statusInput.type = 'hidden';
+                        statusInput.name = 'status[]';
+                        statusInput.value = status;
+                        form.appendChild(statusInput);
+                    }
+                });
+            }
+            
+            // Submit form
+            document.body.appendChild(form);
+            console.log('Submitting form for Word export with form elements:');
             console.log('Form action:', form.action);
             console.log('Form elements:', form.elements.length);
             

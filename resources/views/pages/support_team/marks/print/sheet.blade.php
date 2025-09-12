@@ -1,3 +1,4 @@
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 @php
     // IMPORTANT: Définir toutes les variables nécessaires au début pour éviter les erreurs "undefined variable"
     // Calculer la position et les informations de classement
@@ -182,8 +183,8 @@
     
     body {
         font-family: 'Arial', 'Helvetica', sans-serif !important;
-        font-size: 9px !important; /* Reduced from 10px to fit single page */
-        line-height: 1.0 !important; /* Tighter line height for single page */
+        font-size: 0.75vw !important; /* Using relative units for better scaling */
+        line-height: 1.0 !important;
         margin: 0 !important;
         padding: 0 !important;
         width: 100vw !important;
@@ -191,13 +192,11 @@
         background: white !important;
         color: #000 !important;
         overflow: visible !important;
-        /* Flexbox centering */
         display: flex !important;
         align-items: center !important;
         justify-content: center !important;
     }
     
-    /* Disable JavaScript execution during print */
     script {
         display: none !important;
     }
@@ -205,15 +204,15 @@
     /* Optimized Student Info Section - compact for single page */
     .student-info {
         width: 100% !important;
-        margin: 1mm 0 !important; /* Reduced margin */
+        margin: 0.2vh 0 !important;
         border-collapse: collapse !important;
         page-break-inside: avoid !important;
     }
     
     .student-info td {
-        padding: 1.5mm 2mm !important; /* Reduced padding */
-        border: 1px solid #000 !important;
-        font-size: 8px !important; /* Reduced from 9px */
+        padding: 0.3vh 0.4vw !important;
+        border: 0.1vh solid #000 !important;
+        font-size: 0.7vw !important;
         text-align: left !important;
         vertical-align: middle !important;
         background: white !important;
@@ -226,16 +225,16 @@
     .marks-table {
         width: 100% !important;
         border-collapse: collapse !important;
-        margin: 0.5px 0 !important; /* Minimal margins */
+        margin: 0.1vh 0 !important;
         table-layout: fixed !important;
         background: white !important;
         page-break-inside: avoid !important;
     }
     
     .marks-table th {
-        padding: 2px 1px !important; /* Reduced padding for single page */
-        border: 1px solid #000 !important;
-        font-size: 10px !important; /* Reduced from 11px */
+        padding: 0.2vh 0.1vw !important;
+        border: 0.1vh solid #000 !important;
+        font-size: 0.75vw !important;
         font-weight: bold !important;
         text-align: center !important;
         vertical-align: middle !important;
@@ -245,9 +244,9 @@
     }
     
     .marks-table td {
-        padding: 2px 1px !important; /* Reduced padding for single page */
-        border: 1px solid #000 !important;
-        font-size: 9px !important; /* Reduced from 10px */
+        padding: 0.2vh 0.1vw !important;
+        border: 0.1vh solid #000 !important;
+        font-size: 0.7vw !important;
         text-align: center !important;
         vertical-align: middle !important;
         background: white !important;
@@ -260,7 +259,7 @@
     .marks-table td.moyen_sans_coef,
     .marks-table td.notetotalaveccoef,
     .marks-table td.coef {
-        font-size: 10px !important; /* Reduced from 11px */
+        font-size: 0.75vw !important;
         font-weight: 900 !important;
     }
     
@@ -268,7 +267,7 @@
     .marks-table tbody tr td:nth-child(3),
     .marks-table tbody tr td:nth-child(4),
     .marks-table tbody tr td:nth-child(5) {
-        font-size: 10px !important; /* Reduced from 11px */
+        font-size: 0.75vw !important;
         font-weight: 900 !important;
         background-color: #f8f9fa !important;
     }
@@ -276,20 +275,20 @@
     /* Average and total columns - optimized */
     .marks-table tbody tr td:nth-child(6),
     .marks-table tbody tr td:nth-child(8) {
-        font-size: 10px !important; /* Reduced from 11px */
+        font-size: 0.75vw !important;
         font-weight: 900 !important;
         background-color: #fff3cd !important;
     }
     
     /* Coefficient column - optimized */
     .marks-table tbody tr td:nth-child(7) {
-        font-size: 9px !important; /* Reduced from 10px */
+        font-size: 0.7vw !important;
         font-weight: bold !important;
         background-color: #e8f4fd !important;
         color: #0066cc !important;
     }
     
-    /* Optimized Column Widths for maximum space utilization */
+    /* Optimized Column Widths for maximum space utilization using percentages */
     .col-numero { width: 3% !important; }
     .col-matiere { width: 22% !important; text-align: left !important; }
     .col-ds1 { width: 7% !important; }
@@ -304,33 +303,33 @@
     .total-row {
         background-color: #e5e7eb !important;
         font-weight: bold !important;
-        font-size: 10px !important; /* Reduced from 11px */
-        border: 1px solid #000 !important;
+        font-size: 0.75vw !important;
+        border: 0.1vh solid #000 !important;
     }
     
     .total-row td {
-        padding: 2px 1px !important; /* Reduced padding */
-        border: 1px solid #000 !important;
+        padding: 0.2vh 0.1vw !important;
+        border: 0.1vh solid #000 !important;
         font-weight: bold !important;
         color: #000 !important;
-        font-size: 10px !important; /* Reduced from 11px */
+        font-size: 0.75vw !important;
         line-height: 1.0 !important;
     }
     
     /* Special styling for total numbers - compact */
     .total-row .P_totalpoi,
     .total-row .P_moyenne-1 {
-        font-size: 11px !important; /* Reduced from 12px */
+        font-size: 0.8vw !important;
         font-weight: 900 !important;
     }
     
     /* Formula explanation - compact */
     .formula-row {
         background-color: #f8f9fa !important;
-        font-size: 7px !important; /* Reduced from 8px */
+        font-size: 0.5vw !important;
         text-align: center !important;
-        padding: 0.5px !important; /* Minimal padding */
-        border: 1px solid #000 !important;
+        padding: 0.1vh !important;
+        border: 0.1vh solid #000 !important;
         font-weight: bold !important;
         color: #000 !important;
         line-height: 1.0 !important;
@@ -338,11 +337,11 @@
     
     /* Enhanced Grade Scale - compact */
     .grade-scale {
-        font-size: 7px !important; /* Reduced from 8px */
+        font-size: 0.5vw !important;
         background-color: #f3f4f6 !important;
-        border: 1px solid #000 !important;
+        border: 0.1vh solid #000 !important;
         text-align: center !important;
-        padding: 1px !important; /* Minimal padding */
+        padding: 0.1vh !important;
         font-weight: bold !important;
         color: #000 !important;
         line-height: 1.0 !important;
@@ -351,15 +350,15 @@
     /* Class Statistics Enhancement - compact for single page */
     .class-stats {
         background-color: #f9fafb !important;
-        border: 1px solid #000 !important;
-        margin: 1px 0 !important; /* Minimal margin */
-        padding: 1px !important; /* Minimal padding */
+        border: 0.1vh solid #000 !important;
+        margin: 0.1vh 0 !important;
+        padding: 0.1vh !important;
     }
     
     .class-stats td {
-        font-size: 7px !important; /* Reduced from 8px */
-        padding: 1px !important; /* Minimal padding */
-        border: 1px solid #000 !important;
+        font-size: 0.5vw !important;
+        padding: 0.1vh !important;
+        border: 0.1vh solid #000 !important;
         font-weight: bold !important;
         color: #000 !important;
         line-height: 1.0 !important;
@@ -367,61 +366,62 @@
     
     /* Annual Averages Section - compact for single page */
     .annual-averages {
-        margin-top: 2px !important; /* Minimal margin */
-        font-size: 7px !important; /* Reduced from 8px */
-        border: 1px solid #000 !important;
-        padding: 1px !important; /* Minimal padding */
+        margin-top: 0.1vh !important;
+        font-size: 0.5vw !important;
+        border: 0.1vh solid #000 !important;
+        padding: 0.1vh !important;
         background: white !important;
         page-break-inside: avoid !important;
     }
     
     .annual-averages h5 {
-        font-size: 8px !important; /* Reduced from 9px */
-        margin: 0 0 1px 0 !important;
+        font-size: 0.6vw !important;
+        margin: 0 0 0.1vh 0 !important;
         text-align: center !important;
         background: #000 !important;
         color: white !important;
-        padding: 1px !important; /* Minimal padding */
+        padding: 0.1vh !important;
         line-height: 1.0 !important;
     }
     
     /* Comments Section Optimization - minimal for single page */
     .comments-section {
-        margin-top: 0.5px !important; /* Minimal margin */
-        font-size: 7px !important; /* Reduced from 8px */
+        margin-top: 0.1vh !important;
+        font-size: 0.5vw !important;
         page-break-inside: avoid !important;
-        border: 1px solid #333 !important;
-        padding: 1px !important; /* Minimal padding */
+        border: 0.1vh solid #333 !important;
+        padding: 0.1vh !important;
     }
     
     .comments-section h4 {
-        font-size: 7px !important; /* Reduced from 8px */
-        margin: 0 0 0.5px 0 !important;
-        border-bottom: 1px solid #ccc !important;
-        padding-bottom: 0.5px !important;
+        font-size: 0.5vw !important;
+        margin: 0 0 0.1vh 0 !important;
+        border-bottom: 0.1vh solid #ccc !important;
+        padding-bottom: 0.1vh !important;
+        padding-bottom: 0.1vh !important;
         line-height: 1.0 !important;
     }
     
     .comments-section div {
-        font-size: 7px !important; /* Reduced from 8px */
+        font-size: 0.5vw !important;
         line-height: 1.0 !important;
-        padding: 0.5px !important;
+        padding: 0.1vh !important;
     }
     
     /* Signature lines - minimal for single page */
     .signature-section {
-        margin-top: 1px !important; /* Minimal margin */
+        margin-top: 0.1vh !important;
         width: 100% !important;
         border-collapse: collapse !important;
-        font-size: 7px !important; /* Reduced from 8px */
+        font-size: 0.5vw !important;
         color: #000 !important;
     }
     
     .signature-box {
         width: 33.33% !important;
         text-align: center !important;
-        border-top: 1px solid #000 !important;
-        padding-top: 1px !important; /* Minimal padding */
+        border-top: 0.1vh solid #000 !important;
+        padding-top: 0.1vh !important;
         font-weight: bold !important;
         display: table-cell !important;
         vertical-align: top !important;
@@ -452,7 +452,7 @@
         transform: translate(-50%, -50%) !important;
         opacity: 0.03 !important;
         z-index: -1 !important;
-        font-size: 150px !important;
+        font-size: 10vw !important;
         font-weight: bold !important;
         color: #000 !important;
         pointer-events: none !important;
@@ -470,10 +470,8 @@
         page-break-inside: avoid !important;
         page-break-after: avoid !important;
         transform-origin: center center !important;
-        /* Ensure content is centered and scaled appropriately */
         max-height: calc(100vh - 10mm) !important;
         overflow: visible !important;
-        /* Flexbox child properties */
         flex-shrink: 0 !important;
     }
     
@@ -486,14 +484,12 @@
         padding: 0 !important;
         page-break-inside: avoid !important;
         page-break-after: avoid !important;
-        /* Center content and auto-scale */
         transform-origin: center center !important;
         max-height: calc(100vh - 10mm) !important;
-        /* Ensure content is properly contained and centered */
         display: block !important;
         position: relative !important;
-        /* Auto-scale to fit content */
-        transform: scale(0.95) !important; /* Increased for better single page fit */
+        /* Dynamic scaling to fit content on single page */
+        transform: scale(0.92) !important;
     }
     
     /* Ensure table fits on single page */
@@ -544,25 +540,21 @@
     }
     
     /* Automatic content scaling for single page with centering */
-    @media print {
-        html, body {
-            height: 100vh !important;
-            width: 100vw !important;
-            overflow: visible !important;
-            /* Ensure body maintains flexbox centering */
-            display: flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-        }
-        
-        /* Scale down entire content if needed and maintain centering */
-        .preview-container {
-            transform: scale(0.95) !important; /* Increased scale for better single page fit */
-            transform-origin: center center !important;
-            /* Ensure content stays centered */
-            display: block !important;
-            position: relative !important;
-        }
+    html, body {
+        height: 100vh !important;
+        width: 100vw !important;
+        overflow: visible !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+    }
+    
+    /* Scale down entire content if needed and maintain centering */
+    .preview-container {
+        transform: scale(0.92) !important;
+        transform-origin: center center !important;
+        display: block !important;
+        position: relative !important;
     }
 }
 

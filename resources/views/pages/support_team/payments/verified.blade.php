@@ -77,6 +77,11 @@
                                         <i class="icon-file-pdf mr-2"></i>Avis de Paiement
                                     </button>
                                 </div>
+                                <div class="text-right mt-1">
+                                    <button type="button" id="export-excel" class="btn btn-secondary btn-block" disabled>
+                                        <i class="icon-file-excel mr-2"></i>Export Excel
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -127,9 +132,11 @@
                 if (classId && paymentIds && paymentIds.length > 0 && paymentDeadline) {
                     $('#generate-notifications').prop('disabled', false);
                     $('#preview-notifications').prop('disabled', false);
+                    $('#export-excel').prop('disabled', false);
                 } else {
                     $('#generate-notifications').prop('disabled', true);
                     $('#preview-notifications').prop('disabled', true);
+                    $('#export-excel').prop('disabled', true);
                 }
             }
 
@@ -197,6 +204,30 @@
                 form.append('<input name="my_class_id" value="' + formData.classId + '">');
                 form.append('<input name="payment_deadline" value="' + formData.paymentDeadline + '">');
                 form.append('<input name="action" value="download">');
+                
+                // Ajouter les IDs de paiement
+                formData.paymentIds.forEach(function(id) {
+                    form.append('<input name="my_payments_id[]" value="' + id + '">');
+                });
+                
+                // Ajouter les statuts
+                formData.statuses.forEach(function(status) {
+                    form.append('<input name="status[]" value="' + status + '">');
+                });
+                
+                form.submit();
+            });
+
+            // Export Excel
+            $('#export-excel').click(function() {
+                var formData = generateFormData('excel');
+                if (!formData) return;
+                
+                // Créer et soumettre le formulaire pour l'export Excel
+                var form = $('<form method="POST" action="{{ route('payments.export_notifications_excel') }}">').appendTo('body');
+                form.append('@csrf');
+                form.append('<input name="my_class_id" value="' + formData.classId + '">');
+                form.append('<input name="payment_deadline" value="' + formData.paymentDeadline + '">');
                 
                 // Ajouter les IDs de paiement
                 formData.paymentIds.forEach(function(id) {

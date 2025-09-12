@@ -42,10 +42,7 @@
     .page {
         width: @if(isset($is_preview)) 210mm @elseif(isset($is_pdf)) 210mm @else 204mm @endif; /* A4 width */
         height: @if(isset($is_preview)) 297mm @elseif(isset($is_pdf)) 297mm @else 291mm @endif; /* A4 height */
-        display: grid;
-        grid-template-columns: 1fr 1fr; /* 2 colonnes verticales */
-        grid-template-rows: repeat(5, 1fr); /* 5 rangées horizontales = 10 élèves */
-        gap: 4mm; /* Espacement plus visible entre les cases */
+        position: relative;
         margin: 0 @if(isset($is_preview)) auto @elseif(isset($is_pdf)) 0 @else 0 @endif;
         padding: @if(isset($is_preview)) 5mm @elseif(isset($is_pdf)) 3mm @else 2mm @endif;
         @if(isset($is_preview))
@@ -54,50 +51,43 @@
         background: white;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         @endif
+        overflow: hidden;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-template-rows: repeat(5, 1fr);
+        gap: 3mm;
     }
     
     .notification {
         width: 100%;
         height: 100%;
-        border: 3px solid #000000;
-        border-radius: 8px;
-        padding: 3mm;
-        margin: 1mm;
-        position: relative;
-        background: #ffffff;
-        overflow: hidden;
-        font-family: 'Arial', sans-serif;
-        font-size: 6px;
+        border: 2px solid #000;
+        border-radius: 3mm;
+        padding: 2mm;
+        background: #fff;
+        font-size: 7px;
         line-height: 1.2;
-        color: #000000;
+        color: #000;
+        overflow: hidden;
         display: flex;
         flex-direction: column;
-        min-height: 55mm;
-        max-height: 57mm;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.2);
-        box-sizing: border-box;
+        position: relative;
+        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
     
-    /* Grid positioning for proper 2x5 layout */
-    .notification:nth-child(1) { grid-column: 1; grid-row: 1; }
-    .notification:nth-child(2) { grid-column: 2; grid-row: 1; }
-    .notification:nth-child(3) { grid-column: 1; grid-row: 2; }
-    .notification:nth-child(4) { grid-column: 2; grid-row: 2; }
-    .notification:nth-child(5) { grid-column: 1; grid-row: 3; }
-    .notification:nth-child(6) { grid-column: 2; grid-row: 3; }
-    .notification:nth-child(7) { grid-column: 1; grid-row: 4; }
-    .notification:nth-child(8) { grid-column: 2; grid-row: 4; }
-    .notification:nth-child(9) { grid-column: 1; grid-row: 5; }
-    .notification:nth-child(10) { grid-column: 2; grid-row: 5; }
-    
+    /* State styles (case by case) */
+    .notification.is-overdue { border-color: #b00020; }
+    .notification.is-due { border-color: #ff8f00; }
+    .notification.is-ok { border-color: #2e7d32; }
+
     .header {
         text-align: center;
-        border-bottom: 1px solid #000000;
-        padding: 1.5mm;
-        margin-bottom: 1.5mm;
-        background: #ffffff;
+        border-bottom: 1px solid #000;
+        padding: 1mm;
+        margin-bottom: 1mm;
+        background: #fff;
         position: relative;
-        height: 10mm;
+        height: 12mm;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -105,117 +95,126 @@
     }
     
     .school-logo {
-        width: 8px;
-        height: 8px;
+        width: 8mm;
+        height: 8mm;
         position: absolute;
         left: 1mm;
         top: 50%;
         transform: translateY(-50%);
         object-fit: contain;
-        border-radius: 1px;
+        border-radius: 1mm;
     }
     
     .school-info {
         text-align: center;
         font-weight: 600;
-        font-size: 3px;
-        line-height: 1.0;
-        color: #000000;
+        font-size: 4px;
+        line-height: 1.1;
+        color: #000;
         margin: 0;
-        padding-left: 10px;
+        padding-left: 10mm;
     }
     
     .school-name {
-        font-size: 3.5px;
+        font-size: 5px;
         font-weight: 700;
-        color: #000000;
-        margin-bottom: 0.2mm;
+        color: #000;
+        margin-bottom: 0.3mm;
         text-transform: uppercase;
         letter-spacing: 0.1px;
     }
     
     .notification-title {
         text-align: center;
-        font-weight: 700;
-        font-size: 6px;
-        margin: 1.5mm 0;
-        color: #000000;
-        padding: 2mm;
+        font-weight: 800;
+        font-size: 7px;
+        margin: 1mm 0;
+        color: #000;
+        padding: 1mm;
         text-transform: uppercase;
-        letter-spacing: 0.3px;
+        letter-spacing: 0.35px;
         height: auto;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
-        border-bottom: 1px solid #000000;
+        border: 1px solid #000;
+        background: #f8f8f8;
+        border-radius: 1mm;
     }
     
     .content {
-        flex: 1;
         padding: 0;
         margin: 0;
         display: flex;
         flex-direction: column;
-        gap: 1.5mm;
         overflow: hidden;
-        min-height: 0;
+        flex: 1;
+        gap: 1mm;
     }
     
     .student-info {
-        padding: 1.5mm;
+        padding: 1mm;
         flex-shrink: 0;
     }
     
-    .student-name {
-        font-weight: 700;
-        color: #000000;
-        font-size: 7px;
+    .recipient {
+        font-size: 5px;
+        font-weight: 600;
         margin-bottom: 0.5mm;
-        text-transform: capitalize;
+    }
+    
+    .student-name {
+        font-weight: 600;
+        color: #000;
+        font-size: 8px;
+        margin-bottom: 0.5mm;
+        text-transform: none;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
     
     .class-info {
-        font-size: 5px;
-        color: #000000;
+        font-size: 6px;
+        color: #000;
         font-weight: 500;
         margin: 0;
     }
     
     .payment-reason-section {
-        padding: 1.5mm;
+        padding: 1mm;
         flex-shrink: 0;
-        border-top: 1px solid #000000;
-        border-bottom: 1px solid #000000;
+        border-top: 1px solid #000;
+        border-bottom: 1px solid #000;
+        background: #f9f9f9;
+        border-radius: 1mm;
     }
     
     .reason-title {
-        font-size: 5.5px;
-        color: #000000;
+        font-size: 6px;
+        color: #000;
         font-weight: 700;
         margin-bottom: 0.5mm;
     }
     
     .reason-content {
-        font-size: 5px;
-        color: #000000;
+        font-size: 5.5px;
+        color: #000;
         font-weight: 600;
         font-style: italic;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
+        white-space: normal;
+        word-wrap: break-word;
     }
     
     .amounts-section {
-        background: #ffffff;
-        border: 2px solid #000000;
-        padding: 1.5mm;
+        background: #fff;
+        border: 1px solid #000;
+        padding: 1mm;
         flex: 1;
         min-height: 0;
         overflow: hidden;
+        border-radius: 1mm;
     }
     
     .amount-line {
@@ -223,7 +222,7 @@
         justify-content: space-between;
         align-items: center;
         margin-bottom: 1mm;
-        font-size: 5px;
+        font-size: 6px;
         line-height: 1.2;
         padding: 0.5mm 0;
     }
@@ -233,33 +232,34 @@
         justify-content: space-between;
         align-items: center;
         margin-top: 1mm;
-        padding: 1.5mm;
-        background: #f0f0f0;
-        border: 2px solid #000000;
-        font-size: 5.5px;
-        font-weight: 700;
+        padding: 1mm;
+        background: #fffbea;
+        border: 1px solid #000;
+        font-size: 7px;
+        font-weight: 800;
+        border-radius: 1mm;
     }
     
     .amount-label {
-        color: #000000;
+        color: #000;
         font-weight: 600;
     }
     
     .amount-value {
-        color: #000000;
+        color: #000;
         font-weight: 700;
         white-space: nowrap;
     }
     
     .amount-label-highlight {
-        color: #000000;
+        color: #000;
         font-weight: 700;
     }
     
     .amount-value-highlight {
-        color: #000000;
+        color: #000;
         font-weight: 700;
-        font-size: 6px;
+        font-size: 8px;
     }
     
     .footer-section {
@@ -267,45 +267,62 @@
         bottom: 0;
         left: 0;
         right: 0;
-        background: #ffffff;
-        border-top: 1px solid #000000;
-        margin: 0 -3mm -3mm -3mm;
-        padding: 1mm 3mm;
-        height: 8mm;
+        background: #fff;
+        border-top: 1px solid #000;
+        margin: 0 -2mm -2mm -2mm;
+        padding: 1mm 2mm;
+        height: 12mm;
         flex-shrink: 0;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
     }
-    
+
     .deadline-info {
         text-align: center;
-        font-size: 5px;
-        color: #000000;
-        font-weight: 700;
-        margin-bottom: 1mm;
-    }
-    
-    .deadline-date {
         font-size: 6px;
+        color: #000;
         font-weight: 700;
-        color: #000000;
-        background: #ffffff;
-        padding: 1mm 2mm;
-        border: 2px solid #000000;
+        margin-bottom: 0.5mm;
+    }
+
+    .deadline-date {
+        font-size: 7px;
+        font-weight: 700;
+        color: #000;
+        background: #fff;
+        padding: 0.5mm 1mm;
+        border: 1px solid #000;
+        border-radius: 1mm;
         display: inline-block;
     }
-    
+
     .status-info {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 4px;
-        color: #000000;
-        font-weight: 500;
-        margin-top: 1mm;
+        font-size: 5px;
+        color: #000;
+        font-weight: 600;
+        margin-top: 0.5mm;
+        width: 100%;
+    }
+
+    .status-chip {
+        border: 1px solid #000;
+        padding: 0.5mm 1.5mm;
+        border-radius: 10px;
+        font-weight: 700;
+        background: #f5f5f5;
     }
     
-
-    
-
+    .thanks {
+        font-style: italic;
+        text-align: center;
+        font-size: 5px;
+        margin: 1mm 0;
+    }
     
     @if(!isset($is_preview))
         .page-break {
@@ -355,11 +372,11 @@
                 display: grid !important;
                 grid-template-columns: 1fr 1fr !important;
                 grid-template-rows: repeat(5, 1fr) !important;
-                gap: 2mm !important;
-                width: 204mm !important;
-                height: 287mm !important;
+                gap: 3mm !important;
+                width: 210mm !important;
+                height: 297mm !important;
                 margin: 0 auto !important;
-                padding: 0 !important;
+                padding: 3mm !important;
                 page-break-after: always !important;
                 page-break-inside: avoid !important;
                 background: white !important;
@@ -371,8 +388,6 @@
             }
             
             .notification {
-                display: flex !important;
-                flex-direction: column !important;
                 width: 100% !important;
                 height: 100% !important;
                 background: white !important;
@@ -385,7 +400,9 @@
                 line-height: 1.2 !important;
                 overflow: visible !important;
                 box-sizing: border-box !important;
-                justify-content: space-between !important;
+                break-inside: avoid !important;
+                display: flex !important;
+                flex-direction: column !important;
             }
             
             .notification * {
@@ -397,8 +414,8 @@
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                border-bottom: 2px solid black !important;
-                height: 15mm !important;
+                border-bottom: 1px solid black !important;
+                height: 12mm !important;
                 padding: 1mm !important;
             }
             
@@ -406,30 +423,32 @@
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                border: 2px solid black !important;
+                border: 1px solid black !important;
                 padding: 1mm !important;
                 margin: 1mm 0 !important;
                 text-align: center !important;
                 font-weight: bold !important;
-                height: 8mm !important;
+                height: auto !important;
             }
             
             .content {
                 flex: 1 !important;
-                display: block !important;
+                display: flex !important;
+                flex-direction: column !important;
+                gap: 1mm !important;
             }
             
-            .deadline {
+            .deadline-info {
                 display: flex !important;
                 flex-direction: column !important;
                 align-items: center !important;
                 justify-content: center !important;
-                border: 2px solid black !important;
-                padding: 1.5mm !important;
+                border: 1px solid black !important;
+                padding: 1mm !important;
                 margin: 1mm 0 !important;
                 font-weight: bold !important;
                 text-align: center !important;
-                min-height: 6mm !important;
+                min-height: auto !important;
             }
             
             .deadline-date {
@@ -442,8 +461,8 @@
             }
             
             .payment-details {
-                border: 2px solid black !important;
-                padding: 1.5mm !important;
+                border: 1px solid black !important;
+                padding: 1mm !important;
                 margin: 1mm 0 !important;
                 background-color: white !important;
             }
@@ -462,7 +481,7 @@
             .label-text {
                 font-weight: bold !important;
                 color: black !important;
-                font-size: 5.5px !important;
+                font-size: 6px !important;
             }
             
             .amount-value {
@@ -472,35 +491,50 @@
             }
             
             .amount-value.due {
-                font-size: 7px !important;
+                font-size: 8px !important;
             }
             
-            .malagasy-thanks {
-                border-top: 1px solid black !important;
-                border-bottom: 1px solid black !important;
-                padding: 1mm !important;
-                font-style: italic !important;
-                text-align: center !important;
+            .thanks {
+                padding: 1mm;
+                font-style: italic;
+                text-align: center;
+                font-size: 5px;
+                margin-top: 1mm;
+                position: absolute;
+                bottom: 12mm;
+                left: 0;
+                right: 0;
             }
             
-            .footer {
+            .footer-section {
                 display: flex !important;
                 justify-content: space-between !important;
                 align-items: center !important;
-                border-top: 1px solid black !important;
                 padding: 0.5mm !important;
                 position: absolute !important;
                 bottom: 1mm !important;
                 left: 2mm !important;
                 right: 2mm !important;
+                height: 12mm !important;
             }
             
             .school-logo {
-                width: 20px !important;
-                height: 20px !important;
+                width: 8mm !important;
+                height: 8mm !important;
             }
         }
     @endif
+    
+    .empty {
+        border: 1px dashed #ccc;
+        background: #f9f9f9;
+        text-align: center;
+        color: #999;
+        font-size: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
 </style>
 
 @if(!isset($is_preview) && !isset($is_pdf))
@@ -532,7 +566,19 @@
                     $paymentTitles = $studentData['payment_titles'];
                 @endphp
                 
-                <div class="notification">
+                @php
+                    // Determine card state classes per student
+                    $isOverdue = false;
+                    try {
+                        $deadlineTs = strtotime($payment_deadline);
+                        $todayTs = strtotime(date('Y-m-d'));
+                        $isOverdue = $todayTs > $deadlineTs && ($amountDue ?? 0) > 0;
+                    } catch (\Exception $e) {
+                        $isOverdue = false;
+                    }
+                    $cardClass = $isOverdue ? 'is-overdue' : (($amountDue ?? 0) > 0 ? 'is-due' : 'is-ok');
+                @endphp
+                <div class="notification {{ $cardClass }}">
                     <div class="header">
                         @php
                             $logoPath = public_path('images/logo_avar.png');
@@ -548,15 +594,15 @@
                         @if($logoExists)
                             <img src="{{ $logoSrc }}" alt="Logo AVAR" class="school-logo">
                         @else
-                            <div class="school-logo" style="background-color: #2c5aa0; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 5px; border-radius: 1px;">
+                            <div class="school-logo" style="background-color: #2c5aa0; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 5px; border-radius: 1mm;">
                                 AVAR
                             </div>
                         @endif
                         
                         <div class="school-info">
                             <div class="school-name">COLLEGE PRIVE ADVENTISTE AVARATETEZANA</div>
-                            <div style="font-size: 5px;">AMPITATAFIKA ANTANANARIVO MADAGASCAR</div>
-                            <div style="font-size: 5px;">Tél: 038 34 921 09</div>
+                            <div style="font-size: 4px;">AMPITATAFIKA ANTANANARIVO MADAGASCAR</div>
+                            <div style="font-size: 4px;">Tél: 038 34 921 09</div>
                         </div>
                     </div>
                     
@@ -566,14 +612,17 @@
                     
                     <div class="content">
                         <div class="student-info">
-                            <div style="font-size: 5px; color: #000000; font-weight: 600; margin-bottom: 0.5mm;">Ho an'ny ray aman-drenin'i</div>
-                            <div class="student-name">{{ substr($student->user->name, 0, 25) }}</div>
-                            <div class="class-info">({{ $class_name }}{{ $student->section ? ' ' . substr($student->section->name, 0, 4) : '' }})</div>
+                            <div class="recipient">Ho an'ny ray aman-drenin'i</div>
+                            <div class="student-name">{{ $student->user->name }}</div>
+                            <div class="class-info">{{ $class_name }}{{ $student->section ? ' ' . $student->section->name : '' }}</div>
+                            <div style="font-size: 4px; color: #000; font-weight: 500; margin-top: 0.5mm;">
+                                ID Élève: {{ $student->user_id }} | ID Classe: {{ $student->my_class_id }}
+                            </div>
                         </div>
                         
                         <div class="payment-reason-section">
                             <div class="reason-title">Antony tsy voaloa:</div>
-                            <div class="reason-content">{{ substr($paymentTitles, 0, 25) }}</div>
+                            <div class="reason-content">{{ $paymentTitles }}</div>
                         </div>
                         
                         <div class="amounts-section">
@@ -600,21 +649,28 @@
                             <div class="deadline-date">{{ date('d/m/Y', strtotime($payment_deadline)) }}</div>
                         </div>
                         
+                        <div class="thanks">
+                            misaotra amin'ny fiaraha-miasa sy ny fandraisana andrakitra
+                        </div>
+                        
                         <div class="status-info">
-                            <span>{{ $status }}</span>
+                            <span class="status-chip">
+                                @if($isOverdue)
+                                    Tara daty
+                                @elseif(($amountDue ?? 0) > 0)
+                                    Mbola misy sisa
+                                @else
+                                    VITA
+                                @endif
+                            </span>
                             <span>{{ date('d/m/y') }}</span>
                         </div>
-                    </div>
-                    
-                    <div class="footer">
-                        <span>{{ $status }}</span>
-                        <span>{{ date('d/m/y') }}</span>
                     </div>
                 </div>
             @else
                 {{-- Empty notification box for consistent grid layout --}}
-                <div class="notification" style="border: 1px dashed #ccc; background-color: #f9f9f9;">
-                    <div style="display: flex; align-items: center; justify-content: center; height: 100%; color: #999; font-size: 5px;">
+                <div class="notification empty">
+                    <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
                         Aucun élève
                     </div>
                 </div>
