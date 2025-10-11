@@ -72,6 +72,47 @@
         font-size: 1rem;
         color: #777;
     }
+    /* Column visibility controls */
+    .column-visibility-panel {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 0.375rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .column-visibility-panel h6 {
+        margin-bottom: 1rem;
+        color: #495057;
+        font-weight: 600;
+    }
+    .column-visibility-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    .column-visibility-controls .btn-group {
+        margin-right: 1rem;
+    }
+    .column-visibility-controls .btn {
+        font-size: 0.875rem;
+        padding: 0.375rem 0.75rem;
+    }
+    .column-visibility-controls .btn i {
+        margin-right: 0.25rem;
+    }
+    .hidden-columns-indicator {
+        background-color: #fff3cd;
+        color: #856404;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    .datatable-header.has-hidden-columns {
+        border-left: 3px solid #ffc107;
+    }
 </style>
 @endsection
 
@@ -84,6 +125,31 @@
         </div>
 
         <div class="card-body">
+            <!-- Column Visibility Controls -->
+            <div class="column-visibility-panel">
+                <h6 class="mb-0 d-flex justify-content-between align-items-center">
+                    <span>Colonnes à afficher</span>
+                    <small class="text-muted">Cliquez sur le bouton "Colonnes" ci-dessus ou utilisez les boutons ci-dessous</small>
+                </h6>
+                <div class="column-visibility-controls mt-3">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-light" onclick="window.inlineEditor.showAllColumns()" title="Afficher toutes les colonnes">
+                            <i class="icon-eye"></i> Tout afficher
+                        </button>
+                        <button type="button" class="btn btn-light" onclick="window.inlineEditor.hideAllColumns()" title="Masquer toutes les colonnes">
+                            <i class="icon-eye-blocked"></i> Tout masquer
+                        </button>
+                        <button type="button" class="btn btn-light" onclick="window.inlineEditor.resetColumnVisibility()" title="Réinitialiser la visibilité des colonnes">
+                            <i class="icon-reset"></i> Réinitialiser
+                        </button>
+                    </div>
+                    <div class="hidden-columns-indicator d-none">
+                        <i class="icon-info2 mr-1"></i>
+                        <span id="hidden-columns-count">0</span> colonne(s) masquée(s)
+                    </div>
+                </div>
+            </div>
+
             <ul class="nav nav-tabs nav-tabs-highlight">
                 <li class="nav-item"><a href="#all-students" class="nav-link active" data-toggle="tab">Tous les étudiants</a></li>
                 <li class="nav-item"><a href="#student-stats" class="nav-link" data-toggle="tab">Statistiques des étudiants</a></li>
@@ -117,12 +183,13 @@
                             <th>Statut</th>
                             <th>Type</th>
                             <th>Statut académique</th>
+                            <th>Sexe</th>
                             <th>Père/Tuteur</th>
                             <th>Profession père</th>
                             <th>Mère/Tutrice</th>
                             <th>Profession mère</th>
                             <th>Téléphone</th>
-                            <th>Action</th>
+                            <th class="no-export">Action</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -146,6 +213,7 @@
                                 <td class="editable editable-cell" data-field="status" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->status ?? 'Normal' }}">{{ $s->user->status ?? 'Normal' }}</td>
                                 <td class="editable editable-cell" data-field="student_type" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->student_type ?? 'Nouveau' }}">{{ $s->user->student_type ?? 'Nouveau' }}</td>
                                 <td class="editable editable-cell" data-field="academic_status" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->academic_status ?? 'Passant' }}">{{ $s->user->academic_status ?? 'Passant' }}</td>
+                                <td class="editable editable-cell" data-field="gender" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->gender ?? '' }}">{{ $s->user->gender == 'Male' ? 'Masculin' : ($s->user->gender == 'Female' ? 'Féminin' : '-') }}</td>
                                 <td class="editable editable-cell" data-field="nom_p" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->nom_p }}">{{ $s->user->nom_p }}</td>
                                 <td class="editable editable-cell" data-field="prof_p" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->prof_p }}">{{ $s->user->prof_p }}</td>
                                 <td class="editable editable-cell" data-field="nom_m" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->nom_m }}">{{ $s->user->nom_m }}</td>
@@ -450,12 +518,13 @@
                                 <th>Âge</th>
                                 <th>Adresse</th>
                                 <th>Statut</th>
+                                <th>Sexe</th>
                                 <th>Père/Tuteur</th>
                                 <th>Profession père</th>
                                 <th>Mère/Tutrice</th>
                                 <th>Profession mère</th>
                                 <th>Téléphone</th>
-                                <th>Action</th>
+                                <th class="no-export">Action</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -476,6 +545,7 @@
                                     </td>
                                     <td class="editable" data-field="address" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->address }}</td>
                                     <td class="editable" data-field="status" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->status ?? 'Normal' }}</td>
+                                    <td class="editable" data-field="gender" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->gender == 'Male' ? 'Masculin' : ($s->user->gender == 'Female' ? 'Féminin' : '-') }}</td>
                                     <td class="editable" data-field="nom_p" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->nom_p }}</td>
                                     <td class="editable" data-field="prof_p" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->prof_p }}</td>
                                     <td class="editable" data-field="nom_m" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->nom_m }}</td>

@@ -69,6 +69,47 @@
         color: var(--primary-color);
         text-decoration: none;
     }
+    /* Column visibility controls */
+    .column-visibility-panel {
+        background: #f8f9fa;
+        border: 1px solid #e9ecef;
+        border-radius: 0.375rem;
+        padding: 1rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+    .column-visibility-panel h6 {
+        margin-bottom: 1rem;
+        color: #495057;
+        font-weight: 600;
+    }
+    .column-visibility-controls {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        align-items: center;
+    }
+    .column-visibility-controls .btn-group {
+        margin-right: 1rem;
+    }
+    .column-visibility-controls .btn {
+        font-size: 0.875rem;
+        padding: 0.375rem 0.75rem;
+    }
+    .column-visibility-controls .btn i {
+        margin-right: 0.25rem;
+    }
+    .hidden-columns-indicator {
+        background-color: #fff3cd;
+        color: #856404;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.25rem;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+    .datatable-header.has-hidden-columns {
+        border-left: 3px solid #ffc107;
+    }
 </style>
 @endsection
 
@@ -85,6 +126,31 @@
         </div>
 
         <div class="card-body">
+            <!-- Column Visibility Controls -->
+            <div class="column-visibility-panel">
+                <h6 class="mb-0 d-flex justify-content-between align-items-center">
+                    <span>Colonnes à afficher</span>
+                    <small class="text-muted">Cliquez sur le bouton "Colonnes" ci-dessus ou utilisez les boutons ci-dessous</small>
+                </h6>
+                <div class="column-visibility-controls mt-3">
+                    <div class="btn-group" role="group">
+                        <button type="button" class="btn btn-light" onclick="window.inlineEditor.showAllColumns()" title="Afficher toutes les colonnes">
+                            <i class="icon-eye"></i> Tout afficher
+                        </button>
+                        <button type="button" class="btn btn-light" onclick="window.inlineEditor.hideAllColumns()" title="Masquer toutes les colonnes">
+                            <i class="icon-eye-blocked"></i> Tout masquer
+                        </button>
+                        <button type="button" class="btn btn-light" onclick="window.inlineEditor.resetColumnVisibility()" title="Réinitialiser la visibilité des colonnes">
+                            <i class="icon-reset"></i> Réinitialiser
+                        </button>
+                    </div>
+                    <div class="hidden-columns-indicator d-none">
+                        <i class="icon-info2 mr-1"></i>
+                        <span id="hidden-columns-count">0</span> colonne(s) masquée(s)
+                    </div>
+                </div>
+            </div>
+
             <ul class="nav nav-tabs nav-tabs-highlight">
                 <li class="nav-item"><a href="#all-students" class="nav-link active" data-toggle="tab">Tous les étudiants</a></li>
                 <li class="nav-item dropdown">
@@ -112,15 +178,15 @@
                             <th>Photo</th>
                             <th>Nom</th>
                             <th>N° d'admission</th>
-                            <th>Classe</th>
                             <th>Section</th>
                             <th>Date de naissance</th>
                             <th>Âge</th>
+                            <th>Sexe</th>
                             <th>Père/Tuteur</th>
                             <th>Mère/Tutrice</th>
                             <th>Statut</th>
                             <th>Téléphone</th>
-                            <th>Actions</th>
+                            <th class="no-export">Actions</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -130,10 +196,10 @@
                                 <td><img class="rounded-circle student-photo" src="{{ $s->user->photo }}" alt="photo"></td>
                                 <td><a href="{{ route('students.show', Qs::hash($s->id)) }}" class="student-name">{{ $s->user->name }}</a></td>
                                 <td><span class="badge badge-primary">{{ $s->adm_no }}</span></td>
-                                <td>{{ $s->my_class->name }}</td>
                                 <td>{{ $s->section->name }}</td>
                                 <td class="dob-value">{{ $s->user->dob }}</td>
                                 <td>{{ Qs::calculateAge($s->user->dob) }}</td>
+                                <td class="editable" data-field="gender" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->gender == 'Male' ? 'Masculin' : ($s->user->gender == 'Female' ? 'Féminin' : '-') }}</td>
                                 <td>{{ $s->user->nom_p }} <small class="text-muted d-block">{{ $s->user->prof_p }}</small></td>
                                 <td>{{ $s->user->nom_m }} <small class="text-muted d-block">{{ $s->user->prof_m }}</small></td>
                                 <td>
@@ -189,11 +255,12 @@
                                 <th>Section</th>
                                 <th>Date de naissance</th>
                                 <th>Âge</th>
+                                <th>Sexe</th>
                                 <th>Père/Tuteur</th>
                                 <th>Mère/Tutrice</th>
                                 <th>Statut</th>
                                 <th>Téléphone</th>
-                                <th>Actions</th>
+                                <th class="no-export">Actions</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -206,6 +273,7 @@
                                     <td>{{ $s->section->name }}</td>
                                     <td class="dob-value">{{ $s->user->dob }}</td>
                                     <td>{{ Qs::calculateAge($s->user->dob) }}</td>
+                                    <td class="editable" data-field="gender" data-student-id="{{ Qs::hash($s->id) }}">{{ $s->user->gender == 'Male' ? 'Masculin' : ($s->user->gender == 'Female' ? 'Féminin' : '-') }}</td>
                                     <td>{{ $s->user->nom_p }} <small class="text-muted d-block">{{ $s->user->prof_p }}</small></td>
                                     <td>{{ $s->user->nom_m }} <small class="text-muted d-block">{{ $s->user->prof_m }}</small></td>
                                     <td>

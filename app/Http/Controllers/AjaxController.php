@@ -143,7 +143,7 @@ class AjaxController extends Controller
 
         try {
             // Déterminer si le champ appartient à la table users ou student_records
-            $user_fields = ['name', 'dob', 'status', 'religion', 'nom_p', 'prof_p', 'nom_m', 'prof_m', 'phone', 'address', 'student_type', 'academic_status'];
+            $user_fields = ['name', 'dob', 'status', 'religion', 'nom_p', 'prof_p', 'nom_m', 'prof_m', 'phone', 'address', 'student_type', 'academic_status', 'gender'];
             $student_fields = ['age', 'adm_no'];
 
             if (in_array($field_name, $user_fields)) {
@@ -180,7 +180,11 @@ class AjaxController extends Controller
                 if ($field_name == 'academic_status' && !in_array($field_value, ['Passant', 'Redoublant'])) {
                     return response()->json(['ok' => false, 'msg' => 'Statut académique invalide'], 400);
                 }
-
+                
+                if ($field_name == 'gender' && !in_array($field_value, ['Male', 'Female'])) {
+                    return response()->json(['ok' => false, 'msg' => 'Genre invalide'], 400);
+                }
+                
                 // Si le statut a été modifié, mettre à jour les enregistrements de paiement en conséquence
                 if ($field_name == 'status') {
                     try {

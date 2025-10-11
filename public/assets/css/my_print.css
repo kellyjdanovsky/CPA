@@ -21,50 +21,62 @@
 }
 
 @media print {
+    /* General print settings */
+    @page {
+        size: A4 landscape !important;
+        margin: 10mm !important;
+    }
+    
+    html, body {
+        width: 297mm !important;
+        height: 210mm !important;
+        overflow: visible !important;
+        background-color: #FFFFFF;
+        margin: 0;
+        padding: 0;
+    }
+
+    .bulletin-container {
+        transform: rotate(90deg);
+        transform-origin: top left;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 210mm !important;
+        padding: 15mm !important;
+    }
+    
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Container and scaling */
+    .container {
+        width: 100% !important;
+        height: 100% !important;
+        transform-origin: top left;
+        transform: scale(0.95);
+        font-size: 0.75vw;
+    }
+
+    /* Table elements */
     td, th {
         padding: 0.2vh 0.3vw;
         text-align: center;
         font-size: 0.65vw;
     }
 
-    @page {
-        size: A4 landscape !important;
-        margin: 0;
-    }
-    
-    /* Forcer l'orientation paysage */
-    html, body {
-        width: 297mm !important;
-        height: 210mm !important;
-        overflow: hidden !important;
-    }
-    
-    .container {
-        width: 100% !important;
-        height: 100% !important;
-        transform-origin: top left;
-        transform: scale(0.95); /* Slightly reduced scale for better fit */
-    }
-
-    html {
-        background-color: #FFFFFF;
-        margin: 5px;
-    }
-
-    body {
-        margin: 0 5mm;
-        font-size: 0.75vw; /* Using relative units for better scaling */
-    }
-    
-    /* Optimisations pour tenir sur une page */
     table {
         margin-bottom: 0.3vh !important;
         font-size: 0.7vw !important;
     }
-    
+
+    /* Typography */
     h4 {
-        margin-top: 0.3vh !important;
-        margin-bottom: 0.3vh !important;
+        margin: 0.3vh 0 !important;
         font-size: 0.8vw !important;
     }
     
@@ -73,8 +85,7 @@
     }
     
     div {
-        margin-top: 0 !important;
-        margin-bottom: 0.3vh !important;
+        margin: 0 0 0.3vh 0 !important;
         font-size: 0.7vw !important;
     }
     
@@ -82,23 +93,74 @@
         font-size: 0.7vw !important;
         margin: 0.1vh 0 !important;
     }
-    
-    /* Improve spacing for signature sections */
+
+    /* Bulletin specific styles */
+    .bulletin-container {
+        padding: 8px !important;
+    }
+
+    .bulletin-header {
+        padding-bottom: 6px !important;
+        margin-bottom: 10px !important;
+    }
+
+    .school-title {
+        font-size: 1.2rem !important;
+    }
+
+    .school-details p {
+        font-size: 0.75rem !important;
+    }
+
+    .header-logo {
+        max-height: 50px !important;
+    }
+
+    .student-details {
+        padding: 6px 8px !important;
+        gap: 0.4rem 0.8rem !important;
+        font-size: 0.75rem !important;
+        background-color: #f8f9fa !important;
+    }
+
+    .detail-item {
+        min-width: 180px !important;
+    }
+
+    .marks-table {
+        font-size: 0.75rem !important;
+        margin-bottom: 10px !important;
+    }
+
+    .marks-table th {
+        font-size: 0.8rem !important;
+        padding: 6px !important;
+    }
+
+    .marks-table td {
+        font-size: 0.75rem !important;
+        padding: 4px !important;
+    }
+
+    /* Footer and signatures */
     .signature-box {
         font-size: 0.65vw !important;
         padding-top: 0.5vh !important;
     }
     
-    /* Optimize comment sections */
     .comments-section {
         margin-top: 0.3vh !important;
         font-size: 0.65vw !important;
     }
-    
-    /* Ensure all content fits within page */
-    * {
-        max-width: 100% !important;
-        box-sizing: border-box !important;
+
+    .footer-section {
+        margin-top: 12px !important;
+        padding-top: 8px !important;
+    }
+
+    /* Hide non-printable elements */
+    .no-print {
+        display: none !important;
     }
 }
 

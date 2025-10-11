@@ -36,6 +36,35 @@ class InlineEditor {
             },
             buttons: [
                 {
+                    extend: 'colvis',
+                    className: 'btn btn-light dropdown-toggle',
+                    text: '<i class="icon-table2 mr-2"></i>Colonnes',
+                    columns: ':not(.no-export)',
+                    collectionLayout: 'fixed two-column',
+                    postfixButtons: [
+                        {
+                            extend: 'colvisRestore',
+                            text: '<i class="icon-reset mr-2"></i>Réinitialiser'
+                        },
+                        {
+                            extend: 'colvisGroup',
+                            text: '<i class="icon-eye mr-2"></i>Tout afficher',
+                            show: ':hidden'
+                        },
+                        {
+                            extend: 'colvisGroup',
+                            text: '<i class="icon-eye-blocked mr-2"></i>Tout masquer',
+                            hide: ':visible'
+                        }
+                    ],
+                    buttons: [
+                        {
+                            extend: 'columnsToggle',
+                            columns: ':not(.no-export)'
+                        }
+                    ]
+                },
+                {
                     extend: 'copyHtml5',
                     className: 'btn btn-light',
                     text: '<i class="icon-copy mr-2"></i>Copier'
@@ -43,12 +72,31 @@ class InlineEditor {
                 {
                     extend: 'excelHtml5',
                     className: 'btn btn-light',
-                    text: '<i class="icon-file-excel mr-2"></i>Excel'
+                    text: '<i class="icon-file-excel mr-2"></i>Excel',
+                    exportOptions: {
+                        columns: ':visible:not(.no-export)'
+                    },
+                    title: 'Export_Eleves_' + new Date().toISOString().slice(0, 10),
+                    customize: function(xlsx) {
+                        const sheet = xlsx.xl.worksheets['sheet1.xml'];
+                        // Ajouter une note sur les colonnes exportées
+                        // Cette personnalisation peut être étendue selon les besoins
+                    }
                 },
                 {
                     extend: 'pdfHtml5',
                     className: 'btn btn-light',
-                    text: '<i class="icon-file-pdf mr-2"></i>PDF'
+                    text: '<i class="icon-file-pdf mr-2"></i>PDF',
+                    exportOptions: {
+                        columns: ':visible:not(.no-export)'
+                    },
+                    title: 'Export_Eleves_' + new Date().toISOString().slice(0, 10),
+                    orientation: 'landscape',
+                    customize: function(doc) {
+                        // Personnaliser le PDF si nécessaire
+                        doc.defaultStyle.fontSize = 8;
+                        doc.styles.tableHeader.fontSize = 9;
+                    }
                 },
                 {
                     text: '<i class="icon-plus mr-2"></i>Ajouter élève',
@@ -65,11 +113,29 @@ class InlineEditor {
                 {
                     targets: 'editable',
                     className: 'editable-cell'
+                },
+                {
+                    targets: 'no-export',
+                    visible: false
                 }
             ],
             drawCallback: () => {
                 this.bindEditableEvents();
                 this.calculateAllAges();
+                // Mettre à jour l'indicateur de visibilité des colonnes après chaque rendu
+                this.updateColumnVisibilityIndicator();
+            },
+            stateSaveCallback: function(settings, data) {
+                // Sauvegarder les préférences de l'utilisateur dans le localStorage
+                localStorage.setItem('DataTables_' + settings.sInstance, JSON.stringify(data));
+            },
+            stateLoadCallback: function(settings) {
+                // Charger les préférences de l'utilisateur depuis le localStorage
+                try {
+                    return JSON.parse(localStorage.getItem('DataTables_' + settings.sInstance));
+                } catch (e) {
+                    return null;
+                }
             }
         };
 
@@ -77,7 +143,7 @@ class InlineEditor {
         if ($.fn.DataTable.isDataTable('.datatable-button-html5-columns')) {
             $('.datatable-button-html5-columns').DataTable().destroy();
         }
-        
+    
         this.dataTable = $('.datatable-button-html5-columns').DataTable(tableConfig);
     }
 
@@ -94,6 +160,12 @@ class InlineEditor {
             if (e.key === 'Escape' && this.currentEditingCell) {
                 this.cancelEdit();
             }
+        });
+
+        // Événement pour les changements de visibilité des colonnes
+        $(document).on('column-visibility.dt', (e, settings, column, state) => {
+            // Mettre à jour l'indicateur de colonnes cachées
+            this.updateColumnVisibilityIndicator();
         });
     }
 
@@ -176,6 +248,16 @@ class InlineEditor {
                         <option value="Judaïsme" ${currentValue === 'Judaïsme' ? 'selected' : ''}>Judaïsme</option>
                         <option value="Apokalipsy" ${currentValue === 'Apokalipsy' ? 'selected' : ''}>Apokalipsy</option>
                         <option value="Autres" ${currentValue === 'Autres' ? 'selected' : ''}>Autres</option>
+                    </select>
+                    <span class="save-indicator d-none"><i class="icon-spinner2 spinner"></i></span>
+                `;
+            
+            case 'gender':
+                return `
+                    <select class="${baseClasses}">
+                        <option value="">Choisir...</option>
+                        <option value="Male" ${currentValue === 'Male' ? 'selected' : ''}>Masculin</option>
+                        <option value="Female" ${currentValue === 'Female' ? 'selected' : ''}>Féminin</option>
                     </select>
                     <span class="save-indicator d-none"><i class="icon-spinner2 spinner"></i></span>
                 `;
@@ -340,6 +422,121 @@ class InlineEditor {
     showAddStudentModal() {
         // Rediriger vers la page d'ajout d'élève
         window.location.href = '/students/create';
+    }
+
+    // Fonction pour mettre à jour l'indicateur de visibilité des colonnes
+    updateColumnVisibilityIndicator() {
+        if (!this.dataTable) return;
+        
+        const hiddenColumns = this.dataTable.columns(':hidden').count();
+        const totalColumns = this.dataTable.columns().count();
+        const visibleColumns = totalColumns - hiddenColumns;
+        
+        // Mettre à jour l'indicateur dans l'interface
+        const $header = $('.datatable-header');
+        const $indicator = $('.hidden-columns-indicator');
+        const $count = $('#hidden-columns-count');
+        
+        if (hiddenColumns > 0) {
+            // Ajouter une classe pour indiquer qu'il y a des colonnes cachées
+            $header.addClass('has-hidden-columns');
+            
+            // Afficher l'indicateur et mettre à jour le compte
+            $indicator.removeClass('d-none');
+            $count.text(hiddenColumns);
+        } else {
+            // Retirer la classe si toutes les colonnes sont visibles
+            $header.removeClass('has-hidden-columns');
+            
+            // Cacher l'indicateur
+            $indicator.addClass('d-none');
+        }
+    }
+
+    // Fonction pour exporter uniquement les colonnes sélectionnées
+    exportSelectedColumns(format = 'excel') {
+        if (!this.dataTable) return;
+        
+        // Obtenir les colonnes actuellement visibles
+        const visibleColumns = this.dataTable.columns(':visible:not(.no-export)').indexes().toArray();
+        
+        if (visibleColumns.length === 0) {
+            this.showNotification('Aucune colonne visible à exporter', 'warning');
+            return;
+        }
+        
+        // Configurer les options d'export
+        const exportOptions = {
+            columns: visibleColumns,
+            title: 'Export_Eleves_' + new Date().toISOString().slice(0, 10)
+        };
+        
+        // Effectuer l'export selon le format
+        switch(format) {
+            case 'excel':
+                this.dataTable.button('.buttons-excel').trigger();
+                break;
+            case 'pdf':
+                this.dataTable.button('.buttons-pdf').trigger();
+                break;
+            case 'copy':
+                this.dataTable.button('.buttons-copy').trigger();
+                break;
+            default:
+                this.showNotification('Format d\'export non supporté', 'error');
+        }
+    }
+
+    // Fonction pour réinitialiser la visibilité des colonnes
+    resetColumnVisibility() {
+        if (this.dataTable) {
+            // Réinitialiser la visibilité de toutes les colonnes
+            this.dataTable.columns().visible(true);
+            
+            // Masquer les colonnes marquées avec no-export
+            this.dataTable.columns('.no-export').visible(false);
+            
+            // Mettre à jour l'indicateur
+            this.updateColumnVisibilityIndicator();
+            
+            // Afficher un message de confirmation
+            this.showNotification('Visibilité des colonnes réinitialisée', 'success');
+        }
+    }
+
+    // Fonction pour afficher toutes les colonnes
+    showAllColumns() {
+        if (this.dataTable) {
+            // Afficher toutes les colonnes
+            this.dataTable.columns().visible(true);
+            
+            // Mettre à jour l'indicateur
+            this.updateColumnVisibilityIndicator();
+            
+            // Afficher un message de confirmation
+            this.showNotification('Toutes les colonnes sont maintenant visibles', 'success');
+        }
+    }
+
+    // Fonction pour masquer toutes les colonnes sauf les essentielles
+    hideAllColumns() {
+        if (this.dataTable) {
+            // Masquer toutes les colonnes
+            this.dataTable.columns().visible(false);
+            
+            // Afficher les colonnes essentielles (Nom, Sexe, etc.)
+            // Vous pouvez personnaliser cette liste selon vos besoins
+            this.dataTable.columns([2, 12]).visible(true); // Nom et Sexe
+            
+            // Toujours masquer les colonnes no-export
+            this.dataTable.columns('.no-export').visible(false);
+            
+            // Mettre à jour l'indicateur
+            this.updateColumnVisibilityIndicator();
+            
+            // Afficher un message de confirmation
+            this.showNotification('Colonnes masquées sauf les essentielles', 'success');
+        }
     }
 }
 

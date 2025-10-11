@@ -141,15 +141,7 @@ class MarkRepo
 
     public function getPos($st_id, $exam, $class_id, $sec_id, $year)
     {
-        $d = ['student_id' => $st_id, 'exam_id' => $exam->id, 'my_class_id' => $class_id, 'section_id' => $sec_id, 'year' => $year ];
         $tex = 'tex'.$exam->term;
-
-        // Get current student's total marks
-        $my_mk = Mark::where($d)->select($tex)->sum($tex);
-
-        /*if($exam->term == 3){
-            $my_mk = Mark::where($d)->select('cum')->sum('cum');
-        }*/
 
         // Get all students from the SAME SECTION only (not entire class)
         $section_filter = ['exam_id' => $exam->id, 'my_class_id' => $class_id, 'section_id' => $sec_id, 'year' => $year];
@@ -162,29 +154,111 @@ class MarkRepo
             ->distinct()
             ->get();
         
-        // Calculate exam totals for each student in the section
-        $all_mks = [];
+        // Get all subjects for this class
+        $all_subjects = \App\Models\Subject::where('my_class_id', $class_id)->get();
+        
+        // Calculate weighted averages for each student in the section (same as in calculateWeightedGrades)
+        $student_averages = [];
         foreach($section_students as $s){
-            // Use section-specific total calculation
-            $student_total = Mark::where([
+            $student_marks = Mark::where([
                 'student_id' => $s->student_id,
                 'exam_id' => $exam->id, 
                 'my_class_id' => $class_id, 
-                'section_id' => $sec_id,  // Ensure we only count marks from same section
+                'section_id' => $sec_id,
                 'year' => $year
-            ])->select($tex)->sum($tex);
+            ])->get();
             
-            if($student_total > 0) {
-                $all_mks[] = $student_total;
+            $total_weighted_points = 0;
+            $total_coefficients = 0;
+            
+            foreach($all_subjects as $subject) {
+                $mark = $student_marks->where('subject_id', $subject->id)->first();
+                
+                if($mark) {
+                    // Get individual grades (same as in marks/show)
+                    $t1 = $mark->t1 ?: 0;
+                    $t2 = $mark->t2 ?: 0;
+                    $exm = $mark->exm ?: 0;
+                    
+                    // Calculate average from DS1, DS2, Exam (same logic as marks/show)
+                    $values = [$t1, $t2, $exm];
+                    $sum = array_sum($values);
+                    $count = count(array_filter($values, function($value) { return $value > 0; }));
+                    $moyenne_sur_20 = $count > 0 ? $sum / $count : 0;
+                    
+                    if($moyenne_sur_20 > 0) {
+                        // Apply formula: moyenne × coefficient
+                        $totalAvecCoef = $moyenne_sur_20 * $subject->coef;
+                        
+                        // Calculate weighted points for average calculation
+                        $total_weighted_points += $totalAvecCoef;
+                        $total_coefficients += $subject->coef;
+                    }
+                }
+            }
+            
+            // Calculate average = Sum of (Total avec Coef values) / Sum of Coefficients
+            $average = $total_coefficients > 0 ? $total_weighted_points / $total_coefficients : 0;
+            
+            if($average > 0) {
+                $student_averages[$s->student_id] = $average;
             }
         }
         
-        // Sort marks in descending order (highest first)
-        rsort($all_mks);
+        // Sort averages in descending order (highest first)
+        arsort($student_averages);
         
-        // Find position of current student's marks
-        $position = array_search($my_mk, $all_mks);
-        return $position !== false ? $position + 1 : count($all_mks) + 1;
+        // Calculate current student's weighted average
+        $my_student_marks = Mark::where([
+            'student_id' => $st_id,
+            'exam_id' => $exam->id, 
+            'my_class_id' => $class_id, 
+            'section_id' => $sec_id,
+            'year' => $year
+        ])->get();
+        
+        $my_total_weighted_points = 0;
+        $my_total_coefficients = 0;
+        
+        foreach($all_subjects as $subject) {
+            $mark = $my_student_marks->where('subject_id', $subject->id)->first();
+            
+            if($mark) {
+                // Get individual grades (same as in marks/show)
+                $t1 = $mark->t1 ?: 0;
+                $t2 = $mark->t2 ?: 0;
+                $exm = $mark->exm ?: 0;
+                
+                // Calculate average from DS1, DS2, Exam (same logic as marks/show)
+                $values = [$t1, $t2, $exm];
+                $sum = array_sum($values);
+                $count = count(array_filter($values, function($value) { return $value > 0; }));
+                $moyenne_sur_20 = $count > 0 ? $sum / $count : 0;
+                
+                if($moyenne_sur_20 > 0) {
+                    // Apply formula: moyenne × coefficient
+                    $totalAvecCoef = $moyenne_sur_20 * $subject->coef;
+                    
+                    // Calculate weighted points for average calculation
+                    $my_total_weighted_points += $totalAvecCoef;
+                    $my_total_coefficients += $subject->coef;
+                }
+            }
+        }
+        
+        // Calculate average = Sum of (Total avec Coef values) / Sum of Coefficients
+        $my_average = $my_total_coefficients > 0 ? $my_total_weighted_points / $my_total_coefficients : 0;
+        
+        // Find position of current student's average
+        $position = 1;
+        foreach($student_averages as $student_id => $average) {
+            if($student_id == $st_id) {
+                break;
+            }
+            $position++;
+        }
+        
+        return $position;
     }
 
     public function getSubjectIDs($data)

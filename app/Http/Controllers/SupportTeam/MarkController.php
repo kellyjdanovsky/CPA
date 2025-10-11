@@ -104,6 +104,9 @@ class MarkController extends Controller
         $d['student_id'] = $student_id;
         $d['skills'] = $this->exam->getSkillByClassType() ?: NULL;
         $d['all_classes'] = $this->my_class->all(); // Ajouter toutes les classes pour le formulaire de décision
+        $d['s'] = Setting::all()->flatMap(function($s){
+            return [$s->type => $s->description];
+        });
         //$d['ct'] = $d['class_type']->code;
         //$d['mark_type'] = Qs::getMarkType($d['ct']);
 

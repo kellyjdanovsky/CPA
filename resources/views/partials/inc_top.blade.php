@@ -28,6 +28,9 @@
 {{-- Modern Dashboard CSS--}}
 <link href=" {{ asset('css/modern-dashboard.css') }}" rel="stylesheet" type="text/css">
 
+{{-- Modern Bulletin CSS--}}
+<link href=" {{ asset('assets/css/modern_bulletin.css') }}" rel="stylesheet" type="text/css">
+
 {{-- Google Fonts pour un design moderne --}}
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 

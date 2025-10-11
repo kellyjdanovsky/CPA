@@ -1,189 +1,293 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bulletin de notes de l'élève - {{ $sr->user->name }}</title>
-    <link rel="stylesheet" type="text/css" href="{{ asset('assets/css/my_print.css') }}" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
     <style>
-        /* Styles supplémentaires pour garantir l'orientation paysage */
-        @page {
-            size: A4 landscape !important;
-            margin: 8mm;
+        :root {
+            --primary-color: #007bff;
+            --secondary-color: #6c757d;
+            --light-gray: #f8f9fa;
+            --dark-gray: #343a40;
+            --white: #fff;
+            --border-color: #dee2e6;
+        }
+
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: var(--light-gray);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 297mm; /* A4 landscape width */
+            min-height: 210mm; /* A4 landscape height */
+            background: var(--white);
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+            padding: 10mm;
+            box-sizing: border-box;
+        }
+
+        #print {
+            width: 100%;
+            height: 100%;
+        }
+
+        .bulletin-header {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-bottom: 4px solid var(--primary-color);
+            padding-bottom: 2px;
+            margin-bottom: 5px;
+            gap: 15px;
+        }
+
+        .school-logo img {
+            max-height: 70px;
+        }
+
+        .school-info {
+            text-align: center;
+        }
+
+        .school-title {
+            font-size: 22px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin: 0;
+        }
+
+        .school-address {
+            font-size: 14px;
+            color: var(--secondary-color);
+            margin: 2px 0;
+        }
+
+        .bulletin-title {
+            font-size: 18px;
+            font-weight: 700;
+            text-transform: uppercase;
+            margin-top: 5px;
+        }
+
+        .student-photo img {
+            width: 100px;
+            height: 100px;
+            border: 3px solid var(--border-color);
+            border-radius: 8px;
+        }
+
+        .student-details-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 5px;
+            background-color: var(--light-gray);
+            padding: 8px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 12px;
+        }
+
+        .detail-item strong {
+            color: var(--primary-color);
+        }
+
+        .marks-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+
+        .marks-table th, .marks-table td {
+            padding: 10px 12px;
+            text-align: center;
+            border: 1px solid var(--border-color);
+        }
+
+        .marks-table thead th {
+            background-color: var(--primary-color);
+            color: var(--white);
+            font-weight: 700;
+            font-size: 16px;
+        }
+
+        .marks-table tbody tr:nth-child(even) {
+            background-color: var(--light-gray);
+        }
+
+        .marks-table .subject-name {
+            text-align: left;
+            font-weight: 700;
+        }
+
+        .marks-table .grade {
+            font-weight: 700;
+            color: var(--primary-color);
+        }
+
+        .summary-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .summary-item {
+            background-color: var(--light-gray);
+            padding: 8px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .summary-item h4 {
+            font-size: 12px;
+            color: var(--primary-color);
+            margin: 0 0 2px 0;
+        }
+
+        .summary-item p {
+            font-size: 18px;
+            font-weight: 700;
+            margin: 0;
+            color: var(--dark-gray);
+        }
+
+        .footer-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 2px solid var(--border-color);
+        }
+
+        .comments h4, .signatures h4 {
+            font-size: 18px;
+            color: var(--primary-color);
+            margin-top: 0;
+            margin-bottom: 10px;
+        }
+
+        .comments p {
+            margin: 0;
+        }
+
+        .signature-container {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .signature-line {
+            width: 30%;
+            border-bottom: 1px solid var(--secondary-color);
+            text-align: center;
+            padding-bottom: 5px;
+            color: var(--secondary-color);
+        }
+
+        .no-print {
+            text-align: center;
+            margin-top: 30px;
+        }
+
+        .no-print button {
+            background-color: var(--primary-color);
+            color: var(--white);
+            border: none;
+            padding: 12px 25px;
+            font-size: 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .no-print button:hover {
+            background-color: #0056b3;
         }
 
         @media print {
             body {
-                width: 297mm;
-                height: 210mm;
-                margin: 0;
+                background-color: var(--white);
                 padding: 0;
-                font-size: 0.75vw; /* Using relative units for better scaling */
+                margin: 0;
             }
 
-            /* Dynamic scaling to fit content on a single page */
-            #print {
-                transform: scale(0.85); /* Adjusted scale for better fit */
-                transform-origin: top left;
-                width: 100%;
-                height: 100%;
-            }
-
-            /* Réduction des espaces pour optimiser l'espace */
-            .card {
-                margin-bottom: 0.5vh !important;
-            }
-
-            .card-header {
-                padding: 0.3vh 0.5vw !important;
-            }
-
-            .card-body {
-                padding: 0.5vh !important;
-            }
-
-            table {
-                font-size: 0.7vw !important;
-                margin: 0.2vh auto !important;
-            }
-
-            th, td {
-                padding: 0.2vh 0.3vw !important;
-                font-size: 0.65vw !important;
-                line-height: 1.1 !important;
-            }
-
-            .form-group {
-                margin-bottom: 0.2vh !important;
-            }
-
-            h4, h5 {
-                font-size: 0.8vw !important;
-                margin: 0.2vh 0 !important;
-            }
-
-            /* Optimisation des moyennes annuelles */
-            .row {
-                margin: 0 !important;
-            }
-
-            .col-md-4 {
-                padding: 0.1vh !important;
-            }
-
-            /* Réduction des marges des commentaires */
-            div[style*="margin-top: 10px"] {
-                margin-top: 0.5vh !important;
-            }
-
-            div[style*="margin-top: 5px"] {
-                margin-top: 0.2vh !important;
-            }
-
-            /* Optimisation du header */
-            table[width="100%"] {
-                margin-bottom: 0.3vh !important;
-            }
-
-            /* Réduction de la taille du logo */
-            img[style*="max-height : 100px"] {
-                max-height: 5vh !important;
-            }
-
-            /* Optimisation des signatures */
-            div[style*="display: flex"] {
-                margin-top: 0.3vh !important;
-            }
-            
-            /* Ensure content fits within page boundaries */
-            #print {
-                max-width: 100vw;
-                max-height: 100vh;
-                overflow: hidden;
-            }
-        }
-        
-        /* Screen view improvements */
-        @media screen {
-            body {
-                font-size: 11px;
-                background: #f8f9fa;
-                padding: 20px;
-                min-height: 100vh;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            
             .container {
-                max-width: 1200px;
                 width: 100%;
+                min-height: initial;
+                box-shadow: none;
+                padding: 10mm;
             }
-            
-            #print {
-                background: white;
-                box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-                border-radius: 8px;
-                overflow: hidden;
-                transform: scale(0.9);
-                transform-origin: center center;
+
+            @page {
+                size: A4 landscape;
+                margin: 0;
+            }
+
+            .no-print {
+                display: none;
+            }
+
+            .marks-table {
+                font-size: 12px;
+            }
+
+            .marks-table th, .marks-table td {
+                padding: 8px 10px;
+            }
+
+            .summary-section {
+                gap: 15px;
+            }
+
+            .summary-item {
+                padding: 15px;
+            }
+
+            .summary-item p {
+                font-size: 20px;
             }
         }
     </style>
 </head>
 <body>
-<div class="container">
-    <div id="print" xmlns:margin-top="http://www.w3.org/1999/xhtml">
-        {{-- Logo et détails de l'école --}}
-        <table width="100%">
-            <tr>
-                <td><img src="{{ $s['logo'] }}" style="max-height : 100px;"></td>
+    <div class="container">
+        <div id="print">
+            <div class="bulletin-header">
+                <div class="school-logo">
+                    <img src="{{ $s['logo'] }}" alt="School Logo">
+                </div>
+                <div class="school-info">
+                    <h1 class="school-title">{{ strtoupper(Qs::getSetting('system_name')) }}</h1>
+                    <p class="school-address">{{ ucwords($s['address']) }}</p>
+                    <h2 class="bulletin-title">BULLETIN DE NOTES ({{ strtoupper($class_type->name) }})</h2>
+                </div>
+                
+            </div>
 
-                <td style="text-align: center; ">
-                    <strong><span style="color: #1b0c80; font-size: 2vw;">{{ strtoupper(Qs::getSetting('system_name')) }}</span></strong><br/>
-                   {{-- <strong><span style="color: #1b0c80; font-size: 20px;">MINNA, NIGER STATE</span></strong><br/>--}}
-                    <strong><span
-                                style="color: #000; font-size: 1.2vw;"><i>{{ ucwords($s['address']) }}</i></span></strong><br/>
-                    <strong><span style="color: #000; font-size: 1.2vw;"> BULLETIN DE NOTES {{ '('.strtoupper($class_type->name).')' }}
-                    </span></strong>
-                </td>
-                <td style="width: 100px; height: 100px; float: left;">
-                  {{-- <img src="{{ $sr->user->photo }}"
-                         alt="..."  width="100" height="100">--}} 
-                </td>
-            </tr>
-        </table>
-        {{-- Logo de fond (filigrane) --}}
-        <div style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; z-index: -1; pointer-events: none;">
-            <img src="{{ $s['logo'] }}"
-                 style="max-width: 80%; max-height: 80%; opacity: 0.25;" />
+            @include('pages.support_team.marks.print.sheet')
+
         </div>
-
-        {{-- <!-- LE DOCUMENT COMMENCE ICI--> --}}
-        @include('pages.support_team.marks.print.sheet')
-
-        {{-- Clé de notation --}}
-        {{-- @include('pages.support_team.marks.print.grading') --}}
-
-        {{-- TRAITS - PSYCHOMOTEURS ET AFFECTIFS --}}
-        @include('pages.support_team.marks.print.skills')
-
-        <div style="margin-top: 5px; clear: both;"></div>
-
-        {{-- Les commentaires du directeur sont maintenant intégrés dans sheet.blade.php --}}
-
     </div>
-</div>
 
-<script>
-    // Automatically print when the page loads, but only in print mode
-    if (window.matchMedia && window.matchMedia('print').matches) {
-        window.print();
-    }
-    
-    // Also provide a function for manual printing
-    function printBulletin() {
-        window.print();
-    }
-</script>
+    <script>
+        function printBulletin() {
+            window.print();
+        }
+        // Automatically trigger print dialog
+        window.onload = function() {
+            setTimeout(printBulletin, 1000); // Delay to ensure content loads
+        };
+    </script>
 </body>
 </html>

@@ -193,6 +193,24 @@
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* Indicateur de colonnes masquées */
+.hidden-columns-indicator {
+    font-size: 12px;
+    padding: 5px 10px;
+    border-radius: 12px;
+    background-color: #fff3cd;
+    color: #856404;
+    border: 1px solid #ffeaa7;
+    display: inline-flex;
+    align-items: center;
+    margin-left: 10px;
+}
+
+.hidden-columns-indicator::before {
+    content: "👁";
+    margin-right: 5px;
+}
+
 /* Amélioration des selects */
 .edit-input select {
     appearance: none;
