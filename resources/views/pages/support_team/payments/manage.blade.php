@@ -104,6 +104,80 @@
             background: linear-gradient(to right, #3a7bd5, #00d2ff);
             border-radius: 3px 3px 0 0;
         }
+        
+        /* Custom styles for checkboxes */
+        .student-checkbox {
+            transform: scale(1.3);
+            margin-right: 10px;
+        }
+        
+        .select-all-checkbox {
+            transform: scale(1.3);
+        }
+        
+        /* Grouped payment button */
+        #grouped-payment-btn {
+            background: linear-gradient(to right, #ff416c, #ff4b2b);
+            border: none;
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 600;
+            font-size: 14px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+            margin-bottom: 20px;
+            display: none;
+        }
+        
+        #grouped-payment-btn:enabled {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+        }
+        
+        #grouped-payment-btn:hover:enabled {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
+        
+        #grouped-payment-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        /* Modal styles */
+        .modal-header {
+            background: linear-gradient(to right, #3a7bd5, #00d2ff);
+            color: white;
+            border-radius: 5px 5px 0 0;
+        }
+        
+        .form-control-custom {
+            border: 2px solid #e9ecef;
+            border-radius: 5px;
+            padding: 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .form-control-custom:focus {
+            border-color: #3a7bd5;
+            box-shadow: 0 0 0 0.2rem rgba(58, 123, 213, 0.25);
+        }
+        
+        .btn-custom {
+            background: linear-gradient(to right, #3a7bd5, #00d2ff);
+            border: none;
+            border-radius: 50px;
+            padding: 10px 20px;
+            color: white;
+            font-weight: 600;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+        
+        .btn-custom:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 8px rgba(0, 0, 0, 0.15);
+        }
     </style>
 
     <div class="card payment-card">
@@ -172,6 +246,10 @@
     </div>
 
     @if($selected)
+        <button type="button" id="grouped-payment-btn" class="btn" disabled>
+            <i class="icon-coins mr-2"></i> Paiement groupé
+        </button>
+        
         <style>
             /* Styles pour le tableau des étudiants */
             .student-table-card {
@@ -596,7 +674,7 @@
         <div class="card student-table-card">
             <div class="student-table-header d-flex align-items-center">
                 <i class="icon-users4 mr-2"></i>
-                <span>Liste des étudiants - {{ $my_classes->where('id', $my_class_id)->first()->name }}</span>
+                <span>Liste des étudiants - {{ $selected && isset($my_class_id) ? $my_classes->where('id', $my_class_id)->first()->name : '' }}</span>
                 <div class="ml-auto">
                     <span class="badge badge-pill badge-light">{{ count($students) }} étudiants</span>
                 </div>
@@ -608,17 +686,23 @@
                         <table class="table student-table payments-datatable">
                             <thead>
                                 <tr>
+                                    <th width="5%">
+                                        <input type="checkbox" id="select-all" class="select-all-checkbox">
+                                    </th>
                                     <th width="5%">N°</th>
                                     <th width="10%">Photo</th>
                                     <th width="25%">Nom</th>
                                     <th width="15%">Référence</th>
                                     <th width="15%">Statut</th>
-                                    <th width="30%">Action</th>
+                                    <th width="25%">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
                                 @foreach($students as $s)
                                     <tr>
+                                        <td>
+                                            <input type="checkbox" class="student-checkbox" data-student-id="{{ $s->user_id }}">
+                                        </td>
                                         <td>{{ $loop->iteration }}</td>
                                         <td>
                                             <img class="rounded-circle student-photo" src="{{ $s->user->photo }}" alt="photo">
@@ -686,6 +770,82 @@
             </div>
         </div>
     @endif
+    
+    <!-- Grouped Payment Modal -->
+    <div class="modal fade" id="groupedPaymentModal" tabindex="-1" role="dialog" aria-labelledby="groupedPaymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="groupedPaymentModalLabel">
+                        <i class="icon-coins mr-2"></i> Paiement groupé
+                    </h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="grouped-payment-form">
+                        @csrf
+                        <input type="hidden" id="selected-students" name="student_ids">
+                        
+                        <div class="form-group">
+                            <label for="payment_id" class="font-weight-semibold">
+                                <i class="icon-file-text2 mr-2"></i> Motif de paiement
+                            </label>
+                            <select id="payment_id" name="payment_id" class="form-control form-control-custom" required>
+                                <option value="">-- Sélectionner un motif de paiement --</option>
+                                <!-- Options will be populated dynamically -->
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="payment_method" class="font-weight-semibold">
+                                <i class="icon-credit-card mr-2"></i> Mode de paiement
+                            </label>
+                            <select id="payment_method" name="payment_method" class="form-control form-control-custom" required>
+                                <option value="">-- Sélectionner un mode de paiement --</option>
+                                <option value="Cash">Cash</option>
+                                <option value="Mobile Money">Mobile Money</option>
+                                <option value="ADRA">ADRA</option>
+                                <option value="TEAM3">TEAM3</option>
+                                <option value="Virement Bancaire">Virement Bancaire</option>
+                                <option value="Chèque">Chèque</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="amount_paid" class="font-weight-semibold">
+                                <i class="icon-coins mr-2"></i> Montant payé
+                            </label>
+                            <input type="number" id="amount_paid" name="amount_paid" class="form-control form-control-custom" 
+                                   step="0.01" min="0" placeholder="Entrez le montant payé" required>
+                            <small class="form-text text-muted">
+                                Entrez le montant total payé pour tous les élèves sélectionnés
+                            </small>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="observations" class="font-weight-semibold">
+                                <i class="icon-note mr-2"></i> Observations (optionnel)
+                            </label>
+                            <textarea id="observations" name="observations" class="form-control form-control-custom" 
+                                      rows="3" placeholder="Ajoutez des observations si nécessaire"></textarea>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">
+                        <i class="icon-cross2 mr-2"></i> Annuler
+                    </button>
+                    <button type="button" id="submit-grouped-payment" class="btn btn-custom">
+                        <i class="icon-checkmark4 mr-2"></i> Valider le paiement groupé
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+@endsection
+
 @section('scripts')
     <script>
         $(document).ready(function() {
@@ -803,6 +963,155 @@
                 });
             });
             
+            // Checkbox selection functionality
+            let selectedStudents = [];
+            
+            // Select all checkbox
+            $('#select-all').on('change', function() {
+                const isChecked = $(this).prop('checked');
+                $('.student-checkbox').prop('checked', isChecked);
+                updateSelectedStudents();
+            });
+            
+            // Individual student checkbox
+            $(document).on('change', '.student-checkbox', function() {
+                updateSelectedStudents();
+                
+                // Update select all checkbox state
+                const totalCheckboxes = $('.student-checkbox').length;
+                const checkedCheckboxes = $('.student-checkbox:checked').length;
+                $('#select-all').prop('checked', totalCheckboxes === checkedCheckboxes);
+            });
+            
+            // Update selected students array
+            function updateSelectedStudents() {
+                selectedStudents = [];
+                $('.student-checkbox:checked').each(function() {
+                    selectedStudents.push($(this).data('student-id'));
+                });
+                
+                // Enable/disable grouped payment button
+                if (selectedStudents.length > 0) {
+                    $('#grouped-payment-btn').show().prop('disabled', false);
+                } else {
+                    $('#grouped-payment-btn').prop('disabled', true);
+                }
+            }
+            
+            // Show grouped payment modal
+            $('#grouped-payment-btn').on('click', function() {
+                if (selectedStudents.length === 0) return;
+                
+                // Set selected students in hidden input
+                $('#selected-students').val(selectedStudents.join(','));
+                
+                // Populate payment options based on selected class
+                populatePaymentOptions();
+                
+                // Clear form fields
+                $('#grouped-payment-form')[0].reset();
+                $('#amount_paid').prop('readonly', false);
+                
+                // Show modal
+                $('#groupedPaymentModal').modal('show');
+            });
+            
+            // Populate payment options based on class
+            function populatePaymentOptions() {
+                const classId = {{ $selected && isset($my_class_id) ? $my_class_id : 'null' }};
+                
+                // Clear existing options
+                $('#payment_id').empty().append('<option value="">-- Sélectionner un motif de paiement --</option>');
+                
+                // Only make AJAX call if classId is valid
+                if (classId !== null) {
+                    // Make AJAX call to get payments for the class
+                    $.ajax({
+                        url: '{{ route("payments.get_class_payments_ajax") }}',
+                        method: 'GET',
+                        data: {
+                            class_id: classId,
+                            _token: '{{ csrf_token() }}'
+                        },
+                        success: function(response) {
+                            // Populate payment options
+                            $.each(response, function(index, payment) {
+                                const formattedAmount = new Intl.NumberFormat('fr-FR').format(payment.amount) + ' Ar';
+                                $('#payment_id').append(
+                                    `<option value="${payment.id}" data-amount="${payment.amount}">${payment.title} (${formattedAmount})</option>`
+                                );
+                            });
+                        },
+                        error: function(xhr, status, error) {
+                            console.error('Error fetching payments:', error);
+                            alert('Erreur lors du chargement des motifs de paiement.');
+                        }
+                    });
+                }
+            }
+            
+            // Handle payment selection change
+            $('#payment_id').on('change', function() {
+                const selectedOption = $(this).find('option:selected');
+                const amount = selectedOption.data('amount');
+                
+                if (amount) {
+                    const totalAmount = amount * selectedStudents.length;
+                    $('#amount_paid').val(totalAmount).prop('readonly', true);
+                } else {
+                    $('#amount_paid').val('').prop('readonly', false);
+                }
+            });
+            
+            // Submit grouped payment
+            $('#submit-grouped-payment').on('click', function() {
+                // Validate form
+                if (!$('#payment_id').val() || !$('#payment_method').val() || !$('#amount_paid').val()) {
+                    alert('Veuillez remplir tous les champs obligatoires.');
+                    return;
+                }
+                
+                const formData = $('#grouped-payment-form').serialize();
+                
+                // Show loading state
+                $(this).prop('disabled', true).html('<i class="icon-spinner4 spinner mr-2"></i> Traitement...');
+                
+                // Make AJAX call to process grouped payment
+                $.ajax({
+                    url: '{{ route("payments.process_grouped_payment") }}',
+                    method: 'POST',
+                    data: formData,
+                    success: function(response) {
+                        if (response.success) {
+                            // Close modal
+                            $('#groupedPaymentModal').modal('hide');
+                            
+                            // Show success message
+                            alert(response.message);
+                            
+                            // Reset selections
+                            $('.student-checkbox').prop('checked', false);
+                            $('#select-all').prop('checked', false);
+                            selectedStudents = [];
+                            $('#grouped-payment-btn').prop('disabled', true).hide();
+                            
+                            // Reload the page to show updated payment status
+                            location.reload();
+                        } else {
+                            alert('Erreur: ' + response.message);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        console.error('Error processing grouped payment:', error);
+                        alert('Une erreur est survenue lors du traitement du paiement groupé.');
+                    },
+                    complete: function() {
+                        // Reset button
+                        $('#submit-grouped-payment').prop('disabled', false).html('<i class="icon-checkmark4 mr-2"></i> Valider le paiement groupé');
+                    }
+                });
+            });
+            
             // Initialisation améliorée de DataTables avec une classe personnalisée
             if ($('.payments-datatable').length) {
                 // Détruire l'instance existante si elle existe
@@ -878,13 +1187,14 @@
                     lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tous"]],
                     autoWidth: false,
                     columnDefs: [
-                        { orderable: false, targets: [1, 5] }, // Désactiver le tri pour les colonnes photo et action
+                        { orderable: false, targets: [0, 1, 6] }, // Désactiver le tri pour les colonnes checkbox, photo et action
                         { width: "5%", targets: 0 },
-                        { width: "10%", targets: 1 },
-                        { width: "25%", targets: 2 },
-                        { width: "15%", targets: 3 },
+                        { width: "5%", targets: 1 },
+                        { width: "10%", targets: 2 },
+                        { width: "25%", targets: 3 },
                         { width: "15%", targets: 4 },
-                        { width: "30%", targets: 5 }
+                        { width: "15%", targets: 5 },
+                        { width: "25%", targets: 6 }
                     ],
                     drawCallback: function() {
                         // Réinitialiser les événements après chaque redraw
@@ -910,6 +1220,4 @@
             }
         });
     </script>
-@endsection
-
 @endsection

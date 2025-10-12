@@ -144,6 +144,10 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('select_class', 'PaymentController@select_class')->name('payments.select_class');
             Route::delete('reset_record/{id}', 'PaymentController@reset_record')->name('payments.reset_record');
             Route::post('pay_now/{id}', 'PaymentController@pay_now')->name('payments.pay_now');
+            
+            // Grouped payment routes
+            Route::post('process-grouped-payment', 'PaymentController@processGroupedPayment')->name('payments.process_grouped_payment');
+            Route::get('get-class-payments-ajax', 'PaymentController@getClassPaymentsAjax')->name('payments.get_class_payments_ajax');
 
             Route::get('journal', 'PaymentController@journal')->name('payments.journal');
             Route::get('journal/filter', 'PaymentController@journalFilter')->name('payments.journal.filter');

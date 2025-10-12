@@ -244,6 +244,152 @@ class PaymentController extends Controller
         return view('pages.support_team.payments.manage', $d);
     }
 
+    public function reset_record($id)
+    {
+        $pr['amt_paid'] = $pr['paid'] = $pr['balance'] = 0;
+        $this->pay->updateRecord($id, $pr);
+        $this->pay->deleteReceipts(['pr_id' => $id]);
+
+        return back()->with('flash_success', __('msg.update_ok'));
+    }
+
+    
+    /**
+     * Process grouped payment for multiple students
+     */
+    public function processGroupedPayment(Request $request)
+    {
+        try {
+            // Validate request
+            $request->validate([
+                'student_ids' => 'required|string',
+                'payment_id' => 'required|exists:payments,id',
+                'payment_method' => 'required|string',
+                'amount_paid' => 'required|numeric|min:0',
+                'observations' => 'nullable|string'
+            ]);
+
+            // Parse student IDs
+            $studentIds = explode(',', $request->student_ids);
+            $paymentId = $request->payment_id;
+            $paymentMethod = $request->payment_method;
+            $totalAmountPaid = $request->amount_paid;
+            $observations = $request->observations;
+
+            // Get the payment details
+            $payment = $this->pay->find($paymentId);
+            if (!$payment) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Motif de paiement introuvable.'
+                ], 404);
+            }
+
+            // Calculate amount per student
+            $studentCount = count($studentIds);
+            $amountPerStudent = $totalAmountPaid / $studentCount;
+
+            // Process payment for each student
+            $processedStudents = [];
+            $errors = [];
+
+            foreach ($studentIds as $studentId) {
+                try {
+                    // Find or create payment record
+                    $pr = $this->pay->findMyPR($studentId, $paymentId)->first();
+                    
+                    if (!$pr) {
+                        // Create payment record if it doesn't exist
+                        $prData = [
+                            'student_id' => $studentId,
+                            'payment_id' => $paymentId,
+                            'year' => $this->year,
+                            'ref_no' => mt_rand(100000, 99999999)
+                        ];
+                        $pr = $this->pay->createRecord($prData);
+                    }
+
+                    // Create receipt for this student
+                    $receiptData = [
+                        'pr_id' => $pr->id,
+                        'amt_paid' => $amountPerStudent,
+                        'balance' => max(0, $payment->amount - ($pr->amt_paid + $amountPerStudent)),
+                        'year' => $this->year,
+                        'methode' => $paymentMethod,
+                        'payment_method' => $paymentMethod,
+                        'reference_number' => \App\Models\Receipt::generateReferenceNumber(),
+                        'observations' => $observations,
+                        'created_by' => auth()->user()->name,
+                    ];
+
+                    // Use safe receipt creation to prevent duplicates
+                    $receipt = \App\Models\Receipt::createSafeReceipt($receiptData);
+
+                    // Update payment record
+                    $newAmtPaid = $pr->amt_paid + $amountPerStudent;
+                    $newBalance = max(0, $payment->amount - $newAmtPaid);
+                    $isPaid = $newBalance == 0 ? 1 : 0;
+
+                    $pr->update([
+                        'amt_paid' => $newAmtPaid,
+                        'balance' => $newBalance,
+                        'paid' => $isPaid,
+                        'methode' => $paymentMethod
+                    ]);
+
+                    $processedStudents[] = $studentId;
+                } catch (\Exception $e) {
+                    \Log::error('Error processing grouped payment for student ' . $studentId . ': ' . $e->getMessage());
+                    $errors[] = 'Erreur lors du traitement du paiement pour l\'élève ID: ' . $studentId;
+                }
+            }
+
+            if (count($errors) > 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Des erreurs se sont produites lors du traitement des paiements.',
+                    'errors' => $errors
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Paiement groupé effectué avec succès pour ' . count($processedStudents) . ' élèves.',
+                'processed_count' => count($processedStudents)
+            ]);
+
+        } catch (\Exception $e) {
+            \Log::error('Error in processGroupedPayment: ' . $e->getMessage());
+            return response()->json([
+                'success' => false,
+                'message' => 'Une erreur est survenue lors du traitement du paiement groupé.'
+            ], 500);
+        }
+    }
+
+    /**
+     * Get available payments for a class (AJAX)
+     */
+    public function getClassPaymentsAjax(Request $request)
+    {
+        $classId = $request->class_id;
+        
+        if (!$classId) {
+            return response()->json([]);
+        }
+
+        // Get class-specific payments
+        $classPayments = $this->pay->getPayment(['my_class_id' => $classId, 'year' => $this->year])->get();
+        
+        // Get general payments (not tied to a specific class)
+        $generalPayments = $this->pay->getGeneralPayment(['year' => $this->year])->get();
+        
+        // Merge payments
+        $payments = $generalPayments->count() ? $classPayments->merge($generalPayments) : $classPayments;
+        
+        return response()->json($payments);
+    }
+
     public function generateSpecialReceipts(Request $request)
     {
         try {
@@ -581,14 +727,6 @@ class PaymentController extends Controller
         return Qs::deleteOk('payments.index');
     }
 
-    public function reset_record($id)
-    {
-        $pr['amt_paid'] = $pr['paid'] = $pr['balance'] = 0;
-        $this->pay->updateRecord($id, $pr);
-        $this->pay->deleteReceipts(['pr_id' => $id]);
-
-        return back()->with('flash_success', __('msg.update_ok'));
-    }
 
 
 public function verified()
