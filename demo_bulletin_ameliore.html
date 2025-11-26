@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Bulletin Amélioré</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 0.5cm;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 30px 0;
+        }
+        
+        .bulletin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 16px;
+            overflow: hidden;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bulletin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 35px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bulletin-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        .school-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0 0 10px 0;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .exam-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 12px 0 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+        
+        .school-info p {
+            margin: 4px 0;
+            color: rgba(255,255,255,0.95);
+            font-size: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .student-details {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+        }
+        
+        .student-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+        }
+        
+        .detail-item {
+            background: white;
+            padding: 15px 18px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .detail-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+        }
+        
+        .detail-item strong {
+            color: #667eea;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .marks-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .marks-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .marks-table td {
+            padding: 14px 10px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+        
+        .marks-table tbody tr {
+            transition: all 0.2s ease;
+        }
+        
+        .marks-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .marks-table tbody tr:hover {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+        }
+        
+        .subject-name {
+            text-align: left !important;
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        .grade {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 15px;
+        }
+        
+        .summary-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .summary-item {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            border-top: 5px solid #667eea;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .summary-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .summary-item:hover::before {
+            left: 100%;
+        }
+        
+        .summary-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.25);
+        }
+        
+        .summary-item h4 {
+            margin: 0 0 12px 0;
+            color: #667eea;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .summary-item p {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .footer-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            padding: 30px;
+            background: #ffffff;
+            border-top: 3px solid #667eea;
+        }
+        
+        .comments h4, .signatures h4 {
+            color: #667eea;
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            font-weight: 700;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .comments p {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+        
+        .comments p strong {
+            color: #667eea;
+            font-weight: 700;
+        }
+        
+        .signature-line {
+            height: 60px;
+            border-bottom: 2px solid #bdc3c7;
+            margin: 18px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .signature-line:hover {
+            border-bottom-color: #667eea;
+            color: #667eea;
+        }
+        
+        .print-button {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .print-button button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .print-button button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
+        }
+        
+        @media print {
+            @page {
+                size: A4 landscape;
+                margin: 0.5cm;
+            }
+            
+            body {
+                background: white;
+                padding: 0;
+            }
+            
+            .bulletin-container {
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            .print-button {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            body {
+                padding: 15px 0;
+            }
+            
+            .bulletin-container {
+                margin: 10px;
+                border-radius: 12px;
+            }
+            
+            .student-details-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .summary-section {
+                grid-template-columns: repeat(2, 1fr);
+                padding: 20px 15px;
+            }
+            
+            .footer-section {
+                grid-template-columns: 1fr;
+                padding: 20px 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="bulletin-container">
+        <!-- Header -->
+        <div class="bulletin-header">
+            <div class="school-info">
+                <h1 class="school-title">École Privée Exemple</h1>
+                <p>123 Avenue de l'Éducation, Antananarivo</p>
+                <h2 class="exam-title">Premier Trimestre - 2024-2025</h2>
+                <p>NIVEAU Seconde</p>
+            </div>
+        </div>
+
+        <!-- Student Details -->
+        <div class="student-details">
+            <div class="student-details-grid">
+                <div class="detail-item"><strong>Nom & Prénoms:</strong> RAKOTO Jean Pierre</div>
+                <div class="detail-item"><strong>N° d'Admission:</strong> 2024-001</div>
+                <div class="detail-item"><strong>Classe:</strong> Seconde A</div>
+                <div class="detail-item"><strong>Section:</strong> Scientifique</div>
+                <div class="detail-item"><strong>Trimestre:</strong> 1er Trimestre</div>
+                <div class="detail-item"><strong>Année Académique:</strong> 2024-2025</div>
+                <div class="detail-item"><strong>Âge:</strong> 16 ans</div>
+            </div>
+        </div>
+
+        <!-- Marks Table -->
+        <table class="marks-table">
+            <thead>
+                <tr>
+                    <th>Matières</th>
+                    <th>DS1 (20)</th>
+                    <th>DS2 (20)</th>
+                    <th>Examen (20)</th>
+                    <th>Moyenne (/20)</th>
+                    <th>Coeff</th>
+                    <th>Total avec Coeff</th>
+                    <th>Remarques</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td class="subject-name">Mathématiques</td>
+                    <td>15.50</td>
+                    <td>14.00</td>
+                    <td>16.50</td>
+                    <td class="grade">15.33</td>
+                    <td>4</td>
+                    <td class="grade">61.32</td>
+                    <td>Très bien</td>
+                </tr>
+                <tr>
+                    <td class="subject-name">Physique-Chimie</td>
+                    <td>13.00</td>
+                    <td>15.00</td>
+                    <td>14.50</td>
+                    <td class="grade">14.17</td>
+                    <td>3</td>
+                    <td class="grade">42.51</td>
+                    <td>Bien</td>
+                </tr>
+                <tr>
+                    <td class="subject-name">Sciences de la Vie et de la Terre</td>
+                    <td>16.00</td>
+                    <td>15.50</td>
+                    <td>17.00</td>
+                    <td class="grade">16.17</td>
+                    <td>3</td>
+                    <td class="grade">48.51</td>
+                    <td>Excellent</td>
+                </tr>
+                <tr>
+                    <td class="subject-name">Français</td>
+                    <td>12.50</td>
+                    <td>13.00</td>
+                    <td>12.00</td>
+                    <td class="grade">12.50</td>
+                    <td>3</td>
+                    <td class="grade">37.50</td>
+                    <td>Assez bien</td>
+                </tr>
+                <tr>
+                    <td class="subject-name">Anglais</td>
+                    <td>14.00</td>
+                    <td>13.50</td>
+                    <td>15.00</td>
+                    <td class="grade">14.17</td>
+                    <td>2</td>
+                    <td class="grade">28.34</td>
+                    <td>Bien</td>
+                </tr>
+                <tr>
+                    <td class="subject-name">Histoire-Géographie</td>
+                    <td>11.00</td>
+                    <td>12.50</td>
+                    <td>13.00</td>
+                    <td class="grade">12.17</td>
+                    <td>2</td>
+                    <td class="grade">24.34</td>
+                    <td>Assez bien</td>
+                </tr>
+                <tr>
+                    <td class="subject-name">Éducation Physique</td>
+                    <td>17.00</td>
+                    <td>16.50</td>
+                    <td>18.00</td>
+                    <td class="grade">17.17</td>
+                    <td>1</td>
+                    <td class="grade">17.17</td>
+                    <td>Excellent</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Summary -->
+        <div class="summary-section">
+            <div class="summary-item">
+                <h4>Total des Points</h4>
+                <p>259.69</p>
+            </div>
+            <div class="summary-item">
+                <h4>Moyenne Générale</h4>
+                <p>14.43/20</p>
+            </div>
+            <div class="summary-item">
+                <h4>Moyenne de la Classe</h4>
+                <p>12.85/20</p>
+            </div>
+            <div class="summary-item">
+                <h4>Position</h4>
+                <p>3ème</p>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer-section">
+            <div class="comments">
+                <h4>Commentaires</h4>
+                <p><strong>Professeur Principal:</strong> Excellent trimestre. L'élève fait preuve de sérieux et d'implication dans son travail. Peut encore progresser en français.</p>
+                <p><strong>Directeur:</strong> Félicitations pour ces bons résultats. Continuer sur cette lancée.</p>
+            </div>
+            <div class="signatures">
+                <h4>Signatures</h4>
+                <div class="signature-line">Professeur Principal</div>
+                <div class="signature-line">Directeur</div>
+                <div class="signature-line">Parent/Tuteur</div>
+            </div>
+        </div>
+        
+        <div class="print-button">
+            <button onclick="window.print()">🖨️ Imprimer le Bulletin</button>
+        </div>
+    </div>
+</body>
+</html>

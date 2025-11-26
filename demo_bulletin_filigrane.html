@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulletin avec Logo en Filigrane</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 0.4cm 0.5cm;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: #fff;
+            font-family: 'Inter', 'Arial', sans-serif;
+            font-size: 8px;
+            line-height: 1.1;
+            color: #000;
+        }
+
+        .bulletin-container {
+            width: 100%;
+            height: 100%;
+            max-width: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Logo en filigrane au centre - 20% opacité */
+        .bulletin-container::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            background-image: url('/images/logo_avar.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.2;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Petit logo en haut à gauche */
+        .school-logo {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            width: 60px;
+            height: 60px;
+            z-index: 10;
+        }
+
+        .school-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* Contenu par-dessus le filigrane */
+        .bulletin-content {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding-top: 10px;
+        }
+
+        .student-details {
+            background: #f0f0f0 !important;
+            padding: 5px 8px;
+            border-bottom: 1px solid #333 !important;
+            flex-shrink: 0;
+        }
+
+        .student-details-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 4px;
+            margin: 0;
+        }
+
+        .detail-item {
+            background: white !important;
+            padding: 3px 5px;
+            border-radius: 2px;
+            border-left: 2px solid #000 !important;
+            font-size: 7.5px;
+            line-height: 1.2;
+        }
+
+        .detail-item strong {
+            color: #000 !important;
+            font-weight: 700;
+            font-size: 7px;
+            display: block;
+            margin-bottom: 1px;
+        }
+
+        .marks-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+            font-size: 8px;
+            background: white !important;
+            flex-grow: 1;
+        }
+
+        .marks-table th {
+            background: #000 !important;
+            color: #fff !important;
+            padding: 3px 2px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 8.5px;
+            border: 1px solid #000 !important;
+            line-height: 1.1;
+        }
+
+        .marks-table td {
+            padding: 3px 2px;
+            text-align: center;
+            border: 1px solid #333 !important;
+            vertical-align: middle;
+            line-height: 1.1;
+        }
+
+        .marks-table tbody tr:nth-child(even) {
+            background: #f5f5f5 !important;
+        }
+
+        .subject-name {
+            text-align: left !important;
+            font-weight: 600;
+            color: #000 !important;
+            font-size: 8.5px;
+            padding-left: 4px !important;
+        }
+
+        .grade {
+            font-weight: 700;
+            color: #000 !important;
+            font-size: 8.5px;
+        }
+
+        .summary-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 5px;
+            padding: 5px 8px;
+            background: #f0f0f0 !important;
+            flex-shrink: 0;
+        }
+
+        .summary-item {
+            background: white !important;
+            padding: 5px;
+            border-radius: 2px;
+            text-align: center;
+            border-top: 2px solid #000 !important;
+        }
+
+        .summary-item h4 {
+            margin: 0 0 2px 0;
+            color: #000 !important;
+            font-size: 7.5px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .summary-item p {
+            margin: 0;
+            font-size: 11px;
+            font-weight: 800;
+            color: #000 !important;
+        }
+
+        .footer-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 8px;
+            padding: 5px 8px;
+            background: #ffffff !important;
+            border-top: 1px solid #333 !important;
+            flex-shrink: 0;
+        }
+
+        .comments h4,
+        .signatures h4 {
+            color: #000 !important;
+            margin: 0 0 3px 0;
+            font-size: 8.5px;
+            font-weight: 700;
+            padding-bottom: 2px;
+            border-bottom: 1px solid #000 !important;
+        }
+
+        .comments p {
+            margin: 0 0 2px 0;
+            font-size: 7.5px;
+            line-height: 1.2;
+            color: #000 !important;
+        }
+
+        .signature-line {
+            height: 20px;
+            border-bottom: 1px solid #333 !important;
+            margin: 3px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000 !important;
+            font-size: 7px;
+            font-weight: 600;
+        }
+
+        .no-print {
+            display: none !important;
+        }
+
+        @media screen {
+            body {
+                background: #f5f5f5;
+                padding: 20px;
+            }
+
+            .bulletin-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+                background: white;
+            }
+
+            .no-print {
+                display: block !important;
+                text-align: center;
+                padding: 15px;
+                background: #667eea;
+            }
+
+            .no-print button {
+                background: white;
+                color: #667eea;
+                border: none;
+                padding: 12px 30px;
+                font-size: 14px;
+                font-weight: 700;
+                border-radius: 25px;
+                cursor: pointer;
+                transition: all 0.3s ease;
+                box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            }
+
+            .no-print button:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bulletin-container">
+        <!-- Logo en haut à gauche -->
+        <div class="school-logo">
+            <img src="/images/logo_avar.png" alt="Logo"
+                onerror="this.src='https://via.placeholder.com/60x60?text=LOGO'">
+        </div>
+
+        <!-- Contenu du bulletin par-dessus le filigrane -->
+        <div class="bulletin-content">
+            <!-- STUDENT DETAILS -->
+            <div class="student-details">
+                <div class="student-details-grid">
+                    <div class="detail-item"><strong>ÉTUDIANT:</strong> RAKOTO Jean Pierre</div>
+                    <div class="detail-item"><strong>CLASSE:</strong> Seconde A</div>
+                    <div class="detail-item"><strong>SECTION:</strong> Scientifique</div>
+                    <div class="detail-item"><strong>TRIMESTRE:</strong> 1er Trimestre</div>
+                </div>
+            </div>
+
+            <!-- MARKS TABLE -->
+            <table class="marks-table">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Matières</th>
+                        <th style="width: 8%;">DS1<br>(20)</th>
+                        <th style="width: 8%;">DS2<br>(20)</th>
+                        <th style="width: 8%;">Examen<br>(20)</th>
+                        <th style="width: 10%;">Moy.<br>(/20)</th>
+                        <th style="width: 7%;">Coef</th>
+                        <th style="width: 10%;">Total</th>
+                        <th style="width: 29%;">Appréciations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="subject-name">Mathématiques</td>
+                        <td>15.5</td>
+                        <td>14.0</td>
+                        <td>16.5</td>
+                        <td class="grade">15.33</td>
+                        <td>4</td>
+                        <td class="grade">61.32</td>
+                        <td style="font-size: 7.5px;">Très bien</td>
+                    </tr>
+                    <tr>
+                        <td class="subject-name">Physique-Chimie</td>
+                        <td>13.0</td>
+                        <td>15.0</td>
+                        <td>14.5</td>
+                        <td class="grade">14.17</td>
+                        <td>3</td>
+                        <td class="grade">42.51</td>
+                        <td style="font-size: 7.5px;">Bien</td>
+                    </tr>
+                    <tr>
+                        <td class="subject-name">Sciences de la Vie</td>
+                        <td>16.0</td>
+                        <td>15.5</td>
+                        <td>17.0</td>
+                        <td class="grade">16.17</td>
+                        <td>3</td>
+                        <td class="grade">48.51</td>
+                        <td style="font-size: 7.5px;">Excellent</td>
+                    </tr>
+                    <tr>
+                        <td class="subject-name">Français</td>
+                        <td>12.5</td>
+                        <td>13.0</td>
+                        <td>12.0</td>
+                        <td class="grade">12.50</td>
+                        <td>3</td>
+                        <td class="grade">37.50</td>
+                        <td style="font-size: 7.5px;">Assez bien</td>
+                    </tr>
+                    <tr>
+                        <td class="subject-name">Anglais</td>
+                        <td>14.0</td>
+                        <td>13.5</td>
+                        <td>15.0</td>
+                        <td class="grade">14.17</td>
+                        <td>2</td>
+                        <td class="grade">28.34</td>
+                        <td style="font-size: 7.5px;">Bien</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- SUMMARY -->
+            <div class="summary-section">
+                <div class="summary-item">
+                    <h4>Total Points</h4>
+                    <p>218.18</p>
+                </div>
+                <div class="summary-item">
+                    <h4>Moyenne Générale</h4>
+                    <p>14.55/20</p>
+                </div>
+                <div class="summary-item">
+                    <h4>Moy. Classe</h4>
+                    <p>12.85/20</p>
+                </div>
+                <div class="summary-item">
+                    <h4>Position</h4>
+                    <p>3ème / 30</p>
+                </div>
+            </div>
+
+            <!-- FOOTER -->
+            <div class="footer-section">
+                <div class="comments">
+                    <h4>Commentaires du Conseil de Classe</h4>
+                    <p><strong>Professeur Principal:</strong> Excellent travail, continuer ainsi.</p>
+                    <p><strong>Proviseur/Directeur:</strong> Félicitations pour ces bons résultats.</p>
+                </div>
+                <div class="signatures">
+                    <h4>Signatures</h4>
+                    <div class="signature-line">Parent/Tuteur</div>
+                    <div class="signature-line">Prof. Principal</div>
+                    <div class="signature-line">Le Proviseur</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="no-print">
+            <button onclick="window.print()">🖨️ Imprimer le Bulletin</button>
+        </div>
+    </div>
+</body>
+
+</html>

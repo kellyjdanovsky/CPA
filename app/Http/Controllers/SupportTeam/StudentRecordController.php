@@ -15,6 +15,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\StudentsExport;
 
 class StudentRecordController extends Controller
 {
@@ -25,10 +28,10 @@ class StudentRecordController extends Controller
        $this->middleware('teamSA', ['only' => ['edit','update', 'reset_pass', 'create', 'store', 'graduated'] ]);
        $this->middleware('super_admin', ['only' => ['destroy',] ]);
 
-        $this->loc = $loc;
-        $this->my_class = $my_class;
-        $this->user = $user;
-        $this->student = $student;
+       $this->loc = $loc;
+       $this->my_class = $my_class;
+       $this->user = $user;
+       $this->student = $student;
    }
 
     public function index()
@@ -62,40 +65,40 @@ class StudentRecordController extends Controller
        $data =  $req->only(Qs::getUserRecord());
        $sr =  $req->only(Qs::getStudentData());
 
-        $ct = $this->my_class->findTypeByClass($req->my_class_id)->code;
-       /* $ct = ($ct == 'J') ? 'JSS' : $ct;
-        $ct = ($ct == 'S') ? 'SS' : $ct;*/
+       $ct = $this->my_class->findTypeByClass($req->my_class_id)->code;
+      /* $ct = ($ct == 'J') ? 'JSS' : $ct;
+       $ct = ($ct == 'S') ? 'SS' : $ct;*/
 
-        $data['user_type'] = 'student';
-        $data['name'] = ucwords($req->name);
-        $data['code'] = strtoupper(Str::random(10));
-        $data['password'] = Hash::make('student');
-        $data['photo'] = Qs::getDefaultUserImage();
-        $data['status'] = $req->status;
-        $data['nom_p'] = $req->nom_p;
-        $data['prof_p'] = $req->prof_p;
-        $data['nom_m'] = $req->nom_m;
-        $data['prof_m'] = $req->prof_m;
-        $adm_no = $req->adm_no;
-        $data['username'] = strtoupper(Qs::getAppCode().'/'.$ct.'/'.$sr['year_admitted'].'/'.($adm_no ?: mt_rand(1000, 99999)));
+       $data['user_type'] = 'student';
+       $data['name'] = ucwords($req->name);
+       $data['code'] = strtoupper(Str::random(10));
+       $data['password'] = Hash::make('student');
+       $data['photo'] = Qs::getDefaultUserImage();
+       $data['status'] = $req->status;
+       $data['nom_p'] = $req->nom_p;
+       $data['prof_p'] = $req->prof_p;
+       $data['nom_m'] = $req->nom_m;
+       $data['prof_m'] = $req->prof_m;
+       $adm_no = $req->adm_no;
+       $data['username'] = strtoupper(Qs::getAppCode().'/'.$ct.'/'.$sr['year_admitted'].'/'.($adm_no ?: mt_rand(1000, 99999)));
 
-        if($req->hasFile('photo')) {
-            $photo = $req->file('photo');
-            $f = Qs::getFileMetaData($photo);
-            $f['name'] = 'photo.' . $f['ext'];
-            $f['path'] = $photo->storeAs(Qs::getUploadPath('student').$data['code'], $f['name']);
-            $data['photo'] = asset('storage/' . $f['path']);
-        }
+       if($req->hasFile('photo')) {
+           $photo = $req->file('photo');
+           $f = Qs::getFileMetaData($photo);
+           $f['name'] = 'photo.' . $f['ext'];
+           $f['path'] = $photo->storeAs(Qs::getUploadPath('student').$data['code'], $f['name']);
+           $data['photo'] = asset('storage/' . $f['path']);
+       }
 
-        $user = $this->user->create($data); // Create User
+       $user = $this->user->create($data); // Create User
 
-        $sr['adm_no'] = $data['username'];
-        $sr['user_id'] = $user->id;
-        $sr['session'] = Qs::getSetting('current_session');
-        $sr['age'] = $req->age ?: Qs::calculateAge($req->dob);
+       $sr['adm_no'] = $data['username'];
+       $sr['user_id'] = $user->id;
+       $sr['session'] = Qs::getSetting('current_session');
+       $sr['age'] = $req->age ?: Qs::calculateAge($req->dob);
 
-        $this->student->createRecord($sr); // Create Student
-        return Qs::jsonStoreOk();
+       $this->student->createRecord($sr); // Create Student
+       return Qs::jsonStoreOk();
     }
 
     public function listByClass($class_id)
@@ -237,6 +240,166 @@ class StudentRecordController extends Controller
         $this->user->delete($sr->user->id);
 
         return back()->with('flash_success', __('msg.del_ok'));
+    }
+
+    /**
+     * Exporter les étudiants en Excel avec colonnes visibles
+     */
+    public function export(Request $request)
+    {
+        // Récupérer les colonnes visibles depuis la requête
+        $columns = $request->input('columns', []);
+        
+        // Si aucune colonne n'est spécifiée, exporter toutes les colonnes par défaut
+        if (empty($columns)) {
+            $columns = ['name', 'adm_no', 'my_class_name', 'section_name', 'dob', 'age', 'address', 'religion', 'status', 'student_type', 'academic_status', 'gender', 'nom_p', 'prof_p', 'nom_m', 'prof_m', 'phone'];
+        } else {
+            // Si les colonnes sont envoyées en tant que chaîne JSON, la décoder
+            if (is_string($columns)) {
+                $columns = json_decode($columns, true);
+            }
+        }
+        
+        // Récupérer tous les étudiants
+        $students = $this->student->getAll()->get();
+        
+        // Préparer les données pour l'export
+        $exportData = [];
+        
+        // En-tête avec les colonnes visibles
+        $headers = [];
+        foreach ($columns as $column) {
+            switch ($column) {
+                case 'name':
+                    $headers[] = 'Nom';
+                    break;
+                case 'adm_no':
+                    $headers[] = 'N° d\'admission';
+                    break;
+                case 'my_class_name':
+                    $headers[] = 'Classe';
+                    break;
+                case 'section_name':
+                    $headers[] = 'Section';
+                    break;
+                case 'dob':
+                    $headers[] = 'Date de naissance';
+                    break;
+                case 'age':
+                    $headers[] = 'Âge';
+                    break;
+                case 'address':
+                    $headers[] = 'Adresse';
+                    break;
+                case 'religion':
+                    $headers[] = 'Religion';
+                    break;
+                case 'status':
+                    $headers[] = 'Statut';
+                    break;
+                case 'student_type':
+                    $headers[] = 'Type';
+                    break;
+                case 'academic_status':
+                    $headers[] = 'Statut académique';
+                    break;
+                case 'gender':
+                    $headers[] = 'Sexe';
+                    break;
+                case 'nom_p':
+                    $headers[] = 'Père/Tuteur';
+                    break;
+                case 'prof_p':
+                    $headers[] = 'Profession père';
+                    break;
+                case 'nom_m':
+                    $headers[] = 'Mère/Tutrice';
+                    break;
+                case 'prof_m':
+                    $headers[] = 'Profession mère';
+                    break;
+                case 'phone':
+                    $headers[] = 'Téléphone';
+                    break;
+            }
+        }
+        
+        $exportData[] = $headers;
+        
+        // Données des étudiants
+        foreach ($students as $student) {
+            $row = [];
+            foreach ($columns as $column) {
+                switch ($column) {
+                    case 'name':
+                        $row[] = $student->user->name;
+                        break;
+                    case 'adm_no':
+                        $row[] = $student->adm_no;
+                        break;
+                    case 'my_class_name':
+                        $row[] = $student->my_class->name;
+                        break;
+                    case 'section_name':
+                        $row[] = $student->section->name;
+                        break;
+                    case 'dob':
+                        $row[] = $student->user->dob;
+                        break;
+                    case 'age':
+                        $row[] = $student->user->dob ? \App\Helpers\Qs::calculateAge($student->user->dob) : '-';
+                        break;
+                    case 'address':
+                        $row[] = $student->user->address;
+                        break;
+                    case 'religion':
+                        $row[] = $student->user->religion;
+                        break;
+                    case 'status':
+                        $row[] = $student->user->status ?? 'Normal';
+                        break;
+                    case 'student_type':
+                        $row[] = $student->user->student_type ?? 'Nouveau';
+                        break;
+                    case 'academic_status':
+                        $row[] = $student->user->academic_status ?? 'Passant';
+                        break;
+                    case 'gender':
+                        $row[] = $student->user->gender == 'Male' ? 'Masculin' : ($student->user->gender == 'Female' ? 'Féminin' : '-');
+                        break;
+                    case 'nom_p':
+                        $row[] = $student->user->nom_p;
+                        break;
+                    case 'prof_p':
+                        $row[] = $student->user->prof_p;
+                        break;
+                    case 'nom_m':
+                        $row[] = $student->user->nom_m;
+                        break;
+                    case 'prof_m':
+                        $row[] = $student->user->prof_m;
+                        break;
+                    case 'phone':
+                        $row[] = $student->user->phone;
+                        break;
+                }
+            }
+            $exportData[] = $row;
+        }
+        
+        // Créer le contenu CSV
+        $csvContent = '';
+        foreach ($exportData as $row) {
+            $csvContent .= '"' . implode('","', $row) . '"' . "\n";
+        }
+        
+        // Nom du fichier
+        $filename = 'export_eleves_' . date('Y-m-d_His') . '.csv';
+        
+        // Retourner le fichier CSV
+        return response($csvContent)
+            ->header('Content-Type', 'text/csv; charset=utf-8')
+            ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
 }

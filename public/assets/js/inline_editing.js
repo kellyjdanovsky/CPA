@@ -102,6 +102,11 @@ class InlineEditor {
                     text: '<i class="icon-plus mr-2"></i>Ajouter élève',
                     className: 'btn btn-success',
                     action: () => this.showAddStudentModal()
+                },
+                {
+                    text: '<i class="icon-file-excel2 mr-2"></i>Export Excel Personnalisé',
+                    className: 'btn btn-success',
+                    action: () => this.exportCustomExcel()
                 }
             ],
             dom: '<"datatable-header"fBl><"datatable-scroll"t><"datatable-footer"ip>',
@@ -537,6 +542,73 @@ class InlineEditor {
             // Afficher un message de confirmation
             this.showNotification('Colonnes masquées sauf les essentielles', 'success');
         }
+    }
+
+    // Méthode pour exporter avec les colonnes visibles
+    exportCustomExcel() {
+        if (!this.dataTable) {
+            this.showNotification('Le tableau n\'est pas initialisé correctement', 'error');
+            return;
+        }
+
+        // Obtenir les colonnes actuellement visibles
+        const visibleColumns = this.dataTable.columns(':visible:not(.no-export)').indexes().toArray();
+        
+        if (visibleColumns.length === 0) {
+            this.showNotification('Aucune colonne visible à exporter', 'warning');
+            return;
+        }
+
+        // Mapper les indexes de colonnes aux noms de champs
+        const columnMapping = {
+            0: 'name',           // Nom
+            1: 'adm_no',         // N° d'admission
+            2: 'my_class_name',  // Classe
+            3: 'section_name',   // Section
+            4: 'dob',            // Date de naissance
+            5: 'age',            // Âge
+            6: 'address',        // Adresse
+            7: 'religion',       // Religion
+            8: 'status',         // Statut
+            9: 'student_type',   // Type
+            10: 'academic_status', // Statut académique
+            11: 'gender',        // Sexe
+            12: 'nom_p',         // Père/Tuteur
+            13: 'prof_p',        // Profession père
+            14: 'nom_m',         // Mère/Tutrice
+            15: 'prof_m',        // Profession mère
+            16: 'phone'          // Téléphone
+        };
+
+        // Obtenir les noms de colonnes visibles
+        const columnsToExport = visibleColumns.map(index => columnMapping[index]).filter(col => col);
+
+        // Créer le formulaire et soumettre
+        const form = document.createElement('form');
+        form.method = 'GET';
+        form.action = '/students/export';
+
+        // Ajouter le champ CSRF
+        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        const csrfInput = document.createElement('input');
+        csrfInput.type = 'hidden';
+        csrfInput.name = '_token';
+        csrfInput.value = csrfToken;
+        form.appendChild(csrfInput);
+
+        // Ajouter les colonnes à exporter
+        const columnsInput = document.createElement('input');
+        columnsInput.type = 'hidden';
+        columnsInput.name = 'columns';
+        columnsInput.value = JSON.stringify(columnsToExport);
+        form.appendChild(columnsInput);
+
+        // Soumettre le formulaire
+        document.body.appendChild(form);
+        form.submit();
+        document.body.removeChild(form);
+
+        this.showNotification('Export en cours...', 'info');
     }
 }
 

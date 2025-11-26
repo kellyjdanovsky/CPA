@@ -4,19 +4,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bulletin de notes de l'élève - {{ $sr->user->name }}</title>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-color: #007bff;
-            --secondary-color: #6c757d;
+            --primary-color: #2c3e50;
+            --secondary-color: #34495e;
             --light-gray: #f8f9fa;
-            --dark-gray: #343a40;
+            --dark-gray: #2c3e50;
             --white: #fff;
-            --border-color: #dee2e6;
+            --border-color: #bdc3c7;
         }
 
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Poppins', 'Roboto', sans-serif;
             background-color: var(--light-gray);
             margin: 0;
             padding: 0;
@@ -45,8 +45,8 @@
             justify-content: center;
             align-items: center;
             border-bottom: 4px solid var(--primary-color);
-            padding-bottom: 2px;
-            margin-bottom: 5px;
+            padding-bottom: 15px;
+            margin-bottom: 20px;
             gap: 15px;
         }
 
@@ -59,10 +59,11 @@
         }
 
         .school-title {
-            font-size: 22px;
+            font-size: 24px;
             font-weight: 700;
             color: var(--primary-color);
-            margin: 0;
+            margin: 0 0 8px 0;
+            letter-spacing: 1px;
         }
 
         .school-address {
@@ -72,10 +73,11 @@
         }
 
         .bulletin-title {
-            font-size: 18px;
-            font-weight: 700;
+            font-size: 20px;
+            font-weight: 600;
             text-transform: uppercase;
-            margin-top: 5px;
+            margin-top: 8px;
+            letter-spacing: 0.5px;
         }
 
         .student-photo img {
@@ -88,26 +90,29 @@
         .student-details-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 5px;
+            gap: 8px;
             background-color: var(--light-gray);
-            padding: 8px;
+            padding: 15px;
             border-radius: 8px;
-            margin-bottom: 10px;
-            font-size: 12px;
+            margin-bottom: 15px;
+            font-size: 13px;
         }
 
         .detail-item strong {
             color: var(--primary-color);
+            font-weight: 600;
         }
 
         .marks-table {
             width: 100%;
             border-collapse: collapse;
-            font-size: 14px;
+            font-size: 13px;
+            background: var(--white);
+            margin-bottom: 20px;
         }
 
         .marks-table th, .marks-table td {
-            padding: 10px 12px;
+            padding: 12px 10px;
             text-align: center;
             border: 1px solid var(--border-color);
         }
@@ -115,8 +120,8 @@
         .marks-table thead th {
             background-color: var(--primary-color);
             color: var(--white);
-            font-weight: 700;
-            font-size: 16px;
+            font-weight: 600;
+            font-size: 14px;
         }
 
         .marks-table tbody tr:nth-child(even) {
@@ -125,33 +130,38 @@
 
         .marks-table .subject-name {
             text-align: left;
-            font-weight: 700;
+            font-weight: 600;
+            color: var(--primary-color);
         }
 
         .marks-table .grade {
-            font-weight: 700;
-            color: var(--primary-color);
+            font-weight: 600;
+            color: #27ae60;
         }
 
         .summary-section {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-            margin-top: 10px;
-            margin-bottom: 10px;
+            gap: 12px;
+            margin-top: 15px;
+            margin-bottom: 20px;
         }
 
         .summary-item {
             background-color: var(--light-gray);
-            padding: 8px;
+            padding: 15px;
             border-radius: 8px;
             text-align: center;
+            border-top: 3px solid var(--primary-color);
         }
 
         .summary-item h4 {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--primary-color);
-            margin: 0 0 2px 0;
+            margin: 0 0 8px 0;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .summary-item p {
@@ -165,20 +175,25 @@
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
-            margin-top: 10px;
-            padding-top: 10px;
+            margin-top: 20px;
+            padding-top: 15px;
             border-top: 2px solid var(--border-color);
         }
 
         .comments h4, .signatures h4 {
-            font-size: 18px;
+            font-size: 16px;
             color: var(--primary-color);
             margin-top: 0;
-            margin-bottom: 10px;
+            margin-bottom: 12px;
+            font-weight: 600;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--primary-color);
         }
 
         .comments p {
-            margin: 0;
+            margin: 0 0 8px 0;
+            font-size: 14px;
+            line-height: 1.5;
         }
 
         .signature-container {
@@ -189,10 +204,12 @@
 
         .signature-line {
             width: 30%;
-            border-bottom: 1px solid var(--secondary-color);
+            border-bottom: 2px solid var(--border-color);
             text-align: center;
-            padding-bottom: 5px;
+            padding-bottom: 8px;
             color: var(--secondary-color);
+            font-size: 13px;
+            font-weight: 500;
         }
 
         .no-print {
@@ -204,20 +221,29 @@
             background-color: var(--primary-color);
             color: var(--white);
             border: none;
-            padding: 12px 25px;
+            padding: 12px 30px;
             font-size: 16px;
-            border-radius: 5px;
+            border-radius: 25px;
             cursor: pointer;
-            transition: background-color 0.3s;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            box-shadow: 0 4px 15px rgba(44, 62, 80, 0.3);
         }
 
         .no-print button:hover {
-            background-color: #0056b3;
+            background-color: var(--secondary-color);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(44, 62, 80, 0.4);
         }
 
         @media print {
+            body * {
+                color: #000 !important;
+                background: transparent !important;
+            }
+            
             body {
-                background-color: var(--white);
+                background-color: #fff;
                 padding: 0;
                 margin: 0;
             }
@@ -231,31 +257,61 @@
 
             @page {
                 size: A4 landscape;
-                margin: 0;
+                margin: 1cm;
             }
 
             .no-print {
                 display: none;
             }
 
+            .bulletin-header {
+                border-bottom: 3px solid #000 !important;
+            }
+
             .marks-table {
-                font-size: 12px;
+                font-size: 11px;
             }
 
             .marks-table th, .marks-table td {
-                padding: 8px 10px;
+                padding: 8px 6px;
+                border: 1px solid #000 !important;
             }
 
-            .summary-section {
-                gap: 15px;
+            .marks-table thead th {
+                background: #000 !important;
+                color: #fff !important;
+            }
+
+            .marks-table tbody tr:nth-child(even) {
+                background: #f5f5f5 !important;
+            }
+
+            .student-details-grid {
+                background: #f5f5f5 !important;
             }
 
             .summary-item {
-                padding: 15px;
+                border-top: 3px solid #000 !important;
+            }
+
+            .comments h4, .signatures h4 {
+                border-bottom: 2px solid #000 !important;
+            }
+
+            .signature-line {
+                border-bottom: 2px solid #000 !important;
+            }
+
+            .summary-section {
+                gap: 10px;
+            }
+
+            .summary-item {
+                padding: 12px;
             }
 
             .summary-item p {
-                font-size: 20px;
+                font-size: 16px;
             }
         }
     </style>
@@ -274,6 +330,7 @@
                 </div>
                 
             </div>
+
 
             @include('pages.support_team.marks.print.sheet')
 

@@ -31,23 +31,23 @@
     
     .notifications-body {
         font-family: Arial, sans-serif;
-        font-size: 8px;
+        font-size: 6.5px;
         margin: 0;
         padding: @if(isset($is_preview)) 3mm @elseif(isset($is_pdf)) 0 @else 0 @endif;
-        line-height: 1.2;
-        color: #000; /* Black text */
+        line-height: 1.15;
+        color: #000;
         background: white;
     }
     
     .page {
-        width: @if(isset($is_preview)) 210mm @elseif(isset($is_pdf)) 210mm @else 204mm @endif; /* A4 width */
-        height: @if(isset($is_preview)) 297mm @elseif(isset($is_pdf)) 297mm @else 291mm @endif; /* A4 height */
+        width: @if(isset($is_preview)) 210mm @elseif(isset($is_pdf)) 210mm @else 204mm @endif;
+        height: @if(isset($is_preview)) 297mm @elseif(isset($is_pdf)) 297mm @else 291mm @endif;
         position: relative;
         margin: 0 @if(isset($is_preview)) auto @elseif(isset($is_pdf)) 0 @else 0 @endif;
-        padding: @if(isset($is_preview)) 5mm @elseif(isset($is_pdf)) 3mm @else 2mm @endif;
+        padding: @if(isset($is_preview)) 3mm @elseif(isset($is_pdf)) 2mm @else 2mm @endif;
         @if(isset($is_preview))
         margin-bottom: 20px;
-        border: 1px dashed #ccc; /* Bordure pour visualiser la page */
+        border: 1px dashed #ccc;
         background: white;
         box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         @endif
@@ -55,18 +55,18 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         grid-template-rows: repeat(5, 1fr);
-        gap: 3mm;
+        gap: 2mm;
     }
     
     .notification {
         width: 100%;
         height: 100%;
         border: 2px solid #000;
-        border-radius: 3mm;
+        border-radius: 2mm;
         padding: 2mm;
         background: #fff;
-        font-size: 7px;
-        line-height: 1.2;
+        font-size: 6.5px;
+        line-height: 1.15;
         color: #000;
         overflow: hidden;
         display: flex;
@@ -76,18 +76,18 @@
     }
     
     /* State styles (case by case) */
-    .notification.is-overdue { border-color: #b00020; }
-    .notification.is-due { border-color: #ff8f00; }
-    .notification.is-ok { border-color: #2e7d32; }
+    .notification.is-overdue { border-color: #b00020; border-width: 2px; }
+    .notification.is-due { border-color: #ff8f00; border-width: 2px; }
+    .notification.is-ok { border-color: #2e7d32; border-width: 2px; }
 
     .header {
         text-align: center;
         border-bottom: 1px solid #000;
-        padding: 1mm;
-        margin-bottom: 1mm;
+        padding: 0.3mm;
+        margin-bottom: 0.3mm;
         background: #fff;
         position: relative;
-        height: 12mm;
+        height: 10mm;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -95,52 +95,54 @@
     }
     
     .school-logo {
-        width: 8mm;
-        height: 8mm;
+        width: 7mm;
+        height: 7mm;
         position: absolute;
-        left: 1mm;
+        left: 0.3mm;
         top: 50%;
         transform: translateY(-50%);
         object-fit: contain;
-        border-radius: 1mm;
+        border-radius: 0.5mm;
     }
     
     .school-info {
         text-align: center;
         font-weight: 600;
         font-size: 4px;
-        line-height: 1.1;
+        line-height: 1.05;
         color: #000;
         margin: 0;
-        padding-left: 10mm;
+        padding-left: 7.5mm;
+        overflow: hidden;
     }
     
     .school-name {
-        font-size: 5px;
+        font-size: 4.5px;
         font-weight: 700;
         color: #000;
-        margin-bottom: 0.3mm;
+        margin-bottom: 0.15mm;
         text-transform: uppercase;
-        letter-spacing: 0.1px;
+        letter-spacing: 0.05px;
+        white-space: nowrap;
     }
     
     .notification-title {
         text-align: center;
         font-weight: 800;
-        font-size: 7px;
-        margin: 1mm 0;
+        font-size: 6.5px;
+        margin: 0.3mm 0;
         color: #000;
-        padding: 1mm;
+        padding: 0.8mm;
         text-transform: uppercase;
-        letter-spacing: 0.35px;
+        letter-spacing: 0.1px;
         height: auto;
         display: flex;
         align-items: center;
         justify-content: center;
         flex-shrink: 0;
         border: 1px solid #000;
-        background: #f8f8f8;
-        border-radius: 1mm;
+        background: #f0f0f0;
+        border-radius: 0.8mm;
     }
     
     .content {
@@ -150,116 +152,135 @@
         flex-direction: column;
         overflow: hidden;
         flex: 1;
-        gap: 1mm;
+        gap: 0.6mm;
+        padding-bottom: 10.5mm;
     }
     
     .student-info {
-        padding: 1mm;
+        padding: 0.8mm;
         flex-shrink: 0;
+        background: #fafafa;
+        border-radius: 0.5mm;
+        overflow: hidden;
     }
     
     .recipient {
-        font-size: 5px;
+        font-size: 4.5px;
         font-weight: 600;
-        margin-bottom: 0.5mm;
+        margin-bottom: 0.2mm;
     }
     
     .student-name {
-        font-weight: 600;
+        font-weight: 700;
         color: #000;
-        font-size: 8px;
-        margin-bottom: 0.5mm;
+        font-size: 6.5px;
+        margin-bottom: 0.2mm;
         text-transform: none;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        max-width: 100%;
+    }
+    
+    .class-info {
+        font-size: 5.5px;
+        color: #000;
+        font-weight: 600;
+        margin: 0;
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
     }
     
-    .class-info {
-        font-size: 6px;
-        color: #000;
-        font-weight: 500;
-        margin: 0;
-    }
-    
     .payment-reason-section {
-        padding: 1mm;
+        padding: 0.8mm;
         flex-shrink: 0;
-        border-top: 1px solid #000;
-        border-bottom: 1px solid #000;
-        background: #f9f9f9;
-        border-radius: 1mm;
+        border: 1px solid #000;
+        background: #fff3e0;
+        border-radius: 0.8mm;
+        overflow: hidden;
+        max-height: 9mm;
     }
     
     .reason-title {
-        font-size: 6px;
+        font-size: 5.5px;
         color: #000;
         font-weight: 700;
-        margin-bottom: 0.5mm;
+        margin-bottom: 0.2mm;
     }
     
     .reason-content {
-        font-size: 5.5px;
+        font-size: 5px;
         color: #000;
         font-weight: 600;
         font-style: italic;
         white-space: normal;
         word-wrap: break-word;
+        overflow: hidden;
+        line-height: 1.15;
+        max-height: 7mm;
     }
     
     .amounts-section {
         background: #fff;
         border: 1px solid #000;
-        padding: 1mm;
+        padding: 0.8mm;
         flex: 1;
         min-height: 0;
         overflow: hidden;
-        border-radius: 1mm;
+        border-radius: 0.8mm;
     }
     
     .amount-line {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        margin-bottom: 1mm;
-        font-size: 6px;
-        line-height: 1.2;
-        padding: 0.5mm 0;
+        align-items: flex-start;
+        margin-bottom: 0.3mm;
+        font-size: 5.5px;
+        line-height: 1.15;
+        padding: 0.2mm 0;
     }
     
     .amount-line-highlight {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-top: 1mm;
-        padding: 1mm;
-        background: #fffbea;
+        margin-top: 0.6mm;
+        padding: 0.8mm;
+        background: #fff3e0;
         border: 1px solid #000;
-        font-size: 7px;
+        font-size: 6px;
         font-weight: 800;
-        border-radius: 1mm;
+        border-radius: 0.8mm;
     }
     
     .amount-label {
         color: #000;
         font-weight: 600;
+        flex: 1;
+        margin-right: 0.8mm;
     }
     
     .amount-value {
         color: #000;
         font-weight: 700;
         white-space: nowrap;
+        flex-shrink: 0;
     }
     
     .amount-label-highlight {
         color: #000;
-        font-weight: 700;
+        font-weight: 800;
+        flex: 1;
+        margin-right: 0.8mm;
     }
     
     .amount-value-highlight {
         color: #000;
-        font-weight: 700;
-        font-size: 8px;
+        font-weight: 800;
+        font-size: 6.5px;
+        white-space: nowrap;
+        flex-shrink: 0;
     }
     
     .footer-section {
@@ -270,8 +291,8 @@
         background: #fff;
         border-top: 1px solid #000;
         margin: 0 -2mm -2mm -2mm;
-        padding: 1mm 2mm;
-        height: 12mm;
+        padding: 0.5mm 1.5mm;
+        height: 10mm;
         flex-shrink: 0;
         display: flex;
         flex-direction: column;
@@ -281,47 +302,51 @@
 
     .deadline-info {
         text-align: center;
-        font-size: 6px;
+        font-size: 5px;
         color: #000;
         font-weight: 700;
-        margin-bottom: 0.5mm;
+        margin-bottom: 0.2mm;
+        line-height: 1.1;
     }
 
     .deadline-date {
-        font-size: 7px;
-        font-weight: 700;
+        font-size: 6px;
+        font-weight: 800;
         color: #000;
         background: #fff;
-        padding: 0.5mm 1mm;
+        padding: 0.2mm 0.8mm;
         border: 1px solid #000;
-        border-radius: 1mm;
+        border-radius: 0.4mm;
         display: inline-block;
+        margin-top: 0.2mm;
     }
 
     .status-info {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        font-size: 5px;
+        font-size: 4.5px;
         color: #000;
         font-weight: 600;
-        margin-top: 0.5mm;
+        margin-top: 0.2mm;
         width: 100%;
     }
 
     .status-chip {
         border: 1px solid #000;
-        padding: 0.5mm 1.5mm;
-        border-radius: 10px;
+        padding: 0.2mm 0.8mm;
+        border-radius: 6px;
         font-weight: 700;
         background: #f5f5f5;
+        font-size: 4.5px;
     }
     
     .thanks {
         font-style: italic;
         text-align: center;
-        font-size: 5px;
-        margin: 1mm 0;
+        font-size: 4px;
+        margin: 0.2mm 0;
+        line-height: 1.1;
     }
     
     @if(!isset($is_preview))
@@ -333,7 +358,7 @@
             margin-top: 20px;
         }
         
-        /* Print optimizations - Simplified for better compatibility */
+        /* Print optimizations */
         @media print {
             @page {
                 size: A4 portrait;
@@ -353,8 +378,8 @@
                 background: white !important;
                 color: black !important;
                 font-family: Arial, sans-serif !important;
-                font-size: 8px !important;
-                line-height: 1.2 !important;
+                font-size: 6.5px !important;
+                line-height: 1.15 !important;
             }
             
             .notifications-body { 
@@ -372,11 +397,11 @@
                 display: grid !important;
                 grid-template-columns: 1fr 1fr !important;
                 grid-template-rows: repeat(5, 1fr) !important;
-                gap: 3mm !important;
-                width: 210mm !important;
-                height: 297mm !important;
+                gap: 2mm !important;
+                width: 204mm !important;
+                height: 287mm !important;
                 margin: 0 auto !important;
-                padding: 3mm !important;
+                padding: 2mm !important;
                 page-break-after: always !important;
                 page-break-inside: avoid !important;
                 background: white !important;
@@ -396,131 +421,31 @@
                 padding: 2mm !important;
                 position: relative !important;
                 page-break-inside: avoid !important;
-                font-size: 8px !important;
-                line-height: 1.2 !important;
-                overflow: visible !important;
+                font-size: 6.5px !important;
+                line-height: 1.15 !important;
+                overflow: hidden !important;
                 box-sizing: border-box !important;
                 break-inside: avoid !important;
                 display: flex !important;
                 flex-direction: column !important;
             }
             
-            .notification * {
-                color: black !important;
-                background: transparent !important;
-            }
-            
             .header {
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
                 border-bottom: 1px solid black !important;
-                height: 12mm !important;
-                padding: 1mm !important;
+                height: 10mm !important;
             }
             
             .notification-title {
-                display: flex !important;
-                align-items: center !important;
-                justify-content: center !important;
                 border: 1px solid black !important;
-                padding: 1mm !important;
-                margin: 1mm 0 !important;
-                text-align: center !important;
-                font-weight: bold !important;
-                height: auto !important;
             }
             
             .content {
-                flex: 1 !important;
-                display: flex !important;
-                flex-direction: column !important;
-                gap: 1mm !important;
-            }
-            
-            .deadline-info {
-                display: flex !important;
-                flex-direction: column !important;
-                align-items: center !important;
-                justify-content: center !important;
-                border: 1px solid black !important;
-                padding: 1mm !important;
-                margin: 1mm 0 !important;
-                font-weight: bold !important;
-                text-align: center !important;
-                min-height: auto !important;
-            }
-            
-            .deadline-date {
-                font-size: 7px !important;
-                font-weight: bold !important;
-                border: 1px solid black !important;
-                padding: 0.5mm 1mm !important;
-                margin-top: 0.5mm !important;
-                background-color: white !important;
-            }
-            
-            .payment-details {
-                border: 1px solid black !important;
-                padding: 1mm !important;
-                margin: 1mm 0 !important;
-                background-color: white !important;
-            }
-            
-            .payment-line {
-                margin-bottom: 1mm !important;
-                color: black !important;
-            }
-            
-            .payment-line.highlight {
-                background-color: #f0f0f0 !important;
-                border: 1px solid black !important;
-                padding: 0.5mm !important;
-            }
-            
-            .label-text {
-                font-weight: bold !important;
-                color: black !important;
-                font-size: 6px !important;
-            }
-            
-            .amount-value {
-                font-weight: bold !important;
-                color: black !important;
-                display: block !important;
-            }
-            
-            .amount-value.due {
-                font-size: 8px !important;
-            }
-            
-            .thanks {
-                padding: 1mm;
-                font-style: italic;
-                text-align: center;
-                font-size: 5px;
-                margin-top: 1mm;
-                position: absolute;
-                bottom: 12mm;
-                left: 0;
-                right: 0;
+                padding-bottom: 10.5mm !important;
             }
             
             .footer-section {
-                display: flex !important;
-                justify-content: space-between !important;
-                align-items: center !important;
-                padding: 0.5mm !important;
-                position: absolute !important;
-                bottom: 1mm !important;
-                left: 2mm !important;
-                right: 2mm !important;
-                height: 12mm !important;
-            }
-            
-            .school-logo {
-                width: 8mm !important;
-                height: 8mm !important;
+                height: 10mm !important;
+                border-top: 1px solid black !important;
             }
         }
     @endif
@@ -530,7 +455,7 @@
         background: #f9f9f9;
         text-align: center;
         color: #999;
-        font-size: 6px;
+        font-size: 5px;
         display: flex;
         align-items: center;
         justify-content: center;
@@ -594,15 +519,15 @@
                         @if($logoExists)
                             <img src="{{ $logoSrc }}" alt="Logo AVAR" class="school-logo">
                         @else
-                            <div class="school-logo" style="background-color: #2c5aa0; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 5px; border-radius: 1mm;">
+                            <div class="school-logo" style="background-color: #2c5aa0; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 3.5px; border-radius: 0.5mm;">
                                 AVAR
                             </div>
                         @endif
                         
                         <div class="school-info">
                             <div class="school-name">COLLEGE PRIVE ADVENTISTE AVARATETEZANA</div>
-                            <div style="font-size: 4px;">AMPITATAFIKA ANTANANARIVO MADAGASCAR</div>
-                            <div style="font-size: 4px;">Tél: 038 34 921 09</div>
+                            <div style="font-size: 3.5px;">AMPITATAFIKA ANTANANARIVO MADAGASCAR</div>
+                            <div style="font-size: 3.5px;">Tél: 038 34 921 09</div>
                         </div>
                     </div>
                     
@@ -615,8 +540,8 @@
                             <div class="recipient">Ho an'ny ray aman-drenin'i</div>
                             <div class="student-name">{{ $student->user->name }}</div>
                             <div class="class-info">{{ $class_name }}{{ $student->section ? ' ' . $student->section->name : '' }}</div>
-                            <div style="font-size: 4px; color: #000; font-weight: 500; margin-top: 0.5mm;">
-                                ID Élève: {{ $student->user_id }} | ID Classe: {{ $student->my_class_id }}
+                            <div style="font-size: 3.5px; color: #000; font-weight: 500; margin-top: 0.3mm;">
+                                ID: {{ $student->user_id }} | Classe: {{ $student->my_class_id }}
                             </div>
                         </div>
                         
@@ -627,38 +552,37 @@
                         
                         <div class="amounts-section">
                             <div class="amount-line">
-                                <span class="amount-label">• Vola rehetra tokony haloa:</span>
-                                <span class="amount-value">{{ number_format($totalAmount, 0, ',', ' ') }} Ariary</span>
+                                <span class="amount-label">• Vola rehetra haloa:</span>
+                                <span class="amount-value">{{ number_format($totalAmount, 0, ',', ' ') }} Ar</span>
                             </div>
                             @if($amountPaid > 0)
                                 <div class="amount-line">
                                     <span class="amount-label">• Vola efa naloa:</span>
-                                    <span class="amount-value">{{ number_format($amountPaid, 0, ',', ' ') }} Ariary</span>
+                                    <span class="amount-value">{{ number_format($amountPaid, 0, ',', ' ') }} Ar</span>
                                 </div>
                             @endif
                             <div class="amount-line-highlight">
-                                <span class="amount-label-highlight">• Vola mbola tokony haloa:</span>
-                                <span class="amount-value-highlight">{{ number_format($amountDue, 0, ',', ' ') }} Ariary</span>
+                                <span class="amount-label-highlight">• Vola mbola haloa:</span>
+                                <span class="amount-value-highlight">{{ number_format($amountDue, 0, ',', ' ') }} Ar</span>
                             </div>
                         </div>
                     </div>
                     
                     <div class="footer-section">
                         <div class="deadline-info">
-                            Daty farany hanaovana fandoavam-bola:
-                            <div class="deadline-date">{{ date('d/m/Y', strtotime($payment_deadline)) }}</div>
+                            Daty farany: <span class="deadline-date">{{ date('d/m/Y', strtotime($payment_deadline)) }}</span>
                         </div>
                         
                         <div class="thanks">
-                            misaotra amin'ny fiaraha-miasa sy ny fandraisana andrakitra
+                            misaotra amin'ny fiaraha-miasa
                         </div>
                         
                         <div class="status-info">
                             <span class="status-chip">
                                 @if($isOverdue)
-                                    Tara daty
+                                    Tara
                                 @elseif(($amountDue ?? 0) > 0)
-                                    Mbola misy sisa
+                                    Sisa
                                 @else
                                     VITA
                                 @endif

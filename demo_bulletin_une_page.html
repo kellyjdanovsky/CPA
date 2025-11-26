@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bulletin Optimisé Une Page - Logo à Droite</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        @page {
+            size: A4 landscape;
+            margin: 0.4cm 0.5cm;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100vh;
+            background-color: #fff;
+            font-family: 'Inter', 'Arial', sans-serif;
+            font-size: 7.5px;
+            line-height: 1.1;
+            color: #000;
+        }
+
+        .bulletin-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+        }
+
+        /* Logo en filigrane au centre - 20% opacité - RÉDUIT */
+        .bulletin-container::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 350px;
+            height: 350px;
+            background-image: url('/images/logo_avar.png');
+            background-size: contain;
+            background-repeat: no-repeat;
+            background-position: center;
+            opacity: 0.2;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Logo AGRANDI en haut à DROITE */
+        .school-logo {
+            position: absolute;
+            top: 5px;
+            right: 8px;
+            width: 80px;
+            height: 80px;
+            z-index: 10;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            background: white;
+            padding: 2px;
+        }
+
+        .school-logo img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .bulletin-content {
+            position: relative;
+            z-index: 1;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding-top: 5px;
+        }
+
+        .student-details {
+            background: #f0f0f0;
+            padding: 3px 6px;
+            border-bottom: 1px solid #333;
+        }
+
+        .student-details-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 3px;
+        }
+
+        .detail-item {
+            background: white;
+            padding: 2px 4px;
+            border-radius: 2px;
+            border-left: 2px solid #000;
+            font-size: 7px;
+            line-height: 1.1;
+        }
+
+        .detail-item strong {
+            font-weight: 700;
+            font-size: 6.5px;
+            display: block;
+            margin-bottom: 1px;
+        }
+
+        .marks-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 7.5px;
+            background: white;
+            flex-grow: 1;
+        }
+
+        .marks-table th {
+            background: #000;
+            color: #fff;
+            padding: 2px 1px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 8px;
+            border: 1px solid #000;
+            line-height: 1;
+        }
+
+        .marks-table td {
+            padding: 2px 1px;
+            text-align: center;
+            border: 1px solid #333;
+            vertical-align: middle;
+            line-height: 1;
+        }
+
+        .marks-table tbody tr:nth-child(even) {
+            background: #f5f5f5;
+        }
+
+        .subject-name {
+            text-align: left !important;
+            font-weight: 600;
+            font-size: 8px;
+            padding-left: 3px !important;
+        }
+
+        .grade {
+            font-weight: 700;
+            font-size: 8px;
+        }
+
+        .summary-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 3px;
+            padding: 3px 6px;
+            background: #f0f0f0;
+        }
+
+        .summary-item {
+            background: white;
+            padding: 3px;
+            border-radius: 2px;
+            text-align: center;
+            border-top: 2px solid #000;
+        }
+
+        .summary-item h4 {
+            margin: 0 0 1px 0;
+            font-size: 7px;
+            font-weight: 700;
+            text-transform: uppercase;
+        }
+
+        .summary-item p {
+            margin: 0;
+            font-size: 10px;
+            font-weight: 800;
+        }
+
+        .footer-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 5px;
+            padding: 3px 6px;
+            border-top: 1px solid #333;
+        }
+
+        .comments h4,
+        .signatures h4 {
+            margin: 0 0 2px 0;
+            font-size: 8px;
+            font-weight: 700;
+            padding-bottom: 1px;
+            border-bottom: 1px solid #000;
+        }
+
+        .comments p {
+            margin: 0 0 1px 0;
+            font-size: 7px;
+            line-height: 1.1;
+        }
+
+        .signature-line {
+            height: 16px;
+            border-bottom: 1px solid #333;
+            margin: 2px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 6.5px;
+            font-weight: 600;
+        }
+
+        @media screen {
+            body {
+                background: #f5f5f5;
+                padding: 10px;
+            }
+
+            .bulletin-container {
+                max-width: 1200px;
+                margin: 0 auto;
+                box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+                background: white;
+                padding: 5px;
+            }
+
+            .school-logo {
+                background: white;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bulletin-container">
+        <!-- Logo AGRANDI en haut à DROITE -->
+        <div class="school-logo">
+            <img src="/images/logo_avar.png" alt="Logo"
+                onerror="this.style.border='2px dashed #ccc';this.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:10px;color:#999;\'>LOGO<br>80x80</div>'">
+        </div>
+
+        <div class="bulletin-content">
+            <!-- STUDENT DETAILS -->
+            <div class="student-details">
+                <div class="student-details-grid">
+                    <div class="detail-item"><strong>ÉTUDIANT:</strong> RAKOTO Jean Pierre</div>
+                    <div class="detail-item"><strong>CLASSE:</strong> Seconde A</div>
+                    <div class="detail-item"><strong>SECTION:</strong> Scientifique</div>
+                    <div class="detail-item"><strong>TRIMESTRE:</strong> 1er Trimestre 2024-2025</div>
+                </div>
+            </div>
+
+            <!-- MARKS TABLE ULTRA COMPACT -->
+            <table class="marks-table">
+                <thead>
+                    <tr>
+                        <th style="width: 20%;">Matières</th>
+                        <th style="width: 8%;">DS1<br>(20)</th>
+                        <th style="width: 8%;">DS2<br>(20)</th>
+                        <th style="width: 8%;">Ex.<br>(20)</th>
+                        <th style="width: 10%;">Moy.<br>(/20)</th>
+                        <th style="width: 7%;">Coef</th>
+                        <th style="width: 10%;">Total</th>
+                        <th style="width: 29%;">Appréciations</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td class="subject-name">Mathématiques</td>
+                        <td>15.5</td>
+                        <td>14.0</td>
+                        <td>16.5</td>
+                        <td class="grade">15.33</td>
+                        <td>4</td>
+                        <td class="grade">61.32</td>
+                        <td style="font-size: 6.5px;">Très bien</td>
+                    </tr>
+                    <tr>
+                        <td class="subject-name">Physique-Chimie</td>
+                        <td>13.0</td>
+                        <td>15.0</td>
+                        <td>14.5</td>
+                        <td class="grade">14.17</td>
+                        <td>3</td>
+                        <td class="grade">42.51</td>
+                        <td style="font-size: 6.5px;">Bien</td>
+                    </tr>
+                    <tr>
+                        <td class="subject-name">Sciences Vie Terre</td>
+                        <td>16.0</td>
+                        <td>15.5</td>
+                        <td>17.0</td>
+                        <td class="grade">16.17</td>
+                        <td>3</td>
+                        <td class="grade">48.51</td>
+                        <td style="font-size: 6.5px;">Excellent</td>
+                    </tr>
+                    <tr>
+                        <td class="subject-name">Français</td>
+                        <td>12.5</td>
+                        <td>13.0</td>
+                        <td>12.0</td>
+                        <td class="grade">12.50</td>
+                        <td>3</td>
+                        <td class="grade">37.50</td>
+                        <td style="font-size: 6.5px;">Assez bien</td>
+                    </tr>
+                    <tr>
+                        <td class="subject-name">Anglais</td>
+                        <td>14.0</td>
+                        <td>13.5</td>
+                        <td>15.0</td>
+                        <td class="grade">14.17</td>
+                        <td>2</td>
+                        <td class="grade">28.34</td>
+                        <td style="font-size: 6.5px;">Bien</td>
+                    </tr>
+                    <tr>
+                        <td class="subject-name">Histoire-Géographie</td>
+                        <td>11.0</td>
+                        <td>12.5</td>
+                        <td>13.0</td>
+                        <td class="grade">12.17</td>
+                        <td>2</td>
+                        <td class="grade">24.34</td>
+                        <td style="font-size: 6.5px;">Assez bien</td>
+                    </tr>
+                    <tr>
+                        <td class="subject-name">Sport (EPS)</td>
+                        <td>17.0</td>
+                        <td>16.5</td>
+                        <td>18.0</td>
+                        <td class="grade">17.17</td>
+                        <td>1</td>
+                        <td class="grade">17.17</td>
+                        <td style="font-size: 6.5px;">Excellent</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <!-- SUMMARY ULTRA COMPACT -->
+            <div class="summary-section">
+                <div class="summary-item">
+                    <h4>Total Points</h4>
+                    <p>259.69</p>
+                </div>
+                <div class="summary-item">
+                    <h4>Moy. Générale</h4>
+                    <p>14.43/20</p>
+                </div>
+                <div class="summary-item">
+                    <h4>Moy. Classe</h4>
+                    <p>12.85/20</p>
+                </div>
+                <div class="summary-item">
+                    <h4>Position</h4>
+                    <p>3ème / 30</p>
+                </div>
+            </div>
+
+            <!-- FOOTER ULTRA COMPACT -->
+            <div class="footer-section">
+                <div class="comments">
+                    <h4>Commentaires</h4>
+                    <p><strong>Prof. Principal:</strong> Excellent travail, continuer ainsi.</p>
+                    <p><strong>Directeur:</strong> Félicitations pour ces résultats.</p>
+                </div>
+                <div class="signatures">
+                    <h4>Signatures</h4>
+                    <div class="signature-line">Parent/Tuteur</div>
+                    <div class="signature-line">Prof. Principal</div>
+                    <div class="signature-line">Proviseur</div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

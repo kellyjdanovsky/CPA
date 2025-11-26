@@ -99,212 +99,598 @@
 @endphp
 
 <style>
-.bulletin-container {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 20px;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    background: #fff;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    border-radius: 8px;
-}
-
-.bulletin-header {
-    text-align: center;
-    border-bottom: 3px solid #007bff;
-    padding-bottom: 15px;
-    margin-bottom: 20px;
-}
-
-.school-title {
-    color: #007bff;
-    margin: 0 0 5px 0;
-    font-size: 28px;
-    font-weight: bold;
-}
-
-.exam-title {
-    color: #333;
-    margin: 10px 0;
-    font-size: 24px;
-    font-weight: bold;
-    text-transform: uppercase;
-}
-
-.school-info p {
-    margin: 3px 0;
-    color: #555;
-    font-size: 16px;
-}
-
-.student-details-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 10px;
-    margin-bottom: 20px;
-    padding: 15px;
-    background-color: #f8f9fa;
-    border-radius: 5px;
-}
-
-.detail-item {
-    padding: 8px;
-    font-size: 14px;
-}
-
-.detail-item strong {
-    color: #007bff;
-}
-
-.marks-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-bottom: 20px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.1);
-    font-size: 20px; /* Further increased base font size */
-}
-
-.marks-table th {
-    background-color: #007bff;
-    color: white;
-    padding: 20px; /* Increased padding */
-    text-align: center;
-    font-weight: bold;
-    font-size: 22px; /* Larger header font */
-}
-
-.marks-table td {
-    padding: 15px; /* Increased padding */
-    text-align: center;
-    border-bottom: 1px solid #ddd;
-    font-size: 20px; /* Larger cell font */
-}
-
-.marks-table tbody tr:nth-child(even) {
-    background-color: #f8f9fa;
-}
-
-.marks-table tbody tr:hover {
-    background-color: #e9ecef;
-}
-
-.subject-name {
-    text-align: left !important;
-    font-weight: bold;
-    font-size: 21px; /* Larger subject name font */
-}
-
-.grade {
-    font-weight: bold;
-    color: #007bff;
-    font-size: 21px; /* Larger grade font */
-}
-
-.summary-section {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 15px;
-    margin-bottom: 20px;
-}
-
-.summary-item {
-    text-align: center;
-    padding: 15px;
-    background-color: #e9f7fe;
-    border-radius: 5px;
-    box-shadow: 0 0 5px rgba(0,0,0,0.05);
-}
-
-.summary-item h4 {
-    margin: 0 0 10px 0;
-    color: #007bff;
-    font-size: 18px;
-}
-
-.summary-item p {
-    margin: 0;
-    font-size: 22px;
-    font-weight: bold;
-    color: #333;
-}
-
-.footer-section {
-    display: grid;
-    grid-template-columns: 2fr 1fr;
-    gap: 20px;
-    margin-top: 30px;
-    padding-top: 20px;
-    border-top: 2px solid #eee;
-}
-
-.comments, .signatures {
-    padding: 15px;
-}
-
-.comments h4, .signatures h4 {
-    color: #007bff;
-    margin-top: 0;
-    font-size: 20px;
-}
-
-.signature-line {
-    height: 60px;
-    border-bottom: 1px solid #999;
-    margin: 20px 0;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    color: #777;
-    font-size: 16px;
-}
-
-.no-print {
-    margin-top: 20px;
-}
-
-.no-print button {
-    background-color: #007bff;
-    color: white;
-    border: none;
-    padding: 12px 25px;
-    font-size: 16px;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.no-print button:hover {
-    background-color: #0056b3;
-}
-
-@media print {
-    .no-print {
-        display: none;
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+    
+    /* A4 Landscape Print Optimization */
+    @media print {
+        @page {
+            size: A4 landscape;
+            margin: 0.5cm;
+        }
+        
+        * {
+            color: #000 !important;
+            background: transparent !important;
+            -webkit-print-color-adjust: exact;
+            print-color-adjust: exact;
+        }
+        
+        body {
+            background-color: #fff;
+            font-family: 'Inter', sans-serif;
+            font-size: 9px;
+            line-height: 1.2;
+        }
+        
+        .bulletin-container {
+            width: 100%;
+            max-width: none;
+            margin: 0;
+            padding: 0;
+            box-shadow: none;
+            border-radius: 0;
+            border: none;
+        }
+        
+        .bulletin-header {
+            background: #000 !important;
+            color: #fff !important;
+            padding: 8px 0;
+            text-align: center;
+            border-bottom: 2px solid #000 !important;
+        }
+        
+        .school-title {
+            font-size: 16px;
+            font-weight: 800;
+            margin: 0 0 3px 0;
+            letter-spacing: 0.6px;
+        }
+        
+        .exam-title {
+            font-size: 13px;
+            font-weight: 700;
+            margin: 3px 0;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .school-info p {
+            margin: 1px 0;
+            color: #fff !important;
+            font-size: 9px;
+        }
+        
+        .student-details {
+            background: #f5f5f5 !important;
+            padding: 6px;
+            border-bottom: 1px solid #000 !important;
+        }
+        
+        .student-details-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 4px;
+            margin: 0;
+        }
+        
+        .detail-item {
+            background: white;
+            padding: 4px 6px;
+            border-radius: 2px;
+            border-left: 2px solid #000 !important;
+            font-size: 8px;
+            box-shadow: none;
+        }
+        
+        .detail-item strong {
+            color: #000 !important;
+            font-weight: 700;
+        }
+        
+        .marks-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+            font-size: 8px;
+            background: white;
+        }
+        
+        .marks-table th {
+            background: #000 !important;
+            color: #fff !important;
+            padding: 4px 2px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 9px;
+            border: 1px solid #000 !important;
+        }
+        
+        .marks-table td {
+            padding: 4px 2px;
+            text-align: center;
+            border: 1px solid #000 !important;
+            vertical-align: middle;
+        }
+        
+        .marks-table tbody tr:nth-child(even) {
+            background: #f8f8f8 !important;
+        }
+        
+        .subject-name {
+            text-align: left !important;
+            font-weight: 600;
+            color: #000 !important;
+            font-size: 9px;
+        }
+        
+        .grade {
+            font-weight: 700;
+            color: #000 !important;
+            font-size: 9px;
+        }
+        
+        .summary-section {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            padding: 6px;
+            background: #f5f5f5 !important;
+        }
+        
+        .summary-item {
+            background: white;
+            padding: 8px;
+            border-radius: 3px;
+            text-align: center;
+            box-shadow: none;
+            border-top: 2px solid #000 !important;
+        }
+        
+        .summary-item h4 {
+            margin: 0 0 4px 0;
+            color: #000 !important;
+            font-size: 8px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+        
+        .summary-item p {
+            margin: 0;
+            font-size: 12px;
+            font-weight: 800;
+            color: #000 !important;
+        }
+        
+        .footer-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 10px;
+            padding: 6px;
+            background: #ffffff;
+            border-top: 1px solid #000 !important;
+        }
+        
+        .comments, .signatures {
+            padding: 0;
+        }
+        
+        .comments h4, .signatures h4 {
+            color: #000 !important;
+            margin: 0 0 4px 0;
+            font-size: 9px;
+            font-weight: 700;
+            padding-bottom: 3px;
+            border-bottom: 1px solid #000 !important;
+        }
+        
+        .comments p {
+            margin: 0 0 3px 0;
+            font-size: 8px;
+            line-height: 1.2;
+        }
+        
+        .signature-line {
+            height: 25px;
+            border-bottom: 1px solid #000 !important;
+            margin: 4px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000 !important;
+            font-size: 7px;
+            font-weight: 600;
+        }
+        
+        .no-print {
+            display: none;
+        }
     }
     
-    .bulletin-container {
-        box-shadow: none;
-        padding: 0;
+    /* Screen-specific styling - Modern & Premium Design */
+    @media screen {
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 30px 0;
+        }
+        
+        .bulletin-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #ffffff;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            border-radius: 16px;
+            overflow: hidden;
+            animation: fadeIn 0.6s ease-in-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .bulletin-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 35px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .bulletin-header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+            animation: pulse 4s ease-in-out infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); opacity: 0.5; }
+            50% { transform: scale(1.1); opacity: 0.8; }
+        }
+        
+        .school-title {
+            font-size: 32px;
+            font-weight: 800;
+            margin: 0 0 10px 0;
+            letter-spacing: 1.5px;
+            text-transform: uppercase;
+            position: relative;
+            z-index: 1;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .exam-title {
+            font-size: 24px;
+            font-weight: 700;
+            margin: 12px 0 8px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            z-index: 1;
+            background: rgba(255,255,255,0.2);
+            padding: 8px 20px;
+            border-radius: 50px;
+            display: inline-block;
+        }
+        
+        .school-info p {
+            margin: 4px 0;
+            color: rgba(255,255,255,0.95);
+            font-size: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .student-details {
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            padding: 25px;
+            border-bottom: none;
+        }
+        
+        .student-details-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 15px;
+            margin: 0;
+        }
+        
+        .detail-item {
+            background: white;
+            padding: 15px 18px;
+            border-radius: 10px;
+            border-left: 5px solid #667eea;
+            font-size: 14px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+        }
+        
+        .detail-item:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.2);
+        }
+        
+        .detail-item strong {
+            color: #667eea;
+            font-weight: 700;
+            display: block;
+            margin-bottom: 4px;
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .marks-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 0;
+            font-size: 14px;
+            background: white;
+        }
+        
+        .marks-table th {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 16px 12px;
+            text-align: center;
+            font-weight: 700;
+            font-size: 13px;
+            border: none;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .marks-table td {
+            padding: 14px 10px;
+            text-align: center;
+            border-bottom: 1px solid #e9ecef;
+            vertical-align: middle;
+        }
+        
+        .marks-table tbody tr {
+            transition: all 0.2s ease;
+        }
+        
+        .marks-table tbody tr:nth-child(even) {
+            background-color: #f8f9fa;
+        }
+        
+        .marks-table tbody tr:hover {
+            background: linear-gradient(135deg, #e3f2fd 0%, #f3e5f5 100%);
+            transform: scale(1.01);
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+        }
+        
+        .subject-name {
+            text-align: left !important;
+            font-weight: 700;
+            color: #2c3e50;
+            font-size: 14px;
+        }
+        
+        .grade {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 15px;
+        }
+        
+        .summary-section {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .summary-item {
+            background: white;
+            padding: 25px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            border-top: 5px solid #667eea;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .summary-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(102, 126, 234, 0.1), transparent);
+            transition: left 0.5s;
+        }
+        
+        .summary-item:hover::before {
+            left: 100%;
+        }
+        
+        .summary-item:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(102, 126, 234, 0.25);
+        }
+        
+        .summary-item h4 {
+            margin: 0 0 12px 0;
+            color: #667eea;
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .summary-item p {
+            margin: 0;
+            font-size: 28px;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .footer-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 25px;
+            padding: 30px;
+            background: #ffffff;
+            border-top: 3px solid #667eea;
+        }
+        
+        .comments, .signatures {
+            padding: 0;
+        }
+        
+        .comments h4, .signatures h4 {
+            color: #667eea;
+            margin: 0 0 15px 0;
+            font-size: 18px;
+            font-weight: 700;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #667eea;
+        }
+        
+        .comments p {
+            margin: 0 0 12px 0;
+            font-size: 14px;
+            line-height: 1.6;
+            color: #2c3e50;
+        }
+        
+        .comments p strong {
+            color: #667eea;
+            font-weight: 700;
+        }
+        
+        .signature-line {
+            height: 60px;
+            border-bottom: 2px solid #bdc3c7;
+            margin: 18px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #7f8c8d;
+            font-size: 13px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        
+        .signature-line:hover {
+            border-bottom-color: #667eea;
+            color: #667eea;
+        }
+        
+        .no-print {
+            text-align: center;
+            padding: 30px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .no-print button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 16px 40px;
+            font-size: 16px;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .no-print button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 12px 35px rgba(102, 126, 234, 0.5);
+        }
+        
+        .no-print button:active {
+            transform: translateY(-1px);
+        }
     }
     
-    .marks-table {
-        font-size: 18px;
+    /* Responsive design for mobile */
+    @media (max-width: 768px) {
+        body {
+            padding: 15px 0;
+        }
+        
+        .student-details-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .summary-section {
+            grid-template-columns: repeat(2, 1fr);
+            padding: 20px 15px;
+        }
+        
+        .footer-section {
+            grid-template-columns: 1fr;
+            padding: 20px 15px;
+        }
+        
+        .marks-table {
+            font-size: 12px;
+        }
+        
+        .marks-table th, .marks-table td {
+            padding: 10px 6px;
+        }
+        
+        .bulletin-container {
+            margin: 10px;
+            border-radius: 12px;
+        }
+        
+        .bulletin-header {
+            padding: 25px 20px;
+        }
+        
+        .school-title {
+            font-size: 24px;
+        }
+        
+        .exam-title {
+            font-size: 18px;
+        }
     }
     
-    .marks-table th {
-        font-size: 20px;
-        padding: 15px;
+    @media (max-width: 480px) {
+        .summary-section {
+            grid-template-columns: 1fr;
+        }
+        
+        .student-details-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .bulletin-container {
+            margin: 5px;
+        }
+        
+        .marks-table {
+            font-size: 11px;
+        }
+        
+        .marks-table th, .marks-table td {
+            padding: 8px 4px;
+        }
     }
-    
-    .marks-table td {
-        font-size: 18px;
-        padding: 12px;
-    }
-    
-    .subject-name, .grade {
-        font-size: 19px;
-    }
-}
 </style>
 
 <div class="bulletin-container">

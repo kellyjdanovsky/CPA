@@ -837,6 +837,146 @@
             }
         }
 
+        // Fonction pour exporter avec les colonnes visibles
+        function exportCustomExcel() {
+            if (!window.inlineEditor || !window.inlineEditor.dataTable) {
+                alert('Le tableau n\'est pas initialisé correctement.');
+                return;
+            }
+
+            const dataTable = window.inlineEditor.dataTable;
+            
+            // Obtenir les colonnes actuellement visibles
+            const visibleColumns = dataTable.columns(':visible:not(.no-export)').indexes().toArray();
+            
+            if (visibleColumns.length === 0) {
+                alert('Aucune colonne visible à exporter.');
+                return;
+            }
+
+            // Mapper les indexes de colonnes aux noms de champs
+            const columnMapping = {
+                0: 'name',           // Nom
+                1: 'adm_no',         // N° d'admission
+                2: 'my_class_name',  // Classe
+                3: 'section_name',   // Section
+                4: 'dob',            // Date de naissance
+                5: 'age',            // Âge
+                6: 'address',        // Adresse
+                7: 'religion',       // Religion
+                8: 'status',         // Statut
+                9: 'student_type',   // Type
+                10: 'academic_status', // Statut académique
+                11: 'gender',        // Sexe
+                12: 'nom_p',         // Père/Tuteur
+                13: 'prof_p',        // Profession père
+                14: 'nom_m',         // Mère/Tutrice
+                15: 'prof_m',        // Profession mère
+                16: 'phone'          // Téléphone
+            };
+
+            // Obtenir les noms de colonnes visibles
+            const columnsToExport = visibleColumns.map(index => columnMapping[index]).filter(col => col);
+
+            // Créer le formulaire et soumettre
+            const form = document.createElement('form');
+            form.method = 'GET';
+            form.action = '{{ route("students.export") }}';
+
+            // Ajouter le champ CSRF
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+
+            // Ajouter les colonnes à exporter
+            const columnsInput = document.createElement('input');
+            columnsInput.type = 'hidden';
+            columnsInput.name = 'columns';
+            columnsInput.value = JSON.stringify(columnsToExport);
+            form.appendChild(columnsInput);
+
+            // Soumettre le formulaire
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        }
+
+        // Exposer la fonction globalement
+        window.exportCustomExcel = exportCustomExcel;
+
     });
 </script>
 @endsection
+
+        // Fonction pour exporter avec les colonnes visibles
+        function exportCustomExcel() {
+            if (!window.inlineEditor || !window.inlineEditor.dataTable) {
+                alert('Le tableau n\'est pas initialisé correctement.');
+                return;
+            }
+
+            const dataTable = window.inlineEditor.dataTable;
+            
+            // Obtenir les colonnes actuellement visibles
+            const visibleColumns = dataTable.columns(':visible:not(.no-export)').indexes().toArray();
+            
+            if (visibleColumns.length === 0) {
+                alert('Aucune colonne visible à exporter.');
+                return;
+            }
+
+            // Mapper les indexes de colonnes aux noms de champs
+            const columnMapping = {
+                0: 'name',           // Nom
+                1: 'adm_no',         // N° d'admission
+                2: 'my_class_name',  // Classe
+                3: 'section_name',   // Section
+                4: 'dob',            // Date de naissance
+                5: 'age',            // Âge
+                6: 'address',        // Adresse
+                7: 'religion',       // Religion
+                8: 'status',         // Statut
+                9: 'student_type',   // Type
+                10: 'academic_status', // Statut académique
+                11: 'gender',        // Sexe
+                12: 'nom_p',         // Père/Tuteur
+                13: 'prof_p',        // Profession père
+                14: 'nom_m',         // Mère/Tutrice
+                15: 'prof_m',        // Profession mère
+                16: 'phone'          // Téléphone
+            };
+
+            // Obtenir les noms de colonnes visibles
+            const columnsToExport = visibleColumns.map(index => columnMapping[index]).filter(col => col);
+
+            // Créer le formulaire et soumettre
+            const form = document.createElement('form');
+            form.method = 'GET';
+            form.action = '{{ route("students.export") }}';
+
+            // Ajouter le champ CSRF
+            const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+            const csrfInput = document.createElement('input');
+            csrfInput.type = 'hidden';
+            csrfInput.name = '_token';
+            csrfInput.value = csrfToken;
+            form.appendChild(csrfInput);
+
+            // Ajouter les colonnes à exporter
+            const columnsInput = document.createElement('input');
+            columnsInput.type = 'hidden';
+            columnsInput.name = 'columns';
+            columnsInput.value = JSON.stringify(columnsToExport);
+            form.appendChild(columnsInput);
+
+            // Soumettre le formulaire
+            document.body.appendChild(form);
+            form.submit();
+            document.body.removeChild(form);
+        }
+
+        // Exposer la fonction globalement
+        window.exportCustomExcel = exportCustomExcel;
