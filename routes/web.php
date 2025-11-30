@@ -49,6 +49,9 @@ Route::group(['middleware' => 'auth'], function () {
     /*************** Support Team *****************/
     Route::group(['namespace' => 'SupportTeam',], function(){
 
+        /*************** Analytics *****************/
+        Route::get('analytics', 'AnalyticsController@index')->name('analytics');
+
         /*************** Students *****************/
         Route::group(['prefix' => 'students'], function(){
             Route::get('reset_pass/{st_id}', 'StudentRecordController@reset_pass')->name('st.reset_pass');
@@ -59,6 +62,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('export', 'StudentRecordController@export')->name('students.export')->middleware('teamSAT');
             Route::get('statistics/detailed', 'StudentStatisticsController@getDetailedStatistics')->name('students.statistics.detailed')->middleware('teamSAT');
             Route::get('statistics/export', 'StudentStatisticsController@exportStatistics')->name('students.statistics.export')->middleware('teamSAT');
+            Route::post('bulk_action', 'StudentRecordController@bulkAction')->name('students.bulk_action');
 
             /* Promotions */
             Route::post('promote_selector', 'PromotionController@selector')->name('students.promote_selector');
@@ -336,6 +340,8 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('get_class_subjects/{class_id}', 'AjaxController@get_class_subjects')->name('get_class_subjects');
         Route::get('get_available_years', 'AjaxController@get_available_years')->name('ajax.get_available_years');
         Route::post('update_student_field', 'AjaxController@update_student_field')->name('ajax.update_student_field');
+        Route::get('search_students', 'AjaxController@search_students')->name('ajax.search_students');
+        Route::get('global-search', 'AjaxController@globalSearch')->name('ajax.global_search');
     });
 
 });

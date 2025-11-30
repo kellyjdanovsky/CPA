@@ -74,20 +74,6 @@ window.addEventListener('error', function(e) {
 <!-- Phase 2: Global Search -->
 <script src="{{ asset('assets/js/phase2-search.js') }}"></script>
 
-<!-- Phase 3: Analytics & Charts -->
-<script src="{{ asset('assets/js/phase3-analytics.js') }}"></script>
-
-<!-- Phase 3: Bulk Actions -->
-<script src="{{ asset('assets/js/phase3-bulkactions.js') }}"></script>
-
-<!-- Chart.js (Pour les graphiques Phase 3) -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
-<!-- Initialisation post-chargement -->
-<script>
-$(document).ready(function() {
-    console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #667eea; font-weight: bold;');
-    console.log('%c   CPA AVARA - Modern Dashboard', 'color: #667eea; font-size: 16px; font-weight: bold;');
     console.log('%c━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'color: #667eea; font-weight: bold;');
     
     // Phase 1

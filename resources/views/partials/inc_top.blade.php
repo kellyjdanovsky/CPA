@@ -40,8 +40,11 @@
 {{-- Modern Components - Composants UI modernes (toast, modal, etc.) --}}
 <link href=" {{ asset('assets/css/modern-components.css') }}" rel="stylesheet" type="text/css">
 
-{{-- Dark Mode - Mode sombre/clair --}}
-<link href=" {{ asset('assets/css/dark-mode.css') }}" rel="stylesheet" type="text/css">
+{{-- Dark Mode Optimisé - Mode sombre/clair performant --}}
+<link href=" {{ asset('dist/css/dark-mode.css') }}" rel="stylesheet" type="text/css">
+
+{{-- Lazy Loading - Chargement différé des images --}}
+<link href=" {{ asset('dist/css/lazy-load.css') }}" rel="stylesheet" type="text/css">
 
 {{-- Responsive Design - Adaptation mobile/tablette/desktop --}}
 <link href=" {{ asset('assets/css/responsive.css') }}" rel="stylesheet" type="text/css">

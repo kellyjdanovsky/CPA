@@ -106,7 +106,7 @@ class StudentRecordController extends Controller
         $data['my_class'] = $mc = $this->my_class->getMC(['id' => $class_id])->first();
         $data['students'] = $this->student->findStudentsByClass($class_id);
         $data['sections'] = $this->my_class->getClassSections($class_id);
-        $data['all_students'] = $this->student->getAll()->get()->sortBy('user.name');
+        $data['all_students'] = $this->student->getAllSorted()->get();
         $data['my_classes'] = $this->my_class->all();
 
         return is_null($mc) ? Qs::goWithDanger() : view('pages.support_team.students.list', $data);
@@ -114,7 +114,7 @@ class StudentRecordController extends Controller
 
     public function listAll()
     {
-        $data['all_students'] = $this->student->getAll()->get()->sortBy('user.name');
+        $data['all_students'] = $this->student->getAllSorted()->get();
         $data['my_classes'] = $this->my_class->all();
 
         // Récupérer des statistiques pour le nouvel onglet
@@ -402,4 +402,35 @@ class StudentRecordController extends Controller
             ->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
 
+    public function bulkAction(Request $request)
+    {
+        $action = $request->action;
+        $ids = $request->ids;
+        $decodedIds = array_map(function($id) { return Qs::decodeHash($id); }, $ids);
+
+        switch ($action) {
+            case 'delete':
+                if(!Qs::userIsSuperAdmin()){
+                    return response()->json(['message' => 'Non autorisé.'], 403);
+                }
+                foreach ($decodedIds as $id) {
+                    $this->student->delete($id);
+                }
+                break;
+            case 'change_status':
+                $status = $request->status;
+                foreach ($decodedIds as $id) {
+                    $st = $this->student->find($id);
+                    if($st && $st->user) {
+                        $st->user->update(['status' => $status]);
+                    }
+                }
+                break;
+            case 'promote':
+                return response()->json(['message' => 'La promotion en masse nécessite une interface dédiée.'], 400);
+                break;
+        }
+
+        return response()->json(['success' => true]);
+    }
 }

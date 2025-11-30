@@ -344,4 +344,64 @@ class AjaxController extends Controller
             \Log::error('Trace: ' . $e->getTraceAsString());
         }
     }
+    public function search_students(Request $request)
+    {
+        $term = $request->term;
+        if(!$term) return response()->json([]);
+
+        $students = $this->student->activeStudents()
+            ->whereHas('user', function($q) use ($term) {
+                $q->where('name', 'like', '%'.$term.'%')
+                  ->orWhere('username', 'like', '%'.$term.'%'); // adm_no est souvent le username
+            })
+            ->with(['user', 'my_class', 'section'])
+            ->take(10)
+            ->get();
+
+        $results = $students->map(function($s) {
+            return [
+                'id' => Qs::hash($s->id),
+                'text' => $s->user->name . ' (' . $s->adm_no . ') - ' . $s->my_class->name,
+                'url' => route('students.show', Qs::hash($s->id))
+            ];
+        });
+
+        return response()->json($results);
+    }
+
+    public function globalSearch(Request $request)
+    {
+        $query = $request->q;
+        if(!$query || strlen($query) < 2) return response()->json(['total' => 0]);
+
+        $results = [
+            'students' => [],
+            'teachers' => [],
+            'classes' => [],
+            'pages' => [],
+            'total' => 0
+        ];
+
+        // 1. Recherche Étudiants
+        $students = $this->student->activeStudents()
+            ->whereHas('user', function($q) use ($query) {
+                $q->where('name', 'like', '%'.$query.'%')
+                  ->orWhere('username', 'like', '%'.$query.'%');
+            })
+            ->with(['user', 'my_class', 'section'])
+            ->take(5)
+            ->get();
+
+        foreach($students as $s) {
+            $results['students'][] = [
+                'name' => $s->user->name,
+                'subtitle' => $s->my_class->name . ' ' . $s->section->name . ' (' . $s->adm_no . ')',
+                'photo' => $s->user->photo,
+                'url' => route('students.show', Qs::hash($s->id))
+            ];
+            $results['total']++;
+        }
+
+        return response()->json($results);
+    }
 }

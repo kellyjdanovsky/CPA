@@ -775,157 +775,14 @@ public function checkUnpaid(Request $request)
             return $student->user !== null;
         });
 
-    // Préparer les données pour la vue
-    $unpaidStudents = [];
+    // Utiliser la méthode optimisée pour filtrer les étudiants
+    $unpaidStudents = $this->filterUnpaidStudents($students, $payments);
 
-    foreach ($students as $student) {
-        // Récupérer le statut de l'étudiant
-        $status = $student->user->status ?? 'Normal';
-
-        // Ignorer les étudiants avec le statut TEAM3
-        if ($status === 'TEAM3') {
-            continue;
-        }
-
-        // Initialiser les variables pour ce student
-        $totalAmountToPay = 0;
-        $totalAmountPaid = 0;
-        $totalAmountDue = 0;
-        $lastPaymentDate = null;
-        $paymentRecords = [];
-        $paymentTitles = [];
-
-        // Pour chaque paiement sélectionné
-        foreach ($payments as $payment) {
-            // Récupérer l'enregistrement de paiement avec les reçus
-            $paymentRecord = PaymentRecord::with('receipt')
-                ->where('student_id', $student->user_id)
-                ->where('payment_id', $payment->id)
-                ->first();
-
-            if (!$paymentRecord) {
-                continue; // Ignorer si aucun enregistrement de paiement n'existe
-            }
-
-            // Ajouter le titre du paiement à la liste
-            $paymentTitles[] = $payment->title;
-
-            // Récupérer le montant total des reçus pour cet enregistrement
-            $totalReceiptAmount = 0;
-            $receipts = $paymentRecord->receipt;
-            if ($receipts && $receipts->count() > 0) {
-                $totalReceiptAmount = $receipts->sum('amt_paid');
-                
-                // Mettre à jour la date du dernier paiement si nécessaire
-                $receiptDate = $receipts->sortByDesc('created_at')->first()->created_at;
-                if (!$lastPaymentDate || $receiptDate > $lastPaymentDate) {
-                    $lastPaymentDate = $receiptDate;
-                }
-            }
-
-            // Utiliser le montant des reçus si disponible, sinon utiliser amt_paid de l'enregistrement
-            $paidAmount = $totalReceiptAmount > 0 ? $totalReceiptAmount : ($paymentRecord->amt_paid ?: 0);
-
-            // S'assurer que le montant payé dans l'enregistrement est à jour
-            if ($totalReceiptAmount > 0 && $paymentRecord->amt_paid != $totalReceiptAmount) {
-                $paymentRecord->amt_paid = $totalReceiptAmount;
-                $paymentRecord->save();
-            }
-
-            // Calculer le montant dû selon le statut
-            $amountDue = 0;
-            if ($status === 'ADRA') {
-                // Pour les élèves ADRA, le montant total à payer est 25% du montant total
-                $minimumRequired = $payment->amount * 0.25;
-                $totalAmountToPay += $minimumRequired;
-
-                // Si l'élève a déjà payé au moins 25%, le montant dû est 0
-                if ($paidAmount >= $minimumRequired) {
-                    $amountDue = 0;
-                    
-                    // Mettre à jour le statut de paiement pour refléter la règle ADRA
-                    if (!$paymentRecord->paid) {
-                        $paymentRecord->paid = 1;
-                        $paymentRecord->balance = 0;
-                        $paymentRecord->save();
-                    }
-                } else {
-                    // Sinon, le montant dû est ce qui reste à payer pour atteindre 25%
-                    $amountDue = $minimumRequired - $paidAmount;
-                }
-            } else {
-                // Pour les autres statuts, le montant total à payer est le montant total
-                $totalAmountToPay += $payment->amount;
-                
-                // Le montant dû est le montant total moins le montant payé
-                $amountDue = $payment->amount - $paidAmount;
-                
-                // Si le paiement est marqué comme payé, le montant dû est 0
-                if ($paymentRecord->paid) {
-                    $amountDue = 0;
-                }
-            }
-
-            // Si le montant dû est négatif, le mettre à 0
-            if ($amountDue < 0) {
-                $amountDue = 0;
-            }
-
-            // Ajouter le montant payé au total
-            $totalAmountPaid += $paidAmount;
-            
-            // Ajouter le montant dû au total
-            $totalAmountDue += $amountDue;
-
-            // Ajouter l'enregistrement de paiement à la liste
-            $paymentRecords[] = [
-                'record' => $paymentRecord,
-                'payment' => $payment,
-                'amount_due' => $amountDue,
-                'amount_paid' => $paidAmount
-            ];
-        }
-
-        // Si aucun paiement n'a été trouvé pour cet étudiant, passer au suivant
-        if (empty($paymentRecords)) {
-            continue;
-        }
-
-        // Si le type est "non payés", ne pas inclure les étudiants avec montant dû = 0
-        if ($student_type === 'unpaid') {
-            // Pour les étudiants ADRA, vérifier s'ils ont payé au moins 25% du montant total
-            // Si oui, ne pas les inclure dans la liste
-            if ($status === 'ADRA' && $totalAmountDue === 0) {
-                continue;
-            }
-
-            // Pour les étudiants normaux, vérifier s'ils ont payé complètement
-            // Si oui, ne pas les inclure dans la liste
-            if ($status === 'Normal' && $totalAmountDue === 0) {
-                continue;
-            }
-        }
-
-        // Déterminer l'état du paiement
-        $paymentState = 'Impayé';
-        if ($totalAmountDue === 0) {
-            $paymentState = 'Acquitté';
-        } else if ($totalAmountPaid > 0) {
-            $paymentState = 'Partiellement payé';
-        }
-
-        // Ajouter l'étudiant à la liste des impayés
-        $unpaidStudents[] = [
-            'student' => $student,
-            'payment_records' => $paymentRecords,
-            'status' => $status,
-            'amount_due' => $totalAmountDue,
-            'total_amount' => $totalAmountToPay,
-            'amount_paid' => $totalAmountPaid,
-            'last_payment_date' => $lastPaymentDate,
-            'payment_state' => $paymentState,
-            'payment_titles' => implode(', ', $paymentTitles)
-        ];
+    // Filtrer selon le type demandé (payé/impayé) si nécessaire
+    if ($student_type === 'unpaid') {
+        $unpaidStudents = array_filter($unpaidStudents, function($student) {
+            return $student['amount_due'] > 0;
+        });
     }
 
     return view('pages.support_team.payments.unpaid', [
@@ -2955,5 +2812,156 @@ private function generateMalagasyText($student, $paymentTitles, $amount, $deadli
     
     return $text;
 }
+
+    /**
+     * Filtrer les étudiants impayés avec optimisation des requêtes
+     */
+    private function filterUnpaidStudents($students, $payments)
+    {
+        // OPTIMISATION: Récupérer tous les PaymentRecords en une seule requête
+        $studentIds = $students->pluck('user_id')->toArray();
+        $paymentIds = $payments->pluck('id')->toArray();
+        
+        $allPaymentRecords = PaymentRecord::whereIn('student_id', $studentIds)
+            ->whereIn('payment_id', $paymentIds)
+            ->with('receipt')
+            ->get()
+            ->groupBy('student_id');
+
+        $unpaidStudents = [];
+
+        foreach ($students as $student) {
+            // Récupérer le statut de l'étudiant
+            $status = $student->user->status ?? 'Normal';
+
+            // Ignorer les étudiants avec le statut TEAM3
+            if ($status === 'TEAM3') {
+                continue;
+            }
+
+            // Initialiser les variables pour ce student
+            $totalAmountToPay = 0;
+            $totalAmountPaid = 0;
+            $totalAmountDue = 0;
+            $lastPaymentDate = null;
+            $paymentRecords = [];
+            $paymentTitles = [];
+            
+            // Récupérer les PR de cet étudiant depuis la collection pré-chargée
+            $studentPRs = $allPaymentRecords->get($student->user_id, collect());
+
+            // Pour chaque paiement sélectionné
+            foreach ($payments as $payment) {
+                // Récupérer l'enregistrement de paiement depuis la collection en mémoire
+                $paymentRecord = $studentPRs->where('payment_id', $payment->id)->first();
+
+                if (!$paymentRecord) {
+                    // Si pas d'enregistrement, tout est dû (sauf si ADRA)
+                    $amountDue = $payment->amount;
+                    if ($status === 'ADRA') {
+                        $amountDue = $payment->amount * 0.25;
+                    }
+                    
+                    $totalAmountToPay += ($status === 'ADRA' ? $payment->amount * 0.25 : $payment->amount);
+                    $totalAmountDue += $amountDue;
+                    
+                    continue; 
+                }
+
+                // Ajouter le titre du paiement à la liste
+                $paymentTitles[] = $payment->title;
+
+                // Récupérer le montant total des reçus pour cet enregistrement
+                $totalReceiptAmount = 0;
+                $receipts = $paymentRecord->receipt;
+                if ($receipts && $receipts->count() > 0) {
+                    $totalReceiptAmount = $receipts->sum('amt_paid');
+                    
+                    // Mettre à jour la date du dernier paiement si nécessaire
+                    $receiptDate = $receipts->sortByDesc('created_at')->first()->created_at;
+                    if (!$lastPaymentDate || $receiptDate > $lastPaymentDate) {
+                        $lastPaymentDate = $receiptDate;
+                    }
+                }
+
+                // Utiliser le montant des reçus si disponible, sinon utiliser amt_paid de l'enregistrement
+                $paidAmount = $totalReceiptAmount > 0 ? $totalReceiptAmount : ($paymentRecord->amt_paid ?: 0);
+
+                // Calculer le montant dû selon le statut
+                $amountDue = 0;
+                if ($status === 'ADRA') {
+                    // Pour les élèves ADRA, le montant total à payer est 25% du montant total
+                    $minimumRequired = $payment->amount * 0.25;
+                    $totalAmountToPay += $minimumRequired;
+
+                    // Si l'élève a déjà payé au moins 25%, le montant dû est 0
+                    if ($paidAmount >= $minimumRequired) {
+                        $amountDue = 0;
+                    } else {
+                        // Sinon, le montant dû est ce qui reste à payer pour atteindre 25%
+                        $amountDue = $minimumRequired - $paidAmount;
+                    }
+                } else {
+                    // Pour les autres statuts, le montant total à payer est le montant total
+                    $totalAmountToPay += $payment->amount;
+                    
+                    // Le montant dû est le montant total moins le montant payé
+                    $amountDue = $payment->amount - $paidAmount;
+                    
+                    // Si le paiement est marqué comme payé, le montant dû est 0
+                    if ($paymentRecord->paid) {
+                        $amountDue = 0;
+                    }
+                }
+
+                // Si le montant dû est négatif, le mettre à 0
+                if ($amountDue < 0) {
+                    $amountDue = 0;
+                }
+
+                // Ajouter le montant payé au total
+                $totalAmountPaid += $paidAmount;
+                
+                // Ajouter le montant dû au total
+                $totalAmountDue += $amountDue;
+
+                // Ajouter l'enregistrement de paiement à la liste
+                $paymentRecords[] = [
+                    'record' => $paymentRecord,
+                    'payment' => $payment,
+                    'amount_due' => $amountDue,
+                    'amount_paid' => $paidAmount
+                ];
+            }
+
+            // Si le montant dû total est 0, on passe (sauf si on veut tout voir, mais ici on filtre les impayés)
+            if ($totalAmountDue <= 0) {
+                continue;
+            }
+
+            // Déterminer l'état du paiement
+            $paymentState = 'Impayé';
+            if ($totalAmountDue === 0) {
+                $paymentState = 'Acquitté';
+            } else if ($totalAmountPaid > 0) {
+                $paymentState = 'Partiellement payé';
+            }
+
+            // Ajouter l'étudiant à la liste des impayés
+            $unpaidStudents[] = [
+                'student' => $student,
+                'payment_records' => $paymentRecords,
+                'status' => $status,
+                'amount_due' => $totalAmountDue,
+                'total_amount' => $totalAmountToPay,
+                'amount_paid' => $totalAmountPaid,
+                'last_payment_date' => $lastPaymentDate,
+                'payment_state' => $paymentState,
+                'payment_titles' => implode(', ', $paymentTitles)
+            ];
+        }
+        
+        return $unpaidStudents;
+    }
 
 }

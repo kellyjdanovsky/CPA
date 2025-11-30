@@ -13,7 +13,7 @@ class StudentRepo {
 
     public function findStudentsByClass($class_id)
     {
-        return $this->activeStudents()->where(['my_class_id' => $class_id])->with(['my_class', 'user'])->get()->sortBy('user.name');
+        return $this->activeStudents()->where(['my_class_id' => $class_id])->with(['my_class', 'user', 'section'])->get()->sortBy('user.name');
     }
 
     public function activeStudents()
@@ -88,7 +88,16 @@ class StudentRepo {
 
     public function getAll()
     {
-        return $this->activeStudents()->with('user');
+        return $this->activeStudents()->with(['user', 'my_class', 'section']);
+    }
+
+    public function getAllSorted()
+    {
+        return $this->activeStudents()
+            ->join('users', 'student_records.user_id', '=', 'users.id')
+            ->orderBy('users.name')
+            ->select('student_records.*')
+            ->with(['user', 'my_class', 'section']);
     }
 
     public function getGradRecord($data=[])
@@ -137,12 +146,12 @@ class StudentRepo {
     {
         // Rechercher les élèves par nom dans une session spécifique
         return StudentRecord::where('session', $session)
-            ->whereHas('user', function($query) use ($name) {
-                $query->where('name', 'like', '%'.$name.'%');
-            })
+            ->join('users', 'student_records.user_id', '=', 'users.id')
+            ->where('users.name', 'like', '%'.$name.'%')
+            ->select('student_records.*')
             ->with(['user', 'my_class', 'section'])
-            ->get()
-            ->sortBy('user.name');
+            ->orderBy('users.name')
+            ->get();
     }
 
 }

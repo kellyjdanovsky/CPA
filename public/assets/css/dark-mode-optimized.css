@@ -1,6 +1,6 @@
 /* ==========================================================================
-   CPA - Mode Sombre/Clair (Dark/Light Mode)
-   Système complet de thème avec transition fluide
+   CPA - Mode Sombre/Clair OPTIMISÉ (Dark/Light Mode)
+   ⚡ Version Phase 1 - Performance améliorée
    ========================================================================== */
 
 /* ========== 1. VARIABLES DU MODE CLAIR (par défaut) ========== */
@@ -88,12 +88,61 @@
     --overlay-bg: rgba(0, 0, 0, 0.7);
 }
 
-/* ========== 3. APPLICATION DES VARIABLES ========== */
+/* ========== 3. TRANSITIONS OPTIMISÉES ⚡ ========== */
+/* Au lieu de "*" qui affecte TOUS les éléments, on cible seulement ceux qui en ont besoin */
+body,
+.card,
+.card-header,
+.card-body,
+.sidebar,
+.sidebar .nav-link,
+.page-header,
+.btn,
+.form-control,
+.table,
+.table thead th,
+.table td,
+.table tbody tr,
+.modal-content,
+.modal-header,
+.modal-footer,
+.dropdown-menu,
+.dropdown-item,
+.breadcrumb,
+.page-item .page-link,
+.modern-stat-card,
+.quick-action-card,
+.info-card,
+.modern-toast,
+.modern-modal,
+.theme-toggle,
+.theme-toggle-switch,
+input[type="text"],
+input[type="email"],
+input[type="password"],
+select,
+textarea,
+.alert {
+    transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+}
+
+/* Explicitement exclure les éléments animés */
+.no-transition,
+.progress-bar,
+.spinner,
+.animated,
+[class*="animate"],
+img,
+svg,
+canvas {
+    transition: none !important;
+}
+
+/* ========== 4. APPLICATION DES VARIABLES ========== */
 
 body {
     background-color: var(--bg-secondary);
     color: var(--text-primary);
-    transition: background-color 0.3s ease, color 0.3s ease;
 }
 
 /* Cartes */
@@ -257,7 +306,7 @@ select.form-control option {
     border-color: var(--color-primary);
 }
 
-/* ========== 4. TOGGLE BUTTON MODE SOMBRE ========== */
+/* ========== 5. TOGGLE BUTTON MODE SOMBRE ========== */
 
 .theme-toggle {
     position: relative;
@@ -326,7 +375,7 @@ select.form-control option {
     opacity: 0.3;
 }
 
-/* ========== 5. COMPOSANTS SPÉCIFIQUES ========== */
+/* ========== 6. COMPOSANTS SPÉCIFIQUES ========== */
 
 /* Modern stat cards */
 .modern-stat-card {
@@ -394,7 +443,7 @@ select.form-control option {
     color: var(--text-primary);
 }
 
-/* ========== 6. DASHBOARD SPÉCIFIQUE ========== */
+/* ========== 7. DASHBOARD SPÉCIFIQUE ========== */
 
 .modern-dashboard-header {
     /* Le gradient reste visible en mode sombre */
@@ -408,7 +457,7 @@ select.form-control option {
     color: var(--text-primary);
 }
 
-/* ========== 7. IMPRESSIONS (garde le mode clair) ========== */
+/* ========== 8. IMPRESSIONS (garde le mode clair) ========== */
 
 @media print {
     :root {
@@ -432,8 +481,8 @@ select.form-control option {
         color: black;
     }
 
-    [class*="animate"] {
-        transition: none !important;
+    .theme-toggle {
+        display: none !important;
     }
 }
 
