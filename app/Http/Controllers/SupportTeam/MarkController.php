@@ -252,6 +252,7 @@ class MarkController extends Controller
             $d['rang'] = $exr; // Utiliser l'enregistrement d'examen qui contient les champs decision, next_class_id, observations
         }
 
+        $d['grades'] = $this->exam->allGrades();
         return view('pages.support_team.marks.print.index', $d);
     }
     
@@ -336,6 +337,7 @@ class MarkController extends Controller
             return [$s->type => $s->description];
         });
         
+        $d['grades'] = $this->exam->allGrades();
         return view('pages.support_team.marks.print.multiple', $d);
     }
 

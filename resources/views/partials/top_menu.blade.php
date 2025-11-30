@@ -33,6 +33,13 @@
 			<span class="navbar-text ml-md-3 mr-md-auto"></span>
 
         <ul class="navbar-nav">
+            <!-- Dark Mode Toggle -->
+            <li class="nav-item mr-2">
+                <button id="dark-mode-toggle" class="dark-mode-toggle" onclick="window.darkMode.toggle()" title="Basculer le mode sombre">
+                    <i class="icon-moon"></i>
+                    <span class="toggle-text d-none d-lg-inline">Mode Sombre</span>
+                </button>
+            </li>
 
             <li class="nav-item dropdown dropdown-user">
                 <a href="#" class="navbar-nav-link dropdown-toggle" data-toggle="dropdown">

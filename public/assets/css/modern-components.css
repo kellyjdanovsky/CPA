@@ -1,0 +1,564 @@
+/* ==========================================================================
+   CPA - Composants UI Modernes (Toast, Modal, etc.)
+   ========================================================================== */
+
+/* ========== 1. TOAST NOTIFICATIONS ========== */
+.toast-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    max-width: 400px;
+}
+
+.modern-toast {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    padding: 1rem 1.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    position: relative;
+    overflow: hidden;
+    animation: slideInRight 0.3s ease-out;
+}
+
+.modern-toast::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: currentColor;
+}
+
+.modern-toast-success {
+    color: #22c55e;
+}
+
+.modern-toast-error {
+    color: #ef4444;
+}
+
+.modern-toast-warning {
+    color: #f59e0b;
+}
+
+.modern-toast-info {
+    color: #3b82f6;
+}
+
+.modern-toast .toast-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: currentColor;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.modern-toast .toast-content {
+    flex: 1;
+}
+
+.modern-toast .toast-content p {
+    margin: 0;
+    color: #374151;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.modern-toast .toast-close {
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 1.25rem;
+    padding: 0;
+    width: 24px;
+    height: 24px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.25rem;
+    transition: all 0.2s;
+}
+
+.modern-toast .toast-close:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(100%);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* ========== 2. MODERN MODAL ========== */
+.modern-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 9998;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+}
+
+.modern-modal {
+    background: white;
+    border-radius: 1rem;
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    max-width: 500px;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    animation: modalFadeIn 0.3s ease-out;
+}
+
+@keyframes modalFadeIn {
+    from {
+        opacity: 0;
+        transform: scale(0.95);
+    }
+
+    to {
+        opacity: 1;
+        transform: scale(1);
+    }
+}
+
+.modern-modal-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.modern-modal-header h5 {
+    margin: 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.modern-modal-close {
+    background: transparent;
+    border: none;
+    color: #9ca3af;
+    cursor: pointer;
+    font-size: 1.5rem;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 0.375rem;
+    transition: all 0.2s;
+}
+
+.modern-modal-close:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.modern-modal-body {
+    padding: 1.5rem;
+    max-height: 60vh;
+    overflow-y: auto;
+}
+
+.modern-modal-footer {
+    padding: 1rem 1.5rem;
+    border-top: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+/* ========== 3. LOADING SPINNER ========== */
+.spinner {
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ========== 4. FIELD VALIDATION ========== */
+.form-control.is-invalid {
+    border-color: #ef4444;
+    box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+.field-error {
+    color: #ef4444;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+.form-control.is-valid {
+    border-color: #22c55e;
+    box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}
+
+.field-success {
+    color: #22c55e;
+    font-size: 0.75rem;
+    margin-top: 0.25rem;
+    display: block;
+}
+
+/* ========== 5. DRAG & DROP ZONE ========== */
+.drop-zone {
+    border: 2px dashed #d1d5db;
+    border-radius: 0.75rem;
+    padding: 2rem;
+    text-align: center;
+    transition: all 0.3s;
+    cursor: pointer;
+    background: #f9fafb;
+}
+
+.drop-zone:hover {
+    border-color: #6366f1;
+    background: #eef2ff;
+}
+
+.drop-zone.drag-over {
+    border-color: #6366f1;
+    background: #eef2ff;
+    transform: scale(1.02);
+}
+
+.drop-zone-icon {
+    font-size: 3rem;
+    color: #9ca3af;
+    margin-bottom: 1rem;
+}
+
+.drop-zone-text {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.drop-zone-text strong {
+    color: #6366f1;
+}
+
+/* ========== 6. TABLE SORTING ========== */
+.modern-table th[data-sortable] {
+    user-select: none;
+    position: relative;
+}
+
+.modern-table th[data-sortable]:hover {
+    background: #e5e7eb;
+}
+
+.modern-table .sort-icon {
+    opacity: 0.3;
+    font-size: 0.75rem;
+    margin-left: 0.25rem;
+}
+
+.modern-table th.sort-asc .sort-icon {
+    opacity: 1;
+    transform: rotate(180deg);
+}
+
+.modern-table th.sort-desc .sort-icon {
+    opacity: 1;
+}
+
+/* ========== 7. PROGRESS BAR MODERNE ========== */
+.modern-progress {
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    overflow: hidden;
+    position: relative;
+}
+
+.modern-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, #6366f1, #8b5cf6);
+    border-radius: 999px;
+    transition: width 0.6s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.modern-progress-bar::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(90deg,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.3) 50%,
+            rgba(255, 255, 255, 0) 100%);
+    animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+    0% {
+        transform: translateX(-100%);
+    }
+
+    100% {
+        transform: translateX(100%);
+    }
+}
+
+/* ========== 8. SKELETON LOADING ========== */
+.skeleton {
+    background: linear-gradient(90deg,
+            #f3f4f6 25%,
+            #e5e7eb 50%,
+            #f3f4f6 75%);
+    background-size: 200% 100%;
+    animation: loading 1.5s infinite;
+    border-radius: 0.375rem;
+}
+
+@keyframes loading {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+.skeleton-text {
+    height: 1rem;
+    margin-bottom: 0.5rem;
+}
+
+.skeleton-title {
+    height: 1.5rem;
+    width: 60%;
+    margin-bottom: 1rem;
+}
+
+.skeleton-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+}
+
+/* ========== 9. BADGE MODERNE ========== */
+.modern-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0.375rem 0.75rem;
+    border-radius: 0.5rem;
+    font-size: 0.75rem;
+    font-weight: 600;
+    line-height: 1;
+}
+
+.modern-badge-primary {
+    background: rgba(99, 102, 241, 0.1);
+    color: #6366f1;
+}
+
+.modern-badge-success {
+    background: rgba(34, 197, 94, 0.1);
+    color: #22c55e;
+}
+
+.modern-badge-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #f59e0b;
+}
+
+.modern-badge-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.modern-badge-info {
+    background: rgba(59, 130, 246, 0.1);
+    color: #3b82f6;
+}
+
+/* ========== 10. AVATAR MODERNE ========== */
+.modern-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    overflow: hidden;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #6366f1, #8b5cf6);
+    color: white;
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.modern-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.modern-avatar-sm {
+    width: 32px;
+    height: 32px;
+    font-size: 0.75rem;
+}
+
+.modern-avatar-lg {
+    width: 56px;
+    height: 56px;
+    font-size: 1.25rem;
+}
+
+.modern-avatar-xl {
+    width: 80px;
+    height: 80px;
+    font-size: 1.75rem;
+}
+
+/* ========== 11. BREADCRUMBS MODERNE ========== */
+.modern-breadcrumb {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: white;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+}
+
+.modern-breadcrumb-item {
+    color: #6b7280;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.modern-breadcrumb-item:hover {
+    color: #6366f1;
+}
+
+.modern-breadcrumb-item.active {
+    color: #1f2937;
+    font-weight: 500;
+}
+
+.modern-breadcrumb-separator {
+    color: #d1d5db;
+}
+
+/* ========== 12. STATS CARD COMPACT ========== */
+.stat-card-compact {
+    background: white;
+    border-radius: 0.75rem;
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s;
+}
+
+.stat-card-compact:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card-compact-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 0.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+
+.stat-card-compact-content h4 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0 0 0.25rem;
+}
+
+.stat-card-compact-content p {
+    font-size: 0.75rem;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* ========== 13. RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .toast-container {
+        right: 10px;
+        left: 10px;
+        max-width: none;
+    }
+
+    .modern-modal {
+        margin: 0;
+    }
+}
+
+/* ========== 14. DARK MODE (Optionnel) ========== */
+@media (prefers-color-scheme: dark) {
+    .dark-mode .modern-toast {
+        background: #1f2937;
+    }
+
+    .dark-mode .modern-toast .toast-content p {
+        color: #e5e7eb;
+    }
+
+    .dark-mode .modern-modal {
+        background: #1f2937;
+    }
+
+    .dark-mode .modern-modal-header h5 {
+        color: #f9fafb;
+    }
+
+    .dark-mode .card {
+        background: #1f2937;
+        border-color: #374151;
+    }
+}

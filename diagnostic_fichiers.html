@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Diagnostic CPA - Fichiers CSS et JS</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 20px;
+            background: #f5f7fa;
+        }
+
+        h1 {
+            color: #1f2937;
+            border-bottom: 3px solid #6366f1;
+            padding-bottom: 10px;
+        }
+
+        h2 {
+            color: #4b5563;
+            margin-top: 30px;
+        }
+
+        .file-check {
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .file-path {
+            font-family: 'Courier New', monospace;
+            color: #374151;
+        }
+
+        .status {
+            padding: 5px 15px;
+            border-radius: 5px;
+            font-weight: bold;
+        }
+
+        .status.success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .status.error {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .status.loading {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .summary {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .summary-item {
+            text-align: center;
+            padding: 15px;
+            background: #f9fafb;
+            border-radius: 6px;
+        }
+
+        .summary-item .number {
+            font-size: 2rem;
+            font-weight: bold;
+        }
+
+        .summary-item .label {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+
+        .summary-item.success .number {
+            color: #22c55e;
+        }
+
+        .summary-item.error .number {
+            color: #ef4444;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>🔍 Diagnostic CPA - Vérification des Fichiers</h1>
+
+    <div class="summary">
+        <h3>Résumé</h3>
+        <div class="summary-grid">
+            <div class="summary-item success">
+                <div class="number" id="count-success">0</div>
+                <div class="label">Fichiers OK</div>
+            </div>
+            <div class="summary-item error">
+                <div class="number" id="count-error">0</div>
+                <div class="label">Fichiers Manquants</div>
+            </div>
+            <div class="summary-item">
+                <div class="number" id="count-total">0</div>
+                <div class="label">Total</div>
+            </div>
+        </div>
+    </div>
+
+    <h2>📁 Fichiers CSS</h2>
+    <div id="css-checks"></div>
+
+    <h2>⚡ Fichiers JavaScript</h2>
+    <div id="js-checks"></div>
+
+    <script>
+        const cssFiles = [
+            'assets/css/bootstrap.min.css',
+            'assets/css/bootstrap_limitless.min.css',
+            'assets/css/layout.min.css',
+            'assets/css/components.min.css',
+            'assets/css/colors.min.css',
+            'assets/css/bootstrap-datepicker.min.css',
+            'assets/css/qs.css',
+            'assets/css/modern-theme.css',
+            'assets/css/modern-design-system.css',
+            'assets/css/dashboard-pro.css',
+            'assets/css/modern-components.css',
+            'assets/css/modern_bulletin.css',
+            'css/dashboard-custom.css',
+            'css/dashboard-interactive.css',
+            'css/modern-dashboard.css',
+            'global_assets/css/icons/icomoon/styles.css'
+        ];
+
+        const jsFiles = [
+            'global_assets/js/main/jquery.min.js',
+            'global_assets/js/main/bootstrap.bundle.min.js',
+            'global_assets/js/plugins/loaders/blockui.min.js',
+            'global_assets/js/plugins/extensions/jquery_ui/interactions.min.js',
+            'global_assets/js/plugins/forms/selects/select2.min.js',
+            'global_assets/js/plugins/forms/wizards/steps.min.js',
+            'global_assets/js/plugins/forms/styling/uniform.min.js',
+            'global_assets/js/plugins/forms/inputs/inputmask.js',
+            'global_assets/js/plugins/forms/validation/validate.min.js',
+            'global_assets/js/plugins/extensions/cookie.js',
+            'global_assets/js/plugins/notifications/sweet_alert2.min.js',
+            'global_assets/js/plugins/notifications/pnotify.min.js',
+            'global_assets/js/plugins/tables/datatables/datatables.min.js',
+            'global_assets/js/plugins/tables/datatables/extensions/jszip/jszip.min.js',
+            'global_assets/js/plugins/tables/datatables/extensions/pdfmake/pdfmake.min.js',
+            'global_assets/js/plugins/tables/datatables/extensions/pdfmake/vfs_fonts.min.js',
+            'global_assets/js/plugins/tables/datatables/extensions/buttons.min.js',
+            'global_assets/js/plugins/ui/moment/moment.min.js',
+            'global_assets/js/plugins/pickers/bootstrap-datepicker.min.js',
+            'global_assets/js/plugins/pickers/pickadate/legacy.js',
+            'global_assets/js/plugins/uploaders/fileinput/fileinput.min.js',
+            'global_assets/js/plugins/ui/fullcalendar/fullcalendar.min.js',
+            'assets/js/app.js',
+            'assets/js/custom.js',
+            'assets/js/modern-ui.js',
+            'js/dashboard-interactive.js',
+            'js/modern-dashboard.js',
+            'global_assets/js/demo_pages/form_wizard.js',
+            'global_assets/js/demo_pages/form_select2.js',
+            'global_assets/js/demo_pages/datatables_extension_buttons_html5.js',
+            'global_assets/js/demo_pages/uploader_bootstrap.js',
+            'global_assets/js/demo_pages/fullcalendar_basic.js'
+        ];
+
+        let successCount = 0;
+        let errorCount = 0;
+
+        function checkFile(url, container) {
+            return new Promise((resolve) => {
+                const xhr = new XMLHttpRequest();
+                xhr.open('HEAD', url, true);
+                xhr.onload = function () {
+                    const exists = this.status === 200;
+                    const div = document.createElement('div');
+                    div.className = 'file-check';
+                    div.innerHTML = `
+                        <span class="file-path">${url}</span>
+                        <span class="status ${exists ? 'success' : 'error'}">
+                            ${exists ? '✓ OK' : '✗ MANQUANT'}
+                        </span>
+                    `;
+                    container.appendChild(div);
+
+                    if (exists) {
+                        successCount++;
+                    } else {
+                        errorCount++;
+                    }
+                    resolve(exists);
+                };
+                xhr.onerror = function () {
+                    const div = document.createElement('div');
+                    div.className = 'file-check';
+                    div.innerHTML = `
+                        <span class="file-path">${url}</span>
+                        <span class="status error">✗ ERREUR</span>
+                    `;
+                    container.appendChild(div);
+                    errorCount++;
+                    resolve(false);
+                };
+                xhr.send();
+            });
+        }
+
+        async function checkAllFiles() {
+            const cssContainer = document.getElementById('css-checks');
+            const jsContainer = document.getElementById('js-checks');
+
+            // Vérifier les CSS
+            for (const file of cssFiles) {
+                await checkFile(file, cssContainer);
+            }
+
+            // Vérifier les JS
+            for (const file of jsFiles) {
+                await checkFile(file, jsContainer);
+            }
+
+            // Mettre à jour le résumé
+            document.getElementById('count-success').textContent = successCount;
+            document.getElementById('count-error').textContent = errorCount;
+            document.getElementById('count-total').textContent = successCount + errorCount;
+
+            console.log(`%c✓ ${successCount} fichiers OK`, 'color: #22c55e; font-weight: bold;');
+            console.log(`%c✗ ${errorCount} fichiers manquants`, 'color: #ef4444; font-weight: bold;');
+        }
+
+        // Lancer la vérification au chargement
+        checkAllFiles();
+    </script>
+</body>
+
+</html>

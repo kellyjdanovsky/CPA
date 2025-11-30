@@ -1,0 +1,504 @@
+/* ========================================
+   PHASE 2 - DataTables Modernes
+   Tables avec design moderne et interactions fluides
+   ======================================== */
+
+/* ========== 1. TABLE MODERNE ========== */
+.modern-table-container {
+    background: white;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.modern-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+/* Table Header */
+.modern-table thead {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.modern-table thead th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    border: none;
+    white-space: nowrap;
+}
+
+.modern-table thead th:first-child {
+    border-top-left-radius: 0.75rem;
+}
+
+.modern-table thead th:last-child {
+    border-top-right-radius: 0.75rem;
+}
+
+/* Sortable columns */
+.modern-table thead th.sorting,
+.modern-table thead th.sorting_asc,
+.modern-table thead th.sorting_desc {
+    cursor: pointer;
+    position: relative;
+    padding-right: 2rem;
+}
+
+.modern-table thead th.sorting::after,
+.modern-table thead th.sorting_asc::after,
+.modern-table thead th.sorting_desc::after {
+    position: absolute;
+    right: 0.75rem;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.5;
+}
+
+.modern-table thead th.sorting::after {
+    content: '⇅';
+}
+
+.modern-table thead th.sorting_asc::after {
+    content: '↑';
+    opacity: 1;
+}
+
+.modern-table thead th.sorting_desc::after {
+    content: '↓';
+    opacity: 1;
+}
+
+/* Table Body */
+.modern-table tbody tr {
+    transition: all 0.2s ease;
+    border-bottom: 1px solid #f3f4f6;
+}
+
+.modern-table tbody tr:hover {
+    background: #f9fafb;
+    transform: scale(1.01);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.modern-table tbody td {
+    padding: 1rem;
+    color: #374151;
+    font-size: 0.9375rem;
+    vertical-align: middle;
+}
+
+/* Alternate row colors */
+.modern-table tbody tr:nth-child(even) {
+    background: #fafafa;
+}
+
+.modern-table tbody tr:nth-child(even):hover {
+    background: #f5f5f5;
+}
+
+/* ========== 2. TABLE CONTROLS ========== */
+.modern-table-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.modern-table-search {
+    position: relative;
+    flex: 1;
+    max-width: 400px;
+}
+
+.modern-table-search input {
+    width: 100%;
+    padding: 0.75rem 1rem 0.75rem 2.75rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.5rem;
+    font-size: 0.9375rem;
+    transition: all 0.2s ease;
+}
+
+.modern-table-search input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    outline: none;
+}
+
+.modern-table-search-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    pointer-events: none;
+}
+
+.modern-table-actions {
+    display: flex;
+    gap: 0.75rem;
+}
+
+/* ========== 3. TABLE BADGES ========== */
+.modern-table-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.375rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.modern-table-badge-success {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+.modern-table-badge-warning {
+    background: rgba(245, 158, 11, 0.1);
+    color: #d97706;
+}
+
+.modern-table-badge-danger {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+.modern-table-badge-info {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+}
+
+.modern-table-badge-gray {
+    background: rgba(107, 114, 128, 0.1);
+    color: #4b5563;
+}
+
+/* ========== 4. TABLE ACTIONS ========== */
+.modern-table-action-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: none;
+    border-radius: 0.375rem;
+    background: transparent;
+    color: #6b7280;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modern-table-action-btn:hover {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.modern-table-action-btn.edit:hover {
+    background: rgba(59, 130, 246, 0.1);
+    color: #2563eb;
+}
+
+.modern-table-action-btn.delete:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #dc2626;
+}
+
+.modern-table-action-btn.view:hover {
+    background: rgba(16, 185, 129, 0.1);
+    color: #059669;
+}
+
+/* ========== 5. PAGINATION MODERNE ========== */
+.modern-pagination {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem;
+    background: white;
+    border-top: 1px solid #e5e7eb;
+}
+
+.modern-pagination-info {
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.modern-pagination-buttons {
+    display: flex;
+    gap: 0.5rem;
+}
+
+.modern-pagination-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.5rem;
+    height: 2.5rem;
+    padding: 0 0.75rem;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.375rem;
+    background: white;
+    color: #374151;
+    font-size: 0.875rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modern-pagination-btn:hover:not(.active):not(:disabled) {
+    background: #f9fafb;
+    border-color: #d1d5db;
+}
+
+.modern-pagination-btn.active {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+}
+
+.modern-pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* ========== 6. COLUMN VISIBILITY TOGGLE ========== */
+.modern-column-toggle {
+    position: relative;
+}
+
+.modern-column-toggle-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1rem;
+    background: white;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.5rem;
+    color: #374151;
+    font-size: 0.9375rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modern-column-toggle-btn:hover {
+    border-color: #667eea;
+    color: #667eea;
+}
+
+.modern-column-toggle-menu {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    right: 0;
+    min-width: 250px;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    display: none;
+}
+
+.modern-column-toggle-menu.active {
+    display: block;
+}
+
+.modern-column-toggle-item {
+    display: flex;
+    align-items: center;
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.modern-column-toggle-item:hover {
+    background: #f9fafb;
+}
+
+.modern-column-toggle-item input[type="checkbox"] {
+    margin-right: 0.75rem;
+}
+
+/* ========== 7. BULK ACTIONS ========== */
+.modern-bulk-actions {
+    display: none;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem 1.5rem;
+    background: rgba(102, 126, 234, 0.05);
+    border-bottom: 1px solid #667eea;
+}
+
+.modern-bulk-actions.active {
+    display: flex;
+}
+
+.modern-bulk-actions-text {
+    font-weight: 600;
+    color: #667eea;
+}
+
+.modern-bulk-actions-buttons {
+    display: flex;
+    gap: 0.5rem;
+    margin-left: auto;
+}
+
+/* ========== 8. EMPTY STATE ========== */
+.modern-table-empty {
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.modern-table-empty-icon {
+    font-size: 4rem;
+    color: #d1d5db;
+    margin-bottom: 1rem;
+}
+
+.modern-table-empty-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.5rem;
+}
+
+.modern-table-empty-text {
+    color: #6b7280;
+    margin-bottom: 1.5rem;
+}
+
+/* ========== 9. LOADING STATE ========== */
+.modern-table-loading {
+    position: relative;
+    min-height: 400px;
+}
+
+.modern-table-loading::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(255, 255, 255, 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+/* ========== 10. RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .modern-table-controls {
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    .modern-table-search {
+        max-width: none;
+        width: 100%;
+    }
+
+    .modern-table-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .modern-table {
+        font-size: 0.875rem;
+    }
+
+    .modern-table thead {
+        display: none;
+    }
+
+    .modern-table tbody tr {
+        display: block;
+        margin-bottom: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 0.5rem;
+        overflow: hidden;
+    }
+
+    .modern-table tbody td {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .modern-table tbody td:last-child {
+        border-bottom: none;
+    }
+
+    .modern-table tbody td::before {
+        content: attr(data-label);
+        font-weight: 600;
+        color: #6b7280;
+        margin-right: 1rem;
+    }
+
+    .modern-pagination {
+        flex-direction: column;
+        gap: 1rem;
+    }
+}
+
+/* ========== 11. DARK MODE ========== */
+[data-theme="dark"] .modern-table-container {
+    background: #1f2937;
+}
+
+[data-theme="dark"] .modern-table tbody tr {
+    border-bottom-color: #374151;
+}
+
+[data-theme="dark"] .modern-table tbody tr:nth-child(even) {
+    background: #1a1f2e;
+}
+
+[data-theme="dark"] .modern-table tbody tr:hover {
+    background: #374151;
+}
+
+[data-theme="dark"] .modern-table tbody td {
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .modern-table-controls {
+    background: #1f2937;
+    border-bottom-color: #374151;
+}
+
+[data-theme="dark"] .modern-table-search input {
+    background: #111827;
+    border-color: #374151;
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .modern-pagination {
+    background: #1f2937;
+    border-top-color: #374151;
+}
+
+[data-theme="dark"] .modern-pagination-btn {
+    background: #111827;
+    border-color: #374151;
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .modern-pagination-btn:hover:not(.active):not(:disabled) {
+    background: #374151;
+}

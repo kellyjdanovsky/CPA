@@ -723,86 +723,6 @@
     </div>
 
     @if(Qs::userIsTeamSA())
-    <div class="row fade-in">
-        <div class="col-sm-6 col-xl-3 mb-3">
-            <div class="card dashboard-card bg-primary has-bg-image">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="mr-3 icon-box">
-                            <i class="icon-users4"></i>
-                        </div>
-                        <div>
-                            <h3 class="mb-0 text-white">{{ $total_active_students }}</h3>
-                            <span class="text-uppercase font-size-xs font-weight-bold text-white-50">Total élèves</span>
-                        </div>
-                    </div>
-                    <div class="mt-3">
-                        <div class="progress bg-white bg-opacity-25" style="height: 4px;">
-                            <div class="progress-bar bg-white" style="width: 100%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="col-sm-6 col-xl-3 mb-3">
-            <div class="card dashboard-card bg-danger has-bg-image">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="mr-3 icon-box">
-                            <i class="icon-users2"></i>
-                        </div>
-                        <div>
-                            <h3 class="mb-0 text-white">{{ $users->where('user_type', 'teacher')->count() }}</h3>
-                            <span class="text-uppercase font-size-xs font-weight-bold text-white-50">Total Enseignants</span>
-                        </div>
-                    </div>
-                    <div class="mt-3">
-                        <div class="progress bg-white bg-opacity-25" style="height: 4px;">
-                            <div class="progress-bar bg-white" style="width: 100%"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-
-        
-        <div class="col-sm-6 col-xl-3 mb-3">
-            <div class="card dashboard-card bg-info has-bg-image">
-                <div class="card-body">
-                    <div class="d-flex align-items-center">
-                        <div class="mr-3 icon-box">
-                            <i class="icon-calendar"></i>
-                        </div>
-                        <div>
-                            <h3 class="mb-0 text-white">{{ $current_session ?? '2024-25' }}</h3>
-                            <span class="text-uppercase font-size-xs font-weight-bold text-white-50">Année scolaire</span>
-                        </div>
-                    </div>
-                    <div class="mt-3">
-                        @php
-                            // Calculer le pourcentage d'avancement de l'année scolaire
-                            $currentDate = now();
-                            $startDate = now()->month >= 9 ? now()->setMonth(9)->setDay(1) : now()->subYear()->setMonth(9)->setDay(1);
-                            $endDate = now()->month >= 9 ? now()->addYear()->setMonth(6)->setDay(30) : now()->setMonth(6)->setDay(30);
-
-                            $totalDays = $startDate->diffInDays($endDate);
-                            $elapsedDays = $startDate->diffInDays($currentDate);
-                            $progressPercent = $totalDays > 0 ? min(round(($elapsedDays / $totalDays) * 100), 100) : 0;
-                        @endphp
-                        <div class="progress bg-white bg-opacity-25" style="height: 4px;">
-                            <div class="progress-bar bg-white" style="width: {{ $progressPercent }}%"></div>
-                        </div>
-                        <div class="mt-1 text-right">
-                            <small class="text-white-50">{{ $progressPercent }}% écoulé</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
        {{-- Display Student Count Per Class --}}
        <div class="card fade-in mt-3">
            <div class="card-header bg-white">
@@ -817,24 +737,23 @@
                <div class="row">
                    @foreach($classes as $class)
                    <div class="col-sm-6 col-md-4 col-xl-3 mb-3">
-                       <div class="card dashboard-card bg-teal has-bg-image">
-                           <div class="card-body">
-                               <div class="d-flex align-items-center">
-                                   <div class="mr-3 icon-box">
+                       <div class="modern-stat-card classes-card h-100">
+                           <div class="card-content">
+                               <div class="stat-header">
+                                   <div class="stat-icon-container">
                                        <i class="icon-users2"></i>
                                    </div>
-                                   <div>
-                                       <h3 class="mb-0 text-white">{{ $class_student_counts[$class->id] }}</h3>
-                                       <span class="text-uppercase font-size-xs font-weight-bold text-white-50">{{ $class->name }}</span>
+                                   <div class="stat-trend stable">
+                                       <span>{{ $class->name }}</span>
                                    </div>
                                </div>
-                               <div class="mt-3">
-                                   <div class="progress bg-white bg-opacity-25" style="height: 4px;">
-                                       <div class="progress-bar bg-white" style="width: {{ min(100, ($class_student_counts[$class->id] / max(1, $total_active_students)) * 100) }}%"></div>
+                               <div class="stat-body">
+                                   <h3 class="stat-number">{{ $class_student_counts[$class->id] }}</h3>
+                                   <p class="stat-label">Élèves</p>
+                                   <div class="stat-progress">
+                                       <div class="progress-bar" style="width: {{ min(100, ($class_student_counts[$class->id] / max(1, $total_active_students)) * 100) }}%"></div>
                                    </div>
-                                   <div class="mt-1 text-right">
-                                       <small class="text-white-50">{{ number_format(($class_student_counts[$class->id] / max(1, $total_active_students)) * 100, 1) }}% du total</small>
-                                   </div>
+                                   <span class="stat-subtitle">{{ number_format(($class_student_counts[$class->id] / max(1, $total_active_students)) * 100, 1) }}% du total</span>
                                </div>
                            </div>
                        </div>
@@ -843,7 +762,7 @@
                </div>
            </div>
        </div>
-       @endif
+    @endif
 
     <!-- Dashboard Footer -->
     <div class="card fade-in mt-4 school-info-card">
@@ -868,5 +787,5 @@
             </div>
         </div>
     </div>
-    @endsection
+@endsection
 

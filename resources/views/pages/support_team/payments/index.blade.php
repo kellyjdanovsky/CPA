@@ -98,14 +98,34 @@
 
 @section('content')
 
-    <div class="card fade-in">
-        <div class="card-header bg-white header-elements-inline">
-            <h5 class="card-title"><i class="icon-cash2 mr-2 text-primary"></i> Choix de l'année scolaire</h5>
-            <div class="header-elements">
-                <div class="list-icons">
-                    {!! Qs::getPanelOptions() !!}
+    <!-- Modern Header -->
+    <div class="modern-dashboard-header mb-4" style="padding: 2rem 0; margin: -1.5rem -1.5rem 1.5rem;">
+        <div class="header-background">
+            <div class="header-overlay"></div>
+            <div class="floating-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+            </div>
+        </div>
+        <div class="header-content">
+            <div class="container-fluid">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h1 class="greeting-text mb-2" style="font-size: 1.8rem;">Gestion des Paiements</h1>
+                        <p class="greeting-subtitle">Administration financière et comptabilité</p>
+                    </div>
+                    <div class="col-md-4 text-right">
+                         {!! Qs::getPanelOptions() !!}
+                    </div>
                 </div>
             </div>
+        </div>
+    </div>
+
+    <div class="card modern-card fade-in">
+        <div class="card-header bg-white header-elements-inline">
+            <h5 class="card-title"><i class="icon-cash2 mr-2 text-primary"></i> Choix de l'année scolaire</h5>
         </div>
 
         <div class="card-body">

@@ -1,0 +1,613 @@
+/* ========================================
+   PHASE 2 - UX ENHANCEMENT
+   Formulaires Modernes
+   ======================================== */
+
+/* ========== 1. FORM GROUPS MODERNES ========== */
+.modern-form-group {
+    margin-bottom: 1.5rem;
+    position: relative;
+}
+
+.modern-form-label {
+    display: block;
+    font-weight: 600;
+    font-size: 0.875rem;
+    color: #374151;
+    margin-bottom: 0.5rem;
+    transition: color 0.2s ease;
+}
+
+.modern-form-label.required::after {
+    content: '*';
+    color: #ef4444;
+    margin-left: 0.25rem;
+}
+
+/* ========== 2. INPUT GROUPS AVEC ICÔNES ========== */
+.modern-input-group {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.modern-input-icon {
+    position: absolute;
+    left: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    pointer-events: none;
+    z-index: 1;
+    transition: color 0.2s ease;
+}
+
+.modern-input-group input,
+.modern-input-group select,
+.modern-input-group textarea {
+    padding-left: 2.75rem;
+}
+
+.modern-input-group.has-suffix input {
+    padding-right: 2.75rem;
+}
+
+.modern-input-suffix {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9ca3af;
+    font-size: 0.875rem;
+}
+
+/* ========== 3. INPUTS MODERNES ========== */
+.modern-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.5rem;
+    font-size: 0.9375rem;
+    color: #1f2937;
+    background: white;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.modern-input:hover {
+    border-color: #d1d5db;
+}
+
+.modern-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.modern-input:focus+.modern-input-icon {
+    color: #667eea;
+}
+
+.modern-input::placeholder {
+    color: #9ca3af;
+}
+
+/* États de validation */
+.modern-input.is-valid {
+    border-color: #10b981;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%2310b981' d='M2.3 6.73L.6 4.53c-.4-1.04.46-1.4 1.1-.8l1.1 1.4 3.4-3.8c.6-.63 1.6-.27 1.2.7l-4 4.6c-.43.5-.8.4-1.1.1z'/%3e%3c/svg%3e");
+    background-size: 1rem;
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    padding-right: 2.75rem;
+}
+
+.modern-input.is-invalid {
+    border-color: #ef4444;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23ef4444'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath stroke-linejoin='round' d='M5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23ef4444' stroke='none'/%3e%3c/svg%3e");
+    background-size: 1rem;
+    background-position: right 0.75rem center;
+    background-repeat: no-repeat;
+    padding-right: 2.75rem;
+}
+
+/* Messages de feedback */
+.modern-feedback {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: 0.8125rem;
+    font-weight: 500;
+}
+
+.modern-feedback.valid {
+    color: #10b981;
+}
+
+.modern-feedback.invalid {
+    color: #ef4444;
+}
+
+.modern-feedback.hint {
+    color: #6b7280;
+}
+
+/* ========== 4. SELECT MODERNES ========== */
+.modern-select {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%239ca3af' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 16px 12px;
+    padding-right: 2.5rem;
+}
+
+/* ========== 5. CHECKBOX ET RADIO MODERNES ========== */
+.modern-checkbox,
+.modern-radio {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+}
+
+.modern-checkbox input[type="checkbox"],
+.modern-radio input[type="radio"] {
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.modern-checkmark {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.25rem;
+    height: 1.25rem;
+    border: 2px solid #d1d5db;
+    border-radius: 0.375rem;
+    background: white;
+    transition: all 0.2s ease;
+    margin-right: 0.5rem;
+}
+
+.modern-radio .modern-checkmark {
+    border-radius: 50%;
+}
+
+.modern-checkbox:hover .modern-checkmark,
+.modern-radio:hover .modern-checkmark {
+    border-color: #667eea;
+}
+
+.modern-checkbox input:checked~.modern-checkmark,
+.modern-radio input:checked~.modern-checkmark {
+    background: #667eea;
+    border-color: #667eea;
+}
+
+.modern-checkmark::after {
+    content: '';
+    position: absolute;
+    display: none;
+}
+
+.modern-checkbox input:checked~.modern-checkmark::after {
+    display: block;
+    width: 0.375rem;
+    height: 0.625rem;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: rotate(45deg);
+}
+
+.modern-radio input:checked~.modern-checkmark::after {
+    display: block;
+    width: 0.5rem;
+    height: 0.5rem;
+    border-radius: 50%;
+    background: white;
+}
+
+/* ========== 6. TEXTAREA MODERNE ========== */
+.modern-textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+.modern-textarea-counter {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.25rem;
+    font-size: 0.75rem;
+    color: #6b7280;
+}
+
+.modern-textarea-counter.limit-reached {
+    color: #ef4444;
+}
+
+/* ========== 7. FILE INPUT MODERNE ========== */
+.modern-file-upload {
+    position: relative;
+    display: inline-block;
+    width: 100%;
+}
+
+.modern-file-input {
+    position: absolute;
+    opacity: 0;
+    width: 0.1px;
+    height: 0.1px;
+    overflow: hidden;
+}
+
+.modern-file-label {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    border: 2px dashed #d1d5db;
+    border-radius: 0.5rem;
+    background: #f9fafb;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.modern-file-label:hover {
+    border-color: #667eea;
+    background: rgba(102, 126, 234, 0.05);
+}
+
+.modern-file-label.has-file {
+    border-color: #10b981;
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.modern-file-icon {
+    font-size: 2rem;
+    color: #9ca3af;
+    margin-right: 1rem;
+}
+
+.modern-file-text {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.modern-file-text-main {
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 0.25rem;
+}
+
+.modern-file-text-sub {
+    font-size: 0.875rem;
+    color: #6b7280;
+}
+
+.modern-file-preview {
+    margin-top: 1rem;
+    padding: 1rem;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    display: none;
+}
+
+.modern-file-preview.active {
+    display: block;
+}
+
+.modern-file-preview-image {
+    max-width: 200px;
+    max-height: 200px;
+    margin: 0 auto;
+    display: block;
+    border-radius: 0.375rem;
+}
+
+/* ========== 8. SWITCH TOGGLE ========== */
+.modern-switch {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    cursor: pointer;
+}
+
+.modern-switch input[type="checkbox"] {
+    position: absolute;
+    opacity: 0;
+}
+
+.modern-switch-slider {
+    width: 3rem;
+    height: 1.5rem;
+    background: #d1d5db;
+    border-radius: 9999px;
+    transition: background 0.2s ease;
+    margin-right: 0.75rem;
+    position: relative;
+}
+
+.modern-switch-slider::after {
+    content: '';
+    position: absolute;
+    top: 0.125rem;
+    left: 0.125rem;
+    width: 1.25rem;
+    height: 1.25rem;
+    background: white;
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.modern-switch input:checked~.modern-switch-slider {
+    background: #667eea;
+}
+
+.modern-switch input:checked~.modern-switch-slider::after {
+    transform: translateX(1.5rem);
+}
+
+/* ========== 9. BOUTONS MODERNES ========== */
+.modern-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.75rem 1.5rem;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 0.9375rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-decoration: none;
+    gap: 0.5rem;
+}
+
+.modern-btn-primary {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+    box-shadow: 0 4px 6px rgba(102, 126, 234, 0.25);
+}
+
+.modern-btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 12px rgba(102, 126, 234, 0.35);
+}
+
+.modern-btn-secondary {
+    background: #6b7280;
+    color: white;
+}
+
+.modern-btn-secondary:hover {
+    background: #4b5563;
+}
+
+.modern-btn-outline {
+    background: transparent;
+    border: 2px solid #667eea;
+    color: #667eea;
+}
+
+.modern-btn-outline:hover {
+    background: #667eea;
+    color: white;
+}
+
+.modern-btn-success {
+    background: #10b981;
+    color: white;
+}
+
+.modern-btn-success:hover {
+    background: #059669;
+}
+
+.modern-btn-danger {
+    background: #ef4444;
+    color: white;
+}
+
+.modern-btn-danger:hover {
+    background: #dc2626;
+}
+
+.modern-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.modern-btn-sm {
+    padding: 0.5rem 1rem;
+    font-size: 0.875rem;
+}
+
+.modern-btn-lg {
+    padding: 1rem 2rem;
+    font-size: 1.0625rem;
+}
+
+/* ========== 10. FORM WIZARD ========== */
+.modern-wizard {
+    margin-bottom: 2rem;
+}
+
+.modern-wizard-steps {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+    position: relative;
+}
+
+.modern-wizard-steps::before {
+    content: '';
+    position: absolute;
+    top: 1.5rem;
+    left: 2rem;
+    right: 2rem;
+    height: 2px;
+    background: #e5e7eb;
+    z-index: 0;
+}
+
+.modern-wizard-step {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    flex: 1;
+    z-index: 1;
+}
+
+.modern-wizard-step-circle {
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #e5e7eb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+    transition: all 0.3s ease;
+}
+
+.modern-wizard-step.active .modern-wizard-step-circle {
+    background: #667eea;
+    border-color: #667eea;
+    color: white;
+    box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1);
+}
+
+.modern-wizard-step.completed .modern-wizard-step-circle {
+    background: #10b981;
+    border-color: #10b981;
+    color: white;
+}
+
+.modern-wizard-step-label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    color: #6b7280;
+    text-align: center;
+}
+
+.modern-wizard-step.active .modern-wizard-step-label {
+    color: #667eea;
+}
+
+.modern-wizard-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* ========== 11. AUTOCOMPLETE MODERNE ========== */
+.modern-autocomplete {
+    position: relative;
+}
+
+.modern-autocomplete-results {
+    position: absolute;
+    top: calc(100% + 0.5rem);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 0.5rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    display: none;
+}
+
+.modern-autocomplete-results.active {
+    display: block;
+}
+
+.modern-autocomplete-item {
+    padding: 0.75rem 1rem;
+    cursor: pointer;
+    transition: background 0.2s ease;
+}
+
+.modern-autocomplete-item:hover,
+.modern-autocomplete-item.selected {
+    background: #f3f4f6;
+}
+
+.modern-autocomplete-item-text {
+    font-weight: 500;
+    color: #374151;
+}
+
+.modern-autocomplete-item-sub {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 0.25rem;
+}
+
+/* ========== 12. RESPONSIVE ========== */
+@media (max-width: 768px) {
+    .modern-input-group input {
+        padding-left: 1rem;
+    }
+
+    .modern-input-icon {
+        display: none;
+    }
+
+    .modern-wizard-steps {
+        flex-direction: column;
+    }
+
+    .modern-wizard-steps::before {
+        display: none;
+    }
+
+    .modern-wizard-step {
+        flex-direction: row;
+        justify-content: flex-start;
+        margin-bottom: 1rem;
+    }
+
+    .modern-wizard-step-circle {
+        margin-right: 1rem;
+        margin-bottom: 0;
+    }
+}
+
+/* ========== 13. DARK MODE ========== */
+[data-theme="dark"] .modern-input,
+[data-theme="dark"] .modern-select,
+[data-theme="dark"] .modern-textarea {
+    background: #1f2937;
+    border-color: #374151;
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .modern-input:focus {
+    border-color: #8b5cf6;
+    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.1);
+}
+
+[data-theme="dark"] .modern-form-label {
+    color: #f9fafb;
+}
+
+[data-theme="dark"] .modern-file-label {
+    background: #1f2937;
+    border-color: #374151;
+}
+
+[data-theme="dark"] .modern-wizard-step-circle {
+    background: #1f2937;
+    border-color: #374151;
+}

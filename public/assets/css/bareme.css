@@ -1,0 +1,344 @@
+/* ==========================================================================
+   CPA - Styles pour le Barème Manager
+   ========================================================================== */
+
+/* ========== 1. ÉDITEUR DE BARÈME ========== */
+
+.bareme-editor {
+    width: 100%;
+}
+
+.bareme-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 2px solid var(--border-color);
+}
+
+.bareme-editor-header h5 {
+    margin: 0;
+    color: var(--text-primary);
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+}
+
+.bareme-editor-body {
+    margin-bottom: 1.5rem;
+}
+
+.bareme-editor-footer {
+    display: flex;
+    gap: 0.75rem;
+    justify-content: flex-end;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+
+/* ========== 2. TABLEAU D'ÉDITION ========== */
+
+.bareme-editor table {
+    margin-bottom: 0;
+}
+
+.bareme-editor th {
+    background-color: var(--table-header-bg);
+    color: var(--text-primary);
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.75rem 0.5rem;
+    border-color: var(--table-border);
+}
+
+.bareme-editor td {
+    padding: 0.5rem;
+    vertical-align: middle;
+    border-color: var(--table-border);
+}
+
+.bareme-editor input[type="number"],
+.bareme-editor input[type="text"],
+.bareme-editor textarea {
+    width: 100%;
+    font-size: 0.875rem;
+}
+
+.bareme-editor input[type="color"] {
+    cursor: pointer;
+    border: 1px solid var(--border-color);
+}
+
+.bareme-editor textarea {
+    resize: vertical;
+    min-height: 50px;
+}
+
+/* ========== 3. AFFICHAGE DU BARÈME ========== */
+
+.bareme-display {
+    width: 100%;
+}
+
+.bareme-display table {
+    margin-bottom: 0;
+}
+
+.bareme-display th {
+    background-color: var(--table-header-bg);
+    color: var(--text-primary);
+    font-weight: 600;
+    padding: 0.75rem;
+    border-color: var(--table-border);
+}
+
+.bareme-display td {
+    padding: 0.75rem;
+    border-color: var(--table-border);
+    color: var(--text-primary);
+}
+
+.bareme-display .badge {
+    font-size: 0.875rem;
+    padding: 0.375rem 0.75rem;
+    font-weight: 600;
+}
+
+/* ========== 4. MENTION DISPLAY ========== */
+
+.mention-display {
+    padding: 1rem;
+    text-align: center;
+}
+
+.mention-badge {
+    display: inline-block;
+    padding: 0.5rem 1.5rem;
+    border-radius: 0.5rem;
+    font-weight: 700;
+    font-size: 1rem;
+    margin-bottom: 0.75rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mention-remarque {
+    font-style: italic;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    line-height: 1.5;
+}
+
+/* ========== 5. BARÈME DANS LE BULLETIN ========== */
+
+.bulletin-bareme {
+    margin: 2rem 0;
+    padding: 1.5rem;
+    background: var(--card-bg);
+    border-radius: 0.75rem;
+    box-shadow: var(--card-shadow);
+}
+
+.bulletin-bareme h6 {
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.bulletin-bareme-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.bulletin-bareme-item {
+    padding: 1rem;
+    background: var(--bg-tertiary);
+    border-radius: 0.5rem;
+    border-left: 4px solid;
+    transition: transform 0.2s ease;
+}
+
+.bulletin-bareme-item:hover {
+    transform: translateY(-2px);
+}
+
+.bulletin-bareme-item .range {
+    font-weight: 700;
+    font-size: 1.125rem;
+    margin-bottom: 0.25rem;
+}
+
+.bulletin-bareme-item .mention {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text-primary);
+}
+
+.bulletin-bareme-item .remarque {
+    font-size: 0.8125rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+/* ========== 6. RESPONSIVE ========== */
+
+@media (max-width: 991px) {
+    .bareme-editor-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.75rem;
+    }
+
+    .bareme-editor-header button {
+        width: 100%;
+    }
+}
+
+@media (max-width: 767px) {
+    .bareme-editor table {
+        font-size: 0.8125rem;
+    }
+
+    .bareme-editor th,
+    .bareme-editor td {
+        padding: 0.375rem;
+    }
+
+    .bareme-editor input,
+    .bareme-editor textarea {
+        font-size: 0.8125rem;
+    }
+
+    .bareme-editor-footer {
+        flex-direction: column;
+    }
+
+    .bareme-editor-footer .btn {
+        width: 100%;
+    }
+
+    .bulletin-bareme-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 576px) {
+    .mention-badge {
+        font-size: 0.875rem;
+        padding: 0.375rem 1rem;
+    }
+
+    .mention-remarque {
+        font-size: 0.8125rem;
+    }
+
+    .bulletin-bareme {
+        padding: 1rem;
+    }
+}
+
+/* ========== 7. PRINT ========== */
+
+@media print {
+    .bareme-editor {
+        display: none !important;
+    }
+
+    .bulletin-bareme {
+        page-break-inside: avoid;
+        box-shadow: none;
+        border: 1px solid #ddd;
+    }
+
+    .mention-display {
+        page-break-inside: avoid;
+    }
+}
+
+/* ========== 8. ANIMATIONS ========== */
+
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.bareme-editor {
+    animation: fadeInUp 0.3s ease;
+}
+
+.mention-display {
+    animation: fadeInUp 0.5s ease;
+}
+
+/* ========== 9. COULEURS DE MENTION (par défaut) ========== */
+
+.mention-excellent {
+    background-color: #22c55e !important;
+    color: white !important;
+}
+
+.mention-tres-bien {
+    background-color: #3b82f6 !important;
+    color: white !important;
+}
+
+.mention-bien {
+    background-color: #6366f1 !important;
+    color: white !important;
+}
+
+.mention-assez-bien {
+    background-color: #f59e0b !important;
+    color: white !important;
+}
+
+.mention-passable {
+    background-color: #fb923c !important;
+    color: white !important;
+}
+
+.mention-mediocre {
+    background-color: #f87171 !important;
+    color: white !important;
+}
+
+.mention-echec {
+    background-color: #dc2626 !important;
+    color: white !important;
+}
+
+/* ========== 10. BOUTON BARÈME DANS HEADER ========== */
+
+.btn-bareme {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    white-space: nowrap;
+}
+
+.btn-bareme i {
+    font-size: 1rem;
+}
+
+@media (max-width: 576px) {
+    .btn-bareme span {
+        display: none;
+    }
+
+    .btn-bareme {
+        padding: 0.5rem;
+    }
+}

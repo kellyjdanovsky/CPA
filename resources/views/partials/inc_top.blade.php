@@ -31,6 +31,39 @@
 {{-- Modern Bulletin CSS--}}
 <link href=" {{ asset('assets/css/modern_bulletin.css') }}" rel="stylesheet" type="text/css">
 
+{{-- Modern Design System - Nouveau système de design complet --}}
+<link href=" {{ asset('assets/css/modern-design-system.css') }}" rel="stylesheet" type="text/css">
+
+{{-- Dashboard Pro - Tableaux de bord professionnels --}}
+<link href=" {{ asset('assets/css/dashboard-pro.css') }}" rel="stylesheet" type="text/css">
+
+{{-- Modern Components - Composants UI modernes (toast, modal, etc.) --}}
+<link href=" {{ asset('assets/css/modern-components.css') }}" rel="stylesheet" type="text/css">
+
+{{-- Dark Mode - Mode sombre/clair --}}
+<link href=" {{ asset('assets/css/dark-mode.css') }}" rel="stylesheet" type="text/css">
+
+{{-- Responsive Design - Adaptation mobile/tablette/desktop --}}
+<link href=" {{ asset('assets/css/responsive.css') }}" rel="stylesheet" type="text/css">
+
+{{-- Barème Manager - Gestion des remarques --}}
+<link href=" {{ asset('assets/css/bareme.css') }}" rel="stylesheet" type="text/css">
+
+{{-- Phase 1 Quick Wins - Dark Mode, Notifications, Loading States --}}
+<link href=" {{ asset('assets/css/phase1-quickwins.css') }}" rel="stylesheet" type="text/css">
+
+{{-- Phase 2 UX Enhancement - Formulaires modernes --}}
+<link href=" {{ asset('assets/css/phase2-forms.css') }}" rel="stylesheet" type="text/css">
+
+{{-- Phase 2 UX Enhancement - DataTables modernes --}}
+<link href=" {{ asset('assets/css/phase2-datatables.css') }}" rel="stylesheet" type="text/css">
+
+{{-- Phase 2 UX Enhancement - Search globale --}}
+<link href=" {{ asset('assets/css/phase2-search.css') }}" rel="stylesheet" type="text/css">
+
+{{-- Phase 3 Features - Analytics & Charts --}}
+<link href=" {{ asset('assets/css/phase3-analytics.css') }}" rel="stylesheet" type="text/css">
+
 {{-- Google Fonts pour un design moderne --}}
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 

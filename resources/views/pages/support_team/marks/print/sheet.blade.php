@@ -441,6 +441,22 @@
                 <div class="signature-line">Proviseur</div>
             </div>
         </div>
+
+        {{-- Barème de Notation --}}
+        @if(isset($grades) && $grades->count() > 0)
+        <div class="grades-scale" style="margin-top: 6px; border: 1px solid #333; padding: 4px; background: #fff;">
+            <h4 style="margin: 0 0 4px 0; font-size: 9px; font-weight: 700; text-transform: uppercase; border-bottom: 1px solid #333; padding-bottom: 2px;">Barème de Notation</h4>
+            <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+                @foreach($grades as $gr)
+                    @if(!$gr->class_type_id || $gr->class_type_id == $class_type->id)
+                    <div style="font-size: 8px; flex: 1 0 auto;">
+                        <strong>{{ $gr->name }}</strong> ({{ $gr->mark_from }} - {{ $gr->mark_to }}): <em>{{ $gr->remark }}</em>
+                    </div>
+                    @endif
+                @endforeach
+            </div>
+        </div>
+        @endif
     @else
         <div style="padding: 20px; text-align: center;">
             <strong>Impossible de charger les données de l'étudiant.</strong>

@@ -11,7 +11,7 @@ class InlineEditor {
             csrfToken: $('meta[name="csrf-token"]').attr('content'),
             ...options
         };
-        
+
         this.currentEditingCell = null;
         this.dataTable = null;
         this.init();
@@ -77,7 +77,7 @@ class InlineEditor {
                         columns: ':visible:not(.no-export)'
                     },
                     title: 'Export_Eleves_' + new Date().toISOString().slice(0, 10),
-                    customize: function(xlsx) {
+                    customize: function (xlsx) {
                         const sheet = xlsx.xl.worksheets['sheet1.xml'];
                         // Ajouter une note sur les colonnes exportées
                         // Cette personnalisation peut être étendue selon les besoins
@@ -92,7 +92,7 @@ class InlineEditor {
                     },
                     title: 'Export_Eleves_' + new Date().toISOString().slice(0, 10),
                     orientation: 'landscape',
-                    customize: function(doc) {
+                    customize: function (doc) {
                         // Personnaliser le PDF si nécessaire
                         doc.defaultStyle.fontSize = 8;
                         doc.styles.tableHeader.fontSize = 9;
@@ -130,11 +130,11 @@ class InlineEditor {
                 // Mettre à jour l'indicateur de visibilité des colonnes après chaque rendu
                 this.updateColumnVisibilityIndicator();
             },
-            stateSaveCallback: function(settings, data) {
+            stateSaveCallback: function (settings, data) {
                 // Sauvegarder les préférences de l'utilisateur dans le localStorage
                 localStorage.setItem('DataTables_' + settings.sInstance, JSON.stringify(data));
             },
-            stateLoadCallback: function(settings) {
+            stateLoadCallback: function (settings) {
                 // Charger les préférences de l'utilisateur depuis le localStorage
                 try {
                     return JSON.parse(localStorage.getItem('DataTables_' + settings.sInstance));
@@ -148,7 +148,7 @@ class InlineEditor {
         if ($.fn.DataTable.isDataTable('.datatable-button-html5-columns')) {
             $('.datatable-button-html5-columns').DataTable().destroy();
         }
-    
+
         this.dataTable = $('.datatable-button-html5-columns').DataTable(tableConfig);
     }
 
@@ -205,14 +205,14 @@ class InlineEditor {
 
     createEditElement(field, currentValue) {
         const baseClasses = 'form-control edit-input';
-        
+
         switch (field) {
             case 'dob':
                 return `
                     <input type="text" class="${baseClasses} datepicker" value="${currentValue}" placeholder="YYYY-MM-DD">
                     <span class="save-indicator d-none"><i class="icon-spinner2 spinner"></i></span>
                 `;
-            
+
             case 'status':
                 return `
                     <select class="${baseClasses}">
@@ -222,7 +222,7 @@ class InlineEditor {
                     </select>
                     <span class="save-indicator d-none"><i class="icon-spinner2 spinner"></i></span>
                 `;
-            
+
             case 'student_type':
                 return `
                     <select class="${baseClasses}">
@@ -231,7 +231,7 @@ class InlineEditor {
                     </select>
                     <span class="save-indicator d-none"><i class="icon-spinner2 spinner"></i></span>
                 `;
-            
+
             case 'academic_status':
                 return `
                     <select class="${baseClasses}">
@@ -240,7 +240,7 @@ class InlineEditor {
                     </select>
                     <span class="save-indicator d-none"><i class="icon-spinner2 spinner"></i></span>
                 `;
-            
+
             case 'religion':
                 return `
                     <select class="${baseClasses}">
@@ -256,7 +256,7 @@ class InlineEditor {
                     </select>
                     <span class="save-indicator d-none"><i class="icon-spinner2 spinner"></i></span>
                 `;
-            
+
             case 'gender':
                 return `
                     <select class="${baseClasses}">
@@ -266,7 +266,7 @@ class InlineEditor {
                     </select>
                     <span class="save-indicator d-none"><i class="icon-spinner2 spinner"></i></span>
                 `;
-            
+
             default:
                 return `
                     <input type="text" class="${baseClasses}" value="${currentValue}">
@@ -277,10 +277,10 @@ class InlineEditor {
 
     configureEditElement($cell, field, studentId) {
         const $input = $cell.find('.edit-input');
-        
+
         // Focus sur l'input
         $input.focus();
-        
+
         // Sélectionner le texte pour les inputs texte
         if ($input.is('input[type="text"]')) {
             $input.select();
@@ -322,7 +322,7 @@ class InlineEditor {
     saveField(field, value, studentId, $cell) {
         // Afficher l'indicateur de sauvegarde
         $cell.find('.save-indicator').removeClass('d-none');
-        
+
         $.ajax({
             url: this.options.saveUrl,
             type: 'POST',
@@ -336,13 +336,13 @@ class InlineEditor {
                 if (response.ok) {
                     // Mettre à jour l'affichage
                     $cell.removeClass('editing').html(value || '-');
-                    
+
                     // Mettre à jour l'âge si c'est une date de naissance
                     if (field === 'dob') {
                         const age = this.calculateAge(value);
                         $(`.age-display[data-student-id="${studentId}"]`).text(age);
                     }
-                    
+
                     // Message de succès
                     this.showNotification('Modification enregistrée avec succès', 'success');
                 } else {
@@ -350,7 +350,7 @@ class InlineEditor {
                     $cell.removeClass('editing').html($cell.data('original-value') || '-');
                     this.showNotification(response.msg || 'Erreur lors de la sauvegarde', 'error');
                 }
-                
+
                 this.currentEditingCell = null;
             },
             error: () => {
@@ -372,18 +372,18 @@ class InlineEditor {
 
     calculateAge(dob) {
         if (!dob) return '';
-        
+
         const birthDate = new Date(dob);
         if (isNaN(birthDate.getTime())) return '';
-        
+
         const today = new Date();
         let age = today.getFullYear() - birthDate.getFullYear();
-        
-        if (today.getMonth() < birthDate.getMonth() || 
+
+        if (today.getMonth() < birthDate.getMonth() ||
             (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
             age--;
         }
-        
+
         return age;
     }
 
@@ -393,7 +393,7 @@ class InlineEditor {
             const dob = $element.text().trim();
             const studentId = $element.data('student-id');
             const age = this.calculateAge(dob);
-            
+
             if (age !== '') {
                 $(`.age-display[data-student-id="${studentId}"]`).text(age);
             }
@@ -418,7 +418,7 @@ class InlineEditor {
                     </button>
                 </div>
             `);
-            
+
             $('body').prepend($alert);
             setTimeout(() => $alert.remove(), 3000);
         }
@@ -432,27 +432,27 @@ class InlineEditor {
     // Fonction pour mettre à jour l'indicateur de visibilité des colonnes
     updateColumnVisibilityIndicator() {
         if (!this.dataTable) return;
-        
+
         const hiddenColumns = this.dataTable.columns(':hidden').count();
         const totalColumns = this.dataTable.columns().count();
         const visibleColumns = totalColumns - hiddenColumns;
-        
+
         // Mettre à jour l'indicateur dans l'interface
         const $header = $('.datatable-header');
         const $indicator = $('.hidden-columns-indicator');
         const $count = $('#hidden-columns-count');
-        
+
         if (hiddenColumns > 0) {
             // Ajouter une classe pour indiquer qu'il y a des colonnes cachées
             $header.addClass('has-hidden-columns');
-            
+
             // Afficher l'indicateur et mettre à jour le compte
             $indicator.removeClass('d-none');
             $count.text(hiddenColumns);
         } else {
             // Retirer la classe si toutes les colonnes sont visibles
             $header.removeClass('has-hidden-columns');
-            
+
             // Cacher l'indicateur
             $indicator.addClass('d-none');
         }
@@ -461,23 +461,196 @@ class InlineEditor {
     // Fonction pour exporter uniquement les colonnes sélectionnées
     exportSelectedColumns(format = 'excel') {
         if (!this.dataTable) return;
-        
+
         // Obtenir les colonnes actuellement visibles
         const visibleColumns = this.dataTable.columns(':visible:not(.no-export)').indexes().toArray();
-        
+
         if (visibleColumns.length === 0) {
             this.showNotification('Aucune colonne visible à exporter', 'warning');
             return;
         }
-        
+
         // Configurer les options d'export
         const exportOptions = {
             columns: visibleColumns,
             title: 'Export_Eleves_' + new Date().toISOString().slice(0, 10)
         };
-        
+
         // Effectuer l'export selon le format
-        switch(format) {
+        switch (format) {
+            case 'excel':
+                this.dataTable.button('.buttons-excel').trigger();
+                break;
+            case 'pdf':
+                this.dataTable.button('.buttons-pdf').trigger();
+                break;
+            case 'copy':
+                this.dataTable.button('.buttons-copy').trigger();
+                break;
+            default:
+                this.showNotification('Format d\'export non supporté', 'error');
+        }
+    }
+
+    saveField(field, value, studentId, $cell) {
+        // Afficher l'indicateur de sauvegarde
+        $cell.find('.save-indicator').removeClass('d-none');
+
+        $.ajax({
+            url: this.options.saveUrl,
+            type: 'POST',
+            data: {
+                _token: this.options.csrfToken,
+                student_id: studentId,
+                field_name: field,
+                field_value: value
+            },
+            success: (response) => {
+                if (response.ok) {
+                    // Mettre à jour l'affichage
+                    $cell.removeClass('editing').html(value || '-');
+
+                    // Mettre à jour l'âge si c'est une date de naissance
+                    if (field === 'dob') {
+                        const age = this.calculateAge(value);
+                        $(`.age-display[data-student-id="${studentId}"]`).text(age);
+                    }
+
+                    // Message de succès
+                    this.showNotification('Modification enregistrée avec succès', 'success');
+                } else {
+                    // Restaurer la valeur précédente
+                    $cell.removeClass('editing').html($cell.data('original-value') || '-');
+                    this.showNotification(response.msg || 'Erreur lors de la sauvegarde', 'error');
+                }
+
+                this.currentEditingCell = null;
+            },
+            error: () => {
+                // Restaurer la valeur précédente
+                $cell.removeClass('editing').html($cell.data('original-value') || '-');
+                this.showNotification('Erreur de connexion', 'error');
+                this.currentEditingCell = null;
+            }
+        });
+    }
+
+    cancelEdit() {
+        if (this.currentEditingCell) {
+            const originalValue = this.currentEditingCell.data('original-value') || this.currentEditingCell.text().trim();
+            this.currentEditingCell.removeClass('editing').html(originalValue);
+            this.currentEditingCell = null;
+        }
+    }
+
+    calculateAge(dob) {
+        if (!dob) return '';
+
+        const birthDate = new Date(dob);
+        if (isNaN(birthDate.getTime())) return '';
+
+        const today = new Date();
+        let age = today.getFullYear() - birthDate.getFullYear();
+
+        if (today.getMonth() < birthDate.getMonth() ||
+            (today.getMonth() === birthDate.getMonth() && today.getDate() < birthDate.getDate())) {
+            age--;
+        }
+
+        return age;
+    }
+
+    calculateAllAges() {
+        $('.editable[data-field="dob"]').each((index, element) => {
+            const $element = $(element);
+            const dob = $element.text().trim();
+            const studentId = $element.data('student-id');
+            const age = this.calculateAge(dob);
+
+            if (age !== '') {
+                $(`.age-display[data-student-id="${studentId}"]`).text(age);
+            }
+        });
+    }
+
+    showNotification(message, type) {
+        if (typeof PNotify !== 'undefined') {
+            new PNotify({
+                text: message,
+                type: type,
+                delay: 3000
+            });
+        } else {
+            // Fallback pour les navigateurs sans PNotify
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-danger';
+            const $alert = $(`
+                <div class="alert ${alertClass} alert-dismissible fade show" role="alert">
+                    ${message}
+                    <button type="button" class="close" data-dismiss="alert">
+                        <span>&times;</span>
+                    </button>
+                </div>
+            `);
+
+            $('body').prepend($alert);
+            setTimeout(() => $alert.remove(), 3000);
+        }
+    }
+
+    showAddStudentModal() {
+        // Rediriger vers la page d'ajout d'élève
+        window.location.href = '/students/create';
+    }
+
+    // Fonction pour mettre à jour l'indicateur de visibilité des colonnes
+    updateColumnVisibilityIndicator() {
+        if (!this.dataTable) return;
+
+        const hiddenColumns = this.dataTable.columns(':hidden').count();
+        const totalColumns = this.dataTable.columns().count();
+        const visibleColumns = totalColumns - hiddenColumns;
+
+        // Mettre à jour l'indicateur dans l'interface
+        const $header = $('.datatable-header');
+        const $indicator = $('.hidden-columns-indicator');
+        const $count = $('#hidden-columns-count');
+
+        if (hiddenColumns > 0) {
+            // Ajouter une classe pour indiquer qu'il y a des colonnes cachées
+            $header.addClass('has-hidden-columns');
+
+            // Afficher l'indicateur et mettre à jour le compte
+            $indicator.removeClass('d-none');
+            $count.text(hiddenColumns);
+        } else {
+            // Retirer la classe si toutes les colonnes sont visibles
+            $header.removeClass('has-hidden-columns');
+
+            // Cacher l'indicateur
+            $indicator.addClass('d-none');
+        }
+    }
+
+    // Fonction pour exporter uniquement les colonnes sélectionnées
+    exportSelectedColumns(format = 'excel') {
+        if (!this.dataTable) return;
+
+        // Obtenir les colonnes actuellement visibles
+        const visibleColumns = this.dataTable.columns(':visible:not(.no-export)').indexes().toArray();
+
+        if (visibleColumns.length === 0) {
+            this.showNotification('Aucune colonne visible à exporter', 'warning');
+            return;
+        }
+
+        // Configurer les options d'export
+        const exportOptions = {
+            columns: visibleColumns,
+            title: 'Export_Eleves_' + new Date().toISOString().slice(0, 10)
+        };
+
+        // Effectuer l'export selon le format
+        switch (format) {
             case 'excel':
                 this.dataTable.button('.buttons-excel').trigger();
                 break;
@@ -495,16 +668,9 @@ class InlineEditor {
     // Fonction pour réinitialiser la visibilité des colonnes
     resetColumnVisibility() {
         if (this.dataTable) {
-            // Réinitialiser la visibilité de toutes les colonnes
             this.dataTable.columns().visible(true);
-            
-            // Masquer les colonnes marquées avec no-export
             this.dataTable.columns('.no-export').visible(false);
-            
-            // Mettre à jour l'indicateur
             this.updateColumnVisibilityIndicator();
-            
-            // Afficher un message de confirmation
             this.showNotification('Visibilité des colonnes réinitialisée', 'success');
         }
     }
@@ -512,13 +678,8 @@ class InlineEditor {
     // Fonction pour afficher toutes les colonnes
     showAllColumns() {
         if (this.dataTable) {
-            // Afficher toutes les colonnes
             this.dataTable.columns().visible(true);
-            
-            // Mettre à jour l'indicateur
             this.updateColumnVisibilityIndicator();
-            
-            // Afficher un message de confirmation
             this.showNotification('Toutes les colonnes sont maintenant visibles', 'success');
         }
     }
@@ -526,89 +687,21 @@ class InlineEditor {
     // Fonction pour masquer toutes les colonnes sauf les essentielles
     hideAllColumns() {
         if (this.dataTable) {
-            // Masquer toutes les colonnes
             this.dataTable.columns().visible(false);
-            
-            // Afficher les colonnes essentielles (Nom, Sexe, etc.)
-            // Vous pouvez personnaliser cette liste selon vos besoins
             this.dataTable.columns([2, 12]).visible(true); // Nom et Sexe
-            
-            // Toujours masquer les colonnes no-export
             this.dataTable.columns('.no-export').visible(false);
-            
-            // Mettre à jour l'indicateur
             this.updateColumnVisibilityIndicator();
-            
-            // Afficher un message de confirmation
             this.showNotification('Colonnes masquées sauf les essentielles', 'success');
         }
     }
 
     // Méthode pour exporter avec les colonnes visibles
     exportCustomExcel() {
-        if (!this.dataTable) {
-            this.showNotification('Le tableau n\'est pas initialisé correctement', 'error');
-            return;
+        if (typeof window.exportCustomExcel === 'function') {
+            window.exportCustomExcel();
+        } else {
+            alert('La fonction d\'export n\'est pas disponible.');
         }
-
-        // Obtenir les colonnes actuellement visibles
-        const visibleColumns = this.dataTable.columns(':visible:not(.no-export)').indexes().toArray();
-        
-        if (visibleColumns.length === 0) {
-            this.showNotification('Aucune colonne visible à exporter', 'warning');
-            return;
-        }
-
-        // Mapper les indexes de colonnes aux noms de champs
-        const columnMapping = {
-            0: 'name',           // Nom
-            1: 'adm_no',         // N° d'admission
-            2: 'my_class_name',  // Classe
-            3: 'section_name',   // Section
-            4: 'dob',            // Date de naissance
-            5: 'age',            // Âge
-            6: 'address',        // Adresse
-            7: 'religion',       // Religion
-            8: 'status',         // Statut
-            9: 'student_type',   // Type
-            10: 'academic_status', // Statut académique
-            11: 'gender',        // Sexe
-            12: 'nom_p',         // Père/Tuteur
-            13: 'prof_p',        // Profession père
-            14: 'nom_m',         // Mère/Tutrice
-            15: 'prof_m',        // Profession mère
-            16: 'phone'          // Téléphone
-        };
-
-        // Obtenir les noms de colonnes visibles
-        const columnsToExport = visibleColumns.map(index => columnMapping[index]).filter(col => col);
-
-        // Créer le formulaire et soumettre
-        const form = document.createElement('form');
-        form.method = 'GET';
-        form.action = '/students/export';
-
-        // Ajouter le champ CSRF
-        const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-        const csrfInput = document.createElement('input');
-        csrfInput.type = 'hidden';
-        csrfInput.name = '_token';
-        csrfInput.value = csrfToken;
-        form.appendChild(csrfInput);
-
-        // Ajouter les colonnes à exporter
-        const columnsInput = document.createElement('input');
-        columnsInput.type = 'hidden';
-        columnsInput.name = 'columns';
-        columnsInput.value = JSON.stringify(columnsToExport);
-        form.appendChild(columnsInput);
-
-        // Soumettre le formulaire
-        document.body.appendChild(form);
-        form.submit();
-        document.body.removeChild(form);
-
-        this.showNotification('Export en cours...', 'info');
     }
 }
 
@@ -618,3 +711,63 @@ $(document).ready(() => {
         window.inlineEditor = new InlineEditor();
     }
 });
+
+// Fonction pour exporter avec les colonnes visibles
+function exportCustomExcel() {
+    if (!window.inlineEditor || !window.inlineEditor.dataTable) {
+        alert('Le tableau n\'est pas initialisé correctement.');
+        return;
+    }
+    const dataTable = window.inlineEditor.dataTable;
+    // Obtenir les colonnes actuellement visibles
+    const visibleColumns = dataTable.columns(':visible:not(.no-export)').indexes().toArray();
+    if (visibleColumns.length === 0) {
+        alert('Aucune colonne visible à exporter.');
+        return;
+    }
+    // Mapper les indexes de colonnes aux noms de champs
+    const columnMapping = {
+        0: 'name', // Nom
+        1: 'adm_no', // N° d'admission
+        2: 'my_class_name', // Classe
+        3: 'section_name', // Section
+        4: 'dob', // Date de naissance
+        5: 'age', // Âge
+        6: 'address', // Adresse
+        7: 'religion', // Religion
+        8: 'status', // Statut
+        9: 'student_type', // Type
+        10: 'academic_status', // Statut académique
+        11: 'gender', // Sexe
+        12: 'nom_p', // Père/Tuteur
+        13: 'prof_p', // Profession père
+        14: 'nom_m', // Mère/Tutrice
+        15: 'prof_m', // Profession mère
+        16: 'phone' // Téléphone
+    };
+    // Obtenir les noms de colonnes visibles
+    const columnsToExport = visibleColumns.map(index => columnMapping[index]).filter(col => col);
+    // Créer le formulaire et soumettre
+    const form = document.createElement('form');
+    form.method = 'GET';
+    form.action = 'http://127.0.0.1:8001/students/export';
+    // Ajouter le champ CSRF
+    const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+    const csrfInput = document.createElement('input');
+    csrfInput.type = 'hidden';
+    csrfInput.name = '_token';
+    csrfInput.value = csrfToken;
+    form.appendChild(csrfInput);
+    // Ajouter les colonnes à exporter
+    const columnsInput = document.createElement('input');
+    columnsInput.type = 'hidden';
+    columnsInput.name = 'columns';
+    columnsInput.value = JSON.stringify(columnsToExport);
+    form.appendChild(columnsInput);
+    // Soumettre le formulaire
+    document.body.appendChild(form);
+    form.submit();
+    document.body.removeChild(form);
+}
+// Exposer la fonction globalement
+window.exportCustomExcel = exportCustomExcel;

@@ -72,10 +72,9 @@
 @endsection
 
 @section('content')
-
     <div class="card">
         <div class="card-header header-elements-inline">
-            <h6 class="card-title">Liste des étudiants</h6>
+            <h6 class="card-title">Informations sur l'étudiant - {{ $my_class->name }}</h6>
             {!! Qs::getPanelOptions() !!}
         </div>
 
@@ -472,10 +471,10 @@
     $(document).ready(function() {
         // Le système d'édition en ligne est maintenant géré par inline_editing.js
         // Configuration du token CSRF
-        window.inlineEditor.options.csrfToken = '{{ csrf_token() }}';
-        window.inlineEditor.options.saveUrl = '{{ route("ajax.update_student_field") }}';
-    });
-
+        if (window.inlineEditor) {
+            window.inlineEditor.options.csrfToken = '{{ csrf_token() }}';
+            window.inlineEditor.options.saveUrl = '{{ route("ajax.update_student_field") }}';
+        }
     });
 </script>
 @endsection
