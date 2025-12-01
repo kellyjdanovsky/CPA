@@ -305,7 +305,11 @@ Route::group(['middleware' => 'auth'], function () {
         Route::resource('sessions', 'SessionController');
         Route::post('sessions/{id}/set-active', 'SessionController@setActive')->name('sessions.set_active');
 
-
+        /*************** PASCOMA - Attestations d'Assurance *****************/
+        Route::group(['prefix' => 'pascoma'], function(){
+            Route::get('/', 'PascomaController@index')->name('pascoma.index');
+            Route::get('export', 'PascomaController@export')->name('pascoma.export');
+        });
 
 
 

@@ -152,6 +152,13 @@ if ($usertype == 'teacher') {
 
                                 @endif
 
+                            {{--PASCOMA - Attestations d'Assurance--}}
+                            <li class="nav-item">
+                                <a href="{{ route('pascoma.index') }}" class="nav-link {{ Route::is('pascoma.*') ? 'active' : '' }}">
+                                    <i class="icon-clipboard3"></i> PASCOMA
+                                </a>
+                            </li>
+
                         </ul>
                     </li>
                 @endif
