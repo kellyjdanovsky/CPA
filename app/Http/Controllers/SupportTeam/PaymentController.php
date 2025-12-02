@@ -2444,9 +2444,9 @@ public function previewPaymentNotifications($unpaidStudents, $nom_classe, $payme
 }
 
 /**
- * Filtrer les étudiants impayés
+ * Filtrer les étudiants impayés (DEPRECATED/DUPLICATE - Renamed to avoid fatal error)
  */
-private function filterUnpaidStudents($students, $payments)
+private function filterUnpaidStudents_deprecated($students, $payments)
 {
     $unpaidStudents = [];
     
