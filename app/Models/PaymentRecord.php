@@ -9,7 +9,7 @@ use Eloquent;
 class PaymentRecord extends Eloquent
 {
     use DuplicateDetection;
-    protected $fillable =['student_id', 'methode','payment_id', 'amt_paid', 'year', 'paid', 'balance', 'ref_no', 'operation_uuid'];
+    protected $fillable =['student_id', 'methode','payment_id', 'amt_paid', 'year', 'paid', 'balance', 'ref_no'];
 
     public function payment()
     {

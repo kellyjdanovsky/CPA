@@ -6,14 +6,8 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateDecaissementsTable extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
     public function up()
     {
-        // Check if table already exists to avoid conflicts
         if (!Schema::hasTable('decaissements')) {
             Schema::create('decaissements', function (Blueprint $table) {
                 $table->id();
@@ -29,35 +23,27 @@ class CreateDecaissementsTable extends Migration
                 $table->string('piece_justificative_nom')->nullable();
                 $table->boolean('piece_justificative_valide')->default(false);
                 $table->enum('statut', ['EN_ATTENTE', 'APPROUVE', 'PAYE', 'ANNULE'])->default('EN_ATTENTE');
-                $table->unsignedBigInteger('created_by');
-                $table->unsignedBigInteger('approved_by')->nullable();
-                $table->unsignedBigInteger('paid_by')->nullable();
+                $table->unsignedInteger('created_by');
+                $table->unsignedInteger('approved_by')->nullable();
+                $table->unsignedInteger('paid_by')->nullable();
                 $table->string('year');
                 $table->text('observations')->nullable();
                 $table->timestamps();
                 $table->softDeletes();
 
-                // Index pour optimiser les requêtes
                 $table->index(['date_decaissement', 'year']);
                 $table->index(['statut', 'year']);
                 $table->index(['beneficiaire', 'year']);
                 $table->index(['projet_rubrique', 'year']);
                 $table->index(['mode_paiement', 'year']);
 
-                // Contraintes de clés étrangères
                 $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
                 $table->foreign('approved_by')->references('id')->on('users')->onDelete('set null');
                 $table->foreign('paid_by')->references('id')->on('users')->onDelete('set null');
             });
         }
-        // If table exists, skip creation - indexes will be handled by Laravel automatically
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
     public function down()
     {
         Schema::dropIfExists('decaissements');

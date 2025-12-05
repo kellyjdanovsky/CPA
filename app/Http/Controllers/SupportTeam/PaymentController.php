@@ -233,10 +233,56 @@ class PaymentController extends Controller
         $d['payments'] = $this->pay->getActivePayments()->get();
 
         if($class_id){
-            $d['students'] = $st = $this->student->getRecord(['my_class_id' => $class_id])->get()->sortBy('user.name');
-            if($st->count() < 1){
+            $students = $this->student->getRecord(['my_class_id' => $class_id])->get()->sortBy('user.name');
+            if($students->count() < 1){
                 return Qs::goWithDanger('payments.manage');
             }
+            
+            // Calculate payment status for each student
+            foreach ($students as $student) {
+                $status = $student->user->status ?? 'Normal';
+                $student->payment_status = 'normal';
+                $student->payments_paid_25 = 0;
+                $student->payments_total = 0;
+                
+                // For ADRA students, check if they have paid their 25% portion
+                if ($status === 'ADRA') {
+                    // Get all payments for this student in the current year
+                    $paymentRecords = PaymentRecord::where('student_id', $student->user_id)
+                        ->where('year', $this->year)
+                        ->with('payment')
+                        ->get();
+                    
+                    $paidCount = 0;
+                    $totalPayments = count($d['payments']);
+                    
+                    foreach ($d['payments'] as $payment) {
+                        $record = $paymentRecords->where('payment_id', $payment->id)->first();
+                        $requiredAmount = $payment->amount * 0.25; // 25% for ADRA students
+                        
+                        if ($record && $record->amt_paid >= $requiredAmount) {
+                            $paidCount++;
+                        }
+                    }
+                    
+                    $student->payments_paid_25 = $paidCount;
+                    $student->payments_total = $totalPayments;
+                    
+                    // If all 25% payments are made, mark as "acquittées"
+                    if ($paidCount > 0 && $paidCount >= $totalPayments) {
+                        $student->payment_status = 'acquittees';
+                    } elseif ($paidCount > 0) {
+                        $student->payment_status = 'partial';
+                    } else {
+                        $student->payment_status = 'unpaid';
+                    }
+                } elseif ($status === 'Team3' || $status === 'TEAM3') {
+                    // For TEAM3, mark as automatically covered (no student payment required)
+                    $student->payment_status = 'covered';
+                }
+            }
+            
+            $d['students'] = $students;
             $d['selected'] = true;
             $d['my_class_id'] = $class_id;
         }
@@ -1248,7 +1294,7 @@ public function select(Request $request)
     return response()->json($payments);
 }
 
-public function journal()
+private function journal_deprecated()
 {
     // Par défaut, afficher les paiements du jour
     $today = date('Y-m-d');
@@ -1333,7 +1379,7 @@ public function journal()
     ]);
 }
 
-public function journalFilter(Request $request)
+private function journalFilter_deprecated(Request $request)
 {
     $period = $request->period;
     $startDate = $request->start_date;
@@ -1560,27 +1606,43 @@ public function getClassPayments(Request $request)
     }
 
     try {
+        $year = $this->year ?? Qs::getCurrentSession();
+        
         // Debug: Log the request
-        \Log::info('Getting payments for class', ['class_id' => $classId, 'year' => $this->year]);
-
-        // Get payments for this specific class
-        $classPayments = Payment::where('my_class_id', $classId)
-            ->where('year', $this->year)
-            ->get();
-
-        // Get general payments (for all classes)
-        $generalPayments = Payment::whereNull('my_class_id')
-            ->where('year', $this->year)
-            ->get();
-
-        // Debug: Log the results
-        \Log::info('Found payments', [
-            'class_payments' => $classPayments->count(),
-            'general_payments' => $generalPayments->count()
+        \Log::info('Getting payments for class', [
+            'class_id' => $classId, 
+            'year' => $year, 
+            'type' => gettype($classId)
         ]);
 
-        // Merge class-specific and general payments
-        $allPayments = $classPayments->merge($generalPayments);
+        $classPaymentsCount = 0;
+        $generalPaymentsCount = 0;
+
+        // If 'all' classes, get ALL payments (general + all class-specific)
+        if ($classId == 'all' || $classId === 'all') {
+            $allPayments = Payment::where('year', $year)->get();
+            $classPaymentsCount = $allPayments->whereNotNull('my_class_id')->count();
+            $generalPaymentsCount = $allPayments->whereNull('my_class_id')->count();
+            \Log::info('All payments query', ['count' => $allPayments->count()]);
+        } else {
+            // Get payments for this specific class
+            $classPayments = Payment::where('my_class_id', $classId)
+                ->where('year', $year)
+                ->get();
+            $classPaymentsCount = $classPayments->count();
+
+            // Get general payments (for all classes)
+            $generalPayments = Payment::whereNull('my_class_id')
+                ->where('year', $year)
+                ->get();
+            $generalPaymentsCount = $generalPayments->count();
+
+            // Merge class-specific and general payments
+            $allPayments = $classPayments->merge($generalPayments);
+        }
+
+        // Debug: Log the results
+        \Log::info('Found payments', ['count' => $allPayments->count()]);
 
         $paymentsArray = $allPayments->map(function($payment) {
             return [
@@ -1598,8 +1660,8 @@ public function getClassPayments(Request $request)
             'debug' => [
                 'class_id' => $classId,
                 'year' => $this->year,
-                'class_payments_count' => $classPayments->count(),
-                'general_payments_count' => $generalPayments->count(),
+                'class_payments_count' => $classPaymentsCount,
+                'general_payments_count' => $generalPaymentsCount,
                 'total_count' => count($paymentsArray)
             ]
         ]);
@@ -1630,13 +1692,18 @@ public function getPaymentStudents(Request $request)
     }
 
     try {
-        // Get students from the selected class with ADRA or TEAM3 status
-        $students = StudentRecord::with(['user', 'my_class'])
-            ->where('my_class_id', $classId)
-            ->whereHas('user', function($query) {
-                $query->whereIn('status', ['ADRA', 'TEAM3']);
-            })
-            ->get();
+        // Get students with ADRA or TEAM3 status
+        $query = StudentRecord::with(['user', 'my_class'])
+            ->whereHas('user', function($q) {
+                $q->whereIn('status', ['ADRA', 'TEAM3']);
+            });
+
+        // If not 'all', filter by specific class
+        if ($classId !== 'all') {
+            $query->where('my_class_id', $classId);
+        }
+
+        $students = $query->get();
 
         // Get payment details
         $payment = Payment::find($paymentId);
@@ -1655,13 +1722,24 @@ public function getPaymentStudents(Request $request)
                 ->where('year', $this->year)
                 ->first();
 
+            // Check if the student has already paid their 25%
+            $hasPaid25 = false;
+            if ($paymentRecord && $paymentRecord->paid) {
+                // If paid field is set, check if amt_paid covers at least 25%
+                $hasPaid25 = $paymentRecord->amt_paid >= ($payment->amount * 0.25);
+            }
+
+            // Generate or use existing reference code
+            $refCode = $paymentRecord->ref_no ?? 'REF-' . mt_rand(100000, 999999);
+
             return [
                 'id' => $student->user_id,
                 'name' => $student->user->name,
                 'adm_no' => $student->adm_no,
                 'class_name' => $student->my_class->name,
                 'status' => $student->user->status,
-                'reference_code' => $paymentRecord->ref_no ?? 'REF-' . mt_rand(100000, 999999)
+                'reference_code' => $refCode,
+                'has_paid_25' => $hasPaid25
             ];
         });
 
@@ -1717,6 +1795,38 @@ public function printAdraTeam3Receipt(Request $request, $studentId)
     $payments = Payment::whereIn('id', $selectedPayments)->get();
     if ($payments->isEmpty()) {
         return response()->json(['error' => 'Paiements non trouvés'], 404);
+    }
+
+    // For ADRA status (25% student), verify that the student has paid the 25% for ALL selected payments
+    if ($status === 'ADRA') {
+        $unpaidPayments = [];
+        foreach ($payments as $payment) {
+            $paymentRecord = PaymentRecord::where('student_id', $studentId)
+                ->where('payment_id', $payment->id)
+                ->where('year', $this->year)
+                ->first();
+            
+            // Check if payment record exists and if the 25% has been paid
+            $requiredAmount = $payment->amount * 0.25;
+            if (!$paymentRecord || $paymentRecord->amt_paid < $requiredAmount) {
+                $unpaidPayments[] = $payment->title;
+            }
+        }
+        
+        // If there are unpaid payments, return error
+        if (!empty($unpaidPayments)) {
+            return response('<div style="padding: 20px; text-align: center; font-family: Arial, sans-serif;">
+                <div style="background: #f8d7da; border: 1px solid #f5c6cb; color: #721c24; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h3 style="margin: 0 0 10px 0;">⚠️ Impossible de valider le reçu</h3>
+                    <p style="margin: 0;">L\'élève n\'a pas encore payé les 25% pour les paiements suivants :</p>
+                    <ul style="text-align: left; margin-top: 10px;">' . 
+                        implode('', array_map(function($p) { return "<li><strong>$p</strong></li>"; }, $unpaidPayments)) .
+                    '</ul>
+                    <p style="margin-top: 10px;">Veuillez d\'abord encaisser les 25% avant d\'imprimer le reçu.</p>
+                </div>
+                <button onclick="window.close()" style="padding: 10px 20px; background: #667eea; color: white; border: none; border-radius: 5px; cursor: pointer;">Fermer</button>
+            </div>', 400);
+        }
     }
 
     // Calculate amounts based on status
@@ -1778,12 +1888,19 @@ public function printAdraTeam3Receipt(Request $request, $studentId)
         'methode' => $status,
         'payment_method' => $status,
         'reference_number' => $referenceCode,
-        'amount' => $amountToPay,
-        'description' => 'Paiement ' . $status . ' - ' . $payments->count() . ' paiements',
+        'observations' => 'Paiement ' . $status . ' - ' . $payments->count() . ' paiements',
         'created_by' => auth()->id()
     ];
 
-    $receipt = Receipt::create($receiptData);
+    // Check if receipt already exists
+    $receipt = Receipt::where('reference_number', $referenceCode)->first();
+
+    if (!$receipt) {
+        $receipt = Receipt::create($receiptData);
+    } else {
+        // Update existing receipt if needed
+        $receipt->update($receiptData);
+    }
 
     // Prepare data for thermal receipt
     $receiptData = [
@@ -1885,12 +2002,18 @@ public function printBatchReceipts(Request $request)
             'methode' => $status,
             'payment_method' => $status,
             'reference_number' => $referenceCode,
-            'amount' => $amountToPay,
-            'description' => 'Paiement ' . $status . ' - ' . $payments->count() . ' paiements',
+            'observations' => 'Paiement ' . $status . ' - ' . $payments->count() . ' paiements',
             'created_by' => auth()->id()
         ];
 
-        $receipt = Receipt::create($receiptData);
+        // Check if receipt already exists
+        $receipt = Receipt::where('reference_number', $referenceCode)->first();
+
+        if (!$receipt) {
+            $receipt = Receipt::create($receiptData);
+        } else {
+            $receipt->update($receiptData);
+        }
 
         $receiptsData[] = [
             'student' => $student,
@@ -1996,7 +2119,7 @@ public function exportAdraTeam3Excel(Request $request)
         ->header('Expires', '0');
 }
 
-public function journalExportExcel(Request $request)
+private function journalExportExcel_deprecated(Request $request)
 {
     // Récupérer les paramètres de filtrage
     $period = $request->period ?? 'day';
@@ -2964,4 +3087,154 @@ private function generateMalagasyText($student, $paymentTitles, $amount, $deadli
         return $unpaidStudents;
     }
 
+    /**
+     * Afficher le journal des paiements avec filtres
+     */
+    public function journal(Request $request)
+    {
+        $d['period'] = $request->period ?? 'month';
+        
+        // Définir les dates par défaut selon la période
+        if ($d['period'] == 'day') {
+            $d['startDate'] = date('Y-m-d');
+            $d['endDate'] = date('Y-m-d');
+        } elseif ($d['period'] == 'week') {
+            $d['startDate'] = now()->startOfWeek()->format('Y-m-d');
+            $d['endDate'] = now()->endOfWeek()->format('Y-m-d');
+        } elseif ($d['period'] == 'month') {
+            $d['startDate'] = date('Y-m-01');
+            $d['endDate'] = date('Y-m-t');
+        } else {
+            $d['startDate'] = $request->start_date ?? date('Y-m-01');
+            $d['endDate'] = $request->end_date ?? date('Y-m-t');
+        }
+
+        $d['selectedClass'] = $request->class_id;
+        $d['selectedPaymentType'] = $request->payment_type;
+        $d['selectedPaymentMethod'] = $request->payment_method;
+        $d['studentName'] = $request->student_name;
+
+        // Récupérer les données pour les listes déroulantes des filtres
+        $d['classes'] = $this->my_class->all();
+        $d['paymentTypes'] = $this->pay->getPayment(['year' => $this->year])->get();
+        $d['paymentMethods'] = Receipt::select('methode')->distinct()->whereNotNull('methode')->get();
+
+        // Construire la requête principale
+        $query = Receipt::with(['pr.student.student_record.my_class', 'pr.payment'])
+            ->where('year', $this->year);
+
+        // Exclure les paiements ADRA (75%) et TEAM3 (100%) du journal
+        // Ces paiements sont affichés uniquement dans les encaissements
+        $query->where(function($q) {
+            $q->whereNull('methode')  // Paiements normaux sans méthode spécifique
+              ->orWhere(function($subQ) {
+                  // Inclure seulement les paiements normaux (pas ADRA ni TEAM3)
+                  $subQ->whereNotIn('methode', ['ADRA', 'TEAM3']);
+              })
+              ->orWhere(function($subQ) {
+                  // Inclure les paiements ADRA où le montant payé correspond au 25% (partie étudiante)
+                  // Cela inclut les paiements en espèces de la portion étudiante
+                  $subQ->where('methode', 'Espèces')
+                       ->orWhere('methode', 'like', '%Espèces%');
+              });
+        });
+
+        // Appliquer le filtre de date
+        $query->whereBetween('created_at', [$d['startDate'] . ' 00:00:00', $d['endDate'] . ' 23:59:59']);
+
+        // Filtre par classe
+        if ($d['selectedClass']) {
+            $query->whereHas('pr.student.student_record', function($q) use ($d) {
+                $q->where('my_class_id', $d['selectedClass']);
+            });
+        }
+
+        // Filtre par type de paiement (titre du paiement)
+        if ($d['selectedPaymentType']) {
+            $query->whereHas('pr.payment', function($q) use ($d) {
+                $q->where('title', $d['selectedPaymentType']);
+            });
+        }
+
+        // Filtre par mode de paiement
+        if ($d['selectedPaymentMethod']) {
+            $query->where('methode', $d['selectedPaymentMethod']);
+        }
+
+        // Filtre par nom d'étudiant
+        if ($d['studentName']) {
+            $query->whereHas('pr.student', function($q) use ($d) {
+                $q->where('name', 'like', '%' . $d['studentName'] . '%');
+            });
+        }
+
+        // Exécuter la requête
+        $receipts = $query->latest()->get();
+        
+        // Filtrer les reçus pour exclure les paiements ADRA/TEAM3 (75%/100%)
+        // Ne garder que les paiements normaux et les 25% ADRA
+        $receipts = $receipts->filter(function($receipt) {
+            // Si le reçu a une méthode ADRA ou TEAM3, c'est un paiement automatique (75%/100%)
+            // On l'exclut du journal car il doit apparaître dans les encaissements
+            if ($receipt->methode === 'ADRA' || $receipt->methode === 'TEAM3') {
+                return false;
+            }
+            return true;
+        })->values();
+        
+        $d['receipts'] = $receipts;
+        
+        // Calculer le total général
+        $d['totalAmount'] = $receipts->sum('amt_paid');
+        
+        // Calculer les statistiques par classe
+        $d['classTotals'] = [];
+        $d['classTotalSum'] = 0;
+        foreach ($receipts as $receipt) {
+            if ($receipt->pr && $receipt->pr->student && $receipt->pr->student->student_record && $receipt->pr->student->student_record->my_class) {
+                $className = $receipt->pr->student->student_record->my_class->name;
+                if (!isset($d['classTotals'][$className])) {
+                    $d['classTotals'][$className] = 0;
+                }
+                $d['classTotals'][$className] += $receipt->amt_paid;
+                $d['classTotalSum'] += $receipt->amt_paid;
+            }
+        }
+        arsort($d['classTotals']); // Trier par montant décroissant
+
+        // Calculer les statistiques par type de paiement
+        $d['paymentTypeTotals'] = [];
+        $d['paymentTypeTotalSum'] = 0;
+        foreach ($receipts as $receipt) {
+            if ($receipt->pr && $receipt->pr->payment) {
+                $paymentTitle = $receipt->pr->payment->title;
+                if (!isset($d['paymentTypeTotals'][$paymentTitle])) {
+                    $d['paymentTypeTotals'][$paymentTitle] = 0;
+                }
+                $d['paymentTypeTotals'][$paymentTitle] += $receipt->amt_paid;
+                $d['paymentTypeTotalSum'] += $receipt->amt_paid;
+            }
+        }
+        arsort($d['paymentTypeTotals']); // Trier par montant décroissant
+
+        return view('pages.support_team.payments.journal', $d);
+    }
+
+    /**
+     * Alias pour le filtre du journal (utilise la même logique que journal)
+     */
+    public function journalFilter(Request $request)
+    {
+        return $this->journal($request);
+    }
+
+    /**
+     * Exporter le journal en Excel (Serveur)
+     */
+    public function journalExportExcel(Request $request)
+    {
+        // Pour l'instant, on utilise l'export JS côté client qui est plus rapide et déjà implémenté
+        // Si besoin d'un export serveur, on pourra l'implémenter ici avec PhpSpreadsheet
+        return $this->journal($request);
+    }
 }

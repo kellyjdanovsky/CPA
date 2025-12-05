@@ -2,6 +2,7 @@
 @section('page_title', 'Liste complète des étudiants')
 
 @section('page_styles')
+<link rel="stylesheet" href="{{ asset('assets/css/datatable_responsive.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/inline_editing.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/student_statistics.css') }}">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -220,30 +221,7 @@
                                 <td class="editable editable-cell" data-field="nom_m" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->nom_m }}">{{ $s->user->nom_m }}</td>
                                 <td class="editable editable-cell" data-field="prof_m" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->prof_m }}">{{ $s->user->prof_m }}</td>
                                 <td class="editable editable-cell" data-field="phone" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->phone }}">{{ $s->user->phone }}</td>
-                                <td class="text-center">
-                                    <div class="list-icons">
-                                        <div class="dropdown">
-                                            <a href="#" class="list-icons-item" data-toggle="dropdown">
-                                                <i class="icon-menu9"></i>
-                                            </a>
-
-                                            <div class="dropdown-menu dropdown-menu-left">
-                                                <a href="{{ route('students.show', Qs::hash($s->id)) }}" class="dropdown-item"><i class="icon-eye"></i> Voir le profil</a>
-                                                @if(Qs::userIsTeamSA())
-                                                    <a href="{{ route('students.edit', Qs::hash($s->id)) }}" class="dropdown-item"><i class="icon-pencil"></i> Modifier</a>
-                                                    <a href="{{ route('st.reset_pass', Qs::hash($s->user->id)) }}" class="dropdown-item"><i class="icon-lock"></i> Réinitialiser le mot de passe</a>
-                                                @endif
-                                                <a target="_blank" href="{{ route('marks.year_selector', Qs::hash($s->user->id)) }}" class="dropdown-item"><i class="icon-check"></i> Fiche de notes</a>
-
-                                                {{--Suppression--}}
-                                                @if(Qs::userIsSuperAdmin())
-                                                    <a id="{{ Qs::hash($s->user->id) }}" onclick="confirmDelete(this.id)" href="#" class="dropdown-item"><i class="icon-trash"></i> Supprimer</a>
-                                                    <form method="post" id="item-delete-{{ Qs::hash($s->user->id) }}" action="{{ route('students.destroy', Qs::hash($s->user->id)) }}" class="hidden">@csrf @method('delete')</form>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
+                                @include('partials.student_action_buttons', ['s' => $s])
                             </tr>
                         @endforeach
                         </tbody>
@@ -694,29 +672,7 @@
                                 <td>{{ $s->user->nom_m }}</td>
                                 <td>{{ $s->user->prof_m }}</td>
                                 <td>{{ $s->user->phone }}</td>
-                                <td class="text-center">
-                                    <div class="list-icons">
-                                        <div class="dropdown">
-                                            <a href="#" class="list-icons-item" data-toggle="dropdown">
-                                                <i class="icon-menu9"></i>
-                                            </a>
-                                            <div class="dropdown-menu dropdown-menu-right">
-                                                <a href="{{ route('students.show', Qs::hash($s->id)) }}" class="dropdown-item"><i class="icon-eye"></i> Voir les informations</a>
-                                                @if(Qs::userIsTeamSA())
-                                                    <a href="{{ route('students.edit', Qs::hash($s->id)) }}" class="dropdown-item"><i class="icon-pencil"></i> Modifier</a>
-                                                    <a href="{{ route('st.reset_pass', Qs::hash($s->user->id)) }}" class="dropdown-item"><i class="icon-lock"></i> Réinitialiser le mot de passe</a>
-                                                @endif
-                                                <a target="_blank" href="{{ route('marks.year_selector', Qs::hash($s->user->id)) }}" class="dropdown-item"><i class="icon-check"></i> Fiche de notes</a>
-
-                                                {{--Suppression--}}
-                                                @if(Qs::userIsSuperAdmin())
-                                                    <a id="{{ Qs::hash($s->user->id) }}" onclick="confirmDelete(this.id)" href="#" class="dropdown-item"><i class="icon-trash"></i> Supprimer</a>
-                                                    <form method="post" id="item-delete-{{ Qs::hash($s->user->id) }}" action="{{ route('students.destroy', Qs::hash($s->user->id)) }}" class="hidden">@csrf @method('delete')</form>
-                                                @endif
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
+                                @include('partials.student_action_buttons', ['s' => $s])
                             </tr>
                         @endforeach
                         </tbody>

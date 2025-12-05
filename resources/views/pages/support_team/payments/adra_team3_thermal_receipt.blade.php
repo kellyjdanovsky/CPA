@@ -182,7 +182,7 @@
 
         <!-- Titre REÇU -->
         <div class="receipt-box">
-            REÇU
+            REÇU - {{ $status }}
         </div>
 
         <!-- Référence et date -->
@@ -190,51 +190,44 @@
             RÉF: {{ $referenceCode }} | {{ date('d/m/Y H:i') }}
         </div>
 
-        <!-- Informations étudiant et paiement -->
+        <!-- Informations étudiant -->
         <div class="student-box">
             <div class="student-name">{{ strtoupper($student->user->name) }}</div>
-            <div class="student-class">{{ $student->my_class->name }}</div>
-            @foreach($payments as $payment)
-                <div class="payment-line">{{ strtoupper($payment->title) }} - {{ number_format($payment->amount, 0, ',', ' ') }} AR</div>
-            @endforeach
+            <div class="student-class">Classe: {{ $student->my_class->name }}</div>
+            <div style="margin-top: 2mm; font-size: 7pt;">Code Réf: {{ $referenceCode }}</div>
         </div>
 
-        <!-- Section HISTORIQUE -->
-        <div class="history-header">HISTORIQUE</div>
-
+        <!-- Détails des paiements -->
+        <div class="history-header">PAIEMENTS SÉLECTIONNÉS</div>
         <table class="history-table">
             <thead>
                 <tr>
-                    <th>DATE</th>
-                    <th>PAYÉ</th>
-                    <th>RESTE</th>
+                    <th>DÉSIGNATION</th>
+                    <th>MONTANT 25%</th>
                 </tr>
             </thead>
             <tbody>
-                <tr>
-                    <td>{{ date('d/m/y') }}</td>
-                    <td>{{ number_format($amountToPay, 0, ',', ' ') }} Ar</td>
-                    <td>{{ number_format($cashAmount, 0, ',', ' ') }} Ar</td>
-                </tr>
-                @if($status === 'ADRA' && $cashAmount > 0)
-                <tr>
-                    <td>{{ date('d/m/y') }}</td>
-                    <td>{{ number_format($cashAmount, 0, ',', ' ') }} Ar</td>
-                    <td>0 Ar</td>
-                </tr>
-                @endif
+                @php $total25 = 0; @endphp
+                @foreach($payments as $payment)
+                    @php 
+                        $amount25 = $status === 'ADRA' ? ($payment->amount * 0.25) : 0;
+                        $total25 += $amount25;
+                    @endphp
+                    <tr>
+                        <td style="text-align: left;">{{ strtoupper($payment->title) }}</td>
+                        <td>{{ number_format($amount25, 0, ',', ' ') }} Ar</td>
+                    </tr>
+                @endforeach
             </tbody>
         </table>
 
-        <!-- Mode de paiement -->
-        <div class="payment-mode">
-            Mode: {{ $status }}{{ $status === 'ADRA' ? ' + CASH' : '' }}
+        <!-- Montant à Payer (25%) -->
+        <div class="balance-box" style="background-color: #e8f5e9;">
+            <div style="font-size: 7pt; margin-bottom: 1mm;">MONTANT À PAYER (25%)</div>
+            <div style="font-size: 10pt;">{{ number_format($cashAmount, 0, ',', ' ') }} Ar</div>
         </div>
 
-        <!-- Reste à payer -->
-        <div class="balance-box">
-            Reste à payer: {{ $status === 'ADRA' && $cashAmount > 0 ? '0' : number_format($cashAmount, 0, ',', ' ') }} Ar
-        </div>
+
 
         <!-- Informations caissier -->
         <div class="cashier-box">

@@ -287,6 +287,7 @@ tr[style*="display: none"] {
                     <label for="class_selector">Choisir une classe :</label>
                     <select id="class_selector" class="form-control select2">
                         <option value="">-- Sélectionner une classe --</option>
+                        <option value="all">📚 TOUTES LES CLASSES</option>
                         @foreach($classes as $class)
                             <option value="{{ $class->id }}" {{ $class->id == $selectedClassId ? 'selected' : '' }}>
                                 {{ $class->name }}
@@ -331,30 +332,71 @@ tr[style*="display: none"] {
         <!-- Action Buttons -->
         <div class="row mb-3" id="action-section" style="display: none;">
             <div class="col-md-12 text-center">
-                <button type="button" class="btn btn-success btn-lg" onclick="printAllReceipts()" id="print-all-btn">
-                    <i class="icon-printer mr-2"></i>Imprimer tous les reçus thermiques 58mm
+                <button type="button" class="btn btn-success btn-lg mr-2" onclick="printAllReceipts()" id="print-all-btn">
+                    <i class="icon-printer mr-2"></i>Imprimer tous les reçus 25%
+                </button>
+                <button type="button" class="btn btn-info btn-lg mr-2" onclick="exportMainTableExcel()">
+                    <i class="icon-file-excel mr-2"></i>Export Excel (25%)
+                </button>
+                <button type="button" class="btn btn-warning btn-lg" onclick="exportSummaryExcel()">
+                    <i class="icon-file-excel mr-2"></i>Export Récapitulatif (75%/100%)
                 </button>
             </div>
         </div>
 
-        <!-- Students Table -->
-        <div class="table-responsive" id="students-table" style="display: none;">
-            <table id="adra_team3_table" class="table table-modern">
-                <thead>
-                    <tr>
-                        <th>Nom & Prénoms</th>
-                        <th>Classe</th>
-                        <th>Statut</th>
-                        <th>Code Référence</th>
-                        <th>Montant Total du Paiement</th>
-                        <th>Montant à Payer</th>
-                        <th>Imprimer Reçu</th>
-                    </tr>
-                </thead>
-                <tbody id="students-tbody">
-                    <!-- Les étudiants seront chargés dynamiquement -->
-                </tbody>
-            </table>
+        <!-- Nav tabs for main table and summary -->
+        <ul class="nav nav-tabs mb-3" id="adraTeam3Tabs" role="tablist">
+            <li class="nav-item">
+                <a class="nav-link active" id="main-tab" data-toggle="tab" href="#mainTable" role="tab">
+                    <i class="icon-list mr-1"></i>Liste des Paiements (25% ADRA)
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" id="summary-tab" data-toggle="tab" href="#summaryTable" role="tab">
+                    <i class="icon-chart mr-1"></i>Récapitulatif Détaillé
+                </a>
+            </li>
+        </ul>
+
+        <div class="tab-content" id="adraTeam3TabContent">
+            <!-- Main Students Table -->
+            <div class="tab-pane fade show active" id="mainTable" role="tabpanel">
+                <div class="table-responsive" id="students-table" style="display: none;">
+                    <table id="adra_team3_table" class="table table-modern">
+                        <thead>
+                            <tr>
+                                <th>Nom & Prénoms</th>
+                                <th>Classe</th>
+                                <th>Statut</th>
+                                <th>Code Référence</th>
+                                <th>Montant 25% (À Payer)</th>
+                                <th>Reste à Payer</th>
+                                <th>Imprimer Reçu</th>
+                            </tr>
+                        </thead>
+                        <tbody id="students-tbody">
+                            <!-- Les étudiants seront chargés dynamiquement -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Summary Table -->
+            <div class="tab-pane fade" id="summaryTable" role="tabpanel">
+                <div class="table-responsive" id="summary-table-container" style="display: none;">
+                    <table id="summary_table" class="table table-modern table-bordered">
+                        <thead id="summary-thead">
+                            <!-- Headers will be generated dynamically -->
+                        </thead>
+                        <tbody id="summary-tbody">
+                            <!-- Summary rows will be generated dynamically -->
+                        </tbody>
+                        <tfoot id="summary-tfoot">
+                            <!-- Grand total will be here -->
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -528,34 +570,48 @@ window.loadStudentsWithSelectedPayments = function() {
         document.getElementById('summary-section').style.display = 'none';
         document.getElementById('action-section').style.display = 'none';
         document.getElementById('students-table').style.display = 'none';
+        document.getElementById('summary-table-container').style.display = 'none';
         return;
     }
 
-    // Récupérer les IDs des paiements sélectionnés
-    const selectedPaymentIds = Array.from(selectedCheckboxes).map(cb => cb.value);
-    console.log('loadStudentsWithSelectedPayments called with classId:', classId, 'paymentIds:', selectedPaymentIds);
+    // Récupérer les paiements sélectionnés avec leurs infos
+    const selectedPayments = Array.from(selectedCheckboxes).map(cb => ({
+        id: cb.value,
+        amount: parseInt(cb.getAttribute('data-amount')),
+        title: cb.getAttribute('data-title')
+    }));
+    const selectedPaymentIds = selectedPayments.map(p => p.id);
+    const totalAmount = selectedPayments.reduce((sum, p) => sum + p.amount, 0);
 
-    // Calculer le montant total
-    let totalAmount = 0;
-    selectedCheckboxes.forEach(checkbox => {
-        totalAmount += parseInt(checkbox.getAttribute('data-amount'));
-    });
-
-    // AJAX call to get students - on utilise le premier paiement pour récupérer les étudiants
+    // AJAX call to get students
     fetch('{{ route("payments.adra_team3.get_students") }}?class_id=' + classId + '&payment_id=' + selectedPaymentIds[0])
         .then(response => response.json())
         .then(data => {
-            console.log('Students response:', data);
-
             if (data.success && data.students && data.students.length > 0) {
                 let tableRows = '';
+                let summaryRows = '';
+                let grandTotal = 0;
+
+                // Generate summary table headers
+                let summaryHeaders = '<tr><th>Nom Élève</th><th>Statut</th><th>Code Réf</th><th>Classe</th>';
+                selectedPayments.forEach(p => {
+                    summaryHeaders += `<th>${p.title}</th>`;
+                });
+                summaryHeaders += '<th>Total</th></tr>';
+                document.getElementById('summary-thead').innerHTML = summaryHeaders;
 
                 data.students.forEach(function(student) {
                     const status = student.status;
                     const statusIcon = status === 'ADRA' ? '🏛️' : '👥';
                     const statusClass = status === 'ADRA' ? 'badge-info' : 'badge-success';
-                    const amountToPay = status === 'ADRA' ? (totalAmount * 0.75) : totalAmount;
-                    const balance = status === 'ADRA' ? (totalAmount * 0.25) : 0;
+                    
+                    // Pour ADRA: 25% à payer, pour TEAM3: 0%
+                    const percentage = status === 'ADRA' ? 0.25 : 0;
+                    const amountToPay = totalAmount * percentage;
+                    const paidByProgram = status === 'ADRA' ? (totalAmount * 0.75) : totalAmount;
+                    const resteToPay = student.has_paid_25 ? 0 : amountToPay;
+                    const resteClass = resteToPay > 0 ? 'text-danger' : 'text-success';
+                    const resteText = resteToPay > 0 ? `${new Intl.NumberFormat('fr-FR').format(resteToPay)} Ar` : '✓ Payé';
 
                     tableRows += `
                         <tr data-student-id="${student.id}" data-status="${status}" data-total-amount="${totalAmount}" data-selected-payments='${JSON.stringify(selectedPaymentIds)}'>
@@ -563,50 +619,95 @@ window.loadStudentsWithSelectedPayments = function() {
                                 <div class="font-weight-semibold">${student.name}</div>
                                 <small class="text-muted">${student.adm_no || ''}</small>
                             </td>
-                            <td>
-                                <span class="badge badge-primary">${student.class_name}</span>
-                            </td>
-                            <td>
-                                <span class="badge badge-modern ${statusClass}">${statusIcon} ${status}</span>
-                            </td>
+                            <td><span class="badge badge-primary">${student.class_name}</span></td>
+                            <td><span class="badge badge-modern ${statusClass}">${statusIcon} ${status}</span></td>
                             <td>
                                 <input type="text" class="form-control form-control-sm reference-code"
                                        value="${student.reference_code}"
                                        data-student-id="${student.id}"
-                                       onchange="updateReferenceCode(this)">
+                                       onblur="saveReferenceCode(this)">
                             </td>
                             <td>
-                                <strong>${new Intl.NumberFormat('fr-FR').format(totalAmount)} Ar</strong>
-                                <br><small class="text-muted">${selectedPaymentIds.length} paiement(s)</small>
+                                <strong class="text-primary">${new Intl.NumberFormat('fr-FR').format(amountToPay)} Ar</strong>
+                                <br><small class="text-muted">(25% de ${new Intl.NumberFormat('fr-FR').format(totalAmount)} Ar)</small>
                             </td>
-                            <td>
-                                <strong class="text-success">${new Intl.NumberFormat('fr-FR').format(amountToPay)} Ar</strong>
-                                ${status === 'ADRA' ? `<br><small class="text-muted">Cash: ${new Intl.NumberFormat('fr-FR').format(balance)} Ar</small>` : ''}
-                            </td>
+                            <td><strong class="${resteClass}">${resteText}</strong></td>
                             <td>
                                 <button type="button" class="btn btn-sm btn-primary" onclick="printIndividualReceipt(${student.id})">
-                                    <i class="icon-printer"></i> Imprimer 58mm
+                                    <i class="icon-printer"></i> Reçu 25%
                                 </button>
                             </td>
                         </tr>
                     `;
+
+                    // Summary row - show 75% for ADRA, 100% for TEAM3
+                    let studentTotal = 0;
+                    summaryRows += `<tr>
+                        <td><strong>${student.name}</strong></td>
+                        <td><span class="badge ${statusClass}">${status}</span></td>
+                        <td>${student.reference_code}</td>
+                        <td>${student.class_name}</td>`;
+                    
+                    selectedPayments.forEach(p => {
+                        const paymentPercent = status === 'ADRA' ? 0.75 : 1;
+                        const paymentAmount = p.amount * paymentPercent;
+                        studentTotal += paymentAmount;
+                        summaryRows += `<td>${new Intl.NumberFormat('fr-FR').format(paymentAmount)} Ar</td>`;
+                    });
+                    
+                    grandTotal += studentTotal;
+                    summaryRows += `<td><strong>${new Intl.NumberFormat('fr-FR').format(studentTotal)} Ar</strong></td></tr>`;
                 });
 
+                // Grand total row
+                const grandTotalRow = `<tr class="table-dark">
+                    <td colspan="${4 + selectedPayments.length}" class="text-right"><strong>GRAND TOTAL:</strong></td>
+                    <td><strong>${new Intl.NumberFormat('fr-FR').format(grandTotal)} Ar</strong></td>
+                </tr>`;
+
                 document.getElementById('students-tbody').innerHTML = tableRows;
+                document.getElementById('summary-tbody').innerHTML = summaryRows;
+                document.getElementById('summary-tfoot').innerHTML = grandTotalRow;
                 document.getElementById('students-table').style.display = 'block';
+                document.getElementById('summary-table-container').style.display = 'block';
                 document.getElementById('action-section').style.display = 'block';
             } else {
-                document.getElementById('students-tbody').innerHTML = '<tr><td colspan="7" class="text-center">Aucun étudiant ADRA ou TEAM3 trouvé pour ce paiement</td></tr>';
+                document.getElementById('students-tbody').innerHTML = '<tr><td colspan="7" class="text-center">Aucun étudiant ADRA ou TEAM3 trouvé</td></tr>';
                 document.getElementById('students-table').style.display = 'block';
                 document.getElementById('action-section').style.display = 'none';
             }
         })
         .catch(error => {
             console.error('Error loading students:', error);
-            document.getElementById('students-tbody').innerHTML = '<tr><td colspan="7" class="text-center text-danger">Erreur lors du chargement des étudiants</td></tr>';
+            document.getElementById('students-tbody').innerHTML = '<tr><td colspan="7" class="text-center text-danger">Erreur</td></tr>';
             document.getElementById('students-table').style.display = 'block';
-            document.getElementById('action-section').style.display = 'none';
         });
+};
+
+// Fonction pour sauvegarder automatiquement le code référence
+window.saveReferenceCode = function(input) {
+    const studentId = input.getAttribute('data-student-id');
+    const referenceCode = input.value;
+    
+    fetch('{{ route("payments.adra_team3.update_reference") }}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+        },
+        body: JSON.stringify({
+            student_id: studentId,
+            reference_code: referenceCode
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            input.classList.add('border-success');
+            setTimeout(() => input.classList.remove('border-success'), 2000);
+        }
+    })
+    .catch(error => console.error('Error saving reference:', error));
 };
 
 // Fonction d'impression individuelle pour paiements multiples
@@ -734,6 +835,107 @@ document.addEventListener('DOMContentLoaded', function() {
 
     console.log('✅ All event listeners set up successfully');
 });
+
+// Fonction d'export Excel du tableau principal (25%)
+window.exportMainTableExcel = function() {
+    const rows = document.querySelectorAll('#students-tbody tr[data-student-id]');
+    if (rows.length === 0) {
+        alert('Aucune donnée à exporter');
+        return;
+    }
+
+    // Créer les données du tableau
+    const data = [['Nom & Prénoms', 'Classe', 'Statut', 'Code Référence', 'Montant 25% (À Payer)', 'Reste à Payer']];
+    
+    rows.forEach(row => {
+        const name = row.querySelector('.font-weight-semibold')?.textContent || '';
+        const className = row.querySelector('.badge-primary')?.textContent || '';
+        const status = row.getAttribute('data-status') || '';
+        const refCode = row.querySelector('.reference-code')?.value || '';
+        const amount25 = row.querySelector('.text-primary')?.textContent?.replace(' Ar', '').trim() || '';
+        const reste = row.querySelectorAll('strong')[1]?.textContent?.replace(' Ar', '').replace('✓ Payé', '0').trim() || '';
+        
+        data.push([name, className, status, refCode, amount25, reste]);
+    });
+
+    exportToExcel(data, 'Paiements_25_ADRA_' + new Date().toISOString().slice(0,10));
+};
+
+// Fonction d'export Excel du récapitulatif (75%/100%)
+window.exportSummaryExcel = function() {
+    const theadRow = document.querySelector('#summary-thead tr');
+    const tbodyRows = document.querySelectorAll('#summary-tbody tr');
+    const tfootRow = document.querySelector('#summary-tfoot tr');
+    
+    if (!theadRow || tbodyRows.length === 0) {
+        alert('Aucune donnée à exporter');
+        return;
+    }
+
+    // Headers
+    const headers = [];
+    theadRow.querySelectorAll('th').forEach(th => {
+        headers.push(th.textContent.trim());
+    });
+    
+    const data = [headers];
+
+    // Body
+    tbodyRows.forEach(row => {
+        const rowData = [];
+        row.querySelectorAll('td').forEach(td => {
+            rowData.push(td.textContent.trim());
+        });
+        data.push(rowData);
+    });
+
+    // Footer (Grand Total)
+    if (tfootRow) {
+        const footerData = [];
+        tfootRow.querySelectorAll('td').forEach(td => {
+            footerData.push(td.textContent.trim());
+        });
+        data.push(footerData);
+    }
+
+    exportToExcel(data, 'Recapitulatif_75_100_ADRA_TEAM3_' + new Date().toISOString().slice(0,10));
+};
+
+// Fonction d'export vers Excel (utilise un format compatible Excel)
+window.exportToExcel = function(data, filename) {
+    // Créer le contenu en format XML (Excel 2003 XML)
+    // On sépare les balises pour éviter que Blade ne les interprète comme du PHP
+    let xml = '<' + '?xml version="1.0" encoding="UTF-8"?' + '>\n';
+    xml += '<' + '?mso-application progid="Excel.Sheet"?' + '>\n';
+    xml += '<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" ';
+    xml += 'xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">\n';
+    xml += '<Worksheet ss:Name="Données"><Table>\n';
+    
+    data.forEach((row, rowIndex) => {
+        xml += '<Row>\n';
+        row.forEach(cell => {
+            // Déterminer le type de cellule
+            const cellValue = String(cell).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            const isNumber = !isNaN(cellValue.replace(/\s/g, '').replace(',', '.')) && cellValue.trim() !== '';
+            
+            if (isNumber) {
+                xml += `<Cell><Data ss:Type="Number">${cellValue.replace(/\s/g, '').replace(',', '.')}</Data></Cell>\n`;
+            } else {
+                xml += `<Cell><Data ss:Type="String">${cellValue}</Data></Cell>\n`;
+            }
+        });
+        xml += '</Row>\n';
+    });
+    
+    xml += '</Table></Worksheet></Workbook>';
+    
+    // Télécharger le fichier
+    const blob = new Blob([xml], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = filename + '.xls';
+    link.click();
+};
 </script>
 
 @section('page_script')

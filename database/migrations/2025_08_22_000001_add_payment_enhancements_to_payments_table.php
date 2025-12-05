@@ -10,13 +10,13 @@ class AddPaymentEnhancementsToPaymentsTable extends Migration
     {
         Schema::table('payments', function (Blueprint $table) {
             if (!Schema::hasColumn('payments', 'verification_code')) {
-                $table->string('verification_code')->nullable()->after('status');
+                $table->string('verification_code')->nullable();
             }
             if (!Schema::hasColumn('payments', 'payment_type')) {
-                $table->string('payment_type')->default('cash')->after('amount');
+                $table->string('payment_type')->default('cash');
             }
             if (!Schema::hasColumn('payments', 'payment_date')) {
-                $table->timestamp('payment_date')->nullable()->after('payment_type');
+                $table->timestamp('payment_date')->nullable();
             }
         });
     }

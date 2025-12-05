@@ -10,7 +10,7 @@ use Illuminate\Support\Str;
 class Receipt extends Eloquent
 {
     use DuplicateDetection;
-    protected $fillable = ['pr_id', 'year', 'balance', 'amt_paid', 'methode', 'created_by', 'payment_method', 'reference_number', 'observations', 'amount', 'description', 'operation_uuid'];
+    protected $fillable = ['pr_id', 'year', 'balance', 'amt_paid', 'methode', 'created_by', 'payment_method', 'reference_number', 'observations', 'operation_uuid'];
 
     public function pr()
     {

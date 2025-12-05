@@ -24,23 +24,56 @@ class InlineEditor {
     }
 
     initializeDataTable() {
-        // Configuration DataTable optimisée pour l'édition en ligne
+        // Configuration DataTable optimisée avec support responsive
         const tableConfig = {
             processing: true,
             stateSave: true,
             stateDuration: 60 * 60 * 24, // 24 heures
             pageLength: 25,
             lengthMenu: [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Tous"]],
+            responsive: {
+                details: {
+                    type: 'column',
+                    target: 'tr',
+                    renderer: function (api, rowIdx, columns) {
+                        let data = $.map(columns, function (col, i) {
+                            return col.hidden ?
+                                '<tr data-dt-row="' + col.rowIndex + '" data-dt-column="' + col.columnIndex + '">' +
+                                '<td class="font-weight-bold">' + col.title + ':</td> ' +
+                                '<td>' + col.data + '</td>' +
+                                '</tr>' :
+                                '';
+                        }).join('');
+                        return data ? $('<table class="table table-sm mb-0"/>').append(data) : false;
+                    }
+                }
+            },
+            autoWidth: false,
             language: {
-                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json'
+                url: '//cdn.datatables.net/plug-ins/1.13.7/i18n/fr-FR.json',
+                search: '<span>Filtrer:</span> _INPUT_',
+                searchPlaceholder: 'Rechercher...',
+                lengthMenu: '<span>Afficher:</span> _MENU_',
+                paginate: {
+                    first: 'Premier',
+                    last: 'Dernier',
+                    next: 'Suivant',
+                    previous: 'Précédent'
+                },
+                emptyTable: "Aucune donnée disponible",
+                info: "Affichage de _START_ à _END_ sur _TOTAL_ entrées",
+                infoEmpty: "Affichage de 0 à 0 sur 0 entrées",
+                infoFiltered: "(filtré de _MAX_ entrées au total)",
+                zeroRecords: "Aucun résultat trouvé"
             },
             buttons: [
                 {
                     extend: 'colvis',
-                    className: 'btn btn-light dropdown-toggle',
-                    text: '<i class="icon-table2 mr-2"></i>Colonnes',
-                    columns: ':not(.no-export)',
-                    collectionLayout: 'fixed two-column',
+                    className: 'btn btn-primary dropdown-toggle',
+                    text: '<i class="icon-eye mr-2"></i>Visibilité colonnes',
+                    columns: ':not(.no-vis)',
+                    collectionLayout: 'fixed columns',
+                    collectionTitle: 'Choisir les colonnes à afficher',
                     postfixButtons: [
                         {
                             extend: 'colvisRestore',
@@ -53,63 +86,59 @@ class InlineEditor {
                         },
                         {
                             extend: 'colvisGroup',
-                            text: '<i class="icon-eye-blocked mr-2"></i>Tout masquer',
-                            hide: ':visible'
-                        }
-                    ],
-                    buttons: [
-                        {
-                            extend: 'columnsToggle',
-                            columns: ':not(.no-export)'
+                            text: '<i class="icon-eye-blocked mr-2"></i>Masquer optionnels',
+                            hide: [7, 8, 9, 10, 11, 14, 15, 16, 17] // Colonnes optionnelles
                         }
                     ]
                 },
                 {
                     extend: 'copyHtml5',
                     className: 'btn btn-light',
-                    text: '<i class="icon-copy mr-2"></i>Copier'
+                    text: '<i class="icon-copy mr-2"></i>Copier',
+                    exportOptions: {
+                        columns: ':visible:not(.no-export)'
+                    }
                 },
                 {
                     extend: 'excelHtml5',
-                    className: 'btn btn-light',
+                    className: 'btn btn-success',
                     text: '<i class="icon-file-excel mr-2"></i>Excel',
                     exportOptions: {
                         columns: ':visible:not(.no-export)'
                     },
-                    title: 'Export_Eleves_' + new Date().toISOString().slice(0, 10),
-                    customize: function (xlsx) {
-                        const sheet = xlsx.xl.worksheets['sheet1.xml'];
-                        // Ajouter une note sur les colonnes exportées
-                        // Cette personnalisation peut être étendue selon les besoins
-                    }
+                    title: 'Export_Eleves_' + new Date().toISOString().slice(0, 10)
                 },
                 {
                     extend: 'pdfHtml5',
-                    className: 'btn btn-light',
+                    className: 'btn btn-danger',
                     text: '<i class="icon-file-pdf mr-2"></i>PDF',
                     exportOptions: {
                         columns: ':visible:not(.no-export)'
                     },
                     title: 'Export_Eleves_' + new Date().toISOString().slice(0, 10),
                     orientation: 'landscape',
+                    pageSize: 'A4',
                     customize: function (doc) {
-                        // Personnaliser le PDF si nécessaire
                         doc.defaultStyle.fontSize = 8;
                         doc.styles.tableHeader.fontSize = 9;
+                        doc.styles.tableHeader.fillColor = '#3498db';
                     }
                 },
                 {
-                    text: '<i class="icon-plus mr-2"></i>Ajouter élève',
-                    className: 'btn btn-success',
-                    action: () => this.showAddStudentModal()
+                    extend: 'print',
+                    className: 'btn btn-info',
+                    text: '<i class="icon-printer mr-2"></i>Imprimer',
+                    exportOptions: {
+                        columns: ':visible:not(.no-export)'
+                    }
                 },
                 {
-                    text: '<i class="icon-file-excel2 mr-2"></i>Export Excel Personnalisé',
+                    text: '<i class="icon-plus mr-2"></i>Ajouter',
                     className: 'btn btn-success',
-                    action: () => this.exportCustomExcel()
+                    action: () => this.showAddStudentModal()
                 }
             ],
-            dom: '<"datatable-header"fBl><"datatable-scroll"t><"datatable-footer"ip>',
+            dom: '<"datatable-header d-flex flex-wrap justify-content-between align-items-center"<"datatable-search"f><"datatable-buttons"B><"datatable-length"l>><"datatable-scroll"t><"datatable-footer d-flex justify-content-between"ip>',
             columnDefs: [
                 {
                     targets: 'no-sort',
@@ -121,21 +150,31 @@ class InlineEditor {
                 },
                 {
                     targets: 'no-export',
-                    visible: false
-                }
+                    className: 'no-export'
+                },
+                {
+                    targets: 'no-vis',
+                    className: 'no-vis'
+                },
+                // Priorités responsive - les colonnes importantes restent visibles
+                { responsivePriority: 1, targets: [0, 2, 18] }, // N°, Nom, Action
+                { responsivePriority: 2, targets: [3, 4] }, // Admission, Classe
+                { responsivePriority: 3, targets: [5, 6, 9] }, // DOB, Age, Statut
+                { responsivePriority: 4, targets: [12] }, // Sexe
+                { responsivePriority: 5, targets: [10, 11] }, // Type, Statut académique
+                { responsivePriority: 10, targets: '_all' } // Autres colonnes en dernier
             ],
+            order: [[2, 'asc']], // Trier par nom par défaut
             drawCallback: () => {
                 this.bindEditableEvents();
                 this.calculateAllAges();
-                // Mettre à jour l'indicateur de visibilité des colonnes après chaque rendu
                 this.updateColumnVisibilityIndicator();
+                this.initActionButtons();
             },
             stateSaveCallback: function (settings, data) {
-                // Sauvegarder les préférences de l'utilisateur dans le localStorage
                 localStorage.setItem('DataTables_' + settings.sInstance, JSON.stringify(data));
             },
             stateLoadCallback: function (settings) {
-                // Charger les préférences de l'utilisateur depuis le localStorage
                 try {
                     return JSON.parse(localStorage.getItem('DataTables_' + settings.sInstance));
                 } catch (e) {
@@ -150,6 +189,17 @@ class InlineEditor {
         }
 
         this.dataTable = $('.datatable-button-html5-columns').DataTable(tableConfig);
+    }
+
+    initActionButtons() {
+        // Initialiser les tooltips sur les boutons d'action
+        $('[data-toggle="tooltip"]').tooltip();
+
+        // Animation pour les boutons d'action
+        $('.action-btn').hover(
+            function () { $(this).addClass('shadow-sm'); },
+            function () { $(this).removeClass('shadow-sm'); }
+        );
     }
 
     bindEvents() {

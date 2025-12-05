@@ -17,17 +17,17 @@ class CreateEncaissementsTable extends Migration
         if (!Schema::hasTable('encaissements')) {
             Schema::create('encaissements', function (Blueprint $table) {
                 $table->id();
-                $table->unsignedBigInteger('student_id');
-                $table->unsignedBigInteger('payment_id');
-                $table->unsignedBigInteger('payment_record_id');
-                $table->unsignedBigInteger('class_id');
+                $table->unsignedInteger('student_id');
+                $table->unsignedInteger('payment_id');
+                $table->unsignedInteger('payment_record_id');
+                $table->unsignedInteger('class_id');
                 $table->enum('type_encaissement', ['ADRA', 'TEAM3']);
                 $table->decimal('montant_original', 10, 2);
                 $table->decimal('pourcentage_pris_en_charge', 5, 2);
                 $table->decimal('montant_encaisse', 10, 2);
                 $table->date('date_encaissement');
                 $table->string('reference_encaissement')->unique();
-                $table->unsignedBigInteger('created_by');
+                $table->unsignedInteger('created_by');
                 $table->string('year');
                 $table->text('observations')->nullable();
                 $table->timestamps();
@@ -48,7 +48,6 @@ class CreateEncaissementsTable extends Migration
                 $table->foreign('created_by')->references('id')->on('users')->onDelete('cascade');
             });
         }
-        // If table exists, skip creation - indexes will be handled by Laravel automatically
     }
 
     /**
