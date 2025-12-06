@@ -121,25 +121,25 @@
                         <table class="table datatable-button-html5-columns">
                             <thead>
                                 <tr>
-                                    <th>N°</th>
-                                    <th>Photo</th>
-                                    <th>Nom</th>
-                                    <th>N° d'admission</th>
-                                    <th>Classe/Section</th>
-                                    <th>Date de naissance</th>
-                                    <th>Âge</th>
-                                    <th>Adresse</th>
-                                    <th>Religion</th>
-                                    <th>Statut</th>
-                                    <th>Type</th>
-                                    <th>Statut académique</th>
-                                    <th>Sexe</th>
-                                    <th>Père/Tuteur</th>
-                                    <th>Profession père</th>
-                                    <th>Mère/Tutrice</th>
-                                    <th>Profession mère</th>
-                                    <th>Téléphone</th>
-                                    <th class="no-export">Action</th>
+                                    <th class="all">N°</th>
+                                    <th class="none">Photo</th>
+                                    <th class="all">Nom</th>
+                                    <th class="min-tablet">N° d'admission</th>
+                                    <th class="min-tablet">Classe/Section</th>
+                                    <th class="none">Date de naissance</th>
+                                    <th class="none">Âge</th>
+                                    <th class="none">Adresse</th>
+                                    <th class="none">Religion</th>
+                                    <th class="min-tablet">Statut</th>
+                                    <th class="none">Type</th>
+                                    <th class="none">Statut académique</th>
+                                    <th class="none">Sexe</th>
+                                    <th class="none">Père/Tuteur</th>
+                                    <th class="none">Profession père</th>
+                                    <th class="none">Mère/Tutrice</th>
+                                    <th class="none">Profession mère</th>
+                                    <th class="none">Téléphone</th>
+                                    <th class="all no-export">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -182,24 +182,24 @@
                     <table class="table datatable-button-html5-columns">
                         <thead>
                         <tr>
-                            <th>N°</th>
-                            <th>Photo</th>
-                            <th>Nom</th>
-                            <th>N° d'admission</th>
-                            <th>Classe/Section</th>
-                            <th>Date de naissance</th>
-                            <th>Âge</th>
-                            <th>Adresse</th>
-                            <th>Statut</th>
-                            <th>Type</th>
-                            <th>Statut académique</th>
-                            <th>Sexe</th>
-                            <th>Père/Tuteur</th>
-                            <th>Profession père</th>
-                            <th>Mère/Tutrice</th>
-                            <th>Profession mère</th>
-                            <th>Téléphone</th>
-                            <th class="no-export">Action</th>
+                            <th class="all">N°</th>
+                            <th class="none">Photo</th>
+                            <th class="all">Nom</th>
+                            <th class="min-tablet">N° d'admission</th>
+                            <th class="min-tablet">Classe/Section</th>
+                            <th class="none">Date de naissance</th>
+                            <th class="none">Âge</th>
+                            <th class="none">Adresse</th>
+                            <th class="min-tablet">Statut</th>
+                            <th class="none">Type</th>
+                            <th class="none">Statut académique</th>
+                            <th class="none">Sexe</th>
+                            <th class="none">Père/Tuteur</th>
+                            <th class="none">Profession père</th>
+                            <th class="none">Mère/Tutrice</th>
+                            <th class="none">Profession mère</th>
+                            <th class="none">Téléphone</th>
+                            <th class="all no-export">Action</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -236,24 +236,24 @@
                         <table class="table datatable-button-html5-columns">
                             <thead>
                             <tr>
-                                <th>N°</th>
-                                <th>Photo</th>
-                                <th>Nom</th>
-                                <th>N° d'admission</th>
-                                <th>Classe/Section</th>
-                                <th>Date de naissance</th>
-                                <th>Âge</th>
-                                <th>Adresse</th>
-                                <th>Statut</th>
-                                <th>Type</th>
-                                <th>Statut académique</th>
-                                <th>Sexe</th>
-                                <th>Père/Tuteur</th>
-                                <th>Profession père</th>
-                                <th>Mère/Tutrice</th>
-                                <th>Profession mère</th>
-                                <th>Téléphone</th>
-                                <th class="no-export">Action</th>
+                                <th class="all">N°</th>
+                                <th class="none">Photo</th>
+                                <th class="all">Nom</th>
+                                <th class="min-tablet">N° d'admission</th>
+                                <th class="min-tablet">Classe/Section</th>
+                                <th class="none">Date de naissance</th>
+                                <th class="none">Âge</th>
+                                <th class="none">Adresse</th>
+                                <th class="min-tablet">Statut</th>
+                                <th class="none">Type</th>
+                                <th class="none">Statut académique</th>
+                                <th class="none">Sexe</th>
+                                <th class="none">Père/Tuteur</th>
+                                <th class="none">Profession père</th>
+                                <th class="none">Mère/Tutrice</th>
+                                <th class="none">Profession mère</th>
+                                <th class="none">Téléphone</th>
+                                <th class="all no-export">Action</th>
                             </tr>
                             </thead>
                             <tbody>
@@ -297,24 +297,24 @@
                         <table class="table datatable-button-html5-columns">
                             <thead>
                             <tr>
-                                <th>N°</th>
-                                <th>Photo</th>
-                                <th>Nom</th>
-                                <th>N° d'admission</th>
-                                <th>Classe/Section</th>
-                                <th>Date de naissance</th>
-                                <th>Âge</th>
-                                <th>Adresse</th>
-                                <th>Statut</th>
-                                <th>Type</th>
-                                <th>Statut académique</th>
-                                <th>Sexe</th>
-                                <th>Père/Tuteur</th>
-                                <th>Profession père</th>
-                                <th>Mère/Tutrice</th>
-                                <th>Profession mère</th>
-                                <th>Téléphone</th>
-                                <th class="no-export">Action</th>
+                                <th class="all">N°</th>
+                                <th class="none">Photo</th>
+                                <th class="all">Nom</th>
+                                <th class="min-tablet">N° d'admission</th>
+                                <th class="min-tablet">Classe/Section</th>
+                                <th class="none">Date de naissance</th>
+                                <th class="none">Âge</th>
+                                <th class="none">Adresse</th>
+                                <th class="min-tablet">Statut</th>
+                                <th class="none">Type</th>
+                                <th class="none">Statut académique</th>
+                                <th class="none">Sexe</th>
+                                <th class="none">Père/Tuteur</th>
+                                <th class="none">Profession père</th>
+                                <th class="none">Mère/Tutrice</th>
+                                <th class="none">Profession mère</th>
+                                <th class="none">Téléphone</th>
+                                <th class="all no-export">Action</th>
                             </tr>
                             </thead>
                             <tbody>

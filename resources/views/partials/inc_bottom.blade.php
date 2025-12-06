@@ -28,6 +28,7 @@ window.addEventListener('error', function(e) {
 <script src="{{ asset('global_assets/js/plugins/tables/datatables/extensions/pdfmake/pdfmake.min.js') }}"></script>
 <script src="{{ asset('global_assets/js/plugins/tables/datatables/extensions/pdfmake/vfs_fonts.min.js') }}"></script>
 <script src="{{ asset('global_assets/js/plugins/tables/datatables/extensions/buttons.min.js') }}"></script>
+<script src="{{ asset('global_assets/js/plugins/tables/datatables/extensions/responsive.min.js') }}"></script>
 
 {{--Date Pickers--}}
 <script src="{{ asset('global_assets/js/plugins/ui/moment/moment.min.js') }}"></script>

@@ -34,7 +34,7 @@ class InlineEditor {
             responsive: {
                 details: {
                     type: 'column',
-                    target: 'tr',
+                    target: 0,
                     renderer: function (api, rowIdx, columns) {
                         let data = $.map(columns, function (col, i) {
                             return col.hidden ?
@@ -140,6 +140,10 @@ class InlineEditor {
             ],
             dom: '<"datatable-header d-flex flex-wrap justify-content-between align-items-center"<"datatable-search"f><"datatable-buttons"B><"datatable-length"l>><"datatable-scroll"t><"datatable-footer d-flex justify-content-between"ip>',
             columnDefs: [
+                {
+                    targets: 0,
+                    className: 'dtr-control'
+                },
                 {
                     targets: 'no-sort',
                     orderable: false

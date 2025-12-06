@@ -173,25 +173,25 @@
                     <table class="table datatable-button-html5-columns">
                         <thead>
                         <tr>
-                            <th>N°</th>
-                            <th>Photo</th>
-                            <th>Nom</th>
-                            <th>N° d'admission</th>
-                            <th>Classe/Section</th>
-                            <th>Date de naissance</th>
-                            <th>Âge</th>
-                            <th>Adresse</th>
-                            <th>Religion</th>
-                            <th>Statut</th>
-                            <th>Type</th>
-                            <th>Statut académique</th>
-                            <th>Sexe</th>
-                            <th>Père/Tuteur</th>
-                            <th>Profession père</th>
-                            <th>Mère/Tutrice</th>
-                            <th>Profession mère</th>
-                            <th>Téléphone</th>
-                            <th class="no-export">Action</th>
+                            <th class="all">N°</th>
+                            <th class="none">Photo</th>
+                            <th class="all">Nom</th>
+                            <th class="min-tablet">N° d'admission</th>
+                            <th class="min-tablet">Classe/Section</th>
+                            <th class="none">Date de naissance</th>
+                            <th class="none">Âge</th>
+                            <th class="none">Adresse</th>
+                            <th class="none">Religion</th>
+                            <th class="min-tablet">Statut</th>
+                            <th class="none">Type</th>
+                            <th class="none">Statut académique</th>
+                            <th class="none">Sexe</th>
+                            <th class="none">Père/Tuteur</th>
+                            <th class="none">Profession père</th>
+                            <th class="none">Mère/Tutrice</th>
+                            <th class="none">Profession mère</th>
+                            <th class="none">Téléphone</th>
+                            <th class="all no-export">Action</th>
                         </tr>
                         </thead>
                         <tbody>
@@ -245,7 +245,7 @@
                                             <table class="table table-bordered">
                                                 <thead>
                                                     <tr>
-                                                        <th>Type</th>
+                                                        <th class="none">Type</th>
                                                         <th>Nombre d'étudiants</th>
                                                         <th>Pourcentage</th>
                                                     </tr>
@@ -282,7 +282,7 @@
                                             <table class="table table-bordered">
                                                 <thead>
                                                     <tr>
-                                                        <th>Statut</th>
+                                                        <th class="min-tablet">Statut</th>
                                                         <th>Nombre d'étudiants</th>
                                                         <th>Pourcentage</th>
                                                     </tr>
@@ -346,7 +346,7 @@
                                     <table class="table table-bordered">
                                         <thead>
                                             <tr>
-                                                <th>Statut</th>
+                                                <th class="min-tablet">Statut</th>
                                                 <th>Nombre d'étudiants</th>
                                                 <th>Pourcentage</th>
                                             </tr>
@@ -596,15 +596,15 @@
                                                 <table id="filtered-students-table" class="table table-bordered table-striped table-hover">
                                                     <thead class="bg-light">
                                                         <tr>
-                                                            <th>N°</th>
-                                                            <th>Nom</th>
+                                                            <th class="all">N°</th>
+                                                            <th class="all">Nom</th>
                                                             <th>Classe</th>
-                                                            <th>Section</th>
-                                                            <th>Âge</th>
-                                                            <th>Sexe</th>
-                                                            <th>Statut</th>
-                                                            <th>Type</th>
-                                                            <th>Téléphone</th>
+                                                            <th class="min-tablet">Section</th>
+                                                            <th class="none">Âge</th>
+                                                            <th class="none">Sexe</th>
+                                                            <th class="min-tablet">Statut</th>
+                                                            <th class="none">Type</th>
+                                                            <th class="none">Téléphone</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody id="filtered-students-body">
@@ -630,22 +630,22 @@
                     <table class="table datatable-button-html5-columns">
                         <thead>
                         <tr>
-                            <th>N°</th>
-                            <th>Photo</th>
-                            <th>Nom</th>
-                            <th>N° d'admission</th>
-                            <th>Section</th>
-                            <th>Date de naissance</th>
-                            <th>Âge</th>
-                            <th>Adresse</th>
-                            <th>Statut</th>
-                            <th>Sexe</th>
-                            <th>Père/Tuteur</th>
-                            <th>Profession père</th>
-                            <th>Mère/Tutrice</th>
-                            <th>Profession mère</th>
-                            <th>Téléphone</th>
-                            <th class="no-export">Action</th>
+                            <th class="all">N°</th>
+                            <th class="none">Photo</th>
+                            <th class="all">Nom</th>
+                            <th class="min-tablet">N° d'admission</th>
+                            <th class="min-tablet">Section</th>
+                            <th class="none">Date de naissance</th>
+                            <th class="none">Âge</th>
+                            <th class="none">Adresse</th>
+                            <th class="min-tablet">Statut</th>
+                            <th class="none">Sexe</th>
+                            <th class="none">Père/Tuteur</th>
+                            <th class="none">Profession père</th>
+                            <th class="none">Mère/Tutrice</th>
+                            <th class="none">Profession mère</th>
+                            <th class="none">Téléphone</th>
+                            <th class="all no-export">Action</th>
                         </tr>
                         </thead>
                         <tbody>
