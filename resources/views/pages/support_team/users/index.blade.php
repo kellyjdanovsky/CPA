@@ -236,66 +236,6 @@
 
 
 
-                    </form>
-                </div>
-
-                @foreach($user_types as $ut)
-                    <div class="tab-pane fade" id="ut-{{Qs::hash($ut->id)}}">                         <table class="table datatable-button-html5-columns">
-                            <thead>
-                            <tr>
-                                <th>N°</th>
-                                <th>Photo</th>
-                                <th>Nom</th>
-                                <th>Nom d'utilisateur</th>
-                                <th>Téléphone</th>
-                                <th>E-mail</th>
-                                <th>Action</th>
-                            </tr>
-                            </thead>
-                            <tbody>
-                            @foreach($users->where('user_type', $ut->title) as $u)
-                                <tr>
-                                    <td>{{ $loop->iteration }}</td>
-                                    <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="{{ $u->photo }}" alt="photo"></td>
-                                    <td>{{ $u->name }}</td>
-                                    <td>{{ $u->username }}</td>
-                                    <td>{{ $u->phone }}</td>
-                                    <td>{{ $u->email }}</td>
-                                    <td class="text-center">
-                                        <div class="list-icons">
-                                            <div class="dropdown">
-                                                <a href="#" class="list-icons-item" data-toggle="dropdown">
-                                                    <i class="icon-menu9"></i>
-                                                </a>
-
-                                                <div class="dropdown-menu dropdown-menu-left">
-                                                    {{--Voir le profil--}}
-                                                    <a href="{{ route('users.show', Qs::hash($u->id)) }}" class="dropdown-item"><i class="icon-eye"></i> Voir le profil</a>
-                                                    {{--Modifier--}}
-                                                    <a href="{{ route('users.edit', Qs::hash($u->id)) }}" class="dropdown-item"><i class="icon-pencil"></i> Modifier</a>
-                                                @if(Qs::userIsSuperAdmin())
-
-                                                        <a href="{{ route('users.reset_pass', Qs::hash($u->id)) }}" class="dropdown-item"><i class="icon-lock"></i> Réinitialiser le mot de passe</a>
-                                                        {{--Supprimer--}}
-                                                        <a id="{{ Qs::hash($u->id) }}" onclick="confirmDelete(this.id)" href="#" class="dropdown-item"><i class="icon-trash"></i> Supprimer</a>
-                                                        <form method="post" id="item-delete-{{ Qs::hash($u->id) }}" action="{{ route('users.destroy', Qs::hash($u->id)) }}" class="hidden">@csrf @method('delete')</form>
-                                                @endif
-
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </tr>
-                            @endforeach
-                            </tbody>
-                        </table>
-                    </div>
-                @endforeach
-
-            </div>
-        </div>
-    </div>
-
     
     {{--Fin de la liste des étudiants--}}
 

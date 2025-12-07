@@ -66,7 +66,8 @@
                 </div>
 
                 @foreach($my_classes as $d)
-                    <div class="tab-pane fade" id="c{{ $d->id }}">                         <table class="table datatable-button-html5-columns">
+<div class="table-responsive">
+                        <table class="table datatable-button-html5-columns">
                             <thead>
                             <tr>
                                 <th>N°</th>

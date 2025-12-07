@@ -29,6 +29,7 @@
         </div>
     </div>
 
+<div class="table-responsive">
     <table class="table table-striped">
         <thead>
         <tr>
@@ -89,6 +90,7 @@
         @endforeach
         </tbody>
     </table>
+    </div>
     <div class="text-center mt-3">
         <button type="submit" class="btn btn-success btn-lg"><i class="icon-stairs-up mr-2"></i> Appliquer les Promotions</button>
     </div>

@@ -32,6 +32,7 @@
                         <strong>Info:</strong> Ces remarques sont utilisées dans les bulletins selon les notes obtenues.
                     </div>
                     
+<div class="table-responsive">
                     <table class="table datatable-button-html5-columns table-hover">
                         <thead>
                             <tr>
@@ -97,6 +98,7 @@
                         @endforeach
                         </tbody>
                     </table>
+                    </div>
                 </div>
 
                 {{-- Affichage du barème complet --}}
