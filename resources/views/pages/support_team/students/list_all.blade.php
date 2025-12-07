@@ -6,6 +6,7 @@
 <link rel="stylesheet" href="{{ asset('assets/css/inline_editing.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/student_statistics.css') }}">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <style>
     .editable {
         cursor: pointer;
@@ -788,6 +789,14 @@
         // Calculer les statistiques des types d'étudiants
         calculateStudentTypeStats();
 
+        // Appliquer les filtres automatiquement au chargement pour afficher les statistiques initiales
+        // Cela affiche "Répartition par âge" et "Répartition détaillée Filles/Garçons par âge"
+        setTimeout(function() {
+            if (typeof window.applyFilters === 'function') {
+                window.applyFilters();
+            }
+        }, 500);
+
         function calculateStudentTypeStats() {
             let nouveauxCount = 0;
             let anciensCount = 0;
@@ -1031,7 +1040,7 @@
 
             // Créer/mettre à jour le graphique
             const ctx = document.getElementById('age-distribution-chart');
-            if (ctx) {
+            if (ctx && typeof Chart !== 'undefined') {
                 if (window.ageDistributionChart) {
                     window.ageDistributionChart.destroy();
                 }

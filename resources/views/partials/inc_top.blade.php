@@ -70,6 +70,9 @@
 {{-- Google Fonts pour un design moderne --}}
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
+{{-- Page-specific styles --}}
+@yield('page_styles')
+
 {{--   Core JS files --}}
     <script src="{{ asset('global_assets/js/main/jquery.min.js') }} "></script>
     <script src="{{ asset('global_assets/js/main/bootstrap.bundle.min.js') }} "></script>
