@@ -220,10 +220,7 @@ if ($usertype == 'teacher') {
                                        class="nav-link">Barem </a>
                             </li>
 
-                            {{--Tabulation Sheet--}}
-                            <li class="nav-item">
-                                <a href="{{ url('/marks/tabulation') }}" class="nav-link">Rang</a>
-                            </li>
+
 
                             {{--Weighted Grades Tabulation--}}
                             <li class="nav-item">

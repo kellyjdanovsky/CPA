@@ -3,20 +3,23 @@
 
 @section('content')
 
-<div class="card">
-    <div class="card-header header-elements-inline">
-        <h5 class="card-title">
-            <i class="icon-coins mr-2"></i> Gestion des Recettes - Année {{ $selected_year }}
-        </h5>
-        <div class="header-elements">
-            <div class="list-icons">
-                <a href="{{ route('payments.recettes.create') }}" class="btn btn-primary">
-                    <i class="icon-plus2 mr-2"></i> Nouvelle Recette
-                </a>
-            </div>
+@include('pages.support_team.payments.partials.header_tabs')
+
+<div class="recette-header mb-4" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-radius: 16px; padding: 24px 28px; box-shadow: 0 10px 40px rgba(17, 153, 142, 0.3); color: white;">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h4 style="font-weight: 600; margin-bottom: 0;"><i class="icon-coins mr-2"></i> Gestion des Recettes</h4>
+            <span style="opacity: 0.8;">Année {{ $selected_year }}</span>
+        </div>
+        <div>
+           <a href="{{ route('payments.recettes.create') }}" class="btn btn-white text-success font-weight-bold shadow-sm" style="background: white; border: none; padding: 10px 20px; border-radius: 10px;">
+                <i class="icon-plus2 mr-2"></i> Nouvelle Recette
+            </a>
         </div>
     </div>
+</div>
 
+<div class="card border-0 shadow-sm" style="border-radius: 16px;">
     <div class="card-body">
         <!-- Filtres -->
         <form id="filter-form" class="mb-4">

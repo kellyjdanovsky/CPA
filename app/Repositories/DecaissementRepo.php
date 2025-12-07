@@ -58,7 +58,7 @@ class DecaissementRepo
             $query->year($filters['year']);
         }
 
-        return $query->orderBy('date_decaissement', 'desc')->get();
+        return $query->orderBy('date_decaissement', 'desc')->paginate(20)->withQueryString();
     }
 
     /**

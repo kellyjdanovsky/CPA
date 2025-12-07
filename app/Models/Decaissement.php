@@ -109,32 +109,7 @@ class Decaissement extends Model
      */
     public static function nombreEnLettres($nombre)
     {
-        // Utilisation de l'helper existant NumberToWords si disponible
-        if (class_exists('\App\Helpers\NumberToWords')) {
-            return \App\Helpers\NumberToWords::convert($nombre);
-        }
-        
-        // Sinon, implémentation basique
-        $unite = [
-            '', 'un', 'deux', 'trois', 'quatre', 'cinq', 'six', 'sept', 'huit', 'neuf',
-            'dix', 'onze', 'douze', 'treize', 'quatorze', 'quinze', 'seize', 'dix-sept', 'dix-huit', 'dix-neuf'
-        ];
-        
-        $dizaine = [
-            '', '', 'vingt', 'trente', 'quarante', 'cinquante', 'soixante', 'soixante-dix', 'quatre-vingt', 'quatre-vingt-dix'
-        ];
-        
-        if ($nombre == 0) return 'zéro';
-        if ($nombre < 20) return $unite[$nombre];
-        if ($nombre < 100) {
-            $d = intval($nombre / 10);
-            $u = $nombre % 10;
-            if ($u == 0) return $dizaine[$d];
-            return $dizaine[$d] . '-' . $unite[$u];
-        }
-        
-        // Pour les nombres plus grands, une implémentation plus complexe serait nécessaire
-        return 'nombre trop grand';
+        return \App\Helpers\DateHelper::convertirMontantEnLettres($nombre);
     }
 
     /**

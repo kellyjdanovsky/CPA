@@ -59,7 +59,8 @@ class DecaissementController extends Controller
             'statuts' => Decaissement::getStatuts(),
             'projets_rubriques' => $this->decaissement->getProjetsRubriques(),
             'payment_methods' => $this->decaissement->getPaymentMethods(),
-            'year' => $this->year
+            'year' => $this->year,
+            'selected_year' => $this->year
         ];
 
         return view('pages.support_team.payments.decaissements.index', $d);

@@ -411,115 +411,246 @@
                 </div>
             </div>
 
-            <div class="stats-summary fade-in">
-                <div class="stats-content">
-                    <div class="row">
-                        <div class="col-md-8">
-                            <h6 class="stats-title">
-                                📊 Résumé de la période : {{ $period == 'day' ? 'Journalier' : ($period == 'week' ? 'Hebdomadaire' : ($period == 'month' ? 'Mensuel' : 'Personnalisé')) }}
-                            </h6>
-                            <p class="mb-2">
-                                <strong>📅 Période :</strong>
-                                @if($startDate == $endDate)
-                                    {{ \App\Helpers\DateHelper::formatForReceipt($startDate) }}
-                                @else
-                                    Du {{ \App\Helpers\DateHelper::formatForReceipt($startDate) }} au {{ \App\Helpers\DateHelper::formatForReceipt($endDate) }}
-                                @endif
-                            </p>
-                            <p class="mb-0">
-                                <strong>📈 Nombre de transactions :</strong> {{ count($receipts) }}
-                            </p>
+            <!-- Onglets de navigation -->
+            <ul class="nav nav-tabs nav-tabs-highlight nav-justified mb-0 mt-4" style="border-bottom: 1px solid #ddd;">
+                <li class="nav-item">
+                    <a href="#journal-global" class="nav-link active" data-toggle="tab" style="font-size: 1.1rem; font-weight: 600;">
+                        <i class="icon-cash3 mr-2"></i>Journal Global
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#journal-auto" class="nav-link" data-toggle="tab" style="font-size: 1.1rem; font-weight: 600;">
+                        <i class="icon-transmission mr-2"></i>Encaissements Automatiques (ADRA/TEAM3)
+                    </a>
+                </li>
+            </ul>
+
+            <div class="tab-content">
+                <!-- ONGLET 1 : Journal Global (Existant) -->
+                <div class="tab-pane fade show active" id="journal-global">
+                    
+                    <div class="stats-summary fade-in mt-3">
+                        <div class="stats-content">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6 class="stats-title">
+                                        📊 Résumé de la période : {{ $period == 'day' ? 'Journalier' : ($period == 'week' ? 'Hebdomadaire' : ($period == 'month' ? 'Mensuel' : 'Personnalisé')) }}
+                                    </h6>
+                                    <p class="mb-2">
+                                        <strong>📅 Période :</strong>
+                                        @if($startDate == $endDate)
+                                            {{ \App\Helpers\DateHelper::formatForReceipt($startDate) }}
+                                        @else
+                                            Du {{ \App\Helpers\DateHelper::formatForReceipt($startDate) }} au {{ \App\Helpers\DateHelper::formatForReceipt($endDate) }}
+                                        @endif
+                                    </p>
+                                    <p class="mb-0">
+                                        <strong>📈 Nombre de transactions :</strong> {{ count($receipts) }}
+                                    </p>
+                                </div>
+                                <div class="col-md-4 text-right">
+                                    <div class="stats-title">💰 Total des paiements</div>
+                                    <div class="stats-amount">{{ \App\Helpers\DateHelper::formatAmount($totalAmount) }}</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="col-md-4 text-right">
-                            <div class="stats-title">💰 Total des paiements</div>
-                            <div class="stats-amount">{{ \App\Helpers\DateHelper::formatAmount($totalAmount) }}</div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-modern datatable-button-html5-columns">
+                            <thead>
+                                <tr>
+                                    <th>Date/Heure</th>
+                                    <th>Élève</th>
+                                    <th>Statut</th>
+                                    <th>Classe</th>
+                                    <th>Objet du Paiement</th>
+                                    <th>Montant (Ar)</th>
+                                    <th>Mode de Paiement</th>
+                                    <th>Référence / Reçu</th>
+                                    <th>Observations</th>
+                                    <th>Validé par</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($receipts as $receipt)
+                                    <tr>
+                                        <td>{{ \App\Helpers\DateHelper::formatFrenchWithTime($receipt->created_at) }}</td>
+                                        <td>
+                                            @if($receipt->pr && $receipt->pr->student)
+                                                {{ $receipt->pr->student->name }}
+                                            @else
+                                                N/A
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if($receipt->pr && $receipt->pr->student)
+                                                @php
+                                                    $status = $receipt->pr->student->status ?? 'Normal';
+                                                @endphp
+                                                @if($status == 'ADRA')
+                                                    <span class="badge badge-modern badge-info">🏛️ ADRA</span>
+                                                @elseif($status == 'TEAM3')
+                                                    <span class="badge badge-modern badge-warning">⭐ TEAM3</span>
+                                                @else
+                                                    <span class="badge badge-modern badge-secondary">👤 Normal</span>
+                                                @endif
+                                            @else
+                                                <span class="badge badge-modern badge-light">❓ N/A</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @php
+                                                $class = 'N/A';
+                                                if($receipt->pr && $receipt->pr->student && $receipt->pr->student->student_record) {
+                                                    $studentRecord = $receipt->pr->student->student_record;
+                                                    if($studentRecord->my_class) {
+                                                        $class = $studentRecord->my_class->name;
+                                                        if($studentRecord->section) {
+                                                            $class .= ' ' . $studentRecord->section->name;
+                                                        }
+                                                    }
+                                                }
+                                            @endphp
+                                            {{ $class }}
+                                        </td>
+                                        <td>
+                                            @if($receipt->pr && $receipt->pr->payment)
+                                                {{ $receipt->pr->payment->title }}
+                                            @else
+                                                N/A
+                                            @endif
+                                        </td>
+                                        <td><strong>{{ \App\Helpers\DateHelper::formatAmount($receipt->amt_paid) }}</strong></td>
+                                        <td>{{ $receipt->methode ?? 'Espèces' }}</td>
+                                        <td>{{ $receipt->reference_number ?? $receipt->pr->ref_no ?? 'N/A' }}</td>
+                                        <td>{{ $receipt->observations ?? '' }}</td>
+                                        <td>{{ $receipt->created_by ?? 'Système' }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-primary text-white">
+                                    <th colspan="5" class="text-right">TOTAL</th>
+                                    <th><strong>{{ \App\Helpers\DateHelper::formatAmount($totalAmount) }}</strong></th>
+                                    <th colspan="4"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- ONGLET 2 : Encaissements Automatiques (ADRA/TEAM3) -->
+                <div class="tab-pane fade" id="journal-auto">
+                    @php
+                        $autoTotal = $autoReceipts->sum('amt_paid');
+                    @endphp
+                    <div class="stats-summary fade-in mt-3" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">
+                        <div class="stats-content">
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <h6 class="stats-title">
+                                        📊 Résumé Automatique (ADRA/TEAM3)
+                                    </h6>
+                                    <p class="mb-0">
+                                        <strong>📈 Nombre de transactions :</strong> {{ count($autoReceipts) }}
+                                    </p>
+                                </div>
+                                <div class="col-md-4 text-right">
+                                    <div class="stats-title">💰 Total Automatique</div>
+                                    <div class="stats-amount">{{ \App\Helpers\DateHelper::formatAmount($autoTotal) }}</div>
+                                </div>
+                            </div>
                         </div>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="table table-modern datatable-button-html5-columns">
+                            <thead>
+                                <tr>
+                                    <th>Date/Heure</th>
+                                    <th>Élève</th>
+                                    <th>Statut</th>
+                                    <th>Classe</th>
+                                    <th>Objet du Paiement</th>
+                                    <th>Montant Généré (Ar)</th>
+                                    <th>Type</th>
+                                    <th>Référence</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {{-- Group by Student ID AND Timestamp (to the minute) to separate distinct batch transactions --}}
+                                @foreach($autoReceipts->groupBy(function($item){ return $item->pr->student_id . '_' . $item->created_at->format('Y-m-d_H:i'); }) as $groupKey => $studentReceipts)
+                                    @php
+                                        $firstReceipt = $studentReceipts->first();
+                                        $student = $firstReceipt->pr->student;
+                                        $studentRecord = $student->student_record ?? null;
+                                        // Total amount for this specific transaction batch
+                                        $studentTotal = $studentReceipts->sum('amt_paid');
+                                        
+                                        // Collect unique payment titles
+                                        $paymentTitles = $studentReceipts->map(function($r){ 
+                                            // Ensure we traverse relationships safely
+                                            return optional(optional($r->pr)->payment)->title ?? 'N/A'; 
+                                        })->unique()->implode(', ');
+
+                                        // Collect unique references (cleaning up the long list)
+                                        // If we have many references, maybe show just the first/base one or count
+                                        // Detailed references:
+                                        $references = $studentReceipts->map(function($r){ 
+                                            return $r->reference_number ?? optional($r->pr)->ref_no ?? 'N/A'; 
+                                        })->unique();
+                                        
+                                        // Display strategy for references: Show first + count if > 1
+                                        if($references->count() > 1) {
+                                            $displayRef = $references->first() . ' (+ ' . ($references->count() - 1) . ' autres)';
+                                            $fullRefsTitle = $references->implode(', ');
+                                        } else {
+                                            $displayRef = $references->first();
+                                            $fullRefsTitle = $displayRef;
+                                        }
+                                    @endphp
+                                    <tr>
+                                        <td>{{ \App\Helpers\DateHelper::formatFrenchWithTime($firstReceipt->created_at) }}</td>
+                                        <td>{{ $student->name ?? 'N/A' }}</td>
+                                        <td>
+                                            @php $status = $student->status ?? 'N/A'; @endphp
+                                            @if($status == 'ADRA')
+                                                <span class="badge badge-modern badge-info">75% ADRA</span>
+                                            @elseif($status == 'TEAM3')
+                                                <span class="badge badge-modern badge-warning">100% TEAM3</span>
+                                            @else
+                                                <span class="badge badge-modern badge-secondary">{{ $status }}</span>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            {{ $studentRecord->my_class->name ?? 'N/A' }}
+                                        </td>
+                                        <td>
+                                            {{-- Afficher les objets de paiement groupés --}}
+                                            <span style="font-weight: 500; color: #333;">{{ $paymentTitles }}</span>
+                                        </td>
+                                        <td><strong>{{ \App\Helpers\DateHelper::formatAmount($studentTotal) }}</strong></td>
+                                        <td>
+                                            <span class="badge badge-modern" style="background-color: #e3f2fd; color: #0d47a1; border: 1px solid #2196f3;">
+                                                MÉTHODE ADRA
+                                            </span>
+                                        </td>
+                                        <td title="{{ $fullRefsTitle }}">{{ $displayRef }}</td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-success text-white">
+                                    <th colspan="5" class="text-right">TOTAL AUTOMATIQUE</th>
+                                    <th><strong>{{ \App\Helpers\DateHelper::formatAmount($autoTotal) }}</strong></th>
+                                    <th colspan="2"></th>
+                                </tr>
+                            </tfoot>
+                        </table>
                     </div>
                 </div>
             </div>
-
-            <div class="table-responsive">
-                <table class="table table-modern datatable-button-html5-columns">
-                <thead>
-                    <tr>
-                        <th>Date/Heure</th>
-                        <th>Élève</th>
-                        <th>Statut</th>
-                        <th>Classe</th>
-                        <th>Objet du Paiement</th>
-                        <th>Montant (Ar)</th>
-                        <th>Mode de Paiement</th>
-                        <th>Référence / Reçu</th>
-                        <th>Observations</th>
-                        <th>Validé par</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @foreach($receipts as $receipt)
-                        <tr>
-                            <td>{{ \App\Helpers\DateHelper::formatFrenchWithTime($receipt->created_at) }}</td>
-                            <td>
-                                @if($receipt->pr && $receipt->pr->student)
-                                    {{ $receipt->pr->student->name }}
-                                @else
-                                    N/A
-                                @endif
-                            </td>
-                            <td>
-                                @if($receipt->pr && $receipt->pr->student)
-                                    @php
-                                        $status = $receipt->pr->student->status ?? 'Normal';
-                                    @endphp
-                                    @if($status == 'ADRA')
-                                        <span class="badge badge-modern badge-info">🏛️ ADRA</span>
-                                    @elseif($status == 'TEAM3')
-                                        <span class="badge badge-modern badge-warning">⭐ TEAM3</span>
-                                    @else
-                                        <span class="badge badge-modern badge-secondary">👤 Normal</span>
-                                    @endif
-                                @else
-                                    <span class="badge badge-modern badge-light">❓ N/A</span>
-                                @endif
-                            </td>
-                            <td>
-                                @php
-                                    $class = 'N/A';
-                                    if($receipt->pr && $receipt->pr->student && $receipt->pr->student->student_record) {
-                                        $studentRecord = $receipt->pr->student->student_record;
-                                        if($studentRecord->my_class) {
-                                            $class = $studentRecord->my_class->name;
-                                            if($studentRecord->section) {
-                                                $class .= ' ' . $studentRecord->section->name;
-                                            }
-                                        }
-                                    }
-                                @endphp
-                                {{ $class }}
-                            </td>
-                            <td>
-                                @if($receipt->pr && $receipt->pr->payment)
-                                    {{ $receipt->pr->payment->title }}
-                                @else
-                                    N/A
-                                @endif
-                            </td>
-                            <td><strong>{{ \App\Helpers\DateHelper::formatAmount($receipt->amt_paid) }}</strong></td>
-                            <td>{{ $receipt->methode ?? 'Espèces' }}</td>
-                            <td>{{ $receipt->reference_number ?? $receipt->pr->ref_no ?? 'N/A' }}</td>
-                            <td>{{ $receipt->observations ?? '' }}</td>
-                            <td>{{ $receipt->created_by ?? 'Système' }}</td>
-                        </tr>
-                    @endforeach
-                </tbody>
-                <tfoot>
-                    <tr class="bg-primary text-white">
-                        <th colspan="5" class="text-right">TOTAL</th>
-                        <th><strong>{{ \App\Helpers\DateHelper::formatAmount($totalAmount) }}</strong></th>
-                        <th colspan="4"></th>
-                    </tr>
-                </tfoot>
-            </table>
-        </div>
 
             <!-- Statistiques détaillées modernisées -->
             <div class="mt-4 mx-4">

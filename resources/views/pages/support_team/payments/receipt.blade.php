@@ -558,10 +558,23 @@
     </div>
     @endif
 
-    <!-- Résumé simplifié -->
+    <!-- Résumé lié au statut étudiant -->
+    @php
+        $studentStatus = $sr->user->status ?? 'Normal';
+        $isAdra = strtoupper($studentStatus) == 'ADRA';
+        $totalAmount = $payment->amount;
+        $paidAmount = $pr->amt_paid;
+        
+        // Logique ADRA : Acquitté si 25% payé
+        $adraCleared = $isAdra && ($paidAmount >= ($totalAmount * 0.25));
+        
+        // Montant en lettres
+        $amountInWords = ucfirst(\App\Helpers\DateHelper::convertirMontantEnLettres($paidAmount));
+    @endphp
+
     <div class="payment-summary">
         <table class="payment-summary-table">
-            @if($pr->balance == 0)
+            @if($pr->balance == 0 || $adraCleared)
             <tr class="highlight-row">
                 <td class="amount-label">Statut:</td>
                 <td class="amount-value amount" style="color: #28a745;">Paiement Acquitté</td>
@@ -569,9 +582,24 @@
             @else
             <tr class="highlight-row">
                 <td class="amount-label">Reste à payer:</td>
-                <td class="amount-value amount">{{ DateHelper::formatAmount($pr->balance) }}</td>
+                @if($isAdra)
+                    {{-- Pour ADRA, le reste à payer est basé sur les 25% --}}
+                    @php 
+                        $adraBalance = max(0, ($totalAmount * 0.25) - $paidAmount);
+                    @endphp
+                    <td class="amount-value amount">{{ DateHelper::formatAmount($adraBalance) }}</td>
+                @else
+                    <td class="amount-value amount">{{ DateHelper::formatAmount($pr->balance) }}</td>
+                @endif
             </tr>
             @endif
+            
+            {{-- Affichage du montant payé en lettres --}}
+            <tr>
+                <td colspan="2" style="font-size: 9pt; font-style: italic; text-align: center; border-top: 1px solid #000;">
+                     La somme de : <strong>{{ $amountInWords }}</strong>
+                </td>
+            </tr>
         </table>
     </div>
 

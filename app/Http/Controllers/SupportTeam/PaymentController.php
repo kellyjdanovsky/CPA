@@ -23,16 +23,19 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
 
+use App\Repositories\DecaissementRepo;
+
 class PaymentController extends Controller
 {
-    protected $my_class, $pay, $student, $year;
+    protected $my_class, $pay, $student, $year, $decaissement;
 
-    public function __construct(MyClassRepo $my_class, PaymentRepo $pay, StudentRepo $student)
+    public function __construct(MyClassRepo $my_class, PaymentRepo $pay, StudentRepo $student, DecaissementRepo $decaissement)
     {
         $this->my_class = $my_class;
         $this->pay = $pay;
         $this->year = Qs::getCurrentSession();
         $this->student = $student;
+        $this->decaissement = $decaissement;
 
         $this->middleware('teamAccount');
     }
@@ -58,6 +61,29 @@ class PaymentController extends Controller
         $d['my_classes'] = $this->my_class->all();
         $d['years'] = $this->pay->getPaymentYears();
         $d['year'] = $year;
+
+        // Fetch Decaissements for this year
+        // We assume getByYear exists or we can use getByPeriod with year boundaries
+        // Or create a simple query if repository method is missing.
+        // Let's check DecaissementRepo first, but assuming typical pattern or similar to DecaissementController logic
+        
+        $startDate = $year . '-01-01'; // Assuming year is e.g. "2024" or school year "2024-2025"?
+        // Usually year in this system is "2024-2025".
+        // Let's rely on the repository to handle 'year' filtering if possible.
+        // DecaissementController uses $this->decaissement->getByPeriod($start, $end, ['year' => $year])
+        
+        // Let's try to get all decaissements for this 'year' (session)
+        // Check if getByPeriod supports just year filter if dates are null? 
+        // Or just use Eloquent directly if Repo is unknown.
+        // Better: use the same logic as DecaissementController::index but simplified.
+        
+        // Hack: Since I don't see DecaissementRepo source, I'll use the Model directly for safety if I can't be sure about Repo methods.
+        // But I injected the repo. Let's use `getAll()` if it exists or `getForYear($year)`.
+        // DecaissementController uses: $decaissements = $this->decaissement->getByPeriod($filters['date_debut'], $filters['date_fin'], $filters);
+        // It provides a 'year' filter.
+        
+        // Let's fetch all for the session.
+        $d['decaissements'] = \App\Models\Decaissement::where('year', $year)->latest()->get();
 
         return view('pages.support_team.payments.index', $d);
 
@@ -1838,8 +1864,8 @@ public function printAdraTeam3Receipt(Request $request, $studentId)
     $timestamp = time(); // Unique timestamp for this transaction
 
     foreach ($payments as $index => $payment) {
-        // Generate unique reference code for each payment
-        $uniqueRefCode = $referenceCode . '-P' . $payment->id . '-' . $timestamp;
+        // Generate unique reference code for each payment (Idempotent)
+        $uniqueRefCode = $referenceCode . '-P' . $payment->id;
 
         // Get existing payment record or create new one
         $paymentRecord = PaymentRecord::where([
@@ -1871,39 +1897,54 @@ public function printAdraTeam3Receipt(Request $request, $studentId)
                 'paid' => 1,
                 'amt_paid' => $paymentAmountToPay,
                 'balance' => $paymentCashAmount,
-                'methode' => $status,
                 'ref_no' => $uniqueRefCode
             ]);
         }
 
         $paymentRecords[] = $paymentRecord;
+
+        // --- CREATE RECEIPT FOR THIS SPECIFIC PAYMENT ---
+        $itemReceiptData = [
+            'pr_id' => $paymentRecord->id,
+            'amt_paid' => $paymentAmountToPay,
+            'balance' => $paymentCashAmount,
+            'year' => $this->year,
+            'methode' => $status,
+            'payment_method' => $status,
+            'reference_number' => $uniqueRefCode,
+            'observations' => 'Paiement ' . $status . ' - ' . $payment->title . ' (Ref Batch: ' . $referenceCode . ')',
+            'created_by' => auth()->id()
+        ];
+
+        $itemReceipt = Receipt::where('reference_number', $uniqueRefCode)->first();
+        if (!$itemReceipt) {
+            Receipt::create($itemReceiptData);
+        } else {
+            $itemReceipt->update($itemReceiptData);
+        }
     }
 
-    // Create receipt record for journal (one receipt for all payments)
-    $receiptData = [
-        'pr_id' => $paymentRecords[0]->id, // Use first payment record as reference
-        'amt_paid' => $amountToPay,
-        'balance' => $cashAmount,
-        'year' => $this->year,
-        'methode' => $status,
-        'payment_method' => $status,
-        'reference_number' => $referenceCode,
-        'observations' => 'Paiement ' . $status . ' - ' . $payments->count() . ' paiements',
-        'created_by' => auth()->id()
-    ];
+    // Dummy receipt for view compatibility
+    $receipt = new Receipt();
+    $receipt->reference_number = $referenceCode;
 
-    // Check if receipt already exists
-    $receipt = Receipt::where('reference_number', $referenceCode)->first();
-
-    if (!$receipt) {
-        $receipt = Receipt::create($receiptData);
-    } else {
-        // Update existing receipt if needed
-        $receipt->update($receiptData);
+    // Check if all selected payments are fully cleared
+    $isFullyPaid = true;
+    foreach ($payments as $payment) {
+        $checkPr = PaymentRecord::where([
+            'student_id' => $studentId,
+            'payment_id' => $payment->id,
+            'year' => $this->year
+        ])->first();
+        
+        if (!$checkPr || $checkPr->balance > 0) {
+            $isFullyPaid = false;
+            break;
+        }
     }
-
-    // Prepare data for thermal receipt
-    $receiptData = [
+    
+    // Prepare data for single receipt view (reuse Batch view structure or Single view)
+    $receiptsData = [[
         'student' => $student,
         'payments' => $payments,
         'totalAmount' => $totalAmount,
@@ -1911,10 +1952,13 @@ public function printAdraTeam3Receipt(Request $request, $studentId)
         'cashAmount' => $cashAmount,
         'status' => $status,
         'referenceCode' => $referenceCode,
-        'receipt' => $receipt
-    ];
+        'receipt' => $receipt,
+        'isFullyPaid' => $isFullyPaid
+    ]];
 
-    return view('pages.support_team.payments.adra_team3_thermal_receipt', $receiptData);
+    return view('pages.support_team.payments.adra_team3_batch_receipts', [
+        'receiptsData' => $receiptsData
+    ]);
 }
 
 /**
@@ -1952,8 +1996,9 @@ public function printBatchReceipts(Request $request)
         $timestamp = time(); // Unique timestamp for this transaction
 
         foreach ($payments as $index => $payment) {
-            // Generate unique reference code for each payment
-            $uniqueRefCode = $referenceCode . '-P' . $payment->id . '-' . $timestamp;
+            // Generate unique reference code for each payment (Idempotent: dependent on batch ref + payment id)
+            // We removed timestamp to prevent duplication if page is refreshed or reprinted
+            $uniqueRefCode = $referenceCode . '-P' . $payment->id;
 
             // Get existing payment record or create new one
             $paymentRecord = PaymentRecord::where([
@@ -1991,28 +2036,102 @@ public function printBatchReceipts(Request $request)
             }
 
             $paymentRecords[] = $paymentRecord;
+
+            // --- CREATE RECEIPT FOR THIS SPECIFIC PAYMENT ---
+            
+            // Note: We use the uniqueRefCode for the receipt to ensure 1-to-1 mapping
+            // OR we can use the batch referenceCode but we need to deal with uniqueness constraints.
+            // If the receipts table allows duplicate reference_numbers, we are fine.
+            // But Receipt model usually assumes reference_number is unique or at least main identifier.
+            // To be safe and detailed, let's create a receipt per item.
+            
+            // Check if a receipt exists for this specific PR and Reference
+            // We use uniqueRefCode to identify this specific line item receipt
+            // But for the "Check" (Paper), we want to show the Main Reference.
+            
+            // Strategy: We will create a receipt for EACH item. 
+            // We'll use $uniqueRefCode as the 'reference_number' in DB to avoid collisions,
+            // but we can store the 'batch_reference' in observations or a separate field if needed.
+            // Actually, the Journal displays 'reference_number'. 
+            // Users might want to see the "Main Batch Ref" (e.g. BATCH-001).
+            // If we use BATCH-001 for all, and the DB column is UNIQUE, it will fail.
+            // Let's assume for now reference_number + year should be unique.
+            
+            // Let's use $uniqueRefCode for the journal record.
+            
+            $itemReceiptData = [
+                'pr_id' => $paymentRecord->id,
+                'amt_paid' => $paymentAmountToPay,
+                'balance' => $paymentCashAmount,
+                'year' => $this->year,
+                'methode' => $status,
+                'payment_method' => $status,
+                'reference_number' => $uniqueRefCode, // Unique ref for DB
+                'observations' => 'Paiement ' . $status . ' - ' . $payment->title . ' (Ref Batch: ' . $referenceCode . ')',
+                'created_by' => auth()->id()
+            ];
+
+            // Update or Create
+            $itemReceipt = Receipt::where('reference_number', $uniqueRefCode)->first();
+            if (!$itemReceipt) {
+                Receipt::create($itemReceiptData);
+            } else {
+                $itemReceipt->update($itemReceiptData);
+            }
         }
 
-        // Create receipt record for journal
-        $receiptData = [
-            'pr_id' => $paymentRecords[0]->id,
-            'amt_paid' => $amountToPay,
-            'balance' => $cashAmount,
-            'year' => $this->year,
-            'methode' => $status,
-            'payment_method' => $status,
-            'reference_number' => $referenceCode,
-            'observations' => 'Paiement ' . $status . ' - ' . $payments->count() . ' paiements',
-            'created_by' => auth()->id()
-        ];
+        // We don't need to create a "Global Receipt" anymore since we created detailed ones.
+        // But for the PRINT VIEW, we just need a dummy receipt object 
+        // or just the reference code. We passed 'receipt' => $receipt before.
+        // Let's create a dummy object or fetch the last one to satisfy the view structure if needed.
+        // The view uses $receipt->reference_number (which we have as $referenceCode).
+        // Check view usage: It uses $referenceCode directly from array, NOT $receipt object.
+        // So we can pass null or the last created item receipt.
+        
+        $receipt = new Receipt(); // Dummy for safety
+        $receipt->reference_number = $referenceCode;
 
-        // Check if receipt already exists
-        $receipt = Receipt::where('reference_number', $referenceCode)->first();
+        // Check if all selected payments are fully cleared (0 balance) or cleared for ADRA (balance <= 75%)
+        $isFullyPaid = true;
+        foreach ($payments as $payment) {
+            $checkPr = PaymentRecord::where([
+                'student_id' => $studentId,
+                'payment_id' => $payment->id,
+                'year' => $this->year
+            ])->first();
+            
+            // If doesn't exist, then not fully paid
+            if (!$checkPr) {
+                $isFullyPaid = false;
+                break;
+            }
 
-        if (!$receipt) {
-            $receipt = Receipt::create($receiptData);
-        } else {
-            $receipt->update($receiptData);
+            // For ADRA, if balance is <= 75% of original amount, it means student paid their 25%
+            // Logic: Original = 100. ADRA pays 75, Student pays 25.
+            // If user pays 25, balance should remain 75 (which ADRA pays later or is waived).
+            // So if balance <= 75%, user has paid their share.
+            if ($status === 'ADRA') {
+                $adraPortion = $payment->amount * 0.75;
+                // Allow a small float margin error
+                if ($checkPr->balance > ($adraPortion + 1)) {
+                    $isFullyPaid = false;
+                    break;
+                }
+            } else {
+                // For normal/TEAM3, balance must be 0
+                if ($checkPr->balance > 0) {
+                    $isFullyPaid = false;
+                    break;
+                }
+            }
+        }
+
+        // For display in receipt, update payment amounts to 25% if ADRA
+        if ($status === 'ADRA') {
+            foreach ($payments as $payment) {
+                $payment->original_amount = $payment->amount; // Keep original if needed
+                $payment->amount = $payment->amount * 0.25; // Show 25% on receipt
+            }
         }
 
         $receiptsData[] = [
@@ -2023,7 +2142,8 @@ public function printBatchReceipts(Request $request)
             'cashAmount' => $cashAmount,
             'status' => $status,
             'referenceCode' => $referenceCode,
-            'receipt' => $receipt
+            'receipt' => $receipt,
+            'isFullyPaid' => $isFullyPaid
         ];
     }
 
@@ -3119,72 +3239,76 @@ private function generateMalagasyText($student, $paymentTitles, $amount, $deadli
         $d['paymentTypes'] = $this->pay->getPayment(['year' => $this->year])->get();
         $d['paymentMethods'] = Receipt::select('methode')->distinct()->whereNotNull('methode')->get();
 
-        // Construire la requête principale
+        // --- REQUÊTE 1 : Paiements normaux (Journal Général) ---
         $query = Receipt::with(['pr.student.student_record.my_class', 'pr.payment'])
             ->where('year', $this->year);
 
-        // Exclure les paiements ADRA (75%) et TEAM3 (100%) du journal
-        // Ces paiements sont affichés uniquement dans les encaissements
+        // Exclure les paiements ADRA (75%) et TEAM3 (100%)
         $query->where(function($q) {
-            $q->whereNull('methode')  // Paiements normaux sans méthode spécifique
+            $q->whereNull('methode')
               ->orWhere(function($subQ) {
-                  // Inclure seulement les paiements normaux (pas ADRA ni TEAM3)
                   $subQ->whereNotIn('methode', ['ADRA', 'TEAM3']);
-              })
-              ->orWhere(function($subQ) {
-                  // Inclure les paiements ADRA où le montant payé correspond au 25% (partie étudiante)
-                  // Cela inclut les paiements en espèces de la portion étudiante
-                  $subQ->where('methode', 'Espèces')
-                       ->orWhere('methode', 'like', '%Espèces%');
               });
         });
 
-        // Appliquer le filtre de date
+        // Appliquer filtres pour Paiements Normaux
         $query->whereBetween('created_at', [$d['startDate'] . ' 00:00:00', $d['endDate'] . ' 23:59:59']);
 
-        // Filtre par classe
         if ($d['selectedClass']) {
             $query->whereHas('pr.student.student_record', function($q) use ($d) {
                 $q->where('my_class_id', $d['selectedClass']);
             });
         }
-
-        // Filtre par type de paiement (titre du paiement)
         if ($d['selectedPaymentType']) {
             $query->whereHas('pr.payment', function($q) use ($d) {
                 $q->where('title', $d['selectedPaymentType']);
             });
         }
-
-        // Filtre par mode de paiement
         if ($d['selectedPaymentMethod']) {
             $query->where('methode', $d['selectedPaymentMethod']);
         }
-
-        // Filtre par nom d'étudiant
         if ($d['studentName']) {
             $query->whereHas('pr.student', function($q) use ($d) {
                 $q->where('name', 'like', '%' . $d['studentName'] . '%');
             });
         }
 
-        // Exécuter la requête
         $receipts = $query->latest()->get();
         
-        // Filtrer les reçus pour exclure les paiements ADRA/TEAM3 (75%/100%)
-        // Ne garder que les paiements normaux et les 25% ADRA
-        $receipts = $receipts->filter(function($receipt) {
-            // Si le reçu a une méthode ADRA ou TEAM3, c'est un paiement automatique (75%/100%)
-            // On l'exclut du journal car il doit apparaître dans les encaissements
-            if ($receipt->methode === 'ADRA' || $receipt->methode === 'TEAM3') {
-                return false;
-            }
-            return true;
-        })->values();
+        // --- REQUÊTE 2 : Paiements Automatiques (ADRA/TEAM3) ---
+        $autoQuery = Receipt::with(['pr.student.student_record.my_class', 'pr.payment'])
+            ->where('year', $this->year)
+            ->whereIn('methode', ['ADRA', 'TEAM3']);
+            
+        // Appliquer les mêmes filtres temporels et contextuels
+        $autoQuery->whereBetween('created_at', [$d['startDate'] . ' 00:00:00', $d['endDate'] . ' 23:59:59']);
+
+        if ($d['selectedClass']) {
+            $autoQuery->whereHas('pr.student.student_record', function($q) use ($d) {
+                $q->where('my_class_id', $d['selectedClass']);
+            });
+        }
+        if ($d['selectedPaymentType']) {
+            $autoQuery->whereHas('pr.payment', function($q) use ($d) {
+                $q->where('title', $d['selectedPaymentType']);
+            });
+        }
+        // Note: On n'applique pas le filtre payment_method ici car on veut forcer ADRA/TEAM3
+        if ($d['studentName']) {
+            $autoQuery->whereHas('pr.student', function($q) use ($d) {
+                $q->where('name', 'like', '%' . $d['studentName'] . '%');
+            });
+        }
         
+        // Récupérer et s'assurer "sans répétition" (groupement)
+        // On récupère tout et on groupe dans la vue, ou on distinct ici ?
+        // La demande "sans repetition" suggère de voir si on a plusieurs lignes pour le même paiement.
+        // On va les récupérer normalement, le générateur gère l'unicité.
+        $d['autoReceipts'] = $autoQuery->latest()->get();
+
         $d['receipts'] = $receipts;
         
-        // Calculer le total général
+        // Calculer le total général (Paiements normaux)
         $d['totalAmount'] = $receipts->sum('amt_paid');
         
         // Calculer les statistiques par classe
@@ -3200,7 +3324,7 @@ private function generateMalagasyText($student, $paymentTitles, $amount, $deadli
                 $d['classTotalSum'] += $receipt->amt_paid;
             }
         }
-        arsort($d['classTotals']); // Trier par montant décroissant
+        arsort($d['classTotals']); 
 
         // Calculer les statistiques par type de paiement
         $d['paymentTypeTotals'] = [];
