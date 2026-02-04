@@ -64,8 +64,8 @@ Ce document détaille les améliorations apportées au système de reçus de pai
 - `formatPeriod()` : Calcul de périodes entre dates
 - `now()` : Date actuelle formatée
 
-### 4. Styles CSS Dédiés
-**Fichier** : `public/css/receipt-styles.css`
+### 4. Styles CSS (Inline)
+**Fichier** : `resources/views/pages/support_team/payments/receipt.blade.php`
 
 **Caractéristiques** :
 - Styles optimisés pour impression thermique
@@ -209,7 +209,7 @@ public static function formatCustom($date, $format = 'DD/MM/YYYY')
 ```
 
 ### Modification des Styles
-Les styles sont centralisés dans `public/css/receipt-styles.css` pour faciliter la maintenance.
+Les styles sont actuellement définis inline dans `resources/views/pages/support_team/payments/receipt.blade.php`.
 
 ### Gestion des Erreurs
 La classe `DateHelper` inclut une gestion d'erreurs robuste :

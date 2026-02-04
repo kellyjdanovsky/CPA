@@ -794,7 +794,12 @@ class PaymentController extends Controller
 
     public function destroy($id)
     {
-        $this->pay->find($id)->delete();
+        $payment = $this->pay->find($id);
+        if (!$payment) {
+            return Qs::goWithDanger('payments.index');
+        }
+
+        $payment->delete();
 
         return Qs::deleteOk('payments.index');
     }
