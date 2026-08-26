@@ -60,8 +60,10 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('list/{class_id}', 'StudentRecordController@listByClass')->name('students.list')->middleware('teamSAT');
             Route::get('list-all', 'StudentRecordController@listAll')->name('students.list_all')->middleware('teamSAT');
             Route::get('export', 'StudentRecordController@export')->name('students.export')->middleware('teamSAT');
+            Route::get('print-attendance/{class_id}/{section_id?}', 'StudentRecordController@printAttendanceSheet')->name('students.print_attendance')->middleware('teamSAT');
             Route::get('statistics/detailed', 'StudentStatisticsController@getDetailedStatistics')->name('students.statistics.detailed')->middleware('teamSAT');
             Route::get('statistics/export', 'StudentStatisticsController@exportStatistics')->name('students.statistics.export')->middleware('teamSAT');
+            Route::get('statistics/print-report', 'StudentStatisticsController@printStatisticsReport')->name('students.statistics.print_report')->middleware('teamSAT');
             Route::post('bulk_action', 'StudentRecordController@bulkAction')->name('students.bulk_action');
 
             /* Promotions */
@@ -157,6 +159,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('journal', 'PaymentController@journal')->name('payments.journal');
             Route::get('journal/filter', 'PaymentController@journalFilter')->name('payments.journal.filter');
             Route::get('journal/export/excel', 'PaymentController@journalExportExcel')->name('payments.journal.export.excel');
+            Route::get('journal/print-cloture', 'PaymentController@journalPrintCloture')->name('payments.journal.print_cloture');
             
             /*************** Encaissements *****************/
             Route::group(['prefix' => 'encaissements'], function(){
@@ -225,6 +228,7 @@ Route::group(['middleware' => 'auth'], function () {
                 
                 // Print and export
                 Route::get('print-op/{id}', 'DecaissementController@printOP')->name('payments.decaissements.print_op');
+                Route::get('print-thermal/{id}', 'DecaissementController@printThermal')->name('payments.decaissements.print_thermal');
                 Route::post('print-multiple', 'DecaissementController@printMultipleOP')->name('payments.decaissements.print_multiple');
                 Route::get('export/excel', 'DecaissementController@exportExcel')->name('payments.decaissements.export_excel');
                 

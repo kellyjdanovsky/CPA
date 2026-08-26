@@ -1061,6 +1061,22 @@ public function exportExcelForNotifications(Request $request)
         ];
     }
 
+    // Add total row
+    $sumTotal = array_sum(array_map(function($s) { return $s['total_amount'] ?? ($s['amount_due'] + ($s['amount_paid'] ?? 0)); }, $unpaidStudents));
+    $sumPaid = array_sum(array_map(function($s) { return $s['amount_paid'] ?? 0; }, $unpaidStudents));
+    $sumDue = array_sum(array_map(function($s) { return $s['amount_due']; }, $unpaidStudents));
+
+    $data[] = [
+        'TOTAL GÉNÉRAL (' . count($unpaidStudents) . ' élèves)',
+        $nom_classe->name,
+        '',
+        '',
+        number_format($sumTotal, 0, ',', ' '),
+        number_format($sumPaid, 0, ',', ' '),
+        number_format($sumDue, 0, ',', ' '),
+        ''
+    ];
+
     // Generate Excel file
     $fileName = 'Avis_Paiement_' . str_replace(' ', '_', $nom_classe->name) . '_' . date('Y-m-d') . '.xlsx';
 
@@ -1077,6 +1093,11 @@ public function exportExcelForNotifications(Request $request)
     // Format header row
     $sheet->getStyle('A1:H1')->getFont()->setBold(true);
     $sheet->getStyle('A1:H1')->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FFCCCCCC');
+
+    // Format total row
+    $totalRowIndex = count($data);
+    $sheet->getStyle('A' . $totalRowIndex . ':H' . $totalRowIndex)->getFont()->setBold(true);
+    $sheet->getStyle('A' . $totalRowIndex . ':H' . $totalRowIndex)->getFill()->setFillType(\PhpOffice\PhpSpreadsheet\Style\Fill::FILL_SOLID)->getStartColor()->setARGB('FFE8F5E9');
 
     // Auto-size columns
     foreach (range('A', 'H') as $col) {
@@ -2527,6 +2548,88 @@ private function journalExportExcel_deprecated(Request $request)
 
     // Télécharger le fichier Excel
     return response()->download($tempFile, $fileName)->deleteFileAfterSend(true);
+}
+
+/**
+ * Imprimer le procès-verbal officiel de clôture de caisse A4
+ */
+public function journalPrintCloture(Request $request)
+{
+    $period = $request->get('period', 'today');
+    $startDate = $request->get('start_date');
+    $endDate = $request->get('end_date');
+
+    switch ($period) {
+        case 'today':
+            $startDate = date('Y-m-d');
+            $endDate = date('Y-m-d');
+            break;
+        case 'yesterday':
+            $startDate = date('Y-m-d', strtotime('-1 day'));
+            $endDate = date('Y-m-d', strtotime('-1 day'));
+            break;
+        case 'this_week':
+            $startDate = date('Y-m-d', strtotime('monday this week'));
+            $endDate = date('Y-m-d', strtotime('sunday this week'));
+            break;
+        case 'this_month':
+            $startDate = date('Y-m-01');
+            $endDate = date('Y-m-t');
+            break;
+        case 'custom':
+            if (!$startDate || !$endDate) {
+                $startDate = date('Y-m-d');
+                $endDate = date('Y-m-d');
+            }
+            break;
+        default:
+            $startDate = date('Y-m-d');
+            $endDate = date('Y-m-d');
+    }
+
+    $query = Receipt::with(['pr.student.student_record.my_class', 'pr.student.student_record.section', 'pr.payment'])
+        ->whereBetween('created_at', [$startDate . ' 00:00:00', $endDate . ' 23:59:59']);
+
+    if ($request->has('class_id') && $request->class_id != '') {
+        $classId = $request->class_id;
+        $query->whereHas('pr.student.student_record', function($q) use ($classId) {
+            $q->where('my_class_id', $classId);
+        });
+    }
+
+    if ($request->has('payment_type') && $request->payment_type != '') {
+        $query->whereHas('pr.payment', function($q) use ($request) {
+            $q->where('title', 'like', '%' . $request->payment_type . '%');
+        });
+    }
+
+    if ($request->has('payment_method') && $request->payment_method != '') {
+        $method = $request->payment_method;
+        $query->where(function($q) use ($method) {
+            $q->where('payment_method', $method)->orWhere('methode', $method);
+        });
+    }
+
+    $receipts = $query->orderBy('created_at', 'asc')->get();
+    $totalAmount = $receipts->sum('amt_paid');
+
+    $paymentTypeTotals = [];
+    foreach ($receipts as $r) {
+        $title = $r->pr && $r->pr->payment ? $r->pr->payment->title : 'Autre';
+        $paymentTypeTotals[$title] = ($paymentTypeTotals[$title] ?? 0) + $r->amt_paid;
+    }
+
+    $d = [
+        'startDate' => $startDate,
+        'endDate' => $endDate,
+        'period' => $period,
+        'receipts' => $receipts,
+        'totalAmount' => $totalAmount,
+        'paymentTypeTotals' => $paymentTypeTotals,
+        'year' => $this->year
+    ];
+
+    return view('pages.support_team.payments.journal_cloture_print', $d);
 }
 
 /**

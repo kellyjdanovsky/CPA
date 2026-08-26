@@ -566,8 +566,12 @@
                                 </button>
                             @endif
                             
+                            <a href="{{ route('payments.decaissements.print_thermal', $decaissement->id) }}" 
+                               class="quick-action-btn print" target="_blank" data-tooltip="Ticket 58mm" style="background: #eef2ff; color: #4f46e5; border-color: #c7d2fe;">
+                                <i class="icon-newspaper2"></i>
+                            </a>
                             <a href="{{ route('payments.decaissements.print_op', $decaissement->id) }}" 
-                               class="quick-action-btn print" target="_blank" data-tooltip="Imprimer">
+                               class="quick-action-btn print" target="_blank" data-tooltip="Imprimer A4">
                                 <i class="icon-printer"></i>
                             </a>
                         </div>

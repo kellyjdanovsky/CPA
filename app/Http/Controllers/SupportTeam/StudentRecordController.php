@@ -112,6 +112,26 @@ class StudentRecordController extends Controller
         return is_null($mc) ? Qs::goWithDanger() : view('pages.support_team.students.list', $data);
     }
 
+    /**
+     * Imprimer la feuille d'appel / registre de présence mensuel en A4 paysage
+     */
+    public function printAttendanceSheet($class_id, $section_id = null)
+    {
+        $data['my_class'] = $mc = $this->my_class->getMC(['id' => $class_id])->first();
+        if (!$mc) {
+            return Qs::goWithDanger();
+        }
+
+        if ($section_id) {
+            $data['section'] = $this->my_class->findSection($section_id);
+            $data['students'] = $this->student->getRecord(['my_class_id' => $class_id, 'section_id' => $section_id])->get();
+        } else {
+            $data['students'] = $this->student->findStudentsByClass($class_id);
+        }
+
+        return view('pages.support_team.students.print_attendance_sheet', $data);
+    }
+
     public function listAll()
     {
         $data['all_students'] = $this->student->getAllSorted()->get();
@@ -132,15 +152,60 @@ class StudentRecordController extends Controller
             $data['students_by_status'][$key] = max(0, $value);
         }
 
-        // Compter les élèves par classe
+        // Compter les élèves par classe et construire la matrice par classe
+        $data['class_matrix'] = [];
         if ($data['my_classes'] && $data['my_classes']->count() > 0) {
             foreach($data['my_classes'] as $class) {
-                $count = $data['all_students']->where('my_class_id', $class->id)->count();
+                $cStudents = $data['all_students']->where('my_class_id', $class->id);
+                $count = $cStudents->count();
+                $cBoys = $cStudents->where('user.gender', 'Male')->count();
+                $cGirls = $cStudents->where('user.gender', 'Female')->count();
+                
+                $cAgeSum = 0; $cAgeCount = 0;
+                foreach ($cStudents as $cs) {
+                    if ($cs->user && $cs->user->dob) {
+                        $cAgeSum += Qs::calculateAge($cs->user->dob);
+                        $cAgeCount++;
+                    }
+                }
+
                 $data['students_by_class'][] = [
                     'name' => $class->name ?? 'Classe sans nom',
                     'count' => max(0, $count)
                 ];
+
+                $data['class_matrix'][] = [
+                    'id' => $class->id,
+                    'name' => $class->name ?? 'Classe sans nom',
+                    'total' => $count,
+                    'boys' => $cBoys,
+                    'girls' => $cGirls,
+                    'avg_age' => $cAgeCount > 0 ? round($cAgeSum / $cAgeCount, 1) : '-',
+                    'normal' => $cStudents->filter(fn($s) => $s->user && ($s->user->status === 'Normal' || is_null($s->user->status)))->count(),
+                    'adra' => $cStudents->filter(fn($s) => $s->user && $s->user->status === 'ADRA')->count(),
+                    'team3' => $cStudents->filter(fn($s) => $s->user && ($s->user->status === 'TEAM3' || $s->user->status === 'Team3'))->count(),
+                    'nouveau' => $cStudents->filter(fn($s) => $s->user && ($s->user->student_type === 'Nouveau' || is_null($s->user->student_type)))->count(),
+                    'ancien' => $cStudents->filter(fn($s) => $s->user && $s->user->student_type === 'Ancien')->count(),
+                    'passant' => $cStudents->filter(fn($s) => $s->user && ($s->user->academic_status === 'Passant' || is_null($s->user->academic_status)))->count(),
+                    'redoublant' => $cStudents->filter(fn($s) => $s->user && $s->user->academic_status === 'Redoublant')->count(),
+                    'adventiste' => $cStudents->filter(fn($s) => $s->user && $s->user->religion === 'Adventiste')->count(),
+                    'catholique' => $cStudents->filter(fn($s) => $s->user && $s->user->religion === 'Catholique')->count(),
+                    'fjkm' => $cStudents->filter(fn($s) => $s->user && $s->user->religion === 'FJKM')->count(),
+                    'autres_rel' => $count - $cStudents->filter(fn($s) => $s->user && in_array($s->user->religion, ['Adventiste', 'Catholique', 'FJKM']))->count()
+                ];
             }
+        }
+
+        // Statistiques par religion
+        $religions = ['Adventiste', 'Catholique', 'FJKM', 'FLM', 'Islam', 'Judaïsme', 'Apokalipsy', 'Autres', 'Non renseigné'];
+        $data['students_by_religion'] = [];
+        foreach ($religions as $rel) {
+            if ($rel === 'Non renseigné') {
+                $rCount = $data['all_students']->filter(fn($s) => !$s->user || is_null($s->user->religion))->count();
+            } else {
+                $rCount = $data['all_students']->filter(fn($s) => $s->user && $s->user->religion === $rel)->count();
+            }
+            $data['students_by_religion'][$rel] = max(0, $rCount);
         }
 
         return view('pages.support_team.students.list_all', $data);

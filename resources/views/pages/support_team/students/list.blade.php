@@ -17,8 +17,11 @@
             <p>Liste des élèves, gestion des sections, visibilité personnalisée des colonnes et export Excel direct</p>
         </div>
         <div class="mt-3 mt-md-0 d-flex flex-wrap" style="gap: 10px;">
-            <a href="{{ route('students.list_all') }}" class="btn btn-light font-weight-semibold shadow-sm">
-                <i class="icon-list-unordered mr-1 text-primary"></i> Voir tous les élèves
+            <a href="{{ route('students.print_attendance', $my_class->id) }}" target="_blank" class="btn btn-light font-weight-semibold shadow-sm text-primary">
+                <i class="icon-printer mr-1"></i> Feuille d'Appel (A4)
+            </a>
+            <a href="{{ route('students.list_all') }}" class="btn btn-outline-light font-weight-semibold">
+                <i class="icon-list-unordered mr-1"></i> Tous les élèves
             </a>
             @if(Qs::userIsTeamSA())
                 <a href="{{ route('students.create') }}" class="btn btn-outline-light font-weight-semibold">

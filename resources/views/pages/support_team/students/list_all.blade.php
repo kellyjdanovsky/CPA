@@ -19,9 +19,15 @@
             <p>Gestion centrale des effectifs, filtres avancés, personnalisation des colonnes et export Excel direct</p>
         </div>
         <div class="mt-3 mt-md-0 d-flex flex-wrap" style="gap: 10px;">
+            <a href="{{ route('students.statistics.print_report') }}" target="_blank" class="btn btn-light font-weight-semibold shadow-sm text-primary">
+                <i class="icon-printer mr-1"></i> Rapport A4 Paysage
+            </a>
+            <a href="{{ route('students.statistics.export') }}" class="btn btn-light font-weight-semibold shadow-sm text-success">
+                <i class="icon-file-excel mr-1"></i> Export Statistiques
+            </a>
             @if(Qs::userIsTeamSA())
-                <a href="{{ route('students.create') }}" class="btn btn-light font-weight-semibold shadow-sm">
-                    <i class="icon-plus2 mr-1 text-primary"></i> Nouvel Élève
+                <a href="{{ route('students.create') }}" class="btn btn-outline-light font-weight-semibold">
+                    <i class="icon-plus2 mr-1"></i> Nouvel Élève
                 </a>
             @endif
             <button type="button" class="btn btn-outline-light font-weight-semibold" onclick="location.reload();">
@@ -134,6 +140,16 @@
                 <li class="nav-item">
                     <a href="#student-types" class="nav-link" data-toggle="tab">
                         <i class="icon-graduation2 mr-1 text-warning"></i> Types & Statuts
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#religion-stats" class="nav-link" data-toggle="tab">
+                        <i class="icon-sphere mr-1 text-danger"></i> Religions & Cultes
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#class-matrix-tab" class="nav-link" data-toggle="tab">
+                        <i class="icon-table2 mr-1 text-primary"></i> Synthèse par Classe
                     </a>
                 </li>
                 <li class="nav-item dropdown">
@@ -410,7 +426,22 @@
                             <!-- Filtres Ligne 2 -->
                             <div class="row g-2 mb-4">
                                 <div class="col-md-3">
-                                    <label class="font-weight-semibold font-size-xs text-uppercase text-muted"><i class="icon-book"></i> Type d'étudiant</label>
+                                    <label class="font-weight-semibold font-size-xs text-uppercase text-muted"><i class="icon-sphere"></i> Religion</label>
+                                    <select id="religion-filter" class="form-control form-control-sm">
+                                        <option value="">Toutes les religions</option>
+                                        <option value="Adventiste">Adventiste</option>
+                                        <option value="Catholique">Catholique</option>
+                                        <option value="FJKM">FJKM</option>
+                                        <option value="FLM">FLM</option>
+                                        <option value="Islam">Islam</option>
+                                        <option value="Judaïsme">Judaïsme</option>
+                                        <option value="Apokalipsy">Apokalipsy</option>
+                                        <option value="Autres">Autres</option>
+                                        <option value="Non renseigné">Non renseigné</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="font-weight-semibold font-size-xs text-uppercase text-muted"><i class="icon-book"></i> Type</label>
                                     <select id="student-type-filter" class="form-control form-control-sm">
                                         <option value="">Tous les types</option>
                                         <option value="Nouveau">Nouveau</option>
@@ -425,10 +456,10 @@
                                         <option value="Redoublant">Redoublant</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6 d-flex align-items-end">
+                                <div class="col-md-4 d-flex align-items-end">
                                     <div class="btn-group w-100">
                                         <button class="btn btn-primary" onclick="applyFilters()">
-                                            <i class="icon-filter3 mr-1"></i> Appliquer les filtres
+                                            <i class="icon-filter3 mr-1"></i> Filtrer
                                         </button>
                                         <button class="btn btn-light border" onclick="resetFilters()">
                                             <i class="icon-reset mr-1"></i> Réinitialiser
@@ -619,6 +650,173 @@
                                         </tbody>
                                     </table>
                                 </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Onglet 5 : Statistiques par Religion / Culte --}}
+                <div class="tab-pane fade" id="religion-stats">
+                    <div class="row mt-2">
+                        <div class="col-md-5 mb-4">
+                            <div class="card h-100 border shadow-none" style="border-radius: 12px;">
+                                <div class="card-header bg-light border-bottom">
+                                    <h6 class="card-title font-weight-bold mb-0 text-dark">
+                                        <i class="icon-pie-chart mr-1 text-danger"></i> Répartition par Religion
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container" style="height: 280px;">
+                                        <canvas id="religion-chart"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-7 mb-4">
+                            <div class="card h-100 border shadow-none" style="border-radius: 12px;">
+                                <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center">
+                                    <h6 class="card-title font-weight-bold mb-0 text-dark">
+                                        <i class="icon-table2 mr-1 text-primary"></i> Détail des Effectifs par Dénomination
+                                    </h6>
+                                    <span class="badge badge-light-primary font-weight-bold">Total : {{ $total_students }}</span>
+                                </div>
+                                <div class="card-body p-0">
+                                    <div class="table-responsive">
+                                        <table class="table table-bordered table-striped mb-0">
+                                            <thead class="bg-light">
+                                                <tr>
+                                                    <th>Religion / Dénomination</th>
+                                                    <th class="text-center">Effectif</th>
+                                                    <th class="text-center">♂ Garçons</th>
+                                                    <th class="text-center">♀ Filles</th>
+                                                    <th class="text-center">Pourcentage</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($students_by_religion as $rel => $rCount)
+                                                @php
+                                                    $rBoys = $all_students->filter(fn($s) => ($rel === 'Non renseigné' ? (!$s->user || is_null($s->user->religion)) : ($s->user && $s->user->religion === $rel)) && $s->user->gender === 'Male')->count();
+                                                    $rGirls = $all_students->filter(fn($s) => ($rel === 'Non renseigné' ? (!$s->user || is_null($s->user->religion)) : ($s->user && $s->user->religion === $rel)) && $s->user->gender === 'Female')->count();
+                                                @endphp
+                                                <tr>
+                                                    <td><strong>{{ $rel }}</strong></td>
+                                                    <td class="text-center font-weight-bold">{{ $rCount }}</td>
+                                                    <td class="text-center text-primary">{{ $rBoys }}</td>
+                                                    <td class="text-center text-danger">{{ $rGirls }}</td>
+                                                    <td class="text-center">{{ $total_students > 0 ? number_format(($rCount / $total_students) * 100, 1) : '0.0' }}%</td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                            <tfoot class="bg-light font-weight-bold">
+                                                <tr>
+                                                    <td>TOTAL</td>
+                                                    <td class="text-center">{{ $total_students }}</td>
+                                                    <td class="text-center text-primary">{{ $totalBoys }}</td>
+                                                    <td class="text-center text-danger">{{ $totalGirls }}</td>
+                                                    <td class="text-center">100.0%</td>
+                                                </tr>
+                                            </tfoot>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Onglet 6 : Tableau Croisé Synthétique par Classe --}}
+                <div class="tab-pane fade" id="class-matrix-tab">
+                    <div class="card border shadow-none" style="border-radius: 12px;">
+                        <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center">
+                            <h6 class="card-title font-weight-bold mb-0 text-dark">
+                                <i class="icon-grid5 mr-1 text-primary"></i> Synthèse Croisée Complète par Classe
+                            </h6>
+                            <div>
+                                <a href="{{ route('students.statistics.print_report') }}" target="_blank" class="btn btn-primary btn-sm">
+                                    <i class="icon-printer mr-1"></i> Imprimer Rapport A4
+                                </a>
+                                <a href="{{ route('students.statistics.export') }}" class="btn btn-success btn-sm ml-1">
+                                    <i class="icon-file-excel mr-1"></i> Export Excel
+                                </a>
+                            </div>
+                        </div>
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table table-bordered table-hover text-nowrap mb-0 font-size-sm">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th rowspan="2" class="text-left font-weight-bold" style="vertical-align: middle;">Classe</th>
+                                            <th rowspan="2" class="text-center font-weight-bold" style="vertical-align: middle;">Effectif</th>
+                                            <th colspan="3" class="text-center" style="background: #e0e7ff;">Genre</th>
+                                            <th rowspan="2" class="text-center font-weight-bold" style="vertical-align: middle;">Âge Moy.</th>
+                                            <th colspan="3" class="text-center" style="background: #ecfdf5;">Régime / Statut</th>
+                                            <th colspan="2" class="text-center" style="background: #fef3c7;">Type</th>
+                                            <th colspan="2" class="text-center" style="background: #f1f5f9;">Statut Académique</th>
+                                            <th colspan="4" class="text-center" style="background: #fae8ff;">Religions Principales</th>
+                                        </tr>
+                                        <tr>
+                                            <th class="text-center" style="background: #e0e7ff;">♂ Garçons</th>
+                                            <th class="text-center" style="background: #e0e7ff;">♀ Filles</th>
+                                            <th class="text-center" style="background: #e0e7ff;">% F</th>
+                                            <th class="text-center" style="background: #ecfdf5;">Normal</th>
+                                            <th class="text-center" style="background: #ecfdf5;">ADRA</th>
+                                            <th class="text-center" style="background: #ecfdf5;">TEAM3</th>
+                                            <th class="text-center" style="background: #fef3c7;">Nouveau</th>
+                                            <th class="text-center" style="background: #fef3c7;">Ancien</th>
+                                            <th class="text-center" style="background: #f1f5f9;">Passant</th>
+                                            <th class="text-center" style="background: #f1f5f9;">Redoublant</th>
+                                            <th class="text-center" style="background: #fae8ff;">Adventiste</th>
+                                            <th class="text-center" style="background: #fae8ff;">Catholique</th>
+                                            <th class="text-center" style="background: #fae8ff;">FJKM</th>
+                                            <th class="text-center" style="background: #fae8ff;">Autres</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach($class_matrix as $row)
+                                        <tr>
+                                            <td class="font-weight-bold"><a href="#c{{ $row['id'] }}" data-toggle="tab">{{ $row['name'] }}</a></td>
+                                            <td class="text-center font-weight-bold bg-light">{{ $row['total'] }}</td>
+                                            <td class="text-center text-primary">{{ $row['boys'] }}</td>
+                                            <td class="text-center text-danger">{{ $row['girls'] }}</td>
+                                            <td class="text-center">{{ $row['total'] > 0 ? round(($row['girls'] / $row['total']) * 100, 0) : 0 }}%</td>
+                                            <td class="text-center font-weight-semibold">{{ $row['avg_age'] }} ans</td>
+                                            <td class="text-center">{{ $row['normal'] }}</td>
+                                            <td class="text-center text-warning font-weight-bold">{{ $row['adra'] }}</td>
+                                            <td class="text-center text-danger font-weight-bold">{{ $row['team3'] }}</td>
+                                            <td class="text-center">{{ $row['nouveau'] }}</td>
+                                            <td class="text-center">{{ $row['ancien'] }}</td>
+                                            <td class="text-center">{{ $row['passant'] }}</td>
+                                            <td class="text-center">{{ $row['redoublant'] }}</td>
+                                            <td class="text-center">{{ $row['adventiste'] }}</td>
+                                            <td class="text-center">{{ $row['catholique'] }}</td>
+                                            <td class="text-center">{{ $row['fjkm'] }}</td>
+                                            <td class="text-center">{{ $row['autres_rel'] }}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                    <tfoot class="bg-light font-weight-bold">
+                                        <tr style="background-color: #d1fae5;">
+                                            <td>TOTAL ÉCOLE</td>
+                                            <td class="text-center">{{ $total_students }}</td>
+                                            <td class="text-center text-primary">{{ $totalBoys }}</td>
+                                            <td class="text-center text-danger">{{ $totalGirls }}</td>
+                                            <td class="text-center">{{ $total_students > 0 ? round(($totalGirls / $total_students) * 100, 1) : 0 }}%</td>
+                                            <td class="text-center">-</td>
+                                            <td class="text-center">{{ $totalNormal }}</td>
+                                            <td class="text-center text-warning">{{ $totalAdra }}</td>
+                                            <td class="text-center text-danger">{{ $totalTeam3 }}</td>
+                                            <td class="text-center">{{ $all_students->where('user.student_type', 'Nouveau')->count() }}</td>
+                                            <td class="text-center">{{ $all_students->where('user.student_type', 'Ancien')->count() }}</td>
+                                            <td class="text-center">{{ $all_students->where('user.academic_status', 'Passant')->count() }}</td>
+                                            <td class="text-center">{{ $all_students->where('user.academic_status', 'Redoublant')->count() }}</td>
+                                            <td class="text-center">{{ $students_by_religion['Adventiste'] ?? 0 }}</td>
+                                            <td class="text-center">{{ $students_by_religion['Catholique'] ?? 0 }}</td>
+                                            <td class="text-center">{{ $students_by_religion['FJKM'] ?? 0 }}</td>
+                                            <td class="text-center">{{ $total_students - (($students_by_religion['Adventiste'] ?? 0) + ($students_by_religion['Catholique'] ?? 0) + ($students_by_religion['FJKM'] ?? 0)) }}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
                             </div>
                         </div>
                     </div>
@@ -818,6 +1016,28 @@
                     }
                 });
             }
+
+            const religionCtx = document.getElementById('religion-chart');
+            if (religionCtx) {
+                new Chart(religionCtx.getContext('2d'), {
+                    type: 'doughnut',
+                    data: {
+                        labels: {!! json_encode(array_keys($students_by_religion)) !!},
+                        datasets: [{
+                            data: {!! json_encode(array_values($students_by_religion)) !!},
+                            backgroundColor: ['#4f46e5', '#3b82f6', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#64748b', '#cbd5e0'],
+                            borderWidth: 2
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { position: 'bottom' }
+                        }
+                    }
+                });
+            }
         }
 
         // Calculer les types d'élèves
@@ -925,6 +1145,7 @@
                     dob: "{{ $s->user->dob }}",
                     age: {{ $s->user->dob ? \App\Helpers\Qs::calculateAge($s->user->dob) : 0 }},
                     gender: "{{ $s->user->gender }}",
+                    religion: "{!! addslashes($s->user->religion ?? 'Non renseigné') !!}",
                     status: "{{ $s->user->status ?? 'Normal' }}",
                     student_type: "{{ $s->user->student_type ?? 'Nouveau' }}",
                     academic_status: "{{ $s->user->academic_status ?? 'Passant' }}",
@@ -940,6 +1161,7 @@
             const ageMin = $('#age-min-filter').val();
             const ageMax = $('#age-max-filter').val();
             const gender = $('#gender-filter').val();
+            const religion = $('#religion-filter').val();
             const status = $('#status-filter').val();
             const studentType = $('#student-type-filter').val();
             const academicStatus = $('#academic-status-filter').val();
@@ -950,6 +1172,7 @@
                 if (ageMin && student.age < parseInt(ageMin)) return false;
                 if (ageMax && student.age > parseInt(ageMax)) return false;
                 if (gender && student.gender !== gender) return false;
+                if (religion && student.religion !== religion) return false;
                 if (status && student.status !== status) return false;
                 if (studentType && student.student_type !== studentType) return false;
                 if (academicStatus && student.academic_status !== academicStatus) return false;
@@ -1102,7 +1325,7 @@
         }
 
         window.resetFilters = function() {
-            $('#class-filter, #age-min-filter, #age-max-filter, #gender-filter, #status-filter, #student-type-filter, #academic-status-filter').val('');
+            $('#class-filter, #age-min-filter, #age-max-filter, #gender-filter, #religion-filter, #status-filter, #student-type-filter, #academic-status-filter').val('');
             $('#stat-total, #stat-garcons, #stat-filles, #total-boys, #total-girls, #total-all').text('0');
             $('#stat-age-moyen, #total-boys-percent, #total-girls-percent').text('-');
             $('#filtered-students-body').html('<tr><td colspan="9" class="text-center text-muted py-3"><i class="icon-info3 mr-1"></i> Appliquez les filtres pour voir les résultats</td></tr>');
@@ -1123,6 +1346,7 @@
             const ageMin = $('#age-min-filter').val();
             const ageMax = $('#age-max-filter').val();
             const gender = $('#gender-filter').val();
+            const religion = $('#religion-filter').val();
             const status = $('#status-filter').val();
             const studentType = $('#student-type-filter').val();
             const academicStatus = $('#academic-status-filter').val();
@@ -1133,6 +1357,7 @@
                 if (ageMin && student.age < parseInt(ageMin)) return false;
                 if (ageMax && student.age > parseInt(ageMax)) return false;
                 if (gender && student.gender !== gender) return false;
+                if (religion && student.religion !== religion) return false;
                 if (status && student.status !== status) return false;
                 if (studentType && student.student_type !== studentType) return false;
                 if (academicStatus && student.academic_status !== academicStatus) return false;
@@ -1152,6 +1377,7 @@
                     'Section': student.section_name,
                     'Âge': student.age + ' ans',
                     'Sexe': student.gender === 'Male' ? 'Masculin' : 'Féminin',
+                    'Religion': student.religion || '-',
                     'Statut': student.status,
                     'Type': student.student_type,
                     'Téléphone': student.phone || '-'

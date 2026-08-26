@@ -748,6 +748,9 @@
                     </div>
                     <div class="col-md-6 text-right">
                         <div class="btn-group" role="group">
+                            <a href="{{ route('payments.journal.print_cloture') }}?period={{ $period }}&start_date={{ $startDate }}&end_date={{ $endDate }}{{ isset($selectedClass) ? '&class_id='.$selectedClass : '' }}{{ isset($selectedPaymentType) ? '&payment_type='.$selectedPaymentType : '' }}{{ isset($selectedPaymentMethod) ? '&payment_method='.$selectedPaymentMethod : '' }}" target="_blank" class="btn btn-export" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white;">
+                                <i class="icon-printer mr-2"></i>📑 PV Clôture Caisse (A4)
+                            </a>
                             <a href="{{ route('payments.journal.export.excel') }}?period={{ $period }}&start_date={{ $startDate }}&end_date={{ $endDate }}{{ isset($selectedClass) ? '&class_id='.$selectedClass : '' }}{{ isset($selectedPaymentType) ? '&payment_type='.$selectedPaymentType : '' }}{{ isset($selectedPaymentMethod) ? '&payment_method='.$selectedPaymentMethod : '' }}{{ isset($studentName) ? '&student_name='.$studentName : '' }}" class="btn btn-export" id="exportExcelServer">
                                 <i class="icon-file-excel mr-2"></i>📊 Excel (Serveur)
                             </a>

@@ -6,290 +6,313 @@
     <title>Reçu_{{ $pr->ref_no.'_'.$sr->user->name }}</title>
     <style>
         @page {
-            size: 58mm auto; /* Largeur standard pour imprimante thermique 58mm */
+            size: 58mm auto;
             margin: 0;
         }
-        
+
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Courier New', Courier, monospace, 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            width: 58mm; /* Largeur fixe pour imprimante thermique 58mm */
-            font-size: 10pt; /* Taille de police réduite pour s'adapter à la largeur */
+            width: 58mm;
+            font-size: 8pt;
             font-weight: bold;
-            line-height: 1.2;
+            line-height: 1.15;
+            color: #000;
+            background: #fff;
         }
-        
+
         .container {
-            width: 54mm; /* Légèrement plus petit que la largeur du body pour les marges */
+            width: 54mm;
             margin: 0 auto;
-            padding: 1mm;
+            padding: 2mm 1mm;
         }
-        
-        .header {
+
+        .school-header {
             text-align: center;
-            font-size: 12pt;
-            font-weight: bold;
+            font-size: 8pt;
+            font-weight: 900;
             margin-bottom: 2mm;
+            text-transform: uppercase;
+            line-height: 1.1;
             border-bottom: 1px solid #000;
-            padding-bottom: 1mm;
+            padding-bottom: 1.5mm;
         }
-        
+
         .receipt-title {
             text-align: center;
-            font-size: 14pt;
-            font-weight: bold;
-            margin: 2mm 0;
+            font-size: 9pt;
+            font-weight: 900;
+            margin: 1.5mm 0;
             text-transform: uppercase;
-        }
-        
-        .info-section {
-            margin-bottom: 2mm;
-            font-size: 10pt;
-            border: 1px solid #000;
+            border: 1.5px solid #000;
             padding: 1mm;
-            background-color: #f8f8f8;
+            background-color: #f0f0f0;
         }
-        
-        .info-section p {
-            margin: 1mm 0;
-            font-weight: bold;
-            text-transform: uppercase;
+
+        .ref-box {
+            text-align: center;
+            font-size: 7pt;
+            margin-bottom: 1.5mm;
+            padding: 0.5mm 0;
+            border-bottom: 1px dashed #000;
         }
-        
+
+        .info-section {
+            border: 1px solid #000;
+            padding: 1.5mm;
+            margin-bottom: 2mm;
+            font-size: 7.5pt;
+            background: #fafafa;
+        }
+
         .student-name {
-            font-size: 11pt;
-            font-weight: bold;
-            border-bottom: 1px solid #ccc;
+            font-weight: 900;
+            font-size: 8.5pt;
             text-transform: uppercase;
+            margin-bottom: 0.5mm;
         }
-        
+
+        .badge-status {
+            display: inline-block;
+            background: #000;
+            color: #fff;
+            padding: 0.5mm 1.5mm;
+            font-size: 6.5pt;
+            font-weight: bold;
+            border-radius: 2px;
+            margin-top: 1mm;
+        }
+
         .payment-table {
             width: 100%;
             border-collapse: collapse;
             margin: 2mm 0;
             border: 1px solid #000;
-            background-color: #f8f8f8;
         }
-        
-        .payment-table th, 
-        .payment-table td {
-            padding: 1mm;
-            text-align: left;
-            font-size: 9pt;
-            font-weight: bold;
-            border-bottom: 1px solid #ccc;
-        }
-        
+
         .payment-table th {
-            border-bottom: 1px solid #000;
             background-color: #f0f0f0;
+            border-bottom: 1px solid #000;
+            padding: 1mm 0.5mm;
+            font-size: 6.5pt;
+            font-weight: 900;
+            text-align: center;
         }
-        
-        /* Style pour le tableau historique */
-        .payment-table.history th, 
-        .payment-table.history td {
-            padding: 1mm;
-            font-size: 9pt;
+
+        .payment-table td {
+            border-bottom: 1px solid #ddd;
+            padding: 1mm 0.5mm;
+            font-size: 6.5pt;
             font-weight: bold;
         }
-        
-        /* Alignement des montants à droite */
-        .payment-table td:nth-child(2),
-        .payment-table td:nth-child(3) {
-            text-align: right;
-        }
-        
-        .amount {
-            text-align: right;
-            font-weight: bold;
-            font-size: 12pt;
-        }
-        
-        .total-section {
-            margin: 2mm 0;
+
+        .breakdown-box {
             border: 1px solid #000;
-            padding: 2mm;
-            background-color: #f8f8f8;
+            padding: 1.5mm;
+            margin-bottom: 2mm;
+            font-size: 7pt;
+            background: #fdfdfd;
         }
-        
-        .total-row {
+
+        .breakdown-row {
             display: flex;
             justify-content: space-between;
-            margin: 1mm 0;
+            margin-bottom: 0.8mm;
+        }
+
+        .total-section {
+            border: 2px solid #000;
+            padding: 2mm 1mm;
+            margin: 2mm 0;
+            text-align: center;
+            background-color: #f5f5f5;
+        }
+
+        .total-title {
+            font-size: 7pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-bottom: 0.5mm;
+        }
+
+        .amount {
             font-size: 11pt;
-            font-weight: bold;
-            color: #000;
+            font-weight: 900;
         }
-        
-        .total-row span:first-child {
-            width: 60%;
-        }
-        
-        .total-row span:last-child {
-            width: 40%;
-            text-align: right;
-        }
-        
-        .highlight {
-            font-size: 12pt;
-            font-weight: bold;
-            color: #000;
-        }
-        
+
         .footer {
+            border: 1px solid #000;
+            padding: 1.5mm;
             margin-top: 2mm;
             text-align: center;
-            font-size: 10pt;
-            font-weight: bold;
-            border: 1px solid #000;
-            padding: 1mm;
-            background-color: #f8f8f8;
+            font-size: 7pt;
         }
-        
+
         .cut-line {
+            text-align: center;
+            margin-top: 2mm;
+            font-size: 6pt;
             border-top: 1px dashed #000;
-            margin: 3mm 0;
-            position: relative;
+            padding-top: 1mm;
         }
-        
-        .cut-line:after {
-            content: '✂';
-            position: absolute;
-            top: -2mm;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 10pt;
-            font-weight: bold;
-            background-color: white;
-            padding: 0 1mm;
-        }
-        
+
         @media print {
             body {
-                font-weight: bold;
                 width: 58mm !important;
                 margin: 0 !important;
                 padding: 0 !important;
             }
-            
             .container {
                 width: 54mm !important;
-            }
-            
-            .student-name, .highlight, .amount {
-                font-weight: bold;
-            }
-            
-            .total-section {
-                border: 1px solid #000 !important;
-            }
-            
-            .payment-table {
-                border: 1px solid #000 !important;
-            }
-            
-            .payment-table th {
-                border-bottom: 1px solid #000 !important;
-            }
-            
-            .footer {
-                border: 1px solid #000 !important;
+                margin: 0 auto !important;
+                padding: 1mm !important;
             }
         }
     </style>
 </head>
 <body>
 <div class="container">
-    <div class="header">
-        {{ strtoupper(Qs::getSetting('system_name')) }}
-    </div>
-
-    <div class="receipt-title">REÇU</div>
-
     @php
         use App\Helpers\DateHelper;
         
-        // Trier les reçus par date de création
         $sortedReceipts = $receipts->sortBy('created_at');
-        
-        // Calculer le montant total payé
         $totalPaid = $sortedReceipts->sum('amt_paid');
-        
-        // Récupérer la méthode de paiement du dernier reçu
-        $paymentMethod = $sortedReceipts->last() ?  
-            ($sortedReceipts->last()->payment_method ?? 
-             $sortedReceipts->last()->methode ?? 'CASH') : 'CASH';
-        
-        // Formater la méthode de paiement pour l'affichage
+        $paymentMethod = $sortedReceipts->last() ? ($sortedReceipts->last()->payment_method ?? $sortedReceipts->last()->methode ?? 'CASH') : 'CASH';
         $formattedMethod = strtoupper($paymentMethod);
-        if ($formattedMethod == 'CASH' || $formattedMethod == 'ESPÈCES' || $formattedMethod == 'ESPECES') {
-            $formattedMethod = 'CASH';
+        if (in_array($formattedMethod, ['CASH', 'ESPÈCES', 'ESPECES'])) {
+            $formattedMethod = 'ESPÈCES';
         }
         
-        // Formater la date actuelle
         $currentDate = date('d/m/Y H:i');
-        
-        // Référence du reçu
         $receiptRef = $pr->ref_no ?? 'N/A';
+        $studentStatus = $sr->user->status ?? 'Normal';
     @endphp
 
+    <!-- En-tête école -->
+    <div class="school-header">
+        {{ strtoupper(Qs::getSetting('system_name') ?? 'COLLÈGE PRIVÉ ADVENTISTE') }}<br>
+        <span style="font-size: 6.5pt; font-weight: normal;">AVARATETEZANA AMPITATAFIKA</span>
+    </div>
+
+    <div class="receipt-title">REÇU DE PAIEMENT</div>
+
     <!-- Référence du reçu -->
-    <div style="text-align: center; font-size: 9pt; margin-bottom: 1mm;">
-        <strong>REF: {{ $receiptRef }}</strong> | {{ $currentDate }}
+    <div class="ref-box">
+        <strong>RÉF : {{ $receiptRef }}</strong><br>
+        Date : {{ $currentDate }}
     </div>
 
-    <!-- Informations essentielles -->
+    <!-- Informations élève & paiement -->
     <div class="info-section">
-        <p class="student-name">{{ strtoupper($sr->user->name) }}</p>
-        <p>{{ $sr->my_class->name }} {{ $sr->section->name ? '('.$sr->section->name.')' : '' }}</p>
-        <p>{{ $payment->title }} - <strong>{{ number_format($payment->amount, 0, ',', ' ') }} Ar</strong></p>
+        <div class="student-name">{{ strtoupper($sr->user->name) }}</div>
+        <div>Classe : {{ $sr->my_class->name }} {{ $sr->section->name ? '('.$sr->section->name.')' : '' }}</div>
+        <div style="margin-top: 0.5mm;">Frais : {{ $payment->title }}</div>
+        
+        @if($studentStatus === 'ADRA' || $studentStatus === 'TEAM3' || $studentStatus === 'Team3')
+            <div>
+                <span class="badge-status">
+                    RÉGIME : {{ $studentStatus }} ({{ $studentStatus === 'ADRA' ? 'ADRA 75% | PARENT 25%' : 'TEAM 3 100%' }})
+                </span>
+            </div>
+        @endif
     </div>
 
-    <!-- Historique des paiements simplifié -->
+    <!-- Détail ADRA / TEAM3 si applicable -->
+    @if($studentStatus === 'ADRA')
+        @php
+            $fraisTotal = $payment->amount;
+            $partAdra = $fraisTotal * 0.75;
+            $partParent = $fraisTotal * 0.25;
+        @endphp
+        <div class="breakdown-box">
+            <div class="breakdown-row">
+                <span>MONTANT GLOBAL FRAIS :</span>
+                <strong>{{ number_format($fraisTotal, 0, ',', ' ') }} Ar</strong>
+            </div>
+            <div class="breakdown-row" style="color: #1b5e20;">
+                <span>PRISE EN CHARGE ADRA (75%) :</span>
+                <strong>- {{ number_format($partAdra, 0, ',', ' ') }} Ar</strong>
+            </div>
+            <div class="breakdown-row" style="border-top: 1px dotted #000; padding-top: 0.5mm;">
+                <span>PART DUE PARENT (25%) :</span>
+                <strong>{{ number_format($partParent, 0, ',', ' ') }} Ar</strong>
+            </div>
+        </div>
+    @elseif($studentStatus === 'TEAM3' || $studentStatus === 'Team3')
+        @php
+            $fraisTotal = $payment->amount;
+        @endphp
+        <div class="breakdown-box">
+            <div class="breakdown-row">
+                <span>MONTANT GLOBAL FRAIS :</span>
+                <strong>{{ number_format($fraisTotal, 0, ',', ' ') }} Ar</strong>
+            </div>
+            <div class="breakdown-row" style="color: #1b5e20;">
+                <span>PRISE EN CHARGE TEAM 3 (100%) :</span>
+                <strong>- {{ number_format($fraisTotal, 0, ',', ' ') }} Ar</strong>
+            </div>
+            <div class="breakdown-row" style="border-top: 1px dotted #000; padding-top: 0.5mm;">
+                <span>PART DUE PARENT (0%) :</span>
+                <strong>0 Ar</strong>
+            </div>
+        </div>
+    @endif
+
+    <!-- Historique des versements récents -->
     @if($sortedReceipts->count() > 0)
-    <table class="payment-table history">
-        <tr>
-            <th>DATE</th>
-            <th>PAYÉ</th>
-            <th>RESTE</th>
-        </tr>
-        @foreach($sortedReceipts->take(2) as $receipt)
-        <tr>
-            <td>{{ DateHelper::formatFrenchShort($receipt->created_at) }}</td>
-            <td>{{ number_format($receipt->amt_paid, 0, ',', ' ') }}</td>
-            <td>{{ number_format($receipt->balance, 0, ',', ' ') }}</td>
-        </tr>
-        @endforeach
+    <table class="payment-table">
+        <thead>
+            <tr>
+                <th>DATE</th>
+                <th>VERSÉ</th>
+                <th>RESTE</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($sortedReceipts->take(3) as $receipt)
+            <tr>
+                <td style="text-align: center;">{{ DateHelper::formatFrenchShort($receipt->created_at) }}</td>
+                <td style="text-align: right;">{{ number_format($receipt->amt_paid, 0, ',', ' ') }}</td>
+                <td style="text-align: right;">{{ number_format($receipt->balance, 0, ',', ' ') }}</td>
+            </tr>
+            @endforeach
+        </tbody>
     </table>
     
-    <!-- Méthode de paiement -->
-    <div style="text-align: center; font-size: 10pt; margin: 1mm 0;">
-        <strong>Mode: {{ $formattedMethod }}</strong>
+    <div style="text-align: center; font-size: 7.5pt; margin: 1mm 0;">
+        <strong>Mode de règlement : {{ $formattedMethod }}</strong>
     </div>
     @endif
 
+    <!-- Reste à payer -->
     <div class="total-section">
-        <div class="total-row highlight">
-            <span>RESTE À PAYER:</span>
-            <span class="amount">{{ number_format($pr->balance, 0, ',', ' ') }} Ar</span>
-        </div>
+        <div class="total-title">RESTE À PAYER (SOLDE)</div>
+        <div class="amount">{{ number_format($pr->balance, 0, ',', ' ') }} Ar</div>
     </div>
 
+    <!-- Caissier -->
     <div class="footer">
-        <p><strong>Caissier:</strong> {{ Auth::user()->name }}</p>
-        <p style="font-size: 8pt; margin-top: 1mm;">Merci pour votre paiement</p>
+        <div><strong>Caissier :</strong> {{ strtoupper(Auth::user()->name) }}</div>
+        <div style="font-size: 6.5pt; margin-top: 0.5mm;">Merci pour votre paiement</div>
     </div>
 
-    <div class="cut-line"></div>
+    <div class="cut-line">
+        ✂ - - - - - - - - - - - - - - - - - - - - - - ✂
+    </div>
 </div>
 
 <script>
-    // Auto-impression
     window.addEventListener('load', function() {
         setTimeout(function() {
             window.print();
-        }, 500);
+        }, 300);
     });
 </script>
 </body>

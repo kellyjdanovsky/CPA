@@ -435,6 +435,24 @@ class DecaissementController extends Controller
     }
 
     /**
+     * Imprimer le ticket thermique 58mm pour le décaissement
+     */
+    public function printThermal($id)
+    {
+        $decaissement = $this->decaissement->find($id);
+        
+        if (!$decaissement) {
+            return back()->with('flash_danger', 'Décaissement introuvable.');
+        }
+
+        $d = [
+            'decaissement' => $decaissement
+        ];
+
+        return view('pages.support_team.payments.decaissements.thermal_receipt', $d);
+    }
+
+    /**
      * Imprimer plusieurs ordres de paiement (2 par page A4)
      */
     public function printMultipleOP(Request $request)
@@ -459,7 +477,7 @@ class DecaissementController extends Controller
     }
 
     /**
-     * Exporter les décaissements en Excel
+     * Exporter les décaissements en Excel / CSV avec BOM UTF-8
      */
     public function exportExcel(Request $request)
     {
@@ -476,17 +494,20 @@ class DecaissementController extends Controller
 
             $decaissements = $this->decaissement->getExportData($filters);
 
-            $filename = 'decaissements_' . date('Y-m-d') . '.xlsx';
+            $filename = 'export_decaissements_' . date('Y-m-d_His') . '.csv';
             
             return response()->streamDownload(function () use ($decaissements) {
                 $handle = fopen('php://output', 'w');
                 
-                // En-têtes CSV
+                // UTF-8 BOM pour compatibilité Excel
+                fputs($handle, "\xEF\xBB\xBF");
+                
+                // En-têtes CSV avec séparateur point-virgule
                 fputcsv($handle, [
                     'Date',
                     'Référence OP',
                     'Bénéficiaire',
-                    'Montant',
+                    'Montant (Ar)',
                     'Montant en Lettres',
                     'Motif',
                     'Mode de Paiement',
@@ -497,15 +518,18 @@ class DecaissementController extends Controller
                     'Approuvé par',
                     'Payé par',
                     'Observations'
-                ]);
+                ], ';');
+
+                $totalMontant = 0;
 
                 // Données
                 foreach ($decaissements as $dec) {
+                    $totalMontant += $dec->montant;
                     fputcsv($handle, [
                         $dec->date_decaissement,
                         $dec->reference_op,
                         $dec->beneficiaire,
-                        number_format($dec->montant, 2),
+                        number_format($dec->montant, 0, ',', ' '),
                         $dec->montant_lettres,
                         $dec->motif,
                         $dec->mode_paiement,
@@ -516,12 +540,30 @@ class DecaissementController extends Controller
                         $dec->approver->name ?? '',
                         $dec->payer->name ?? '',
                         $dec->observations
-                    ]);
+                    ], ';');
                 }
+
+                // Ligne de total
+                fputcsv($handle, [
+                    'TOTAL',
+                    '',
+                    '',
+                    number_format($totalMontant, 0, ',', ' '),
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    '',
+                    ''
+                ], ';');
 
                 fclose($handle);
             }, $filename, [
-                'Content-Type' => 'text/csv',
+                'Content-Type' => 'text/csv; charset=UTF-8',
                 'Content-Disposition' => 'attachment; filename="' . $filename . '"',
             ]);
 

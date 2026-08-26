@@ -10,80 +10,99 @@
             margin: 0;
         }
 
+        * {
+            box-sizing: border-box;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+        }
+
         body {
-            font-family: 'Arial', sans-serif;
+            font-family: 'Courier New', Courier, monospace, 'Arial', sans-serif;
             margin: 0;
             padding: 0;
             width: 58mm;
             font-size: 8pt;
-            font-weight: normal;
-            -webkit-print-color-adjust: exact !important;
-            color-adjust: exact !important;
-            line-height: 1.1;
+            font-weight: bold;
+            line-height: 1.15;
             color: #000;
+            background: #fff;
         }
 
         .container {
-            width: 56mm;
+            width: 54mm;
             margin: 0 auto;
-            padding: 1mm;
+            padding: 2mm 1mm;
         }
 
         .school-header {
             text-align: center;
             font-size: 8pt;
-            font-weight: bold;
+            font-weight: 900;
             margin-bottom: 2mm;
             text-transform: uppercase;
-            line-height: 1.0;
+            line-height: 1.1;
+            border-bottom: 1px solid #000;
+            padding-bottom: 1.5mm;
         }
 
         .receipt-box {
-            border: 2px solid #000;
+            border: 1.5px solid #000;
             text-align: center;
             font-size: 9pt;
-            font-weight: bold;
+            font-weight: 900;
             padding: 1mm;
             margin-bottom: 1mm;
+            background-color: #f0f0f0;
+            text-transform: uppercase;
         }
 
         .ref-box {
-            border: 1px solid #000;
             text-align: center;
             font-size: 7pt;
-            padding: 1mm;
-            margin-bottom: 1mm;
+            padding: 1mm 0;
+            margin-bottom: 1.5mm;
+            border-bottom: 1px dashed #000;
         }
 
         .student-box {
             border: 1px solid #000;
-            padding: 1mm;
-            margin-bottom: 1mm;
-            font-size: 8pt;
+            padding: 1.5mm;
+            margin-bottom: 2mm;
+            font-size: 7.5pt;
+            background: #fafafa;
         }
 
         .student-name {
-            font-weight: bold;
-            font-size: 9pt;
+            font-weight: 900;
+            font-size: 8.5pt;
+            text-transform: uppercase;
+            margin-bottom: 0.5mm;
         }
 
         .student-class {
-            font-size: 8pt;
+            font-size: 7.5pt;
         }
 
-        .payment-line {
-            font-size: 8pt;
-            margin-bottom: 1mm;
+        .badge-status {
+            display: inline-block;
+            background: #000;
+            color: #fff;
+            padding: 0.5mm 1.5mm;
+            font-size: 7pt;
+            font-weight: bold;
+            border-radius: 2px;
+            margin-top: 1mm;
         }
-        
-        .history-header {
-            background-color: #666;
+
+        .section-header {
+            background-color: #333;
             color: white;
             text-align: center;
             font-weight: bold;
-            font-size: 8pt;
+            font-size: 7pt;
             padding: 1mm;
             margin-bottom: 0;
+            text-transform: uppercase;
         }
 
         .history-table {
@@ -96,52 +115,69 @@
         .history-table th {
             background-color: #f0f0f0;
             border: 1px solid #000;
-            padding: 1mm;
-            font-size: 7pt;
-            font-weight: bold;
+            padding: 1mm 0.5mm;
+            font-size: 6.5pt;
+            font-weight: 900;
             text-align: center;
         }
 
         .history-table td {
             border: 1px solid #000;
-            padding: 1mm;
-            font-size: 7pt;
-            text-align: center;
+            padding: 1mm 0.5mm;
+            font-size: 6.5pt;
+            font-weight: bold;
         }
 
-        .payment-mode {
-            text-align: center;
-            font-weight: bold;
-            margin: 2mm 0;
-            font-size: 8pt;
+        .breakdown-box {
+            border: 1px solid #000;
+            padding: 1.5mm;
+            margin-bottom: 2mm;
+            font-size: 7pt;
+            background: #fdfdfd;
+        }
+
+        .breakdown-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.8mm;
         }
 
         .balance-box {
-            border: 1px solid #000;
+            border: 2px solid #000;
             text-align: center;
-            padding: 1mm;
+            padding: 2mm 1mm;
             margin-bottom: 2mm;
-            font-size: 8pt;
+            background-color: #f0fdf4;
+        }
+
+        .balance-title {
+            font-size: 7pt;
             font-weight: bold;
+            margin-bottom: 0.5mm;
+            text-transform: uppercase;
+        }
+
+        .balance-amount {
+            font-size: 11pt;
+            font-weight: 900;
         }
 
         .cashier-box {
             border: 1px solid #000;
             text-align: center;
-            padding: 1mm;
+            padding: 1.5mm;
             margin-bottom: 2mm;
             font-size: 7pt;
         }
 
         .cashier-name {
-            font-weight: bold;
-            font-size: 8pt;
+            font-weight: 900;
         }
 
         .thank-you {
-            text-align: center;
-            font-size: 7pt;
-            margin-bottom: 2mm;
+            font-size: 6.5pt;
+            margin-top: 1mm;
+            font-style: italic;
         }
 
         .cut-line {
@@ -154,20 +190,14 @@
 
         @media print {
             body {
-                width: 58mm;
-                margin: 0;
-                padding: 0;
+                width: 58mm !important;
+                margin: 0 !important;
+                padding: 0 !important;
             }
-
             .container {
-                width: 54mm;
-                margin: 0 auto;
-                padding: 2mm;
-            }
-
-            @page {
-                size: 58mm auto;
-                margin: 0;
+                width: 54mm !important;
+                margin: 0 auto !important;
+                padding: 1mm !important;
             }
         }
     </style>
@@ -177,62 +207,99 @@
         <!-- En-tête école -->
         <div class="school-header">
             {{ strtoupper(Qs::getSetting('system_name') ?? 'COLLÈGE PRIVÉ ADVENTISTE') }}<br>
-            AVARATEZANA
+            <span style="font-size: 6.5pt; font-weight: normal;">AVARATETEZANA AMPITATAFIKA</span>
         </div>
 
         <!-- Titre REÇU -->
         <div class="receipt-box">
-            REÇU - {{ $status }}
+            REÇU ENCAISSEMENT {{ $status }}
         </div>
 
         <!-- Référence et date -->
         <div class="ref-box">
-            RÉF: {{ $referenceCode }} | {{ date('d/m/Y H:i') }}
+            <strong>RÉF: {{ $referenceCode }}</strong><br>
+            Date: {{ date('d/m/Y H:i') }}
         </div>
 
         <!-- Informations étudiant -->
         <div class="student-box">
             <div class="student-name">{{ strtoupper($student->user->name) }}</div>
             <div class="student-class">Classe: {{ $student->my_class->name }}</div>
-            <div style="margin-top: 2mm; font-size: 7pt;">Code Réf: {{ $referenceCode }}</div>
+            <div>
+                <span class="badge-status">
+                    RÉGIME : {{ $status }} ({{ $status === 'ADRA' ? 'ADRA 75% | PARENT 25%' : 'TEAM 3 100%' }})
+                </span>
+            </div>
         </div>
 
-        <!-- Détails des paiements -->
-        <div class="history-header">PAIEMENTS SÉLECTIONNÉS</div>
+        <!-- Détails des rubriques payées -->
+        <div class="section-header">DÉTAIL DES FRAIS CONCERNÉS</div>
         <table class="history-table">
             <thead>
                 <tr>
-                    <th>DÉSIGNATION</th>
-                    <th>MONTANT 25%</th>
+                    <th style="width: 45%;">RUBRIQUE</th>
+                    <th style="width: 25%;">TOTAL</th>
+                    <th style="width: 30%;">{{ $status === 'ADRA' ? 'PART PARENT' : 'PART TEAM3' }}</th>
                 </tr>
             </thead>
             <tbody>
-                @php $total25 = 0; @endphp
+                @php 
+                    $grandTotal = 0;
+                    $totalOrg = 0;
+                    $totalParent = 0;
+                @endphp
                 @foreach($payments as $payment)
                     @php 
-                        $amount25 = $status === 'ADRA' ? ($payment->amount * 0.25) : 0;
-                        $total25 += $amount25;
+                        $grandTotal += $payment->amount;
+                        if ($status === 'ADRA') {
+                            $orgPart = $payment->amount * 0.75;
+                            $parentPart = $payment->amount * 0.25;
+                        } else {
+                            $orgPart = $payment->amount;
+                            $parentPart = 0;
+                        }
+                        $totalOrg += $orgPart;
+                        $totalParent += $parentPart;
                     @endphp
                     <tr>
                         <td style="text-align: left;">{{ strtoupper($payment->title) }}</td>
-                        <td>{{ number_format($amount25, 0, ',', ' ') }} Ar</td>
+                        <td style="text-align: right;">{{ number_format($payment->amount, 0, ',', ' ') }}</td>
+                        <td style="text-align: right;">{{ number_format($status === 'ADRA' ? $parentPart : $orgPart, 0, ',', ' ') }}</td>
                     </tr>
                 @endforeach
             </tbody>
         </table>
 
-        <!-- Montant à Payer (25%) -->
-        <div class="balance-box" style="background-color: #e8f5e9;">
-            <div style="font-size: 7pt; margin-bottom: 1mm;">MONTANT À PAYER (25%)</div>
-            <div style="font-size: 10pt;">{{ number_format($cashAmount, 0, ',', ' ') }} Ar</div>
+        <!-- Synthèse financière et pourcentages -->
+        <div class="breakdown-box">
+            <div class="breakdown-row">
+                <span>TOTAL DES FRAIS (100%) :</span>
+                <strong>{{ number_format($grandTotal, 0, ',', ' ') }} Ar</strong>
+            </div>
+            <div class="breakdown-row" style="color: #1b5e20;">
+                <span>PRISE EN CHARGE {{ $status }} ({{ $status === 'ADRA' ? '75%' : '100%' }}) :</span>
+                <strong>- {{ number_format($totalOrg, 0, ',', ' ') }} Ar</strong>
+            </div>
+            <div class="breakdown-row" style="border-top: 1px dotted #000; padding-top: 1mm;">
+                <span>PART DUE PAR LE PARENT ({{ $status === 'ADRA' ? '25%' : '0%' }}) :</span>
+                <strong>{{ number_format($totalParent, 0, ',', ' ') }} Ar</strong>
+            </div>
         </div>
 
-
+        <!-- Montant Payé / Encaissé -->
+        <div class="balance-box">
+            <div class="balance-title">
+                {{ $status === 'ADRA' ? 'MONTANT ENCAISSÉ PARENT (25%)' : 'MONTANT PRIS EN CHARGE (100%)' }}
+            </div>
+            <div class="balance-amount">
+                {{ number_format($status === 'ADRA' ? $cashAmount : $grandTotal, 0, ',', ' ') }} Ar
+            </div>
+        </div>
 
         <!-- Informations caissier -->
         <div class="cashier-box">
-            <div class="cashier-name">CAISSIER: {{ strtoupper(Auth::user()->name ?? 'ADMINISTRATEUR') }}</div>
-            <div class="thank-you">MERCI POUR VOTRE PAIEMENT</div>
+            <div class="cashier-name">CAISSIER : {{ strtoupper(Auth::user()->name ?? 'ADMINISTRATEUR') }}</div>
+            <div class="thank-you">Merci pour votre confiance</div>
         </div>
 
         <!-- Ligne de découpe -->
@@ -242,10 +309,11 @@
     </div>
     
     <script>
-        // Auto-print when page loads
-        window.onload = function() {
-            window.print();
-        };
+        window.addEventListener('load', function() {
+            setTimeout(function() {
+                window.print();
+            }, 300);
+        });
     </script>
 </body>
 </html>
