@@ -1,398 +1,347 @@
-﻿@extends('layouts.master')
+@extends('layouts.master')
 @section('page_title', 'Liste complète des étudiants')
 
 @section('page_styles')
 <link rel="stylesheet" href="{{ asset('assets/css/datatable_responsive.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/inline_editing.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/student_statistics.css') }}">
+<link rel="stylesheet" href="{{ asset('assets/css/student_list_modern.css') }}">
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<style>
-    .editable {
-        cursor: pointer;
-        position: relative;
-    }
-    .editable:hover {
-        background-color: #f9f9f9;
-    }
-    .editable:hover::after {
-        content: "\f044"; /* FontAwesome edit icon */
-        font-family: "Font Awesome 5 Free";
-        font-weight: 900;
-        position: absolute;
-        right: 5px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: #777;
-        font-size: 12px;
-    }
-    .editing {
-        padding: 0 !important;
-    }
-    .editing input, .editing select {
-        width: 100%;
-        padding: 8px;
-        box-sizing: border-box;
-        border: 1px solid #4caf50;
-        border-radius: 4px;
-    }
-    .editing select {
-        height: 38px;
-    }
-    .editing .datepicker {
-        width: 100%;
-    }
-    .save-indicator {
-        margin-left: 5px;
-        display: none;
-    }
-    .save-success {
-        color: green;
-    }
-    .save-error {
-        color: red;
-    }
-    .chart-container {
-        position: relative;
-        height: 300px;
-        margin-bottom: 20px;
-    }
-    .stats-card {
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        margin-bottom: 20px;
-        transition: transform 0.3s;
-    }
-    .stats-card:hover {
-        transform: translateY(-5px);
-    }
-    .stats-value {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #333;
-    }
-    .stats-label {
-        font-size: 1rem;
-        color: #777;
-    }
-    /* Column visibility controls */
-    .column-visibility-panel {
-        background: #f8f9fa;
-        border: 1px solid #e9ecef;
-        border-radius: 0.375rem;
-        padding: 1rem;
-        margin-bottom: 1rem;
-        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-    }
-    .column-visibility-panel h6 {
-        margin-bottom: 1rem;
-        color: #495057;
-        font-weight: 600;
-    }
-    .column-visibility-controls {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 0.5rem;
-        align-items: center;
-    }
-    .column-visibility-controls .btn-group {
-        margin-right: 1rem;
-    }
-    .column-visibility-controls .btn {
-        font-size: 0.875rem;
-        padding: 0.375rem 0.75rem;
-    }
-    .column-visibility-controls .btn i {
-        margin-right: 0.25rem;
-    }
-    .hidden-columns-indicator {
-        background-color: #fff3cd;
-        color: #856404;
-        padding: 0.25rem 0.5rem;
-        border-radius: 0.25rem;
-        font-size: 0.875rem;
-        font-weight: 500;
-    }
-    .datatable-header.has-hidden-columns {
-        border-left: 3px solid #ffc107;
-    }
-</style>
 @endsection
 
 @section('content')
 
-    <div class="card">
-        <div class="card-header header-elements-inline">
-            <h6 class="card-title">Liste complète des étudiants</h6>
-            {!! Qs::getPanelOptions() !!}
+    {{-- Header du Dashboard Moderne --}}
+    <div class="students-dashboard-header d-flex flex-wrap justify-content-between align-items-center">
+        <div>
+            <h2><i class="icon-users mr-2"></i>Liste Complète des Étudiants</h2>
+            <p>Gestion centrale des effectifs, filtres avancés, personnalisation des colonnes et export Excel direct</p>
+        </div>
+        <div class="mt-3 mt-md-0 d-flex flex-wrap" style="gap: 10px;">
+            @if(Qs::userIsTeamSA())
+                <a href="{{ route('students.create') }}" class="btn btn-light font-weight-semibold shadow-sm">
+                    <i class="icon-plus2 mr-1 text-primary"></i> Nouvel Élève
+                </a>
+            @endif
+            <button type="button" class="btn btn-outline-light font-weight-semibold" onclick="location.reload();">
+                <i class="icon-sync mr-1"></i> Actualiser
+            </button>
+        </div>
+    </div>
+
+    {{-- Cartes Statistiques KPI --}}
+    @php
+        $totalBoys = $all_students->where('user.gender', 'Male')->count();
+        $totalGirls = $all_students->where('user.gender', 'Female')->count();
+        $totalNormal = ($students_by_status['Normal'] ?? 0);
+        $totalAdra = ($students_by_status['ADRA'] ?? 0);
+        $totalTeam3 = ($students_by_status['TEAM3'] ?? 0);
+    @endphp
+    <div class="students-stats-grid">
+        <div class="students-kpi-card kpi-total">
+            <div class="kpi-info-wrapper">
+                <div class="kpi-number">{{ $total_students }}</div>
+                <div class="kpi-title">Total Élèves</div>
+                <div class="kpi-subtext">Effectif global inscrit</div>
+            </div>
+            <div class="kpi-icon-wrapper">
+                <i class="icon-users4"></i>
+            </div>
         </div>
 
-        <div class="card-body">
-            <!-- Column Visibility Controls -->
-            <div class="column-visibility-panel">
-                <h6 class="mb-0 d-flex justify-content-between align-items-center">
-                    <span>Colonnes à afficher</span>
-                    <small class="text-muted">Cliquez sur le bouton "Colonnes" ci-dessus ou utilisez les boutons ci-dessous</small>
-                </h6>
-                <div class="column-visibility-controls mt-3">
-                    <div class="btn-group" role="group">
-                        <button type="button" class="btn btn-light" onclick="window.inlineEditor.showAllColumns()" title="Afficher toutes les colonnes">
-                            <i class="icon-eye"></i> Tout afficher
-                        </button>
-                        <button type="button" class="btn btn-light" onclick="window.inlineEditor.hideAllColumns()" title="Masquer toutes les colonnes">
-                            <i class="icon-eye-blocked"></i> Tout masquer
-                        </button>
-                        <button type="button" class="btn btn-light" onclick="window.inlineEditor.resetColumnVisibility()" title="Réinitialiser la visibilité des colonnes">
-                            <i class="icon-reset"></i> Réinitialiser
-                        </button>
-                    </div>
-                    <div class="hidden-columns-indicator d-none">
-                        <i class="icon-info2 mr-1"></i>
-                        <span id="hidden-columns-count">0</span> colonne(s) masquée(s)
-                    </div>
-                </div>
+        <div class="students-kpi-card kpi-boys">
+            <div class="kpi-info-wrapper">
+                <div class="kpi-number">{{ $totalBoys }}</div>
+                <div class="kpi-title">Garçons (Masculin)</div>
+                <div class="kpi-subtext">{{ $total_students > 0 ? round(($totalBoys / $total_students) * 100, 1) : 0 }}% de l'effectif</div>
             </div>
+            <div class="kpi-icon-wrapper">
+                <i class="icon-user-tie"></i>
+            </div>
+        </div>
 
-            <ul class="nav nav-tabs nav-tabs-highlight">
-                <li class="nav-item"><a href="#all-students" class="nav-link active" data-toggle="tab">Tous les étudiants</a></li>
-                <li class="nav-item"><a href="#student-stats" class="nav-link" data-toggle="tab">Statistiques des étudiants</a></li>
-                <li class="nav-item"><a href="#detailed-stats" class="nav-link" data-toggle="tab">Statistiques détaillées</a></li>
-                <li class="nav-item"><a href="#student-types" class="nav-link" data-toggle="tab">Types d'étudiants</a></li>
+        <div class="students-kpi-card kpi-girls">
+            <div class="kpi-info-wrapper">
+                <div class="kpi-number">{{ $totalGirls }}</div>
+                <div class="kpi-title">Filles (Féminin)</div>
+                <div class="kpi-subtext">{{ $total_students > 0 ? round(($totalGirls / $total_students) * 100, 1) : 0 }}% de l'effectif</div>
+            </div>
+            <div class="kpi-icon-wrapper">
+                <i class="icon-woman"></i>
+            </div>
+        </div>
+
+        <div class="students-kpi-card kpi-normal">
+            <div class="kpi-info-wrapper">
+                <div class="kpi-number">{{ $totalNormal }}</div>
+                <div class="kpi-title">Statut Normal</div>
+                <div class="kpi-subtext">Régime standard</div>
+            </div>
+            <div class="kpi-icon-wrapper">
+                <i class="icon-checkmark-circle"></i>
+            </div>
+        </div>
+
+        <div class="students-kpi-card kpi-adra">
+            <div class="kpi-info-wrapper">
+                <div class="kpi-number">{{ $totalAdra }}</div>
+                <div class="kpi-title">Statut ADRA</div>
+                <div class="kpi-subtext">Bénéficiaires ADRA</div>
+            </div>
+            <div class="kpi-icon-wrapper">
+                <i class="icon-heart6"></i>
+            </div>
+        </div>
+
+        <div class="students-kpi-card kpi-team3">
+            <div class="kpi-info-wrapper">
+                <div class="kpi-number">{{ $totalTeam3 }}</div>
+                <div class="kpi-title">Statut TEAM 3</div>
+                <div class="kpi-subtext">Bénéficiaires TEAM 3</div>
+            </div>
+            <div class="kpi-icon-wrapper">
+                <i class="icon-star-full2"></i>
+            </div>
+        </div>
+    </div>
+
+    {{-- Panneau de Visibilité des Colonnes & Export Excel --}}
+    @include('partials.students.column_manager')
+
+    {{-- Carte Principale avec Onglets --}}
+    <div class="card shadow-sm border-0" style="border-radius: 16px;">
+        <div class="card-body p-3 p-md-4">
+            
+            {{-- Navigation par Onglets --}}
+            <ul class="nav nav-tabs students-nav-tabs">
+                <li class="nav-item">
+                    <a href="#all-students" class="nav-link active" data-toggle="tab">
+                        <i class="icon-list-unordered mr-1 text-primary"></i> Tous les élèves 
+                        <span class="badge badge-primary badge-pill ml-1">{{ $total_students }}</span>
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#student-stats" class="nav-link" data-toggle="tab">
+                        <i class="icon-pie-chart mr-1 text-success"></i> Statistiques globales
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#detailed-stats" class="nav-link" data-toggle="tab">
+                        <i class="icon-filter3 mr-1 text-info"></i> Filtres par âge & sexe
+                    </a>
+                </li>
+                <li class="nav-item">
+                    <a href="#student-types" class="nav-link" data-toggle="tab">
+                        <i class="icon-graduation2 mr-1 text-warning"></i> Types & Statuts
+                    </a>
+                </li>
                 <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Filtrer par classe</a>
-                    <div class="dropdown-menu dropdown-menu-right">
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">
+                        <i class="icon-windows2 mr-1 text-secondary"></i> Classes ({{ count($my_classes) }})
+                    </a>
+                    <div class="dropdown-menu dropdown-menu-right shadow-sm">
                         @foreach($my_classes as $c)
-                            <a href="#c{{ $c->id }}" class="dropdown-item" data-toggle="tab">{{ $c->name }}</a>
+                            <a href="#c{{ $c->id }}" class="dropdown-item d-flex justify-content-between align-items-center" data-toggle="tab">
+                                <span>{{ $c->name }}</span>
+                                <span class="badge badge-light-secondary badge-pill">{{ $all_students->where('my_class_id', $c->id)->count() }}</span>
+                            </a>
                         @endforeach
                     </div>
                 </li>
             </ul>
 
             <div class="tab-content">
+                {{-- Onglet 1 : Tous les étudiants --}}
                 <div class="tab-pane fade show active" id="all-students">
-                    <div class="table-responsive">
-                    <table class="table datatable-button-html5-columns">
-                        <thead>
-                        <tr>
-                            <th class="all">N°</th>
-                            <th class="none">Photo</th>
-                            <th class="all">Nom</th>
-                            <th class="min-tablet">N° d'admission</th>
-                            <th class="min-tablet">Classe/Section</th>
-                            <th class="none">Date de naissance</th>
-                            <th class="none">Âge</th>
-                            <th class="none">Adresse</th>
-                            <th class="none">Religion</th>
-                            <th class="min-tablet">Statut</th>
-                            <th class="none">Type</th>
-                            <th class="none">Statut académique</th>
-                            <th class="none">Sexe</th>
-                            <th class="none">Père/Tuteur</th>
-                            <th class="none">Profession père</th>
-                            <th class="none">Mère/Tutrice</th>
-                            <th class="none">Profession mère</th>
-                            <th class="none">Téléphone</th>
-                            <th class="all no-export">Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($all_students as $s)
-                            <tr>
-                                <td class="number-column">{{ $loop->iteration }}</td>
-                                <td class="photo-column"><img class="rounded-circle" src="{{ $s->user->photo }}" alt="photo"></td>
-                                <td class="editable editable-cell" data-field="name" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->name }}">{{ $s->user->name }}</td>
-                                <td class="editable editable-cell" data-field="adm_no" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->adm_no }}">{{ $s->adm_no }}</td>
-                                <td>{{ $s->my_class->name.' '.$s->section->name }}</td>
-                                <td class="editable editable-cell" data-field="dob" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->dob }}">{{ $s->user->dob }}</td>
-                                <td class="age-display age-column" data-student-id="{{ Qs::hash($s->id) }}" data-dob="{{ $s->user->dob }}">
-                                    @if($s->user->dob)
-                                        {{ \App\Helpers\Qs::calculateAge($s->user->dob) }}
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                <td class="editable editable-cell" data-field="address" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->address }}">{{ $s->user->address }}</td>
-                                <td class="editable editable-cell" data-field="religion" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->religion }}">{{ $s->user->religion }}</td>
-                                <td class="editable editable-cell" data-field="status" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->status ?? 'Normal' }}">{{ $s->user->status ?? 'Normal' }}</td>
-                                <td class="editable editable-cell" data-field="student_type" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->student_type ?? 'Nouveau' }}">{{ $s->user->student_type ?? 'Nouveau' }}</td>
-                                <td class="editable editable-cell" data-field="academic_status" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->academic_status ?? 'Passant' }}">{{ $s->user->academic_status ?? 'Passant' }}</td>
-                                <td class="editable editable-cell" data-field="gender" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->gender ?? '' }}">{{ $s->user->gender == 'Male' ? 'Masculin' : ($s->user->gender == 'Female' ? 'Féminin' : '-') }}</td>
-                                <td class="editable editable-cell" data-field="nom_p" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->nom_p }}">{{ $s->user->nom_p }}</td>
-                                <td class="editable editable-cell" data-field="prof_p" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->prof_p }}">{{ $s->user->prof_p }}</td>
-                                <td class="editable editable-cell" data-field="nom_m" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->nom_m }}">{{ $s->user->nom_m }}</td>
-                                <td class="editable editable-cell" data-field="prof_m" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->prof_m }}">{{ $s->user->prof_m }}</td>
-                                <td class="editable editable-cell" data-field="phone" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->phone }}">{{ $s->user->phone }}</td>
-                                @include('partials.student_action_buttons', ['s' => $s])
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
+                    <div class="students-table-wrapper">
+                        <table class="table students-table datatable-button-html5-columns">
+                            <thead>
+                                <tr>
+                                    <th class="all" style="width: 40px;">N°</th>
+                                    <th class="none" style="width: 50px;">Photo</th>
+                                    <th class="all">Nom & Prénom</th>
+                                    <th class="min-tablet">N° d'admission</th>
+                                    <th class="min-tablet">Classe / Section</th>
+                                    <th class="none">Date de naissance</th>
+                                    <th class="none">Âge</th>
+                                    <th class="none">Adresse</th>
+                                    <th class="none">Religion</th>
+                                    <th class="min-tablet">Statut</th>
+                                    <th class="none">Type</th>
+                                    <th class="none">Statut académique</th>
+                                    <th class="none">Sexe</th>
+                                    <th class="none">Père / Tuteur</th>
+                                    <th class="none">Profession père</th>
+                                    <th class="none">Mère / Tutrice</th>
+                                    <th class="none">Profession mère</th>
+                                    <th class="none">Téléphone</th>
+                                    <th class="all no-export text-center" style="width: 110px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($all_students as $s)
+                                    <tr>
+                                        <td class="font-weight-semibold text-muted text-center">{{ $loop->iteration }}</td>
+                                        <td class="text-center">
+                                            <img class="student-avatar" src="{{ $s->user->photo }}" alt="{{ $s->user->name }}" loading="lazy">
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('students.show', Qs::hash($s->id)) }}" class="student-link-name editable editable-cell" data-field="name" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->name }}">
+                                                {{ $s->user->name }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-light-primary font-weight-bold editable editable-cell" data-field="adm_no" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->adm_no }}">
+                                                {{ $s->adm_no }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="font-weight-semibold text-dark">{{ $s->my_class->name }}</span>
+                                            <small class="text-muted d-block">{{ $s->section->name }}</small>
+                                        </td>
+                                        <td class="editable editable-cell" data-field="dob" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->dob }}">
+                                            {{ $s->user->dob ?? '-' }}
+                                        </td>
+                                        <td class="age-display age-column font-weight-semibold text-center" data-student-id="{{ Qs::hash($s->id) }}" data-dob="{{ $s->user->dob }}">
+                                            @if($s->user->dob)
+                                                <span class="badge badge-light-info font-weight-semibold">{{ \App\Helpers\Qs::calculateAge($s->user->dob) }} ans</span>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="editable editable-cell" data-field="address" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->address }}">
+                                            {{ $s->user->address ?? '-' }}
+                                        </td>
+                                        <td class="editable editable-cell" data-field="religion" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->religion }}">
+                                            {{ $s->user->religion ?? '-' }}
+                                        </td>
+                                        <td>
+                                            @php
+                                                $statusVal = $s->user->status ?? 'Normal';
+                                                $badgeCls = ($statusVal == 'ADRA') ? 'badge-light-warning' : (($statusVal == 'TEAM3' || $statusVal == 'Team3') ? 'badge-light-danger' : 'badge-light-success');
+                                            @endphp
+                                            <span class="badge {{ $badgeCls }} font-weight-bold editable editable-cell" data-field="status" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $statusVal }}">
+                                                {{ $statusVal }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-light-secondary editable editable-cell" data-field="student_type" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->student_type ?? 'Nouveau' }}">
+                                                {{ $s->user->student_type ?? 'Nouveau' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-light-info editable editable-cell" data-field="academic_status" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->academic_status ?? 'Passant' }}">
+                                                {{ $s->user->academic_status ?? 'Passant' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            @if($s->user->gender == 'Male')
+                                                <span class="gender-badge male editable editable-cell" data-field="gender" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="Male">
+                                                    <i class="icon-user-tie mr-1"></i> Masculin
+                                                </span>
+                                            @elseif($s->user->gender == 'Female')
+                                                <span class="gender-badge female editable editable-cell" data-field="gender" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="Female">
+                                                    <i class="icon-woman mr-1"></i> Féminin
+                                                </span>
+                                            @else
+                                                <span class="editable editable-cell" data-field="gender" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="editable editable-cell" data-field="nom_p" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->nom_p }}">
+                                            {{ $s->user->nom_p ?? '-' }}
+                                        </td>
+                                        <td class="editable editable-cell text-muted font-size-sm" data-field="prof_p" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->prof_p }}">
+                                            {{ $s->user->prof_p ?? '-' }}
+                                        </td>
+                                        <td class="editable editable-cell" data-field="nom_m" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->nom_m }}">
+                                            {{ $s->user->nom_m ?? '-' }}
+                                        </td>
+                                        <td class="editable editable-cell text-muted font-size-sm" data-field="prof_m" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->prof_m }}">
+                                            {{ $s->user->prof_m ?? '-' }}
+                                        </td>
+                                        <td class="editable editable-cell font-weight-semibold" data-field="phone" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->phone }}">
+                                            {{ $s->user->phone ?? '-' }}
+                                        </td>
+                                        @include('partials.student_action_buttons', ['s' => $s])
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
-                <div class="tab-pane fade" id="student-types">
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header bg-primary text-white header-elements-inline">
-                                    <h6 class="card-title">Types d'étudiants</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="chart-container">
-                                        <canvas id="student-type-chart"></canvas>
-                                    </div>
-                                    <div class="row mt-3">
-                                        <div class="col-md-12">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="none">Type</th>
-                                                        <th>Nombre d'étudiants</th>
-                                                        <th>Pourcentage</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>Nouveau</td>
-                                                        <td id="nouveaux-count">-</td>
-                                                        <td id="nouveaux-percent">-</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Ancien</td>
-                                                        <td id="anciens-count">-</td>
-                                                        <td id="anciens-percent">-</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header bg-success text-white header-elements-inline">
-                                    <h6 class="card-title">Statuts académiques</h6>
-                                </div>
-                                <div class="card-body">
-                                    <div class="chart-container">
-                                        <canvas id="academic-status-chart"></canvas>
-                                    </div>
-                                    <div class="row mt-3">
-                                        <div class="col-md-12">
-                                            <table class="table table-bordered">
-                                                <thead>
-                                                    <tr>
-                                                        <th class="min-tablet">Statut</th>
-                                                        <th>Nombre d'étudiants</th>
-                                                        <th>Pourcentage</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>Passant</td>
-                                                        <td id="passants-count">-</td>
-                                                        <td id="passants-percent">-</td>
-                                                    </tr>
-                                                    <tr>
-                                                        <td>Redoublant</td>
-                                                        <td id="redoublants-count">-</td>
-                                                        <td id="redoublants-percent">-</td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
+                {{-- Onglet 2 : Statistiques des étudiants --}}
                 <div class="tab-pane fade" id="student-stats">
-                    <div class="row">
-                        <div class="col-md-4">
-                            <div class="card stats-card bg-primary text-white">
-                                <div class="card-body text-center">
-                                    <div class="stats-value">{{ $total_students }}</div>
-                                    <div class="stats-label">Nombre total d'étudiants</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card stats-card bg-success text-white">
-                                <div class="card-body text-center">
-                                    <div class="stats-value">{{ count($my_classes) }}</div>
-                                    <div class="stats-label">Nombre de classes</div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="card stats-card bg-warning text-white">
-                                <div class="card-body text-center">
-                                    <div class="stats-value">{{ ($students_by_status['ADRA'] ?? 0) + ($students_by_status['TEAM3'] ?? 0) }}</div>
-                                    <div class="stats-label">Étudiants avec statut spécial</div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="row mt-4">
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header bg-info text-white">
-                                    <h6 class="card-title">Répartition par statut</h6>
+                    <div class="row mt-2">
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 border shadow-none" style="border-radius: 12px;">
+                                <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center">
+                                    <h6 class="card-title font-weight-bold mb-0 text-dark">
+                                        <i class="icon-pie-chart mr-1 text-success"></i> Répartition par Statut
+                                    </h6>
                                 </div>
                                 <div class="card-body">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th class="min-tablet">Statut</th>
-                                                <th>Nombre d'étudiants</th>
-                                                <th>Pourcentage</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($students_by_status as $status => $count)
-                                            <tr>
-                                                <td>{{ $status }}</td>
-                                                <td>{{ $count }}</td>
-                                                <td>{{ $total_students > 0 ? number_format(($count / $total_students) * 100, 2) : '0.00' }}%</td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                    <div class="chart-container">
+                                    <div class="table-responsive mb-3">
+                                        <table class="table table-bordered table-sm">
+                                            <thead class="bg-light">
+                                                <tr>
+                                                    <th>Statut</th>
+                                                    <th class="text-center">Nombre d'étudiants</th>
+                                                    <th class="text-center">Pourcentage</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($students_by_status as $status => $count)
+                                                <tr>
+                                                    <td>
+                                                        <span class="badge {{ $status == 'Normal' ? 'badge-light-success' : ($status == 'ADRA' ? 'badge-light-warning' : 'badge-light-danger') }} font-weight-bold">
+                                                            {{ $status }}
+                                                        </span>
+                                                    </td>
+                                                    <td class="text-center font-weight-bold">{{ $count }}</td>
+                                                    <td class="text-center">{{ $total_students > 0 ? number_format(($count / $total_students) * 100, 1) : '0.0' }}%</td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="chart-container" style="height: 250px;">
                                         <canvas id="status-chart"></canvas>
                                     </div>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-md-6">
-                            <div class="card">
-                                <div class="card-header bg-secondary text-white">
-                                    <h6 class="card-title">Répartition par classe</h6>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 border shadow-none" style="border-radius: 12px;">
+                                <div class="card-header bg-light border-bottom d-flex justify-content-between align-items-center">
+                                    <h6 class="card-title font-weight-bold mb-0 text-dark">
+                                        <i class="icon-stats-bars mr-1 text-primary"></i> Répartition par Classe
+                                    </h6>
                                 </div>
                                 <div class="card-body">
-                                    <table class="table table-bordered">
-                                        <thead>
-                                            <tr>
-                                                <th>Classe</th>
-                                                <th>Nombre d'étudiants</th>
-                                                <th>Pourcentage</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            @foreach($students_by_class as $class)
-                                            <tr>
-                                                <td>{{ $class['name'] }}</td>
-                                                <td>{{ $class['count'] }}</td>
-                                                <td>{{ $total_students > 0 ? number_format(($class['count'] / $total_students) * 100, 2) : '0.00' }}%</td>
-                                            </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                    <div class="chart-container">
+                                    <div class="table-responsive mb-3" style="max-height: 150px; overflow-y: auto;">
+                                        <table class="table table-bordered table-sm">
+                                            <thead class="bg-light">
+                                                <tr>
+                                                    <th>Classe</th>
+                                                    <th class="text-center">Effectif</th>
+                                                    <th class="text-center">Part</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody>
+                                                @foreach($students_by_class as $class)
+                                                <tr>
+                                                    <td><strong>{{ $class['name'] }}</strong></td>
+                                                    <td class="text-center font-weight-bold">{{ $class['count'] }}</td>
+                                                    <td class="text-center">{{ $total_students > 0 ? number_format(($class['count'] / $total_students) * 100, 1) : '0.0' }}%</td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div class="chart-container" style="height: 250px;">
                                         <canvas id="class-chart"></canvas>
                                     </div>
                                 </div>
@@ -401,26 +350,29 @@
                     </div>
                 </div>
 
+                {{-- Onglet 3 : Statistiques Détaillées par Âge & Filtres --}}
                 <div class="tab-pane fade" id="detailed-stats">
-                    <div class="card">
-                        <div class="card-header bg-primary text-white">
-                            <h6 class="card-title">Statistiques détaillées des étudiants avec filtres</h6>
+                    <div class="card border shadow-none" style="border-radius: 12px;">
+                        <div class="card-header bg-light border-bottom">
+                            <h6 class="card-title font-weight-bold mb-0 text-dark">
+                                <i class="icon-filter3 mr-1 text-primary"></i> Filtres combinés d'analyse
+                            </h6>
                         </div>
                         <div class="card-body">
-                            <!-- Filtres (Ligne 1) -->
-                            <div class="row mb-3">
+                            <!-- Filtres Ligne 1 -->
+                            <div class="row g-2 mb-3">
                                 <div class="col-md-3">
-                                    <label><i class="icon-graduation2"></i> Classe</label>
-                                    <select id="class-filter" class="form-control">
-                                        <option value="">📚 Toutes les classes</option>
+                                    <label class="font-weight-semibold font-size-xs text-uppercase text-muted"><i class="icon-graduation2"></i> Classe</label>
+                                    <select id="class-filter" class="form-control form-control-sm">
+                                        <option value="">Toutes les classes</option>
                                         @foreach($my_classes as $c)
                                             <option value="{{ $c->id }}">{{ $c->name }}</option>
                                         @endforeach
                                     </select>
                                 </div>
                                 <div class="col-md-2">
-                                    <label><i class="icon-calendar"></i> Âge minimum</label>
-                                    <select id="age-min-filter" class="form-control">
+                                    <label class="font-weight-semibold font-size-xs text-uppercase text-muted"><i class="icon-calendar"></i> Âge min</label>
+                                    <select id="age-min-filter" class="form-control form-control-sm">
                                         <option value="">Aucun</option>
                                         @for($age = 3; $age <= 25; $age++)
                                             <option value="{{ $age }}">{{ $age }} ans</option>
@@ -428,8 +380,8 @@
                                     </select>
                                 </div>
                                 <div class="col-md-2">
-                                    <label><i class="icon-calendar"></i> Âge maximum</label>
-                                    <select id="age-max-filter" class="form-control">
+                                    <label class="font-weight-semibold font-size-xs text-uppercase text-muted"><i class="icon-calendar"></i> Âge max</label>
+                                    <select id="age-max-filter" class="form-control form-control-sm">
                                         <option value="">Aucun</option>
                                         @for($age = 3; $age <= 25; $age++)
                                             <option value="{{ $age }}">{{ $age }} ans</option>
@@ -437,16 +389,16 @@
                                     </select>
                                 </div>
                                 <div class="col-md-2">
-                                    <label><i class="icon-users"></i> Sexe</label>
-                                    <select id="gender-filter" class="form-control">
+                                    <label class="font-weight-semibold font-size-xs text-uppercase text-muted"><i class="icon-users"></i> Sexe</label>
+                                    <select id="gender-filter" class="form-control form-control-sm">
                                         <option value="">Tous</option>
                                         <option value="Male">Masculin</option>
                                         <option value="Female">Féminin</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label><i class="icon-certificate"></i> Statut</label>
-                                    <select id="status-filter" class="form-control">
+                                    <label class="font-weight-semibold font-size-xs text-uppercase text-muted"><i class="icon-certificate"></i> Statut</label>
+                                    <select id="status-filter" class="form-control form-control-sm">
                                         <option value="">Tous les statuts</option>
                                         <option value="Normal">Normal</option>
                                         <option value="ADRA">ADRA</option>
@@ -455,229 +407,339 @@
                                 </div>
                             </div>
                             
-                            <!-- Filtres (Ligne 2) -->
-                            <div class="row mb-4">
+                            <!-- Filtres Ligne 2 -->
+                            <div class="row g-2 mb-4">
                                 <div class="col-md-3">
-                                    <label><i class="icon-book"></i> Type d'étudiant</label>
-                                    <select id="student-type-filter" class="form-control">
+                                    <label class="font-weight-semibold font-size-xs text-uppercase text-muted"><i class="icon-book"></i> Type d'étudiant</label>
+                                    <select id="student-type-filter" class="form-control form-control-sm">
                                         <option value="">Tous les types</option>
                                         <option value="Nouveau">Nouveau</option>
                                         <option value="Ancien">Ancien</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
-                                    <label><i class="icon-trophy"></i> Statut académique</label>
-                                    <select id="academic-status-filter" class="form-control">
+                                    <label class="font-weight-semibold font-size-xs text-uppercase text-muted"><i class="icon-trophy"></i> Statut académique</label>
+                                    <select id="academic-status-filter" class="form-control form-control-sm">
                                         <option value="">Tous</option>
                                         <option value="Passant">Passant</option>
                                         <option value="Redoublant">Redoublant</option>
                                     </select>
                                 </div>
-                                <div class="col-md-6">
-                                    <label>&nbsp;</label>
-                                    <div class="btn-group d-block">
-                                        <button class="btn btn-primary btn-lg" onclick="applyFilters()">
-                                            <i class="icon-filter3"></i> Appliquer les filtres
+                                <div class="col-md-6 d-flex align-items-end">
+                                    <div class="btn-group w-100">
+                                        <button class="btn btn-primary" onclick="applyFilters()">
+                                            <i class="icon-filter3 mr-1"></i> Appliquer les filtres
                                         </button>
-                                        <button class="btn btn-secondary btn-lg" onclick="resetFilters()">
-                                            <i class="icon-reset"></i> Réinitialiser
+                                        <button class="btn btn-light border" onclick="resetFilters()">
+                                            <i class="icon-reset mr-1"></i> Réinitialiser
                                         </button>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Statistiques résumées -->
-                            <div class="row mb-4">
+                            <!-- KPIs Filtrés -->
+                            <div class="row g-2 mb-4">
                                 <div class="col-md-3">
-                                    <div class="card bg-primary text-white">
-                                        <div class="card-body text-center p-3">
-                                            <h3 id="stat-total" class="mb-0">0</h3>
-                                            <small>Total étudiants filtrés</small>
-                                        </div>
+                                    <div class="p-3 bg-light rounded text-center border">
+                                        <h4 id="stat-total" class="mb-0 font-weight-bold text-primary">0</h4>
+                                        <small class="text-muted text-uppercase font-weight-semibold">Total filtré</small>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
-                                    <div class="card bg-info text-white">
-                                        <div class="card-body text-center p-3">
-                                            <h3 id="stat-age-moyen" class="mb-0">-</h3>
-                                            <small>Âge moyen</small>
-                                        </div>
+                                    <div class="p-3 bg-light rounded text-center border">
+                                        <h4 id="stat-age-moyen" class="mb-0 font-weight-bold text-info">-</h4>
+                                        <small class="text-muted text-uppercase font-weight-semibold">Âge moyen</small>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
-                                    <div class="card bg-success text-white">
-                                        <div class="card-body text-center p-3">
-                                            <h3 id="stat-garcons" class="mb-0">0</h3>
-                                            <small>Garçons</small>
-                                        </div>
+                                    <div class="p-3 bg-light rounded text-center border">
+                                        <h4 id="stat-garcons" class="mb-0 font-weight-bold text-success">0</h4>
+                                        <small class="text-muted text-uppercase font-weight-semibold">Garçons</small>
                                     </div>
                                 </div>
                                 <div class="col-md-3">
-                                    <div class="card bg-danger text-white">
-                                        <div class="card-body text-center p-3">
-                                            <h3 id="stat-filles" class="mb-0">0</h3>
-                                            <small>Filles</small>
-                                        </div>
+                                    <div class="p-3 bg-light rounded text-center border">
+                                        <h4 id="stat-filles" class="mb-0 font-weight-bold text-danger">0</h4>
+                                        <small class="text-muted text-uppercase font-weight-semibold">Filles</small>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Répartition par âge -->
-                            <div class="row mb-4">
-                                <div class="col-md-12">
-                                    <div class="card">
-                                        <div class="card-header bg-secondary text-white">
-                                            <h6 class="card-title mb-0"><i class="icon-stats-bars"></i> Répartition par âge (étudiants filtrés)</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="chart-container" style="height: 300px;">
-                                                <canvas id="age-distribution-chart"></canvas>
-                                            </div>
-                                        </div>
+                            <!-- Graphique par Âge -->
+                            <div class="card mb-4 border shadow-none" style="border-radius: 10px;">
+                                <div class="card-header bg-light">
+                                    <h6 class="card-title font-weight-bold mb-0">
+                                        <i class="icon-stats-bars mr-1"></i> Répartition par Âge et Sexe
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container" style="height: 280px;">
+                                        <canvas id="age-distribution-chart"></canvas>
                                     </div>
                                 </div>
                             </div>
 
-                            <!-- Tableau de ventilation détaillée par âge et sexe -->
-                            <div class="row mb-4">
-                                <div class="col-md-12">
-                                    <div class="card">
-                                        <div class="card-header bg-info text-white">
-                                            <h6 class="card-title mb-0"><i class="icon-users4"></i> Répartition détaillée Filles/Garçons par âge</h6>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="table-responsive">
-                                                <table id="gender-age-breakdown-table" class="table table-bordered table-hover">
-                                                    <thead class="bg-light">
-                                                        <tr>
-                                                            <th class="text-center">Âge</th>
-                                                            <th class="text-center text-primary"><i class="icon-user-tie"></i> Garçons</th>
-                                                            <th class="text-center text-danger"><i class="icon-woman"></i> Filles</th>
-                                                            <th class="text-center bg-info text-white"><i class="icon-users"></i> Total</th>
-                                                            <th class="text-center">% Garçons</th>
-                                                            <th class="text-center">% Filles</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="gender-age-breakdown-body">
-                                                        <tr>
-                                                            <td colspan="6" class="text-center text-muted">
-                                                                <i class="icon-info3"></i> Appliquez les filtres pour voir les statistiques détaillées
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                    <tfoot class="bg-light font-weight-bold">
-                                                        <tr>
-                                                            <td class="text-center">TOTAL</td>
-                                                            <td class="text-center text-primary" id="total-boys">0</td>
-                                                            <td class="text-center text-danger" id="total-girls">0</td>
-                                                            <td class="text-center bg-info text-white" id="total-all">0</td>
-                                                            <td class="text-center" id="total-boys-percent">-</td>
-                                                            <td class="text-center" id="total-girls-percent">-</td>
-                                                        </tr>
-                                                    </tfoot>
-                                                </table>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+                            <!-- Tableau de répartition détaillée -->
+                            <div class="table-responsive mb-4">
+                                <table id="gender-age-breakdown-table" class="table table-bordered table-hover">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th class="text-center">Âge</th>
+                                            <th class="text-center text-primary"><i class="icon-user-tie"></i> Garçons</th>
+                                            <th class="text-center text-danger"><i class="icon-woman"></i> Filles</th>
+                                            <th class="text-center bg-info text-white"><i class="icon-users"></i> Total</th>
+                                            <th class="text-center">% Garçons</th>
+                                            <th class="text-center">% Filles</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="gender-age-breakdown-body">
+                                        <tr>
+                                            <td colspan="6" class="text-center text-muted py-3">
+                                                <i class="icon-info3 mr-1"></i> Cliquez sur "Appliquer les filtres" pour générer les statistiques détaillées
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                    <tfoot class="bg-light font-weight-bold">
+                                        <tr>
+                                            <td class="text-center">TOTAL</td>
+                                            <td class="text-center text-primary" id="total-boys">0</td>
+                                            <td class="text-center text-danger" id="total-girls">0</td>
+                                            <td class="text-center bg-info text-white" id="total-all">0</td>
+                                            <td class="text-center" id="total-boys-percent">-</td>
+                                            <td class="text-center" id="total-girls-percent">-</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
                             </div>
 
-                            <!-- Tableau détaillé des étudiants filtrés -->
-                            <div class="row">
-                                <div class="col-md-12">
-                                    <div class="card">
-                                        <div class="card-header bg-dark text-white d-flex justify-content-between align-items-center">
-                                            <h6 class="card-title mb-0"><i class="icon-table2"></i> Liste détaillée des étudiants</h6>
-                                            <button class="btn btn-success btn-sm" onclick="exportFilteredStudents()">
-                                                <i class="icon-file-excel"></i> Exporter Excel
-                                            </button>
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="table-responsive">
-                                                <table id="filtered-students-table" class="table table-bordered table-striped table-hover">
-                                                    <thead class="bg-light">
-                                                        <tr>
-                                                            <th class="all">N°</th>
-                                                            <th class="all">Nom</th>
-                                                            <th>Classe</th>
-                                                            <th class="min-tablet">Section</th>
-                                                            <th class="none">Âge</th>
-                                                            <th class="none">Sexe</th>
-                                                            <th class="min-tablet">Statut</th>
-                                                            <th class="none">Type</th>
-                                                            <th class="none">Téléphone</th>
-                                                        </tr>
-                                                    </thead>
-                                                    <tbody id="filtered-students-body">
-                                                        <tr>
-                                                            <td colspan="9" class="text-center text-muted">
-                                                                <i class="icon-info3"></i> Appliquez les filtres pour voir les résultats
-                                                            </td>
-                                                        </tr>
-                                                    </tbody>
-                                                </table>
-                                            </div>
-                                        </div>
+                            <!-- Tableau des Étudiants Filtrés -->
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <h6 class="font-weight-bold mb-0"><i class="icon-table2 mr-1"></i> Élèves filtrés</h6>
+                                <button class="btn btn-success btn-sm" onclick="exportFilteredStudents()">
+                                    <i class="icon-file-excel mr-1"></i> Exporter la sélection filtrée
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table id="filtered-students-table" class="table table-bordered table-striped table-hover">
+                                    <thead class="bg-light">
+                                        <tr>
+                                            <th>N°</th>
+                                            <th>Nom & Prénom</th>
+                                            <th>Classe</th>
+                                            <th>Section</th>
+                                            <th>Âge</th>
+                                            <th>Sexe</th>
+                                            <th>Statut</th>
+                                            <th>Type</th>
+                                            <th>Téléphone</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="filtered-students-body">
+                                        <tr>
+                                            <td colspan="9" class="text-center text-muted py-3">
+                                                <i class="icon-info3 mr-1"></i> Appliquez les filtres pour afficher les élèves correspondants
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                {{-- Onglet 4 : Types d'étudiants & Statuts académiques --}}
+                <div class="tab-pane fade" id="student-types">
+                    <div class="row mt-2">
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 border shadow-none" style="border-radius: 12px;">
+                                <div class="card-header bg-light border-bottom">
+                                    <h6 class="card-title font-weight-bold mb-0 text-dark">
+                                        <i class="icon-book mr-1 text-primary"></i> Types d'élèves (Nouveaux / Anciens)
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container mb-3" style="height: 250px;">
+                                        <canvas id="student-type-chart"></canvas>
                                     </div>
+                                    <table class="table table-bordered table-sm">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th>Type</th>
+                                                <th class="text-center">Effectif</th>
+                                                <th class="text-center">Pourcentage</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><span class="badge badge-light-success font-weight-bold">Nouveau</span></td>
+                                                <td class="text-center font-weight-bold" id="nouveaux-count">-</td>
+                                                <td class="text-center" id="nouveaux-percent">-</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="badge badge-light-primary font-weight-bold">Ancien</span></td>
+                                                <td class="text-center font-weight-bold" id="anciens-count">-</td>
+                                                <td class="text-center" id="anciens-percent">-</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6 mb-4">
+                            <div class="card h-100 border shadow-none" style="border-radius: 12px;">
+                                <div class="card-header bg-light border-bottom">
+                                    <h6 class="card-title font-weight-bold mb-0 text-dark">
+                                        <i class="icon-trophy mr-1 text-warning"></i> Statuts Académiques (Passants / Redoublants)
+                                    </h6>
+                                </div>
+                                <div class="card-body">
+                                    <div class="chart-container mb-3" style="height: 250px;">
+                                        <canvas id="academic-status-chart"></canvas>
+                                    </div>
+                                    <table class="table table-bordered table-sm">
+                                        <thead class="bg-light">
+                                            <tr>
+                                                <th>Statut académique</th>
+                                                <th class="text-center">Effectif</th>
+                                                <th class="text-center">Pourcentage</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td><span class="badge badge-light-info font-weight-bold">Passant</span></td>
+                                                <td class="text-center font-weight-bold" id="passants-count">-</td>
+                                                <td class="text-center" id="passants-percent">-</td>
+                                            </tr>
+                                            <tr>
+                                                <td><span class="badge badge-light-warning font-weight-bold">Redoublant</span></td>
+                                                <td class="text-center font-weight-bold" id="redoublants-count">-</td>
+                                                <td class="text-center" id="redoublants-percent">-</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
+                {{-- Onglets par Classe individuelle --}}
                 @foreach($my_classes as $c)
                 <div class="tab-pane fade" id="c{{ $c->id }}">
-                    <div class="table-responsive">
-                    <table class="table datatable-button-html5-columns">
-                        <thead>
-                        <tr>
-                            <th class="all">N°</th>
-                            <th class="none">Photo</th>
-                            <th class="all">Nom</th>
-                            <th class="min-tablet">N° d'admission</th>
-                            <th class="min-tablet">Section</th>
-                            <th class="none">Date de naissance</th>
-                            <th class="none">Âge</th>
-                            <th class="none">Adresse</th>
-                            <th class="min-tablet">Statut</th>
-                            <th class="none">Sexe</th>
-                            <th class="none">Père/Tuteur</th>
-                            <th class="none">Profession père</th>
-                            <th class="none">Mère/Tutrice</th>
-                            <th class="none">Profession mère</th>
-                            <th class="none">Téléphone</th>
-                            <th class="all no-export">Action</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($all_students->where('my_class_id', $c->id) as $s)
-                            <tr>
-                                <td>{{ $loop->iteration }}</td>
-                                <td><img class="rounded-circle" src="{{ $s->user->photo }}" alt="photo"></td>
-                                <td>{{ $s->user->name }}</td>
-                                <td>{{ $s->adm_no }}</td>
-                                <td>{{ $s->section->name }}</td>
-                                <td>{{ $s->user->dob }}</td>
-                                <td>
-                                    @if($s->user->dob)
-                                        {{ \App\Helpers\Qs::calculateAge($s->user->dob) }}
-                                    @else
-                                        -
-                                    @endif
-                                </td>
-                                <td>{{ $s->user->address }}</td>
-                                <td>{{ $s->user->status ?? 'Normal' }}</td>
-                                <td>{{ $s->user->gender == 'Male' ? 'Masculin' : ($s->user->gender == 'Female' ? 'Féminin' : '-') }}</td>
-                                <td>{{ $s->user->nom_p }}</td>
-                                <td>{{ $s->user->prof_p }}</td>
-                                <td>{{ $s->user->nom_m }}</td>
-                                <td>{{ $s->user->prof_m }}</td>
-                                <td>{{ $s->user->phone }}</td>
-                                @include('partials.student_action_buttons', ['s' => $s])
-                            </tr>
-                        @endforeach
-                        </tbody>
-                    </table>
+                    <div class="students-table-wrapper">
+                        <table class="table students-table datatable-button-html5-columns">
+                            <thead>
+                                <tr>
+                                    <th class="all" style="width: 40px;">N°</th>
+                                    <th class="none" style="width: 50px;">Photo</th>
+                                    <th class="all">Nom & Prénom</th>
+                                    <th class="min-tablet">N° d'admission</th>
+                                    <th class="min-tablet">Section</th>
+                                    <th class="none">Date de naissance</th>
+                                    <th class="none">Âge</th>
+                                    <th class="none">Adresse</th>
+                                    <th class="none">Religion</th>
+                                    <th class="min-tablet">Statut</th>
+                                    <th class="none">Type</th>
+                                    <th class="none">Statut académique</th>
+                                    <th class="none">Sexe</th>
+                                    <th class="none">Père / Tuteur</th>
+                                    <th class="none">Profession père</th>
+                                    <th class="none">Mère / Tutrice</th>
+                                    <th class="none">Profession mère</th>
+                                    <th class="none">Téléphone</th>
+                                    <th class="all no-export text-center" style="width: 110px;">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach($all_students->where('my_class_id', $c->id) as $s)
+                                    <tr>
+                                        <td class="font-weight-semibold text-muted text-center">{{ $loop->iteration }}</td>
+                                        <td class="text-center">
+                                            <img class="student-avatar" src="{{ $s->user->photo }}" alt="{{ $s->user->name }}" loading="lazy">
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('students.show', Qs::hash($s->id)) }}" class="student-link-name editable editable-cell" data-field="name" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->name }}">
+                                                {{ $s->user->name }}
+                                            </a>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-light-primary font-weight-bold editable editable-cell" data-field="adm_no" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->adm_no }}">
+                                                {{ $s->adm_no }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="font-weight-semibold">{{ $s->section->name }}</span>
+                                        </td>
+                                        <td class="editable editable-cell" data-field="dob" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->dob }}">
+                                            {{ $s->user->dob ?? '-' }}
+                                        </td>
+                                        <td class="age-display age-column font-weight-semibold text-center" data-student-id="{{ Qs::hash($s->id) }}" data-dob="{{ $s->user->dob }}">
+                                            @if($s->user->dob)
+                                                <span class="badge badge-light-info font-weight-semibold">{{ \App\Helpers\Qs::calculateAge($s->user->dob) }} ans</span>
+                                            @else
+                                                -
+                                            @endif
+                                        </td>
+                                        <td class="editable editable-cell" data-field="address" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->address }}">
+                                            {{ $s->user->address ?? '-' }}
+                                        </td>
+                                        <td class="editable editable-cell" data-field="religion" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->religion }}">
+                                            {{ $s->user->religion ?? '-' }}
+                                        </td>
+                                        <td>
+                                            @php
+                                                $statusVal = $s->user->status ?? 'Normal';
+                                                $badgeCls = ($statusVal == 'ADRA') ? 'badge-light-warning' : (($statusVal == 'TEAM3' || $statusVal == 'Team3') ? 'badge-light-danger' : 'badge-light-success');
+                                            @endphp
+                                            <span class="badge {{ $badgeCls }} font-weight-bold editable editable-cell" data-field="status" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $statusVal }}">
+                                                {{ $statusVal }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-light-secondary editable editable-cell" data-field="student_type" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->student_type ?? 'Nouveau' }}">
+                                                {{ $s->user->student_type ?? 'Nouveau' }}
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <span class="badge badge-light-info editable editable-cell" data-field="academic_status" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->academic_status ?? 'Passant' }}">
+                                                {{ $s->user->academic_status ?? 'Passant' }}
+                                            </span>
+                                        </td>
+                                        <td class="text-center">
+                                            @if($s->user->gender == 'Male')
+                                                <span class="gender-badge male editable editable-cell" data-field="gender" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="Male">
+                                                    <i class="icon-user-tie mr-1"></i> Masculin
+                                                </span>
+                                            @elseif($s->user->gender == 'Female')
+                                                <span class="gender-badge female editable editable-cell" data-field="gender" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="Female">
+                                                    <i class="icon-woman mr-1"></i> Féminin
+                                                </span>
+                                            @else
+                                                <span class="editable editable-cell" data-field="gender" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="">-</span>
+                                            @endif
+                                        </td>
+                                        <td class="editable editable-cell" data-field="nom_p" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->nom_p }}">
+                                            {{ $s->user->nom_p ?? '-' }}
+                                        </td>
+                                        <td class="editable editable-cell text-muted font-size-sm" data-field="prof_p" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->prof_p }}">
+                                            {{ $s->user->prof_p ?? '-' }}
+                                        </td>
+                                        <td class="editable editable-cell" data-field="nom_m" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->nom_m }}">
+                                            {{ $s->user->nom_m ?? '-' }}
+                                        </td>
+                                        <td class="editable editable-cell text-muted font-size-sm" data-field="prof_m" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->prof_m }}">
+                                            {{ $s->user->prof_m ?? '-' }}
+                                        </td>
+                                        <td class="editable editable-cell font-weight-semibold" data-field="phone" data-student-id="{{ Qs::hash($s->id) }}" data-original-value="{{ $s->user->phone }}">
+                                            {{ $s->user->phone ?? '-' }}
+                                        </td>
+                                        @include('partials.student_action_buttons', ['s' => $s])
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 @endforeach
@@ -686,71 +748,51 @@
         </div>
     </div>
 
-    {{--Fin de la liste des étudiants--}}
-
 @endsection
 
 @section('scripts')
 <script src="{{ asset('assets/js/inline_editing.js') }}"></script>
+<script src="{{ asset('assets/js/student_table_manager.js') }}"></script>
 <script>
     $(document).ready(function() {
-        // Configuration de l'édition en ligne
         if (window.inlineEditor) {
             window.inlineEditor.options.csrfToken = '{{ csrf_token() }}';
             window.inlineEditor.options.saveUrl = '{{ route("ajax.update_student_field") }}';
         }
 
-        // Initialiser les graphiques si Chart.js est disponible
+        // Initialiser les graphiques
         if (typeof Chart !== 'undefined') {
-            // Graphique de répartition par statut
             const statusCtx = document.getElementById('status-chart');
             if (statusCtx) {
                 new Chart(statusCtx.getContext('2d'), {
-                    type: 'pie',
+                    type: 'doughnut',
                     data: {
                         labels: {!! json_encode(array_keys($students_by_status)) !!},
                         datasets: [{
                             data: {!! json_encode(array_values($students_by_status)) !!},
-                            backgroundColor: ['#4CAF50', '#FFC107', '#F44336'],
-                            borderWidth: 1
+                            backgroundColor: ['#10b981', '#f59e0b', '#ef4444'],
+                            borderWidth: 2
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
                         plugins: {
-                            legend: {
-                                position: 'right',
-                            },
-                            title: {
-                                display: true,
-                                text: 'Répartition des étudiants par statut'
-                            }
+                            legend: { position: 'bottom' }
                         }
                     }
                 });
             }
 
-            // Graphique de répartition par classe
             const classCtx = document.getElementById('class-chart');
             if (classCtx) {
                 const classLabels = [];
                 const classData = [];
-                const classColors = [];
+                const classColors = ['#4f46e5', '#06b6d4', '#10b981', '#f59e0b', '#ec4899', '#8b5cf6', '#3b82f6', '#14b8a6'];
 
-                function getRandomColor() {
-                    const letters = '0123456789ABCDEF';
-                    let color = '#';
-                    for (let i = 0; i < 6; i++) {
-                        color += letters[Math.floor(Math.random() * 16)];
-                    }
-                    return color;
-                }
-
-                @foreach($students_by_class as $class)
-                    classLabels.push('{{ $class['name'] }}');
+                @foreach($students_by_class as $idx => $class)
+                    classLabels.push("{{ $class['name'] }}");
                     classData.push({{ $class['count'] }});
-                    classColors.push(getRandomColor());
                 @endforeach
 
                 new Chart(classCtx.getContext('2d'), {
@@ -758,44 +800,34 @@
                     data: {
                         labels: classLabels,
                         datasets: [{
-                            label: 'Nombre d\'étudiants',
+                            label: 'Élèves par classe',
                             data: classData,
-                            backgroundColor: classColors,
-                            borderWidth: 1
+                            backgroundColor: classColors.slice(0, classLabels.length),
+                            borderRadius: 6
                         }]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        scales: {
-                            y: {
-                                beginAtZero: true,
-                                ticks: {
-                                    precision: 0
-                                }
-                            }
-                        },
                         plugins: {
-                            title: {
-                                display: true,
-                                text: 'Nombre d\'étudiants par classe'
-                            }
+                            legend: { display: false }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, ticks: { precision: 0 } }
                         }
                     }
                 });
             }
         }
 
-        // Calculer les statistiques des types d'étudiants
+        // Calculer les types d'élèves
         calculateStudentTypeStats();
 
-        // Appliquer les filtres automatiquement au chargement pour afficher les statistiques initiales
-        // Cela affiche "Répartition par âge" et "Répartition détaillée Filles/Garçons par âge"
-        setTimeout(function() {
-            if (typeof window.applyFilters === 'function') {
-                window.applyFilters();
+        $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) {
+            if ($(e.target).attr('href') === '#student-types') {
+                calculateStudentTypeStats();
             }
-        }, 500);
+        });
 
         function calculateStudentTypeStats() {
             let nouveauxCount = 0;
@@ -824,35 +856,31 @@
             
             $('#nouveaux-count').text(nouveauxCount);
             $('#anciens-count').text(anciensCount);
-            $('#nouveaux-percent').text(totalStudents > 0 ? (nouveauxCount / totalStudents * 100).toFixed(2) + '%' : '0%');
-            $('#anciens-percent').text(totalStudents > 0 ? (anciensCount / totalStudents * 100).toFixed(2) + '%' : '0%');
+            $('#nouveaux-percent').text(totalStudents > 0 ? (nouveauxCount / totalStudents * 100).toFixed(1) + '%' : '0%');
+            $('#anciens-percent').text(totalStudents > 0 ? (anciensCount / totalStudents * 100).toFixed(1) + '%' : '0%');
             
             $('#passants-count').text(passantsCount);
             $('#redoublants-count').text(redoublantsCount);
-            $('#passants-percent').text(totalStudents > 0 ? (passantsCount / totalStudents * 100).toFixed(2) + '%' : '0%');
-            $('#redoublants-percent').text(totalStudents > 0 ? (redoublantsCount / totalStudents * 100).toFixed(2) + '%' : '0%');
+            $('#passants-percent').text(totalStudents > 0 ? (passantsCount / totalStudents * 100).toFixed(1) + '%' : '0%');
+            $('#redoublants-percent').text(totalStudents > 0 ? (redoublantsCount / totalStudents * 100).toFixed(1) + '%' : '0%');
             
             if (typeof Chart !== 'undefined') {
                 const studentTypeCtx = document.getElementById('student-type-chart');
                 if (studentTypeCtx && !window.studentTypeChart) {
                     window.studentTypeChart = new Chart(studentTypeCtx.getContext('2d'), {
-                        type: 'pie',
+                        type: 'doughnut',
                         data: {
-                            labels: ['Nouveau', 'Ancien'],
+                            labels: ['Nouveaux', 'Anciens'],
                             datasets: [{
                                 data: [nouveauxCount, anciensCount],
-                                backgroundColor: ['#4CAF50', '#2196F3'],
-                                borderWidth: 1
+                                backgroundColor: ['#10b981', '#3b82f6'],
+                                borderWidth: 2
                             }]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom'
-                                }
-                            }
+                            plugins: { legend: { position: 'bottom' } }
                         }
                     });
                 } else if (window.studentTypeChart) {
@@ -863,23 +891,19 @@
                 const academicStatusCtx = document.getElementById('academic-status-chart');
                 if (academicStatusCtx && !window.academicStatusChart) {
                     window.academicStatusChart = new Chart(academicStatusCtx.getContext('2d'), {
-                        type: 'pie',
+                        type: 'doughnut',
                         data: {
-                            labels: ['Passant', 'Redoublant'],
+                            labels: ['Passants', 'Redoublants'],
                             datasets: [{
                                 data: [passantsCount, redoublantsCount],
-                                backgroundColor: ['#4CAF50', '#FFC107'],
-                                borderWidth: 1
+                                backgroundColor: ['#06b6d4', '#f59e0b'],
+                                borderWidth: 2
                             }]
                         },
                         options: {
                             responsive: true,
                             maintainAspectRatio: false,
-                            plugins: {
-                                legend: {
-                                    position: 'bottom'
-                                }
-                            }
+                            plugins: { legend: { position: 'bottom' } }
                         }
                     });
                 } else if (window.academicStatusChart) {
@@ -889,11 +913,7 @@
             }
         }
 
-        // ==========================================
-        // FILTRES DÉTAILLÉS PAR ÂGE
-        // ==========================================
-        
-        // Données des étudiants pour le filtrage (Global)
+        // Filtres par âge
         window.allStudentsData = [
             @foreach($all_students as $s)
                 {
@@ -924,14 +944,8 @@
             const studentType = $('#student-type-filter').val();
             const academicStatus = $('#academic-status-filter').val();
 
-            console.log("Applying filters...", {
-                classId, ageMin, ageMax, gender, status, studentType, academicStatus
-            });
-
-            // Filtrer les étudiants
             let filteredStudents = window.allStudentsData.filter(student => {
-                if (student.age === 0) return false; // Ignorer ceux sans date de naissance
-                
+                if (student.age === 0) return false;
                 if (classId && student.class_id != classId) return false;
                 if (ageMin && student.age < parseInt(ageMin)) return false;
                 if (ageMax && student.age > parseInt(ageMax)) return false;
@@ -939,24 +953,14 @@
                 if (status && student.status !== status) return false;
                 if (studentType && student.student_type !== studentType) return false;
                 if (academicStatus && student.academic_status !== academicStatus) return false;
-                
                 return true;
             });
 
-            console.log("Filtered students:", filteredStudents.length);
-
-            // Mettre à jour les statistiques
             updateStats(filteredStudents);
-
-            // Mettre à jour le tableau
             updateTable(filteredStudents);
-
-            // Mettre à jour le graphique de répartition par âge
             updateAgeDistributionChart(filteredStudents);
-            
-            // Mettre à jour le tableau de ventilation détaillée
             updateGenderAgeBreakdown(filteredStudents);
-        }
+        };
 
         function updateStats(students) {
             const total = students.length;
@@ -964,9 +968,7 @@
             const girls = students.filter(s => s.gender === 'Female').length;
             
             let ageSum = 0;
-            students.forEach(s => {
-                ageSum += s.age;
-            });
+            students.forEach(s => { ageSum += s.age; });
             const avgAge = total > 0 ? (ageSum / total).toFixed(1) : 0;
 
             $('#stat-total').text(total);
@@ -980,116 +982,69 @@
             tbody.empty();
 
             if (students.length === 0) {
-                tbody.append(`
-                    <tr>
-                        <td colspan="9" class="text-center text-muted">
-                            <i class="icon-info3"></i> Aucun étudiant ne correspond aux critères sélectionnés
-                        </td>
-                    </tr>
-                `);
+                tbody.append('<tr><td colspan="9" class="text-center text-muted py-3"><i class="icon-info3 mr-1"></i> Aucun élève ne correspond aux critères sélectionnés</td></tr>');
                 return;
             }
 
             students.forEach((student, index) => {
-                const genderIcon = student.gender === 'Male' ? 
-                    '<i class="icon-user-tie text-primary"></i> M' : 
-                    '<i class="icon-woman text-danger"></i> F';
+                const genderBadge = student.gender === 'Male' ? 
+                    '<span class="gender-badge male"><i class="icon-user-tie mr-1"></i> M</span>' : 
+                    '<span class="gender-badge female"><i class="icon-woman mr-1"></i> F</span>';
                 
                 const statusBadge = student.status === 'Normal' ? 
-                    '<span class="badge badge-success">Normal</span>' :
-                    student.status === 'ADRA' ?
-                    '<span class="badge badge-warning">ADRA</span>' :
-                    '<span class="badge badge-danger">TEAM3</span>';
+                    '<span class="badge badge-light-success font-weight-bold">Normal</span>' :
+                    (student.status === 'ADRA' ? '<span class="badge badge-light-warning font-weight-bold">ADRA</span>' : '<span class="badge badge-light-danger font-weight-bold">TEAM3</span>');
 
                 tbody.append(`
                     <tr>
-                        <td>${index + 1}</td>
+                        <td class="text-center font-weight-semibold">${index + 1}</td>
                         <td><strong>${student.name}</strong></td>
-                        <td>${student.class_name}</td>
+                        <td><span class="badge badge-light-secondary">${student.class_name}</span></td>
                         <td>${student.section_name}</td>
-                        <td><span class="badge badge-info">${student.age} ans</span></td>
-                        <td>${genderIcon}</td>
+                        <td class="text-center"><span class="badge badge-light-info font-weight-bold">${student.age} ans</span></td>
+                        <td class="text-center">${genderBadge}</td>
                         <td>${statusBadge}</td>
                         <td>${student.student_type}</td>
-                        <td>${student.phone}</td>
+                        <td>${student.phone || '-'}</td>
                     </tr>
                 `);
             });
         }
 
         function updateAgeDistributionChart(students) {
-            // Compter les étudiants par âge et par sexe
             const ageGenderCount = {};
             students.forEach(s => {
                 if (s.age > 0) {
-                    if (!ageGenderCount[s.age]) {
-                        ageGenderCount[s.age] = { boys: 0, girls: 0 };
-                    }
-                    if (s.gender === 'Male') {
-                        ageGenderCount[s.age].boys++;
-                    } else if (s.gender === 'Female') {
-                        ageGenderCount[s.age].girls++;
-                    }
+                    if (!ageGenderCount[s.age]) ageGenderCount[s.age] = { boys: 0, girls: 0 };
+                    if (s.gender === 'Male') ageGenderCount[s.age].boys++;
+                    else if (s.gender === 'Female') ageGenderCount[s.age].girls++;
                 }
             });
 
-            // Trier les âges
             const ages = Object.keys(ageGenderCount).map(Number).sort((a, b) => a - b);
             const boysData = ages.map(age => ageGenderCount[age].boys);
             const girlsData = ages.map(age => ageGenderCount[age].girls);
 
-            // Créer/mettre à jour le graphique
             const ctx = document.getElementById('age-distribution-chart');
             if (ctx && typeof Chart !== 'undefined') {
-                if (window.ageDistributionChart) {
-                    window.ageDistributionChart.destroy();
-                }
+                if (window.ageDistributionChart) window.ageDistributionChart.destroy();
 
                 window.ageDistributionChart = new Chart(ctx.getContext('2d'), {
                     type: 'bar',
                     data: {
                         labels: ages.map(age => age + ' ans'),
                         datasets: [
-                            {
-                                label: 'Garçons',
-                                data: boysData,
-                                backgroundColor: 'rgba(54, 162, 235, 0.7)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 2
-                            },
-                            {
-                                label: 'Filles',
-                                data: girlsData,
-                                backgroundColor: 'rgba(255, 99, 132, 0.7)',
-                                borderColor: 'rgba(255, 99, 132, 1)',
-                                borderWidth: 2
-                            }
+                            { label: 'Garçons', data: boysData, backgroundColor: '#3b82f6', borderRadius: 4 },
+                            { label: 'Filles', data: girlsData, backgroundColor: '#ec4899', borderRadius: 4 }
                         ]
                     },
                     options: {
                         responsive: true,
                         maintainAspectRatio: false,
-                        plugins: {
-                            legend: {
-                                display: true,
-                                position: 'top'
-                            },
-                            title: {
-                                display: true,
-                                text: 'Distribution des étudiants par âge et sexe'
-                            }
-                        },
+                        plugins: { legend: { position: 'top' } },
                         scales: {
-                            x: {
-                                stacked: true
-                            },
-                            y: {
-                                stacked: true,
-                                beginAtZero: true,
-                                ticks: {
-                                    precision: 0
-                                }
-                            }
+                            x: { stacked: true },
+                            y: { stacked: true, beginAtZero: true, ticks: { precision: 0 } }
                         }
                     }
                 });
@@ -1097,40 +1052,23 @@
         }
 
         function updateGenderAgeBreakdown(students) {
-            // Compter les étudiants par âge et par sexe
             const ageGenderCount = {};
             let totalBoys = 0, totalGirls = 0;
 
             students.forEach(s => {
                 if (s.age > 0) {
-                    if (!ageGenderCount[s.age]) {
-                        ageGenderCount[s.age] = { boys: 0, girls: 0 };
-                    }
-                    if (s.gender === 'Male') {
-                        ageGenderCount[s.age].boys++;
-                        totalBoys++;
-                    } else if (s.gender === 'Female') {
-                        ageGenderCount[s.age].girls++;
-                        totalGirls++;
-                    }
+                    if (!ageGenderCount[s.age]) ageGenderCount[s.age] = { boys: 0, girls: 0 };
+                    if (s.gender === 'Male') { ageGenderCount[s.age].boys++; totalBoys++; }
+                    else if (s.gender === 'Female') { ageGenderCount[s.age].girls++; totalGirls++; }
                 }
             });
 
-            // Trier les âges
             const ages = Object.keys(ageGenderCount).map(Number).sort((a, b) => a - b);
-
-            // Remplir le tableau
             const tbody = $('#gender-age-breakdown-body');
             tbody.empty();
 
             if (ages.length === 0) {
-                tbody.append(`
-                    <tr>
-                        <td colspan="6" class="text-center text-muted">
-                            <i class="icon-info3"></i> Aucune donnée disponible avec ces filtres
-                        </td>
-                    </tr>
-                `);
+                tbody.append('<tr><td colspan="6" class="text-center text-muted py-3"><i class="icon-info3 mr-1"></i> Aucune donnée disponible</td></tr>');
             } else {
                 ages.forEach(age => {
                     const boys = ageGenderCount[age].boys;
@@ -1141,10 +1079,10 @@
 
                     tbody.append(`
                         <tr>
-                            <td class="text-center"><strong>${age} ans</strong></td>
-                            <td class="text-center text-primary"><strong>${boys}</strong></td>
-                            <td class="text-center text-danger"><strong>${girls}</strong></td>
-                            <td class="text-center bg-light"><strong>${total}</strong></td>
+                            <td class="text-center font-weight-bold">${age} ans</td>
+                            <td class="text-center text-primary font-weight-bold">${boys}</td>
+                            <td class="text-center text-danger font-weight-bold">${girls}</td>
+                            <td class="text-center bg-light font-weight-bold">${total}</td>
                             <td class="text-center">${boysPercent}%</td>
                             <td class="text-center">${girlsPercent}%</td>
                         </tr>
@@ -1152,7 +1090,6 @@
                 });
             }
 
-            // Mettre à jour le pied de tableau
             const totalAll = totalBoys + totalGirls;
             const totalBoysPercent = totalAll > 0 ? ((totalBoys / totalAll) * 100).toFixed(1) : 0;
             const totalGirlsPercent = totalAll > 0 ? ((totalGirls / totalAll) * 100).toFixed(1) : 0;
@@ -1164,50 +1101,24 @@
             $('#total-girls-percent').text(totalGirlsPercent + '%');
         }
 
-
         window.resetFilters = function() {
-            $('#class-filter').val('');
-            $('#age-min-filter').val('');
-            $('#age-max-filter').val('');
-            $('#gender-filter').val('');
-            $('#status-filter').val('');
-            $('#student-type-filter').val('');
-            $('#academic-status-filter').val('');
-            
-            $('#stat-total').text('0');
-            $('#stat-garcons').text('0');
-            $('#stat-filles').text('0');
-            $('#stat-age-moyen').text('-');
-            
-            $('#filtered-students-body').html(`
-                <tr>
-                    <td colspan="9" class="text-center text-muted">
-                        <i class="icon-info3"></i> Appliquez les filtres pour voir les résultats
-                    </td>
-                </tr>
-            `);
-            
-            $('#gender-age-breakdown-body').html(`
-                <tr>
-                    <td colspan="6" class="text-center text-muted">
-                        <i class="icon-info3"></i> Appliquez les filtres pour voir les statistiques détaillées
-                    </td>
-                </tr>
-            `);
-            
-            $('#total-boys').text('0');
-            $('#total-girls').text('0');
-            $('#total-all').text('0');
-            $('#total-boys-percent').text('-');
-            $('#total-girls-percent').text('-');
-
+            $('#class-filter, #age-min-filter, #age-max-filter, #gender-filter, #status-filter, #student-type-filter, #academic-status-filter').val('');
+            $('#stat-total, #stat-garcons, #stat-filles, #total-boys, #total-girls, #total-all').text('0');
+            $('#stat-age-moyen, #total-boys-percent, #total-girls-percent').text('-');
+            $('#filtered-students-body').html('<tr><td colspan="9" class="text-center text-muted py-3"><i class="icon-info3 mr-1"></i> Appliquez les filtres pour voir les résultats</td></tr>');
+            $('#gender-age-breakdown-body').html('<tr><td colspan="6" class="text-center text-muted py-3"><i class="icon-info3 mr-1"></i> Appliquez les filtres pour voir les statistiques</td></tr>');
             if (window.ageDistributionChart) {
                 window.ageDistributionChart.destroy();
                 window.ageDistributionChart = null;
             }
-        }
+        };
 
         window.exportFilteredStudents = function() {
+            if (typeof XLSX === 'undefined') {
+                alert('Bibliothèque XLSX indisponible.');
+                return;
+            }
+
             const classId = $('#class-filter').val();
             const ageMin = $('#age-min-filter').val();
             const ageMax = $('#age-max-filter').val();
@@ -1216,10 +1127,8 @@
             const studentType = $('#student-type-filter').val();
             const academicStatus = $('#academic-status-filter').val();
 
-            // Filtrer les étudiants
             let filteredStudents = window.allStudentsData.filter(student => {
                 if (student.age === 0) return false;
-                
                 if (classId && student.class_id != classId) return false;
                 if (ageMin && student.age < parseInt(ageMin)) return false;
                 if (ageMax && student.age > parseInt(ageMax)) return false;
@@ -1227,40 +1136,33 @@
                 if (status && student.status !== status) return false;
                 if (studentType && student.student_type !== studentType) return false;
                 if (academicStatus && student.academic_status !== academicStatus) return false;
-                
                 return true;
             });
 
             if (filteredStudents.length === 0) {
-                alert('Aucun étudiant à exporter avec ces filtres');
+                alert('Aucun élève à exporter avec ces critères.');
                 return;
             }
 
-            // Créer les données pour l'export
             const exportData = filteredStudents.map((student, index) => {
                 return {
                     'N°': index + 1,
-                    'Nom': student.name,
+                    'Nom & Prénom': student.name,
                     'Classe': student.class_name,
                     'Section': student.section_name,
                     'Âge': student.age + ' ans',
                     'Sexe': student.gender === 'Male' ? 'Masculin' : 'Féminin',
                     'Statut': student.status,
                     'Type': student.student_type,
-                    'Téléphone': student.phone
+                    'Téléphone': student.phone || '-'
                 };
             });
 
-            // Créer un fichier Excel
-            const worksheet = XLSX.utils.json_to_sheet(exportData);
-            const workbook = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(workbook, worksheet, 'Étudiants filtrés');
-
-            // Télécharger le fichier
-            const fileName = `Etudiants_Filtres_${new Date().toISOString().split('T')[0]}.xlsx`;
-            XLSX.writeFile(workbook, fileName);
-        }
+            const ws = XLSX.utils.json_to_sheet(exportData);
+            const wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Élèves filtrés');
+            XLSX.writeFile(wb, `Eleves_Filtres_${new Date().toISOString().split('T')[0]}.xlsx`);
+        };
     });
-
 </script>
 @endsection
