@@ -768,7 +768,7 @@
 @endsection
 
 @section('page_scripts')
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="{{ asset('assets/js/xlsx.full.min.js') }}"></script>
 <script>
     $(document).ready(function() {
         // Afficher le loader pendant le chargement

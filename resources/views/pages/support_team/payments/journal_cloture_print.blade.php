@@ -265,6 +265,63 @@
         </tbody>
     </table>
 
+    <!-- 3. Billetage Physique des Espèces (Contrôle de Caisse) -->
+    <div class="section-title">3. Billetage & Rapprochement Physique des Espèces</div>
+    <table class="data-table" style="font-size: 7pt;">
+        <thead>
+            <tr style="background: #f8fafc;">
+                <th style="width: 25%;">Coupure / Billet</th>
+                <th style="width: 25%; text-align: center;">Nombre de Billets</th>
+                <th style="width: 25%; text-align: right;">Montant Calculé (Ar)</th>
+                <th style="width: 25%; text-align: center;">Observations</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td><strong>20 000 Ariary</strong></td>
+                <td style="text-align: center; color: #94a3b8;">..........</td>
+                <td style="text-align: right; color: #94a3b8;">...................</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><strong>10 000 Ariary</strong></td>
+                <td style="text-align: center; color: #94a3b8;">..........</td>
+                <td style="text-align: right; color: #94a3b8;">...................</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><strong>5 000 Ariary</strong></td>
+                <td style="text-align: center; color: #94a3b8;">..........</td>
+                <td style="text-align: right; color: #94a3b8;">...................</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><strong>2 000 Ariary</strong></td>
+                <td style="text-align: center; color: #94a3b8;">..........</td>
+                <td style="text-align: right; color: #94a3b8;">...................</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><strong>1 000 Ariary</strong></td>
+                <td style="text-align: center; color: #94a3b8;">..........</td>
+                <td style="text-align: right; color: #94a3b8;">...................</td>
+                <td></td>
+            </tr>
+            <tr>
+                <td><strong>500 Ariary / Pièces</strong></td>
+                <td style="text-align: center; color: #94a3b8;">..........</td>
+                <td style="text-align: right; color: #94a3b8;">...................</td>
+                <td></td>
+            </tr>
+            <tr style="font-weight: bold; background: #f1f5f9;">
+                <td>TOTAL PHYSIQUE COMPTÉ</td>
+                <td style="text-align: center; color: #94a3b8;">..........</td>
+                <td style="text-align: right; color: #94a3b8;">................... Ar</td>
+                <td style="text-align: center; font-size: 7pt;">Écart : [ ] 0 Ar &nbsp; [ ] +/- .....</td>
+            </tr>
+        </tbody>
+    </table>
+
     <!-- Solde net en caisse -->
     <div class="total-box">
         <div class="total-row">

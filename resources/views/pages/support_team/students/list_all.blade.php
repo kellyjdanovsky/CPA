@@ -6,8 +6,8 @@
 <link rel="stylesheet" href="{{ asset('assets/css/inline_editing.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/student_statistics.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/student_list_modern.css') }}">
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="{{ asset('assets/js/xlsx.full.min.js') }}"></script>
+<script src="{{ asset('assets/js/chart.min.js') }}"></script>
 @endsection
 
 @section('content')
@@ -48,8 +48,8 @@
         <div class="students-kpi-card kpi-total">
             <div class="kpi-info-wrapper">
                 <div class="kpi-number">{{ $total_students }}</div>
-                <div class="kpi-title">Total Élèves</div>
-                <div class="kpi-subtext">Effectif global inscrit</div>
+                <div class="kpi-title">Total Inscrits</div>
+                <div class="kpi-subtext">Effectif global de l'école</div>
             </div>
             <div class="kpi-icon-wrapper">
                 <i class="icon-users4"></i>
@@ -58,9 +58,9 @@
 
         <div class="students-kpi-card kpi-boys">
             <div class="kpi-info-wrapper">
-                <div class="kpi-number">{{ $totalBoys }}</div>
+                <div class="kpi-number">{{ $total_boys }}</div>
                 <div class="kpi-title">Garçons (Masculin)</div>
-                <div class="kpi-subtext">{{ $total_students > 0 ? round(($totalBoys / $total_students) * 100, 1) : 0 }}% de l'effectif</div>
+                <div class="kpi-subtext">{{ $total_students > 0 ? round(($total_boys / $total_students) * 100, 1) : 0 }}% de l'effectif</div>
             </div>
             <div class="kpi-icon-wrapper">
                 <i class="icon-user-tie"></i>
@@ -69,20 +69,31 @@
 
         <div class="students-kpi-card kpi-girls">
             <div class="kpi-info-wrapper">
-                <div class="kpi-number">{{ $totalGirls }}</div>
+                <div class="kpi-number">{{ $total_girls }}</div>
                 <div class="kpi-title">Filles (Féminin)</div>
-                <div class="kpi-subtext">{{ $total_students > 0 ? round(($totalGirls / $total_students) * 100, 1) : 0 }}% de l'effectif</div>
+                <div class="kpi-subtext">{{ $total_students > 0 ? round(($total_girls / $total_students) * 100, 1) : 0 }}% de l'effectif</div>
             </div>
             <div class="kpi-icon-wrapper">
                 <i class="icon-woman"></i>
             </div>
         </div>
 
+        <div class="students-kpi-card kpi-age">
+            <div class="kpi-info-wrapper">
+                <div class="kpi-number">{{ $avg_school_age }} <span style="font-size: 1rem; font-weight: normal;">ans</span></div>
+                <div class="kpi-title">Âge Moyen</div>
+                <div class="kpi-subtext">Moyenne générale d'âge</div>
+            </div>
+            <div class="kpi-icon-wrapper">
+                <i class="icon-calendar52"></i>
+            </div>
+        </div>
+
         <div class="students-kpi-card kpi-normal">
             <div class="kpi-info-wrapper">
                 <div class="kpi-number">{{ $totalNormal }}</div>
-                <div class="kpi-title">Statut Normal</div>
-                <div class="kpi-subtext">Régime standard</div>
+                <div class="kpi-title">Régime Normal</div>
+                <div class="kpi-subtext">Écolage standard ({{ $total_students > 0 ? round(($totalNormal / $total_students) * 100, 1) : 0 }}%)</div>
             </div>
             <div class="kpi-icon-wrapper">
                 <i class="icon-checkmark-circle"></i>
@@ -92,8 +103,8 @@
         <div class="students-kpi-card kpi-adra">
             <div class="kpi-info-wrapper">
                 <div class="kpi-number">{{ $totalAdra }}</div>
-                <div class="kpi-title">Statut ADRA</div>
-                <div class="kpi-subtext">Bénéficiaires ADRA</div>
+                <div class="kpi-title">Prise en charge ADRA</div>
+                <div class="kpi-subtext">75% ADRA / 25% Parent</div>
             </div>
             <div class="kpi-icon-wrapper">
                 <i class="icon-heart6"></i>
@@ -103,11 +114,33 @@
         <div class="students-kpi-card kpi-team3">
             <div class="kpi-info-wrapper">
                 <div class="kpi-number">{{ $totalTeam3 }}</div>
-                <div class="kpi-title">Statut TEAM 3</div>
-                <div class="kpi-subtext">Bénéficiaires TEAM 3</div>
+                <div class="kpi-title">Prise en charge TEAM 3</div>
+                <div class="kpi-subtext">100% Intégral TEAM 3</div>
             </div>
             <div class="kpi-icon-wrapper">
                 <i class="icon-star-full2"></i>
+            </div>
+        </div>
+
+        <div class="students-kpi-card kpi-type">
+            <div class="kpi-info-wrapper">
+                <div class="kpi-number">{{ $total_nouveaux }} <span style="font-size: 1rem; color: #64748b;">/ {{ $total_anciens }}</span></div>
+                <div class="kpi-title">Nouveaux / Anciens</div>
+                <div class="kpi-subtext">{{ $total_nouveaux }} nouv. ({{ $total_students > 0 ? round(($total_nouveaux / $total_students) * 100, 1) : 0 }}%)</div>
+            </div>
+            <div class="kpi-icon-wrapper">
+                <i class="icon-user-plus"></i>
+            </div>
+        </div>
+
+        <div class="students-kpi-card kpi-academic">
+            <div class="kpi-info-wrapper">
+                <div class="kpi-number">{{ $total_passants }} <span style="font-size: 1rem; color: #64748b;">/ {{ $total_redoublants }}</span></div>
+                <div class="kpi-title">Passants / Redoublants</div>
+                <div class="kpi-subtext">{{ $total_redoublants }} redoublants ({{ $total_students > 0 ? round(($total_redoublants / $total_students) * 100, 1) : 0 }}%)</div>
+            </div>
+            <div class="kpi-icon-wrapper">
+                <i class="icon-graduation2"></i>
             </div>
         </div>
     </div>
@@ -128,13 +161,13 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#student-stats" class="nav-link" data-toggle="tab">
-                        <i class="icon-pie-chart mr-1 text-success"></i> Statistiques globales
+                    <a href="#class-matrix-tab" class="nav-link" data-toggle="tab">
+                        <i class="icon-table2 mr-1 text-success"></i> Synthèse par Classe
                     </a>
                 </li>
                 <li class="nav-item">
                     <a href="#detailed-stats" class="nav-link" data-toggle="tab">
-                        <i class="icon-filter3 mr-1 text-info"></i> Filtres par âge & sexe
+                        <i class="icon-stats-bars mr-1 text-info"></i> Âges & Genre
                     </a>
                 </li>
                 <li class="nav-item">
@@ -148,8 +181,8 @@
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="#class-matrix-tab" class="nav-link" data-toggle="tab">
-                        <i class="icon-table2 mr-1 text-primary"></i> Synthèse par Classe
+                    <a href="#student-stats" class="nav-link" data-toggle="tab">
+                        <i class="icon-pie-chart mr-1 text-indigo"></i> Graphiques Globaux
                     </a>
                 </li>
                 <li class="nav-item dropdown">
@@ -796,20 +829,20 @@
                                         @endforeach
                                     </tbody>
                                     <tfoot class="bg-light font-weight-bold">
-                                        <tr style="background-color: #d1fae5;">
+                                        <tr style="background-color: #d1fae5; font-size: 0.9rem;">
                                             <td>TOTAL ÉCOLE</td>
-                                            <td class="text-center">{{ $total_students }}</td>
-                                            <td class="text-center text-primary">{{ $totalBoys }}</td>
-                                            <td class="text-center text-danger">{{ $totalGirls }}</td>
-                                            <td class="text-center">{{ $total_students > 0 ? round(($totalGirls / $total_students) * 100, 1) : 0 }}%</td>
-                                            <td class="text-center">-</td>
+                                            <td class="text-center font-weight-bold bg-success-100">{{ $total_students }}</td>
+                                            <td class="text-center text-primary">{{ $total_boys }}</td>
+                                            <td class="text-center text-danger">{{ $total_girls }}</td>
+                                            <td class="text-center">{{ $total_students > 0 ? round(($total_girls / $total_students) * 100, 1) : 0 }}%</td>
+                                            <td class="text-center font-weight-bold text-dark">{{ $avg_school_age }} ans</td>
                                             <td class="text-center">{{ $totalNormal }}</td>
-                                            <td class="text-center text-warning">{{ $totalAdra }}</td>
-                                            <td class="text-center text-danger">{{ $totalTeam3 }}</td>
-                                            <td class="text-center">{{ $all_students->where('user.student_type', 'Nouveau')->count() }}</td>
-                                            <td class="text-center">{{ $all_students->where('user.student_type', 'Ancien')->count() }}</td>
-                                            <td class="text-center">{{ $all_students->where('user.academic_status', 'Passant')->count() }}</td>
-                                            <td class="text-center">{{ $all_students->where('user.academic_status', 'Redoublant')->count() }}</td>
+                                            <td class="text-center text-warning font-weight-bold">{{ $totalAdra }}</td>
+                                            <td class="text-center text-danger font-weight-bold">{{ $totalTeam3 }}</td>
+                                            <td class="text-center">{{ $total_nouveaux }}</td>
+                                            <td class="text-center">{{ $total_anciens }}</td>
+                                            <td class="text-center">{{ $total_passants }}</td>
+                                            <td class="text-center">{{ $total_redoublants }}</td>
                                             <td class="text-center">{{ $students_by_religion['Adventiste'] ?? 0 }}</td>
                                             <td class="text-center">{{ $students_by_religion['Catholique'] ?? 0 }}</td>
                                             <td class="text-center">{{ $students_by_religion['FJKM'] ?? 0 }}</td>

@@ -179,6 +179,10 @@
 
                     <div class="card-body">
                         @if($students->count() > 0)
+                            <div class="alert alert-info py-2 px-3 mb-3 border-0" style="border-radius: 8px;">
+                                <i class="icon-info22 mr-1"></i> <strong>Règle de gestion automatique :</strong> Lors de la réinscription, le profil de chaque élève est automatiquement basculé en <span class="badge badge-light-primary font-weight-bold">Ancien</span>, et son statut académique est actualisé en <span class="badge badge-light-success font-weight-bold">Passant</span> (nouvelle classe) ou <span class="badge badge-light-warning font-weight-bold">Redoublant</span> (même classe).
+                            </div>
+
                             <div class="mb-3">
                                 <div class="row">
                                     <div class="col-md-6">

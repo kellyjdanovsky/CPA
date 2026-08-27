@@ -140,6 +140,14 @@ class ReenrollmentController extends Controller
                     ])->exists();
                     
                     if(!$exists){
+                        // Mettre à jour l'utilisateur en 'Ancien' et son statut académique
+                        if($st->user) {
+                            $st->user->update([
+                                'student_type' => 'Ancien',
+                                'academic_status' => ($new_class_id != $prev_class_id) ? 'Passant' : 'Redoublant'
+                            ]);
+                        }
+
                         // Créer un nouvel enregistrement pour l'élève dans l'année courante
                         $data = [
                             'user_id' => $st->user_id,
@@ -222,6 +230,14 @@ class ReenrollmentController extends Controller
                 ])->exists();
                 
                 if(!$exists){
+                    // Mettre à jour l'utilisateur en 'Ancien' et son statut académique
+                    if($st->user) {
+                        $st->user->update([
+                            'student_type' => 'Ancien',
+                            'academic_status' => ($new_class_id != $prev_class_id) ? 'Passant' : 'Redoublant'
+                        ]);
+                    }
+
                     // Créer un nouvel enregistrement pour l'élève dans l'année courante
                     $data = [
                         'user_id' => $st->user_id,

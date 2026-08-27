@@ -61,6 +61,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('list-all', 'StudentRecordController@listAll')->name('students.list_all')->middleware('teamSAT');
             Route::get('export', 'StudentRecordController@export')->name('students.export')->middleware('teamSAT');
             Route::get('print-attendance/{class_id}/{section_id?}', 'StudentRecordController@printAttendanceSheet')->name('students.print_attendance')->middleware('teamSAT');
+            Route::get('print-id-cards/{class_id}/{section_id?}', 'StudentRecordController@printIdCards')->name('students.id_cards')->middleware('teamSAT');
             Route::get('statistics/detailed', 'StudentStatisticsController@getDetailedStatistics')->name('students.statistics.detailed')->middleware('teamSAT');
             Route::get('statistics/export', 'StudentStatisticsController@exportStatistics')->name('students.statistics.export')->middleware('teamSAT');
             Route::get('statistics/print-report', 'StudentStatisticsController@printStatisticsReport')->name('students.statistics.print_report')->middleware('teamSAT');
@@ -359,6 +360,13 @@ Route::group(['namespace' => 'SuperAdmin','middleware' => 'super_admin', 'prefix
 
     Route::get('/settings', 'SettingController@index')->name('settings');
     Route::put('/settings', 'SettingController@update')->name('settings.update');
+
+    /*************** Sauvegardes & Maintenance *****************/
+    Route::get('/backups', 'BackupController@index')->name('super_admin.backups');
+    Route::post('/backups/create', 'BackupController@create')->name('super_admin.backups.create');
+    Route::get('/backups/download/{fileName}', 'BackupController@download')->name('super_admin.backups.download');
+    Route::delete('/backups/delete/{fileName}', 'BackupController@delete')->name('super_admin.backups.delete');
+    Route::post('/backups/clean-cache', 'BackupController@cleanCache')->name('super_admin.backups.clean_cache');
 
     /*************** Duplicate Management *****************/
     Route::group(['prefix' => 'duplicate_management'], function(){

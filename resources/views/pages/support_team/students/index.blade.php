@@ -5,7 +5,7 @@
 <link rel="stylesheet" href="{{ asset('assets/css/datatable_responsive.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/inline_editing.css') }}">
 <link rel="stylesheet" href="{{ asset('assets/css/student_list_modern.css') }}">
-<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script src="{{ asset('assets/js/xlsx.full.min.js') }}"></script>
 @endsection
 
 @section('content')

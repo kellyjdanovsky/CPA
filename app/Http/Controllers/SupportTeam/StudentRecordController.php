@@ -74,7 +74,10 @@ class StudentRecordController extends Controller
        $data['code'] = strtoupper(Str::random(10));
        $data['password'] = Hash::make('student');
        $data['photo'] = Qs::getDefaultUserImage();
-       $data['status'] = $req->status;
+       $data['status'] = $req->status ?? 'Normal';
+       $data['student_type'] = $req->student_type ?? 'Nouveau';
+       $data['academic_status'] = $req->academic_status ?? 'Passant';
+       $data['religion'] = $req->religion;
        $data['nom_p'] = $req->nom_p;
        $data['prof_p'] = $req->prof_p;
        $data['nom_m'] = $req->nom_m;
@@ -130,6 +133,26 @@ class StudentRecordController extends Controller
         }
 
         return view('pages.support_team.students.print_attendance_sheet', $data);
+    }
+
+    /**
+     * Imprimer les cartes scolaires par classe (8 cartes / page A4)
+     */
+    public function printIdCards($class_id, $section_id = null)
+    {
+        $data['my_class'] = $mc = $this->my_class->getMC(['id' => $class_id])->first();
+        if (!$mc) {
+            return Qs::goWithDanger();
+        }
+
+        if ($section_id) {
+            $data['section'] = $this->my_class->findSection($section_id);
+            $data['students'] = $this->student->getRecord(['my_class_id' => $class_id, 'section_id' => $section_id])->get();
+        } else {
+            $data['students'] = $this->student->findStudentsByClass($class_id);
+        }
+
+        return view('pages.support_team.students.id_cards', $data);
     }
 
     public function listAll()
@@ -207,6 +230,23 @@ class StudentRecordController extends Controller
             }
             $data['students_by_religion'][$rel] = max(0, $rCount);
         }
+
+        // Totaux globaux détaillés
+        $data['total_boys'] = $data['all_students']->where('user.gender', 'Male')->count();
+        $data['total_girls'] = $data['all_students']->where('user.gender', 'Female')->count();
+        $data['total_nouveaux'] = $data['all_students']->filter(fn($s) => $s->user && ($s->user->student_type === 'Nouveau' || is_null($s->user->student_type)))->count();
+        $data['total_anciens'] = $data['all_students']->filter(fn($s) => $s->user && $s->user->student_type === 'Ancien')->count();
+        $data['total_passants'] = $data['all_students']->filter(fn($s) => $s->user && ($s->user->academic_status === 'Passant' || is_null($s->user->academic_status)))->count();
+        $data['total_redoublants'] = $data['all_students']->filter(fn($s) => $s->user && $s->user->academic_status === 'Redoublant')->count();
+        
+        $totAge = 0; $totAgeCount = 0;
+        foreach($data['all_students'] as $st) {
+            if ($st->user && $st->user->dob) {
+                $totAge += Qs::calculateAge($st->user->dob);
+                $totAgeCount++;
+            }
+        }
+        $data['avg_school_age'] = $totAgeCount > 0 ? round($totAge / $totAgeCount, 1) : '-';
 
         return view('pages.support_team.students.list_all', $data);
     }

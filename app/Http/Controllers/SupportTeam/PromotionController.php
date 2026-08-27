@@ -67,6 +67,14 @@ class PromotionController extends Controller
             $p = $req->$p;
 
             if($p === 'P'){ // Réinscrire (Promouvoir) - Nouvelle classe dans la session suivante
+                // Mettre à jour automatiquement l'utilisateur en 'Ancien' et 'Passant'
+                if($st->user) {
+                    $st->user->update([
+                        'student_type' => 'Ancien',
+                        'academic_status' => 'Passant'
+                    ]);
+                }
+
                 // Vérifier si un enregistrement existe déjà pour cet élève dans la nouvelle session
                 $existing_record = $this->student->getRecordForSession([
                     'user_id' => $st->user_id
@@ -79,7 +87,7 @@ class PromotionController extends Controller
                         'my_class_id' => $tc,
                         'section_id' => $ts,
                         'session' => $ny,
-                        'adm_no' => $this->generateAdmissionNumber($ny),
+                        'adm_no' => $st->adm_no ?: $this->generateAdmissionNumber($ny),
                         'my_parent_id' => $st->my_parent_id,
                         'dorm_id' => $st->dorm_id,
                         'dorm_room_no' => $st->dorm_room_no,
@@ -93,6 +101,14 @@ class PromotionController extends Controller
             }
 
             if($p === 'D'){ // Redoubler - Même classe dans la session suivante
+                // Mettre à jour automatiquement l'utilisateur en 'Ancien' et 'Redoublant'
+                if($st->user) {
+                    $st->user->update([
+                        'student_type' => 'Ancien',
+                        'academic_status' => 'Redoublant'
+                    ]);
+                }
+
                 // Vérifier si un enregistrement existe déjà pour cet élève dans la nouvelle session
                 $existing_record = $this->student->getRecordForSession([
                     'user_id' => $st->user_id
@@ -105,7 +121,7 @@ class PromotionController extends Controller
                         'my_class_id' => $fc, // Même classe
                         'section_id' => $fs,  // Même section
                         'session' => $ny,
-                        'adm_no' => $this->generateAdmissionNumber($ny),
+                        'adm_no' => $st->adm_no ?: $this->generateAdmissionNumber($ny),
                         'my_parent_id' => $st->my_parent_id,
                         'dorm_id' => $st->dorm_id,
                         'dorm_room_no' => $st->dorm_room_no,
@@ -119,6 +135,12 @@ class PromotionController extends Controller
             }
 
             if($p === 'G'){ // Quitter (Diplômé) - Marquer comme diplômé dans la session actuelle
+                if($st->user) {
+                    $st->user->update([
+                        'student_type' => 'Ancien'
+                    ]);
+                }
+
                 // Mettre à jour l'enregistrement actuel comme diplômé
                 $d = [
                     'grad' => 1,

@@ -1,7 +1,11 @@
 <link rel="icon" href="{{ asset('global_assets/images/favicon.png') }}">
 
 {{--<!-- Global stylesheets -->--}}
-    <link href="https://fonts.googleapis.com/css?family=Roboto:400,300,100,500,700,900" rel="stylesheet" type="text/css">
+    <style>
+        body, html, input, button, select, textarea {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+        }
+    </style>
     <link href="{{ asset('global_assets/css/icons/icomoon/styles.css') }}" rel="stylesheet" type="text/css">
     <link href=" {{ asset('assets/css/bootstrap.min.css') }}" rel="stylesheet" type="text/css">
     <link href=" {{ asset('assets/css/bootstrap_limitless.min.css') }}" rel="stylesheet" type="text/css">
@@ -67,8 +71,7 @@
 {{-- Phase 3 Features - Analytics & Charts --}}
 <link href=" {{ asset('assets/css/phase3-analytics.css') }}" rel="stylesheet" type="text/css">
 
-{{-- Google Fonts pour un design moderne --}}
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+{{-- Page-specific styles --}}
 
 {{-- Page-specific styles --}}
 @yield('page_styles')

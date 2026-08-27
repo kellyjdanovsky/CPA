@@ -1,485 +1,298 @@
-{{-- This file contains the actual payment notifications content --}}
-{{-- It can be included in both PDF generation and preview --}}
+{{-- Template officiel d'Avis des Impayés / Fampahafantarana Fandoavam-bola --}}
+{{-- Calibrage strict A4 : 10 avis par page (2 colonnes x 5 rangées) sans coupure de mots --}}
 
 @php
     $studentsPerPage = 10;
     $totalStudents = count($unpaid_students);
-    $totalPages = ceil($totalStudents / $studentsPerPage);
-    $currentPage = 1;
+    $totalPages = max(1, ceil($totalStudents / $studentsPerPage));
 @endphp
 
 @if(!isset($is_preview) && !isset($is_pdf))
-    <!DOCTYPE html>
-    <html lang="fr">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Avis de Paiement - {{ $class_name }}</title>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avis_Impayes_{{ str_replace(' ', '_', $class_name) }}</title>
 @endif
 
 <style>
-    @if(!isset($is_preview) && !isset($is_pdf))
-        @page {
-            margin: 3mm;
-            size: A4 portrait;
-        }
-    @endif
-    
+    @page {
+        size: A4 portrait;
+        margin: 4mm 4mm;
+    }
+
     * {
         box-sizing: border-box;
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        hyphens: none !important;
+        -webkit-hyphens: none !important;
+        word-break: normal !important;
+        overflow-wrap: normal !important;
     }
-    
-    .notifications-body {
-        font-family: Arial, sans-serif;
-        font-size: 6.5px;
+
+    body, .notifications-body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
         margin: 0;
-        padding: @if(isset($is_preview)) 3mm @elseif(isset($is_pdf)) 0 @else 0 @endif;
-        line-height: 1.15;
-        color: #000;
-        background: white;
-    }
-    
-    .page {
-        width: @if(isset($is_preview)) 210mm @elseif(isset($is_pdf)) 210mm @else 204mm @endif;
-        height: @if(isset($is_preview)) 297mm @elseif(isset($is_pdf)) 297mm @else 291mm @endif;
-        position: relative;
-        margin: 0 @if(isset($is_preview)) auto @elseif(isset($is_pdf)) 0 @else 0 @endif;
-        padding: @if(isset($is_preview)) 3mm @elseif(isset($is_pdf)) 2mm @else 2mm @endif;
-        @if(isset($is_preview))
-        margin-bottom: 20px;
-        border: 1px dashed #ccc;
-        background: white;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-        @endif
-        overflow: hidden;
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-template-rows: repeat(5, 1fr);
-        gap: 2mm;
-    }
-    
-    .notification {
-        width: 100%;
-        height: 100%;
-        border: 2px solid #000;
-        border-radius: 2mm;
-        padding: 2mm;
+        padding: 0;
         background: #fff;
-        font-size: 6.5px;
-        line-height: 1.15;
         color: #000;
+    }
+
+    .page-a4 {
+        width: 202mm;
+        height: 288mm;
+        margin: 0 auto;
+        padding: 1mm;
+        display: grid;
+        grid-template-columns: repeat(2, 98.5mm);
+        grid-template-rows: repeat(5, 56mm);
+        gap: 2.5mm;
+        page-break-inside: avoid;
+        page-break-after: always;
         overflow: hidden;
+    }
+
+    .page-a4:last-child {
+        page-break-after: avoid;
+    }
+
+    .notice-card {
+        width: 98.5mm;
+        height: 56mm;
+        border: 1.2px dashed #475569;
+        border-radius: 2mm;
+        padding: 1.8mm 2mm;
+        background: #ffffff;
         display: flex;
         flex-direction: column;
+        justify-content: space-between;
+        overflow: hidden;
         position: relative;
-        box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        page-break-inside: avoid;
+        break-inside: avoid;
     }
-    
-    /* State styles (case by case) */
-    .notification.is-overdue { border-color: #b00020; border-width: 2px; }
-    .notification.is-due { border-color: #ff8f00; border-width: 2px; }
-    .notification.is-ok { border-color: #2e7d32; border-width: 2px; }
 
-    .header {
-        text-align: center;
-        border-bottom: 1px solid #000;
-        padding: 0.3mm;
-        margin-bottom: 0.3mm;
-        background: #fff;
-        position: relative;
-        height: 10mm;
+    .notice-card.is-overdue {
+        border-color: #b91c1c;
+        background: #fffafa;
+    }
+
+    /* En-tête */
+    .notice-header {
         display: flex;
         align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
+        border-bottom: 1px solid #1e293b;
+        padding-bottom: 1mm;
+        margin-bottom: 1mm;
     }
-    
-    .school-logo {
-        width: 7mm;
-        height: 7mm;
-        position: absolute;
-        left: 0.3mm;
-        top: 50%;
-        transform: translateY(-50%);
+
+    .notice-logo {
+        width: 8.5mm;
+        height: 8.5mm;
         object-fit: contain;
-        border-radius: 0.5mm;
+        margin-right: 1.5mm;
     }
-    
-    .school-info {
+
+    .notice-school-meta {
+        flex: 1;
         text-align: center;
-        font-weight: 600;
-        font-size: 4px;
-        line-height: 1.05;
-        color: #000;
-        margin: 0;
-        padding-left: 7.5mm;
-        overflow: hidden;
+        line-height: 1.1;
     }
-    
-    .school-name {
-        font-size: 4.5px;
-        font-weight: 700;
-        color: #000;
-        margin-bottom: 0.15mm;
-        text-transform: uppercase;
-        letter-spacing: 0.05px;
-        white-space: nowrap;
-    }
-    
-    .notification-title {
-        text-align: center;
-        font-weight: 800;
-        font-size: 6.5px;
-        margin: 0.3mm 0;
-        color: #000;
-        padding: 0.8mm;
+
+    .school-title {
+        font-size: 5.8pt;
+        font-weight: 900;
+        color: #1e3a8a;
         text-transform: uppercase;
         letter-spacing: 0.1px;
-        height: auto;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        flex-shrink: 0;
-        border: 1px solid #000;
-        background: #f0f0f0;
-        border-radius: 0.8mm;
+        white-space: nowrap;
     }
-    
-    .content {
-        padding: 0;
-        margin: 0;
+
+    .school-sub {
+        font-size: 4.6pt;
+        color: #475569;
+        white-space: nowrap;
+    }
+
+    /* Bannière Titre */
+    .notice-banner {
+        background: #f1f5f9;
+        border: 0.8px solid #cbd5e1;
+        border-radius: 1mm;
+        text-align: center;
+        font-size: 5.5pt;
+        font-weight: 800;
+        color: #0f172a;
+        padding: 0.6mm;
+        text-transform: uppercase;
+        margin-bottom: 1mm;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .notice-banner.overdue {
+        background: #fee2e2;
+        border-color: #f87171;
+        color: #991b1b;
+    }
+
+    /* Informations Élève & Motif */
+    .notice-body {
+        flex: 1;
         display: flex;
         flex-direction: column;
-        overflow: hidden;
-        flex: 1;
-        gap: 0.6mm;
-        padding-bottom: 10.5mm;
+        justify-content: space-between;
+        gap: 0.8mm;
     }
-    
-    .student-info {
-        padding: 0.8mm;
-        flex-shrink: 0;
-        background: #fafafa;
-        border-radius: 0.5mm;
-        overflow: hidden;
-    }
-    
-    .recipient {
-        font-size: 4.5px;
-        font-weight: 600;
-        margin-bottom: 0.2mm;
-    }
-    
-    .student-name {
-        font-weight: 700;
-        color: #000;
-        font-size: 6.5px;
-        margin-bottom: 0.2mm;
-        text-transform: none;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        max-width: 100%;
-    }
-    
-    .class-info {
-        font-size: 5.5px;
-        color: #000;
-        font-weight: 600;
-        margin: 0;
-        white-space: nowrap;
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
-    
-    .payment-reason-section {
-        padding: 0.8mm;
-        flex-shrink: 0;
-        border: 1px solid #000;
-        background: #fff3e0;
-        border-radius: 0.8mm;
-        overflow: hidden;
-        max-height: 9mm;
-    }
-    
-    .reason-title {
-        font-size: 5.5px;
-        color: #000;
-        font-weight: 700;
-        margin-bottom: 0.2mm;
-    }
-    
-    .reason-content {
-        font-size: 5px;
-        color: #000;
-        font-weight: 600;
-        font-style: italic;
-        white-space: normal;
-        word-wrap: break-word;
-        overflow: hidden;
+
+    .student-row {
+        background: #f8fafc;
+        border: 0.5px solid #e2e8f0;
+        border-radius: 1mm;
+        padding: 0.8mm 1.2mm;
         line-height: 1.15;
-        max-height: 7mm;
     }
-    
-    .amounts-section {
-        background: #fff;
-        border: 1px solid #000;
-        padding: 0.8mm;
-        flex: 1;
-        min-height: 0;
+
+    .parent-dest {
+        font-size: 4.8pt;
+        color: #64748b;
+        font-weight: 600;
+    }
+
+    .student-fullname {
+        font-size: 6.8pt;
+        font-weight: 900;
+        color: #0f172a;
+        text-transform: uppercase;
+        white-space: nowrap;
         overflow: hidden;
-        border-radius: 0.8mm;
+        text-overflow: ellipsis;
     }
-    
-    .amount-line {
+
+    .student-meta {
+        font-size: 5.2pt;
+        font-weight: 700;
+        color: #1e3a8a;
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 0.3mm;
-        font-size: 5.5px;
-        line-height: 1.15;
-        padding: 0.2mm 0;
     }
-    
-    .amount-line-highlight {
+
+    .unpaid-reason {
+        font-size: 5pt;
+        line-height: 1.2;
+        background: #fffbeb;
+        border: 0.5px solid #fde68a;
+        border-radius: 1mm;
+        padding: 0.6mm 1.2mm;
+        color: #92400e;
+    }
+
+    .unpaid-reason strong {
+        color: #78350f;
+    }
+
+    /* Grille des Montants */
+    .amounts-grid {
+        background: #ffffff;
+        border: 0.8px solid #cbd5e1;
+        border-radius: 1mm;
+        padding: 0.6mm 1.2mm;
+        font-size: 5.2pt;
+        line-height: 1.25;
+    }
+
+    .amt-row {
         display: flex;
         justify-content: space-between;
         align-items: center;
+    }
+
+    .amt-row.highlight {
+        border-top: 0.8px solid #cbd5e1;
+        margin-top: 0.4mm;
+        padding-top: 0.4mm;
+        font-size: 6.5pt;
+        font-weight: 900;
+        color: #b91c1c;
+    }
+
+    /* Pied de Carte */
+    .notice-footer {
+        border-top: 0.8px solid #e2e8f0;
+        padding-top: 0.6mm;
         margin-top: 0.6mm;
-        padding: 0.8mm;
-        background: #fff3e0;
-        border: 1px solid #000;
-        font-size: 6px;
-        font-weight: 800;
-        border-radius: 0.8mm;
-    }
-    
-    .amount-label {
-        color: #000;
-        font-weight: 600;
-        flex: 1;
-        margin-right: 0.8mm;
-    }
-    
-    .amount-value {
-        color: #000;
-        font-weight: 700;
-        white-space: nowrap;
-        flex-shrink: 0;
-    }
-    
-    .amount-label-highlight {
-        color: #000;
-        font-weight: 800;
-        flex: 1;
-        margin-right: 0.8mm;
-    }
-    
-    .amount-value-highlight {
-        color: #000;
-        font-weight: 800;
-        font-size: 6.5px;
-        white-space: nowrap;
-        flex-shrink: 0;
-    }
-    
-    .footer-section {
-        position: absolute;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: #fff;
-        border-top: 1px solid #000;
-        margin: 0 -2mm -2mm -2mm;
-        padding: 0.5mm 1.5mm;
-        height: 10mm;
-        flex-shrink: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .deadline-info {
-        text-align: center;
-        font-size: 5px;
-        color: #000;
-        font-weight: 700;
-        margin-bottom: 0.2mm;
-        line-height: 1.1;
-    }
-
-    .deadline-date {
-        font-size: 6px;
-        font-weight: 800;
-        color: #000;
-        background: #fff;
-        padding: 0.2mm 0.8mm;
-        border: 1px solid #000;
-        border-radius: 0.4mm;
-        display: inline-block;
-        margin-top: 0.2mm;
-    }
-
-    .status-info {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        font-size: 4.5px;
-        color: #000;
-        font-weight: 600;
-        margin-top: 0.2mm;
-        width: 100%;
-    }
-
-    .status-chip {
-        border: 1px solid #000;
-        padding: 0.2mm 0.8mm;
-        border-radius: 6px;
-        font-weight: 700;
-        background: #f5f5f5;
-        font-size: 4.5px;
-    }
-    
-    .thanks {
-        font-style: italic;
-        text-align: center;
-        font-size: 4px;
-        margin: 0.2mm 0;
+        align-items: flex-end;
+        font-size: 4.8pt;
         line-height: 1.1;
     }
-    
-    @if(!isset($is_preview))
-        .page-break {
-            page-break-before: always;
-        }
-    @else
-        .page-break {
-            margin-top: 20px;
-        }
-        
-        /* Print optimizations */
-        @media print {
-            @page {
-                size: A4 portrait;
-                margin: 3mm;
-            }
-            
-            * {
-                -webkit-print-color-adjust: exact !important;
-                print-color-adjust: exact !important;
-            }
-            
-            body, html {
-                width: 100% !important;
-                height: auto !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                background: white !important;
-                color: black !important;
-                font-family: Arial, sans-serif !important;
-                font-size: 6.5px !important;
-                line-height: 1.15 !important;
-            }
-            
-            .notifications-body { 
-                display: block !important;
-                width: 100% !important;
-                height: auto !important;
-                margin: 0 !important;
-                padding: 0 !important;
-                background: white !important;
-                color: black !important;
-                overflow: visible !important;
-            }
-            
-            .page {
-                display: grid !important;
-                grid-template-columns: 1fr 1fr !important;
-                grid-template-rows: repeat(5, 1fr) !important;
-                gap: 2mm !important;
-                width: 204mm !important;
-                height: 287mm !important;
-                margin: 0 auto !important;
-                padding: 2mm !important;
-                page-break-after: always !important;
-                page-break-inside: avoid !important;
-                background: white !important;
-                overflow: visible !important;
-            }
-            
-            .page:last-child {
-                page-break-after: avoid !important;
-            }
-            
-            .notification {
-                width: 100% !important;
-                height: 100% !important;
-                background: white !important;
-                color: black !important;
-                border: 2px solid black !important;
-                padding: 2mm !important;
-                position: relative !important;
-                page-break-inside: avoid !important;
-                font-size: 6.5px !important;
-                line-height: 1.15 !important;
-                overflow: hidden !important;
-                box-sizing: border-box !important;
-                break-inside: avoid !important;
-                display: flex !important;
-                flex-direction: column !important;
-            }
-            
-            .header {
-                border-bottom: 1px solid black !important;
-                height: 10mm !important;
-            }
-            
-            .notification-title {
-                border: 1px solid black !important;
-            }
-            
-            .content {
-                padding-bottom: 10.5mm !important;
-            }
-            
-            .footer-section {
-                height: 10mm !important;
-                border-top: 1px solid black !important;
-            }
-        }
-    @endif
-    
-    .empty {
-        border: 1px dashed #ccc;
-        background: #f9f9f9;
-        text-align: center;
-        color: #999;
-        font-size: 5px;
+
+    .deadline-badge {
+        background: #0f172a;
+        color: #ffffff;
+        font-weight: 800;
+        font-size: 5.2pt;
+        padding: 0.4mm 1.2mm;
+        border-radius: 0.8mm;
+        display: inline-block;
+    }
+
+    .thanks-msg {
+        font-style: italic;
+        color: #475569;
+        font-size: 4.5pt;
+    }
+
+    .cut-guide {
+        position: absolute;
+        top: 1mm;
+        right: 1mm;
+        font-size: 5pt;
+        color: #94a3b8;
+    }
+
+    .empty-card {
+        width: 98.5mm;
+        height: 56mm;
+        border: 1px dashed #e2e8f0;
+        border-radius: 2mm;
         display: flex;
         align-items: center;
         justify-content: center;
+        color: #cbd5e1;
+        font-size: 6pt;
+        font-style: italic;
+    }
+
+    @media print {
+        .no-print-bar {
+            display: none !important;
+        }
+        body {
+            margin: 0 !important;
+            padding: 0 !important;
+        }
     }
 </style>
 
 @if(!isset($is_preview) && !isset($is_pdf))
-    </head>
-    <body class="notifications-body">
+</head>
+<body class="notifications-body">
 @else
-    <div class="notifications-body">
+<div class="notifications-body">
 @endif
 
 @for ($page = 0; $page < $totalPages; $page++)
-    @if ($page > 0)
-        <div class="page-break"></div>
-    @endif
-    
-    <div class="page">
+    <div class="page-a4">
         @for ($i = 0; $i < $studentsPerPage; $i++)
             @php
                 $studentIndex = $page * $studentsPerPage + $i;
             @endphp
-            
+
             @if ($studentIndex < $totalStudents)
                 @php
                     $studentData = $unpaid_students[$studentIndex];
@@ -487,12 +300,9 @@
                     $status = $studentData['status'];
                     $amountDue = $studentData['amount_due'];
                     $amountPaid = $studentData['amount_paid'] ?? 0;
-                    $totalAmount = $studentData['total_amount'] ?? $amountDue + $amountPaid;
+                    $totalAmount = $studentData['total_amount'] ?? ($amountDue + $amountPaid);
                     $paymentTitles = $studentData['payment_titles'];
-                @endphp
-                
-                @php
-                    // Determine card state classes per student
+
                     $isOverdue = false;
                     try {
                         $deadlineTs = strtotime($payment_deadline);
@@ -501,102 +311,77 @@
                     } catch (\Exception $e) {
                         $isOverdue = false;
                     }
-                    $cardClass = $isOverdue ? 'is-overdue' : (($amountDue ?? 0) > 0 ? 'is-due' : 'is-ok');
                 @endphp
-                <div class="notification {{ $cardClass }}">
-                    <div class="header">
-                        @php
-                            $logoPath = public_path('images/logo_avar.png');
-                            $logoExists = file_exists($logoPath);
-                            // For PDF generation, use absolute path; for preview, use asset URL
-                            if (isset($is_preview)) {
-                                $logoSrc = asset('images/logo_avar.png');
-                            } else {
-                                $logoSrc = $logoPath;
-                            }
-                        @endphp
-                        
-                        @if($logoExists)
-                            <img src="{{ $logoSrc }}" alt="Logo AVAR" class="school-logo">
-                        @else
-                            <div class="school-logo" style="background-color: #2c5aa0; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 3.5px; border-radius: 0.5mm;">
-                                AVAR
-                            </div>
-                        @endif
-                        
-                        <div class="school-info">
-                            <div class="school-name">COLLEGE PRIVE ADVENTISTE AVARATETEZANA</div>
-                            <div style="font-size: 3.5px;">AMPITATAFIKA ANTANANARIVO MADAGASCAR</div>
-                            <div style="font-size: 3.5px;">Tél: 038 34 921 09</div>
+
+                <div class="notice-card {{ $isOverdue ? 'is-overdue' : '' }}">
+                    <span class="cut-guide">✂️</span>
+
+                    <!-- En-tête -->
+                    <div class="notice-header">
+                        <img src="{{ asset('global_assets/images/favicon.png') }}" class="notice-logo" alt="Logo">
+                        <div class="notice-school-meta">
+                            <div class="school-title">{{ strtoupper(Qs::getSetting('system_name') ?? 'COLLÈGE PRIVÉ ADVENTISTE AVARATETEZANA') }}</div>
+                            <div class="school-sub">Ampitatafika • Tél : 038 34 921 09 • Année {{ Qs::getCurrentSession() }}</div>
                         </div>
                     </div>
-                    
-                    <div class="notification-title">
-                        FAMPAHAFANTARANA FANDOAVAM-BOLA
+
+                    <!-- Bannière Titre -->
+                    <div class="notice-banner {{ $isOverdue ? 'overdue' : '' }}">
+                        <span>FAMPAHAFANTARANA FANDOAVAM-BOLA</span>
+                        <span>{{ $isOverdue ? 'TARA (EN RETARD)' : 'AVIS D\'IMPAYÉ' }}</span>
                     </div>
-                    
-                    <div class="content">
-                        <div class="student-info">
-                            <div class="recipient">Ho an'ny ray aman-drenin'i</div>
-                            <div class="student-name">{{ $student->user->name }}</div>
-                            <div class="class-info">{{ $class_name }}{{ $student->section ? ' ' . $student->section->name : '' }}</div>
-                            <div style="font-size: 3.5px; color: #000; font-weight: 500; margin-top: 0.3mm;">
-                                ID: {{ $student->user_id }} | Classe: {{ $student->my_class_id }}
+
+                    <!-- Corps de l'avis -->
+                    <div class="notice-body">
+                        <!-- Élève -->
+                        <div class="student-row">
+                            <div class="parent-dest">Ho an'ny Ray aman-drenin'i (Parent de) :</div>
+                            <div class="student-fullname">{{ $student->user->name }}</div>
+                            <div class="student-meta">
+                                <span>Classe : <strong>{{ $class_name }}{{ $student->section ? ' ' . $student->section->name : '' }}</strong></span>
+                                <span>Matricule : <strong>{{ $student->adm_no }}</strong></span>
                             </div>
                         </div>
-                        
-                        <div class="payment-reason-section">
-                            <div class="reason-title">Antony tsy voaloa:</div>
-                            <div class="reason-content">{{ $paymentTitles }}</div>
+
+                        <!-- Motif / Échéance -->
+                        <div class="unpaid-reason">
+                            <strong>Antony tsy voaloa (Motif) :</strong> {{ $paymentTitles ?: 'Saram-pianarana / Écolage' }}
                         </div>
-                        
-                        <div class="amounts-section">
-                            <div class="amount-line">
-                                <span class="amount-label">• Vola rehetra haloa:</span>
-                                <span class="amount-value">{{ number_format($totalAmount, 0, ',', ' ') }} Ar</span>
+
+                        <!-- Décompte Financier -->
+                        <div class="amounts-grid">
+                            <div class="amt-row">
+                                <span>• Totalin'ny sarany (Montant total) :</span>
+                                <strong>{{ number_format($totalAmount, 0, ',', ' ') }} Ar</strong>
                             </div>
                             @if($amountPaid > 0)
-                                <div class="amount-line">
-                                    <span class="amount-label">• Vola efa naloa:</span>
-                                    <span class="amount-value">{{ number_format($amountPaid, 0, ',', ' ') }} Ar</span>
-                                </div>
+                            <div class="amt-row" style="color: #15803d;">
+                                <span>• Vola efa naloa (Déjà payé) :</span>
+                                <strong>- {{ number_format($amountPaid, 0, ',', ' ') }} Ar</strong>
+                            </div>
                             @endif
-                            <div class="amount-line-highlight">
-                                <span class="amount-label-highlight">• Vola mbola haloa:</span>
-                                <span class="amount-value-highlight">{{ number_format($amountDue, 0, ',', ' ') }} Ar</span>
+                            <div class="amt-row highlight">
+                                <span>• VOLA MBOLA HALOA (RESTE À PAYER) :</span>
+                                <span>{{ number_format($amountDue, 0, ',', ' ') }} Ar</span>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="footer-section">
-                        <div class="deadline-info">
-                            Daty farany: <span class="deadline-date">{{ date('d/m/Y', strtotime($payment_deadline)) }}</span>
+
+                    <!-- Pied & Date Limite -->
+                    <div class="notice-footer">
+                        <div>
+                            <div>Daty farany fandoavana :</div>
+                            <div class="deadline-badge">{{ date('d/m/Y', strtotime($payment_deadline)) }}</div>
                         </div>
-                        
-                        <div class="thanks">
-                            misaotra amin'ny fiaraha-miasa
-                        </div>
-                        
-                        <div class="status-info">
-                            <span class="status-chip">
-                                @if($isOverdue)
-                                    Tara
-                                @elseif(($amountDue ?? 0) > 0)
-                                    Sisa
-                                @else
-                                    VITA
-                                @endif
-                            </span>
-                            <span>{{ date('d/m/y') }}</span>
+                        <div style="text-align: right;">
+                            <div class="thanks-msg">Misaotra amin'ny fiaraha-miasa</div>
+                            <div style="font-size: 4.5pt; color: #64748b;">Ny Mpitantana Caisse / Comptabilité</div>
                         </div>
                     </div>
                 </div>
             @else
-                {{-- Empty notification box for consistent grid layout --}}
-                <div class="notification empty">
-                    <div style="display: flex; align-items: center; justify-content: center; height: 100%;">
-                        Aucun élève
-                    </div>
+                <div class="empty-card">
+                    Emplacement libre
                 </div>
             @endif
         @endfor
@@ -604,8 +389,8 @@
 @endfor
 
 @if(!isset($is_preview) && !isset($is_pdf))
-    </body>
-    </html>
+</body>
+</html>
 @else
-    </div>
+</div>
 @endif
