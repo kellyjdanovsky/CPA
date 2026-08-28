@@ -163,6 +163,102 @@ if ($usertype == 'teacher') {
                     </li>
                 @endif
 
+                {{-- Gestion des Présences --}}
+                @if(Qs::userIsTeamSAT())
+                    <li class="nav-item nav-item-submenu {{ Route::is('attendance.*') ? 'nav-item-expanded nav-item-open' : '' }}">
+                        <a href="#" class="nav-link {{ Route::is('attendance.*') ? 'active' : '' }}">
+                            <i class="icon-clipboard2"></i> <span>Présences</span>
+                        </a>
+                        <ul class="nav nav-group-sub">
+                            <li class="nav-item">
+                                <a href="{{ route('attendance.index') }}" class="nav-link {{ Route::is('attendance.index') ? 'active' : '' }}">
+                                    <i class="icon-checkmark3"></i> Faire l'appel
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('attendance.monthly-report') }}" class="nav-link {{ Route::is('attendance.monthly-report') ? 'active' : '' }}">
+                                    <i class="icon-calendar3"></i> Rapport Mensuel
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
+
+                {{-- Discipline & Comportement --}}
+                @if(Qs::userIsTeamSAT())
+                    <li class="nav-item nav-item-submenu {{ Route::is('discipline.*') ? 'nav-item-expanded nav-item-open' : '' }}">
+                        <a href="#" class="nav-link {{ Route::is('discipline.*') ? 'active' : '' }}">
+                            <i class="icon-balance"></i> <span>Discipline</span>
+                        </a>
+                        <ul class="nav nav-group-sub">
+                            <li class="nav-item">
+                                <a href="{{ route('discipline.index') }}" class="nav-link {{ Route::is('discipline.index') ? 'active' : '' }}">
+                                    <i class="icon-list-unordered"></i> Registre
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('discipline.create') }}" class="nav-link {{ Route::is('discipline.create') ? 'active' : '' }}">
+                                    <i class="icon-plus-circle2"></i> Enregistrer
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('discipline.class_report') }}" class="nav-link {{ Route::is('discipline.class_report') ? 'active' : '' }}">
+                                    <i class="icon-stats-bars"></i> Rapport par Classe
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
+
+                {{-- Calendrier Scolaire --}}
+                @if(Qs::userIsTeamSAT())
+                    <li class="nav-item nav-item-submenu {{ Route::is('calendar.*') ? 'nav-item-expanded nav-item-open' : '' }}">
+                        <a href="#" class="nav-link {{ Route::is('calendar.*') ? 'active' : '' }}">
+                            <i class="icon-calendar52"></i> <span>Calendrier</span>
+                        </a>
+                        <ul class="nav nav-group-sub">
+                            <li class="nav-item">
+                                <a href="{{ route('calendar.index') }}" class="nav-link {{ Route::is('calendar.index') ? 'active' : '' }}">
+                                    <i class="icon-calendar3"></i> Vue Mensuelle
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('calendar.annual_view') }}" class="nav-link {{ Route::is('calendar.annual_view') ? 'active' : '' }}">
+                                    <i class="icon-calendar22"></i> Vue Annuelle
+                                </a>
+                            </li>
+                            @if(Qs::userIsTeamSA())
+                            <li class="nav-item">
+                                <a href="{{ route('calendar.create') }}" class="nav-link {{ Route::is('calendar.create') ? 'active' : '' }}">
+                                    <i class="icon-plus-circle2"></i> Ajouter Événement
+                                </a>
+                            </li>
+                            @endif
+                        </ul>
+                    </li>
+                @endif
+
+                {{-- Certificats & Attestations --}}
+                @if(Qs::userIsTeamSA())
+                    <li class="nav-item nav-item-submenu {{ Route::is('certificates.*') ? 'nav-item-expanded nav-item-open' : '' }}">
+                        <a href="#" class="nav-link {{ Route::is('certificates.*') ? 'active' : '' }}">
+                            <i class="icon-file-text2"></i> <span>Certificats</span>
+                        </a>
+                        <ul class="nav nav-group-sub">
+                            <li class="nav-item">
+                                <a href="{{ route('certificates.index') }}" class="nav-link {{ Route::is('certificates.index') ? 'active' : '' }}">
+                                    <i class="icon-list-unordered"></i> Registre
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('certificates.create') }}" class="nav-link {{ Route::is('certificates.create') ? 'active' : '' }}">
+                                    <i class="icon-plus-circle2"></i> Générer
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
+
                 @if(Qs::userIsTeamSA())
                     {{--Manage Users--}}
                     <li class="nav-item">

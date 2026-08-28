@@ -46,20 +46,13 @@ class HomeController extends Controller
     {
         $d = [];
         if(Qs::userIsTeamSAT()){
-            // Utiliser la session des settings comme source principale (cohérence avec le reste du système)
             $d['current_session'] = Qs::getCurrentSession();
-
-            // Récupérer tous les utilisateurs
             $d['users'] = $this->user->getAll();
-
-            // Récupérer toutes les classes
             $d['classes'] = $this->my_class->all();
             $d['total_classes'] = $d['classes']->count();
 
-            // Calculer le nombre d'élèves actifs pour la session courante
             $d['class_student_counts'] = [];
             $total_active_students = 0;
-
             foreach($d['classes'] as $class) {
                 $class_count = $this->student->getRecord([
                     'my_class_id' => $class->id,
@@ -68,17 +61,67 @@ class HomeController extends Controller
                 $d['class_student_counts'][$class->id] = $class_count;
                 $total_active_students += $class_count;
             }
-
             $d['total_active_students'] = $total_active_students;
-
-            // Calculer le nombre d'enseignants actifs
             $d['total_teachers'] = $d['users']->where('user_type', 'teacher')->count();
-
-            // Calculer le taux de réussite basé sur les décisions des exam_records
             $d['success_rate'] = $this->calculateSuccessRate($d['current_session']);
-
-            // Calculer les statistiques de promotion/redoublement
             $d['promotion_stats'] = $this->calculatePromotionStats($d['current_session']);
+
+            // Financial KPIs
+            $current_year = $d['current_session'];
+            $d['total_receipts_month'] = \App\Models\Receipt::whereMonth('created_at', now()->month)->whereYear('created_at', now()->year)->sum('amt_paid');
+            $d['total_decaissements_month'] = \App\Models\Decaissement::whereMonth('date_decaissement', now()->month)->whereYear('date_decaissement', now()->year)->where('statut', 'PAYE')->sum('montant');
+            
+            $total_unpaid = \App\Models\PaymentRecord::where('year', $current_year)->where('paid', 0)->sum('balance');
+            $total_paid = \App\Models\PaymentRecord::where('year', $current_year)->sum('amt_paid');
+            $total_expected = \App\Models\Payment::where('year', $current_year)->sum('amount') * $total_active_students; // approximate
+            $d['recovery_rate'] = $total_expected > 0 ? round(($total_paid / $total_expected) * 100, 1) : 0;
+            
+            // Repartition des paiements pour doughnut chart
+            $d['payment_status'] = [
+                'paye' => \App\Models\PaymentRecord::where('year', $current_year)->where('paid', 1)->count(),
+                'partiel' => \App\Models\PaymentRecord::where('year', $current_year)->where('paid', 0)->where('amt_paid', '>', 0)->count(),
+                'impaye' => \App\Models\PaymentRecord::where('year', $current_year)->where('paid', 0)->where('amt_paid', 0)->count(),
+            ];
+
+            // Top 10 unpaid students
+            $d['top_unpaid'] = \App\Models\PaymentRecord::where('year', $current_year)->where('paid', 0)->where('balance', '>', 0)
+                ->select('student_id', \Illuminate\Support\Facades\DB::raw('SUM(balance) as total_balance'))
+                ->groupBy('student_id')->orderByDesc('total_balance')->limit(10)
+                ->with('student.my_class')->get();
+
+            // Monthly revenue chart data (last 12 months)
+            $monthly_revenue = [];
+            for ($i = 11; $i >= 0; $i--) {
+                $date = now()->subMonths($i);
+                $monthly_revenue[] = [
+                    'month' => $date->format('M Y'),
+                    'recettes' => \App\Models\Receipt::whereMonth('created_at', $date->month)->whereYear('created_at', $date->year)->sum('amt_paid'),
+                    'depenses' => \App\Models\Decaissement::whereMonth('date_decaissement', $date->month)->whereYear('date_decaissement', $date->year)->where('statut', 'PAYE')->sum('montant'),
+                ];
+            }
+            $d['monthly_revenue'] = $monthly_revenue;
+
+            // Alerts
+            $backupDir = storage_path('app/backups');
+            $d['pending_backups'] = true;
+            if (\Illuminate\Support\Facades\File::exists($backupDir)) {
+                $files = \Illuminate\Support\Facades\File::files($backupDir);
+                foreach ($files as $file) {
+                    if (\Carbon\Carbon::createFromTimestamp(\Illuminate\Support\Facades\File::lastModified($file))->diffInDays(now()) < 7) {
+                        $d['pending_backups'] = false;
+                        break;
+                    }
+                }
+            }
+
+            $d['unpaid_count_critical'] = \App\Models\PaymentRecord::where('year', $current_year)->where('paid', 0)->where('balance', '>', 0)->count();
+            
+            $currentMonth = now()->month;
+            $d['term_ending'] = in_array($currentMonth, [5, 6, 11, 12]) && now()->day > 15;
+
+            // Recent activity
+            $d['recent_receipts'] = \App\Models\Receipt::latest()->limit(10)->with('pr.student')->get();
+            $d['recent_notifications'] = \App\Models\InternalNotification::latest()->limit(5)->get();
         }
 
         return view('pages.support_team.dashboard', $d);

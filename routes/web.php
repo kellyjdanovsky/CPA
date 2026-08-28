@@ -395,3 +395,9 @@ Route::group(['namespace' => 'MyParent','middleware' => 'my_parent',], function(
     Route::get('/my_children', 'MyController@children')->name('my_children');
 
 });
+
+require __DIR__.'/notification_routes.php';
+require __DIR__.'/attendance_routes.php';
+require __DIR__.'/certificate_routes.php';
+require __DIR__.'/discipline_calendar_routes.php';
+

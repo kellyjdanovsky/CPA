@@ -2,790 +2,471 @@
 @section('page_title', 'Tableau de Bord')
 @section('content')
 
-    <!-- Modern Dashboard Header -->
-    <div class="modern-dashboard-header mb-5">
-        <div class="header-background">
-            <div class="header-overlay"></div>
-            <div class="floating-shapes">
-                <div class="shape shape-1"></div>
-                <div class="shape shape-2"></div>
-                <div class="shape shape-3"></div>
+@php
+    $userName = Auth::user()->name;
+    $currentSession = Qs::getCurrentSession();
+@endphp
+
+<!-- Welcome Banner -->
+<div class="card mb-4 bg-primary text-white shadow-sm" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);">
+    <div class="card-body py-4">
+        <div class="row align-items-center">
+            <div class="col-md-8">
+                <h2 class="mb-1 font-weight-bold">Bienvenue, {{ $userName }} 👋</h2>
+                <p class="mb-0 text-white-50">Session en cours : {{ $currentSession }} | Date : {{ \App\Helpers\DateHelper::formatFrenchDate(now()->format('Y-m-d')) }}</p>
             </div>
-        </div>
-        <div class="header-content">
-            <div class="container-fluid">
-                <div class="row align-items-center">
-                    <div class="col-md-8">
-                        <div class="welcome-section">
-                            <div class="user-greeting">
-                                <h1 class="greeting-text">Bonjour, {{ Auth::user()->name }} 👋</h1>
-                                <p class="greeting-subtitle">Voici un aperçu de votre établissement aujourd'hui</p>
-                            </div>
-                            <div class="school-identity">
-                                <div class="school-logo-modern">
-                                    <i class="icon-graduation2"></i>
-                                </div>
-                                <div class="school-info">
-                                    <h2 class="school-name">Collège Privé Adventiste Avaratetezana</h2>
-                                    <div class="school-meta">
-                                        <span class="meta-item">
-                                            <i class="icon-calendar"></i>
-                                            Année scolaire {{ $current_session ?? '2024-2025' }}
-                                        </span>
-                                        <span class="meta-item">
-                                            <i class="icon-location3"></i>
-                                            Avaratetezana, Madagascar
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="header-stats">
-                            <div class="quick-stat">
-                                <div class="stat-icon">
-                                    <i class="icon-pulse2"></i>
-                                </div>
-                                <div class="stat-info">
-                                    <span class="stat-number">{{ date('d') }}</span>
-                                    <span class="stat-label">{{ date('M Y') }}</span>
-                                </div>
-                            </div>
-                            <div class="weather-widget" id="weather-widget">
-                                <div class="weather-icon">
-                                    <i class="icon-sun" id="weather-icon"></i>
-                                </div>
-                                <div class="weather-info">
-                                    <span class="temperature" id="temperature">24°C</span>
-                                    <span class="weather-desc" id="weather-desc">Antananarivo</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+            <div class="col-md-4 text-md-right mt-3 mt-md-0">
+                <a href="{{ route('payments.manage') }}" class="btn btn-light btn-sm text-primary font-weight-bold shadow-sm">
+                    <i class="icon-cash3 mr-2"></i> Faire un encaissement
+                </a>
             </div>
         </div>
     </div>
-    <!-- Modern Statistics Cards -->
-    <div class="modern-stats-section mb-5">
-        <div class="container-fluid">
-            <div class="row g-4">
-                <div class="col-xl-3 col-lg-6 col-md-6">
-                    <div class="modern-stat-card students-card">
-                        <div class="card-background">
-                            <div class="bg-pattern"></div>
-                        </div>
-                        <div class="card-content">
-                            <div class="stat-header">
-                                <div class="stat-icon-container">
-                                    <i class="icon-users4"></i>
-                                </div>
-                                <div class="stat-trend">
-                                    <i class="icon-trending-up"></i>
-                                    <span>+5.2%</span>
-                                </div>
-                            </div>
-                            <div class="stat-body">
-                                <h3 class="stat-number counter-animated">{{ $total_active_students ?? '0' }}</h3>
-                                <p class="stat-label">Élèves Actifs</p>
-                                <div class="stat-progress">
-                                    <div class="progress-bar" style="width: {{ min(($total_active_students ?? 0) / 400 * 100, 100) }}%"></div>
-                                </div>
-                                <span class="stat-subtitle">{{ round(min(($total_active_students ?? 0) / 400 * 100, 100), 1) }}% de capacité</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+</div>
 
-                <div class="col-xl-3 col-lg-6 col-md-6">
-                    <div class="modern-stat-card teachers-card">
-                        <div class="card-background">
-                            <div class="bg-pattern"></div>
-                        </div>
-                        <div class="card-content">
-                            <div class="stat-header">
-                                <div class="stat-icon-container">
-                                    <i class="icon-user-tie"></i>
-                                </div>
-                                <div class="stat-trend positive">
-                                    <i class="icon-trending-up"></i>
-                                    <span>+2</span>
-                                </div>
-                            </div>
-                            <div class="stat-body">
-                                <h3 class="stat-number counter-animated">{{ $total_teachers ?? '0' }}</h3>
-                                <p class="stat-label">Enseignants</p>
-                                <div class="stat-progress">
-                                    <div class="progress-bar" style="width: {{ min(($total_teachers ?? 0) / 30 * 100, 100) }}%"></div>
-                                </div>
-                                <span class="stat-subtitle">{{ ($total_teachers ?? 0) >= 25 ? 'Équipe complète' : 'En recrutement' }}</span>
-                            </div>
-                        </div>
+<!-- Row 1: Quick KPI Cards -->
+<div class="row mb-2">
+    <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card text-white shadow-sm h-100" style="background: linear-gradient(45deg, #0288d1, #26c6da);">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h4 class="mb-0 font-weight-bold">{{ $total_active_students ?? 0 }}</h4>
+                        <span>Total Élèves</span>
                     </div>
-                </div>
-
-                <div class="col-xl-3 col-lg-6 col-md-6">
-                    <div class="modern-stat-card classes-card">
-                        <div class="card-background">
-                            <div class="bg-pattern"></div>
-                        </div>
-                        <div class="card-content">
-                            <div class="stat-header">
-                                <div class="stat-icon-container">
-                                    <i class="icon-books"></i>
-                                </div>
-                                <div class="stat-trend stable">
-                                    <i class="icon-minus"></i>
-                                    <span>0%</span>
-                                </div>
-                            </div>
-                            <div class="stat-body">
-                                <h3 class="stat-number counter-animated">{{ $total_classes ?? '0' }}</h3>
-                                <p class="stat-label">Classes</p>
-                                <div class="stat-progress">
-                                    <div class="progress-bar" style="width: {{ ($total_classes ?? 0) > 0 ? 100 : 0 }}%"></div>
-                                </div>
-                                <span class="stat-subtitle">{{ ($total_classes ?? 0) > 0 ? 'Toutes actives' : 'Aucune classe' }}</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-xl-3 col-lg-6 col-md-6">
-                    <div class="modern-stat-card success-card">
-                        <div class="card-background">
-                            <div class="bg-pattern"></div>
-                        </div>
-                        <div class="card-content">
-                            <div class="stat-header">
-                                <div class="stat-icon-container">
-                                    <i class="icon-medal"></i>
-                                </div>
-                                <div class="stat-trend positive">
-                                    <i class="icon-trending-up"></i>
-                                    <span>+3%</span>
-                                </div>
-                            </div>
-                            <div class="stat-body">
-                                <h3 class="stat-number counter-animated">{{ $success_rate ?? '0' }}<span class="stat-unit">%</span></h3>
-                                <p class="stat-label">Taux de Réussite</p>
-                                <div class="stat-progress">
-                                    <div class="progress-bar" style="width: {{ $success_rate ?? 0 }}%"></div>
-                                </div>
-                                <span class="stat-subtitle">
-                                    @if(($success_rate ?? 0) >= 90)
-                                        Excellent niveau
-                                    @elseif(($success_rate ?? 0) >= 75)
-                                        Bon niveau
-                                    @elseif(($success_rate ?? 0) >= 60)
-                                        Niveau correct
-                                    @else
-                                        À améliorer
-                                    @endif
-                                </span>
-                            </div>
-                        </div>
-                    </div>
+                    <i class="icon-users icon-2x opacity-50"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Quick Actions Section -->
-    <div class="quick-actions-section mb-5">
-        <div class="container-fluid">
-            <div class="section-header mb-4">
-                <h3 class="section-title">
-                    <i class="icon-flash section-icon"></i>
-                    Actions Rapides
-                </h3>
-                <p class="section-subtitle">Accès direct aux fonctionnalités principales</p>
-            </div>
-
-            <div class="row g-3">
-                <div class="col-lg-3 col-md-6">
-                    <a href="{{ route('students.create') }}" class="quick-action-card">
-                        <div class="action-icon students-action">
-                            <i class="icon-user-plus"></i>
-                        </div>
-                        <div class="action-content">
-                            <h4>Nouvel Élève</h4>
-                            <p>Inscrire un nouvel élève</p>
-                        </div>
-                        <div class="action-arrow">
-                            <i class="icon-arrow-right8"></i>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-lg-3 col-md-6">
-                    <a href="{{ route('payments.create') }}" class="quick-action-card">
-                        <div class="action-icon payments-action">
-                            <i class="icon-cash3"></i>
-                        </div>
-                        <div class="action-content">
-                            <h4>Nouveau Paiement</h4>
-                            <p>Créer un type de paiement</p>
-                        </div>
-                        <div class="action-arrow">
-                            <i class="icon-arrow-right8"></i>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-lg-3 col-md-6">
-                    <a href="{{ route('marks.index') }}" class="quick-action-card">
-                        <div class="action-icon marks-action">
-                            <i class="icon-clipboard3"></i>
-                        </div>
-                        <div class="action-content">
-                            <h4>Gérer Notes</h4>
-                            <p>Saisir et modifier les notes</p>
-                        </div>
-                        <div class="action-arrow">
-                            <i class="icon-arrow-right8"></i>
-                        </div>
-                    </a>
-                </div>
-
-                <div class="col-lg-3 col-md-6">
-                    <a href="{{ route('users.index') }}" class="quick-action-card">
-                        <div class="action-icon users-action">
-                            <i class="icon-users4"></i>
-                        </div>
-                        <div class="action-content">
-                            <h4>Utilisateurs</h4>
-                            <p>Gérer les utilisateurs</p>
-                        </div>
-                        <div class="action-arrow">
-                            <i class="icon-arrow-right8"></i>
-                        </div>
-                    </a>
+    <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card text-white shadow-sm h-100" style="background: linear-gradient(45deg, #388e3c, #81c784);">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h4 class="mb-0 font-weight-bold">{{ $total_teachers ?? 0 }}</h4>
+                        <span>Total Enseignants</span>
+                    </div>
+                    <i class="icon-user-tie icon-2x opacity-50"></i>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Statistiques de Promotion Section -->
-    @if(isset($promotion_stats) && $promotion_stats['total'] > 0)
-    <div class="promotion-stats-section mb-5">
-        <div class="container-fluid">
-            <div class="section-header mb-4">
-                <h3 class="section-title">
-                    <i class="icon-trending-up section-icon"></i>
-                    Statistiques de Promotion
-                </h3>
-                <p class="section-subtitle">Répartition des décisions pour l'année {{ $current_session ?? '2024-2025' }}</p>
-            </div>
-
-            <div class="row g-4">
-                <div class="col-lg-3 col-md-6">
-                    <div class="promotion-stat-card passants-card">
-                        <div class="stat-icon-container">
-                            <i class="icon-checkmark-circle"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h4 class="stat-number">{{ $promotion_stats['passants'] }}</h4>
-                            <p class="stat-label">Passants</p>
-                            <div class="stat-percentage">{{ $promotion_stats['passants_percent'] }}%</div>
-                        </div>
+    <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card text-white shadow-sm h-100" style="background: linear-gradient(45deg, #00796b, #4db6ac);">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div>
+                        <h4 class="mb-0 font-weight-bold">{{ number_format($total_receipts_month ?? 0, 0, ',', ' ') }} Ar</h4>
+                        <span>Recettes du Mois</span>
                     </div>
-                </div>
-
-                <div class="col-lg-3 col-md-6">
-                    <div class="promotion-stat-card redoublants-card">
-                        <div class="stat-icon-container">
-                            <i class="icon-reload"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h4 class="stat-number">{{ $promotion_stats['redoublants'] }}</h4>
-                            <p class="stat-label">Redoublants</p>
-                            <div class="stat-percentage">{{ $promotion_stats['redoublants_percent'] }}%</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-3 col-md-6">
-                    <div class="promotion-stat-card quittés-card">
-                        <div class="stat-icon-container">
-                            <i class="icon-exit"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h4 class="stat-number">{{ $promotion_stats['quittés'] }}</h4>
-                            <p class="stat-label">Quittés</p>
-                            <div class="stat-percentage">{{ $promotion_stats['quittés_percent'] }}%</div>
-                        </div>
-                    </div>
-                </div>
-
-                <div class="col-lg-3 col-md-6">
-                    <div class="promotion-stat-card total-card">
-                        <div class="stat-icon-container">
-                            <i class="icon-users"></i>
-                        </div>
-                        <div class="stat-content">
-                            <h4 class="stat-number">{{ $promotion_stats['total'] }}</h4>
-                            <p class="stat-label">Total Évalués</p>
-                            <div class="stat-percentage">100%</div>
-                        </div>
-                    </div>
+                    <i class="icon-cash icon-2x opacity-50"></i>
                 </div>
             </div>
         </div>
     </div>
-    @endif
 
-    <!-- Modern School Information Section -->
-    <div class="modern-school-info-section mb-5">
-        <div class="container-fluid">
-            <div class="section-header mb-4">
-                <div class="d-flex align-items-center justify-content-between">
-                    <div class="section-title-group">
-                        <h2 class="section-title">
-                            <i class="icon-office section-icon"></i>
-                            Informations sur l'établissement
-                        </h2>
-                        <p class="section-subtitle">Vue d'ensemble complète de notre institution</p>
+    <div class="col-xl-3 col-sm-6 mb-3">
+        <div class="card text-white shadow-sm h-100" style="background: linear-gradient(45deg, #f57c00, #ffb74d);">
+            <div class="card-body">
+                <div class="d-flex align-items-center justify-content-between mb-2">
+                    <div>
+                        <h4 class="mb-0 font-weight-bold">{{ $recovery_rate ?? 0 }}%</h4>
+                        <span>Taux de Recouvrement</span>
                     </div>
-                    <div class="section-actions">
-                        <span class="modern-badge academic-year">
-                            <i class="icon-calendar"></i>
-                            Année scolaire {{ $current_session ?? '2024-2025' }}
-                        </span>
-                    </div>
+                    <i class="icon-chart-growth icon-2x opacity-50"></i>
+                </div>
+                <div class="progress" style="height: 6px; background-color: rgba(255,255,255,0.3);">
+                    <div class="progress-bar bg-white" style="width: {{ $recovery_rate ?? 0 }}%;"></div>
                 </div>
             </div>
-            <!-- Modern School Identity Banner -->
-            <div class="modern-school-banner">
-                <div class="banner-background">
-                    <div class="banner-pattern"></div>
-                </div>
-                <div class="banner-content">
-                    <div class="row align-items-center">
-                        <div class="col-lg-8">
-                            <div class="school-identity-modern">
-                                <div class="school-logo-badge">
-                                    <i class="icon-graduation2"></i>
-                                </div>
-                                <div class="school-details">
-                                    <h3 class="school-name-modern">Collège Privé Adventiste Avaratetezana</h3>
-                                    <div class="school-badges">
-                                        <span class="info-badge code-badge">
-                                            <i class="icon-barcode"></i>
-                                            Code: 102051020
-                                        </span>
-                                        <span class="info-badge type-badge">
-                                            <i class="icon-office"></i>
-                                            Collège privé
-                                        </span>
-                                        <span class="info-badge status-badge active">
-                                            <i class="icon-checkmark-circle"></i>
-                                            Actif
-                                        </span>
-                                    </div>
-                                    <div class="contact-info-modern">
-                                        <div class="contact-item">
-                                            <i class="icon-phone"></i>
-                                            <span>038 34 921 09</span>
-                                        </div>
-                                        <div class="contact-item">
-                                            <i class="icon-envelop5"></i>
-                                            <span>epadventistavaratetezana@gmail.com</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-4">
-                            <div class="school-metrics-modern">
-                                <div class="metric-card">
-                                    <div class="metric-icon">
-                                        <i class="icon-calendar3"></i>
-                                    </div>
-                                    <div class="metric-info">
-                                        <span class="metric-value">1985</span>
-                                        <span class="metric-label">Année de création</span>
-                                    </div>
-                                </div>
-                                <div class="metric-card">
-                                    <div class="metric-icon">
-                                        <i class="icon-medal"></i>
-                                    </div>
-                                    <div class="metric-info">
-                                        <span class="metric-value">A+</span>
-                                        <span class="metric-label">Accréditation</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 2: Financial Charts -->
+<div class="row mb-4">
+    <div class="col-md-8">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white header-elements-inline">
+                <h6 class="card-title font-weight-bold"><i class="icon-stats-bars2 mr-2"></i> Recettes vs Dépenses (12 derniers mois)</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="revenueChart" height="100"></canvas>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white header-elements-inline">
+                <h6 class="card-title font-weight-bold"><i class="icon-pie-chart mr-2"></i> Répartition Paiements</h6>
+            </div>
+            <div class="card-body d-flex align-items-center justify-content-center">
+                <canvas id="paymentStatusChart" height="200"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Row 3: Top 10 Impayés & Effectifs par Classe -->
+<div class="row mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white header-elements-inline border-bottom-danger">
+                <h6 class="card-title font-weight-bold text-danger"><i class="icon-warning2 mr-2"></i> Top 10 Impayés</h6>
+                <div class="header-elements">
+                    <a href="{{ route('payments.manage') }}" class="btn btn-sm btn-outline-danger">Gérer</a>
                 </div>
             </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-sm text-nowrap">
+                    <thead>
+                        <tr>
+                            <th>Élève</th>
+                            <th>Classe</th>
+                            <th class="text-right">Montant Dû</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($top_unpaid ?? [] as $unpaid)
+                            <tr>
+                                <td>{{ $unpaid->student->user->name ?? 'N/A' }}</td>
+                                <td>{{ $unpaid->student->my_class->name ?? 'N/A' }}</td>
+                                <td class="text-right font-weight-bold text-danger">{{ number_format($unpaid->total_balance, 0, ',', ' ') }} Ar</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">Aucun impayé significatif</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white header-elements-inline">
+                <h6 class="card-title font-weight-bold"><i class="icon-users4 mr-2"></i> Effectifs par Classe</h6>
+            </div>
+            <div class="card-body">
+                <canvas id="classCountChart" height="150"></canvas>
+            </div>
+        </div>
+    </div>
+</div>
 
-            <div class="row">
-                <!-- Left Column - General Information -->
-                <div class="col-md-6">
-                    <div class="info-card mb-3">
-                        <div class="info-card-header">
-                            <i class="icon-location3 mr-2 text-primary"></i>
-                            <h6 class="font-weight-semibold mb-0">Localisation</h6>
-                        </div>
-                        <div class="info-card-body">
-                            <div class="location-map mb-3">
-                                <div class="location-pin">
-                                    <i class="icon-map5"></i>
-                                    <span>Avaratetezana, Madagascar</span>
-                                </div>
+<!-- Row 4: Alerts & Quick Actions -->
+<div class="row mb-4">
+    <div class="col-md-4">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h6 class="card-title font-weight-bold"><i class="icon-bell3 mr-2"></i> Alertes Système</h6>
+            </div>
+            <div class="card-body p-0">
+                <ul class="media-list media-list-linked">
+                    @if(isset($unpaid_count_critical) && $unpaid_count_critical > 10)
+                    <li>
+                        <a href="{{ route('payments.manage') }}" class="media p-3 bg-light border-left-danger border-left-3">
+                            <div class="mr-3">
+                                <i class="icon-cash3 text-danger"></i>
                             </div>
-                            <ul class="list list-unstyled mb-0">
-                                <li class="d-flex mb-2">
-                                    <span class="text-muted mr-2">DREN:</span>
-                                    <span class="font-weight-semibold ml-auto">Antananarivo</span>
-                                </li>
-                                <li class="d-flex mb-2">
-                                    <span class="text-muted mr-2">CISCO:</span>
-                                    <span class="font-weight-semibold ml-auto">Antananarivo Antsimondrano</span>
-                                </li>
-                                <li class="d-flex mb-2">
-                                    <span class="text-muted mr-2">Commune:</span>
-                                    <span class="font-weight-semibold ml-auto">Ampitatafika</span>
-                                </li>
-                                <li class="d-flex mb-2">
-                                    <span class="text-muted mr-2">ZAP:</span>
-                                    <span class="font-weight-semibold ml-auto">Ampitatafika</span>
-                                </li>
-                                <li class="d-flex mb-2">
-                                    <span class="text-muted mr-2">Fokontany:</span>
-                                    <span class="font-weight-semibold ml-auto">Avaratetezana</span>
-                                </li>
-                                <li class="d-flex">
-                                    <span class="text-muted mr-2">Quartier:</span>
-                                    <span class="font-weight-semibold ml-auto">Avaratetezana</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
+                            <div class="media-body">
+                                <span class="font-weight-semibold text-danger">Impayés Critiques</span>
+                                <span class="d-block text-muted">{{ $unpaid_count_critical }} élèves avec des paiements en retard.</span>
+                            </div>
+                        </a>
+                    </li>
+                    @endif
                     
-                    <div class="info-card">
-                        <div class="info-card-header">
-                            <i class="icon-user mr-2 text-primary"></i>
-                            <h6 class="font-weight-semibold mb-0">Administration</h6>
-                        </div>
-                        <div class="info-card-body">
-                            <div class="admin-profile mb-3">
-                                <div class="admin-avatar">
-                                    <i class="icon-user-tie"></i>
-                                </div>
-                                <div class="admin-info">
-                                    <h6 class="mb-0">Andriantsoa Lalaina Casimir Irène</h6>
-                                    <span class="text-muted">Directeur de l'établissement</span>
-                                </div>
+                    @if(isset($pending_backups) && $pending_backups)
+                    <li>
+                        <a href="{{ route('super_admin.backups') }}" class="media p-3 bg-light border-left-warning border-left-3">
+                            <div class="mr-3">
+                                <i class="icon-database-time2 text-warning"></i>
                             </div>
-                            <ul class="list list-unstyled mb-0">
-                                <li class="d-flex mb-2">
-                                    <span class="text-muted mr-2">Propriétaire:</span>
-                                    <span class="font-weight-semibold ml-auto">Église Adventiste Avaratetezana</span>
-                                </li>
-                                <li class="d-flex mb-2">
-                                    <span class="text-muted mr-2">Direction affiliée:</span>
-                                    <span class="font-weight-semibold ml-auto">DN Adventiste</span>
-                                </li>
-                                <li class="d-flex mb-2">
-                                    <span class="text-muted mr-2">Code d'affiliation:</span>
-                                    <span class="font-weight-semibold ml-auto">05</span>
-                                </li>
-                                <li class="d-flex mb-2">
-                                    <span class="text-muted mr-2">NIF:</span>
-                                    <span class="font-weight-semibold ml-auto">Non renseigné</span>
-                                </li>
-                                <li class="d-flex">
-                                    <span class="text-muted mr-2">Fondation:</span>
-                                    <span class="font-weight-semibold ml-auto">1985</span>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Right Column - Structure and Infrastructure -->
-                <div class="col-md-6">
-                    <div class="info-card mb-3">
-                        <div class="info-card-header">
-                            <i class="icon-graduation2 mr-2 text-primary"></i>
-                            <h6 class="font-weight-semibold mb-0">Structure scolaire</h6>
-                        </div>
-                        <div class="info-card-body">
-                            <div class="school-levels mb-3">
-                                <div class="level-item active">
-                                    <span class="level-icon"><i class="icon-baby"></i></span>
-                                    <span class="level-name">Préscolaire</span>
-                                </div>
-                                <div class="level-item active">
-                                    <span class="level-icon"><i class="icon-reading"></i></span>
-                                    <span class="level-name">Primaire</span>
-                                </div>
-                                <div class="level-item active">
-                                    <span class="level-icon"><i class="icon-pen"></i></span>
-                                    <span class="level-name">Collège</span>
-                                </div>
-                                <div class="level-item">
-                                    <span class="level-icon"><i class="icon-book"></i></span>
-                                    <span class="level-name">Lycée</span>
-                                </div>
+                            <div class="media-body">
+                                <span class="font-weight-semibold text-warning">Sauvegarde Nécessaire</span>
+                                <span class="d-block text-muted">La dernière sauvegarde date de plus de 7 jours.</span>
                             </div>
-                            <div class="table-responsive">
-                                <table class="table table-sm table-striped mb-0">
-                                    <thead>
-                                        <tr>
-                                            <th>Niveau</th>
-                                            <th>Sections</th>
-                                            <th>Effectif</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td>Préscolaire</td>
-                                            <td class="stat-editable" id="prescolaire-sections" data-type="text" data-label="Sections préscolaires">PS, MS, GS</td>
-                                            <td><span class="badge badge-info stat-editable" id="prescolaire-count" data-type="number" data-label="Effectif préscolaire" data-format="number">75</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Primaire</td>
-                                            <td class="stat-editable" id="primaire-sections" data-type="text" data-label="Sections primaires">T1, T2, T3, T4, T5</td>
-                                            <td><span class="badge badge-info stat-editable" id="primaire-count" data-type="number" data-label="Effectif primaire" data-format="number">150</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Collège</td>
-                                            <td class="stat-editable" id="college-sections" data-type="text" data-label="Sections collège">T6, T7, T8, T9</td>
-                                            <td><span class="badge badge-info stat-editable" id="college-count" data-type="number" data-label="Effectif collège" data-format="number">125</span></td>
-                                        </tr>
-                                        <tr>
-                                            <td>Classes ESH</td>
-                                            <td class="status-editable" id="esh-status" data-label="Statut classes ESH" data-options='["Oui", "Non", "En projet"]'>Oui</td>
-                                            <td><span class="badge badge-info stat-editable" id="esh-count" data-type="number" data-label="Effectif ESH" data-format="number">15</span></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                        </a>
+                    </li>
+                    @endif
+
+                    @if(isset($term_ending) && $term_ending)
+                    <li>
+                        <a href="{{ route('marks.index') }}" class="media p-3 bg-light border-left-info border-left-3">
+                            <div class="mr-3">
+                                <i class="icon-calendar-warning text-info"></i>
                             </div>
-                        </div>
-                    </div>
+                            <div class="media-body">
+                                <span class="font-weight-semibold text-info">Fin de Trimestre</span>
+                                <span class="d-block text-muted">Pensez à clôturer la saisie des notes.</span>
+                            </div>
+                        </a>
+                    </li>
+                    @endif
                     
-                    <div class="info-card" id="infrastructure-section">
-                        <div class="info-card-header">
-                            <i class="icon-home mr-2 text-primary"></i>
-                            <h6 class="font-weight-semibold mb-0">Infrastructures</h6>
+                    @if(!isset($unpaid_count_critical) || ($unpaid_count_critical <= 10 && !$pending_backups && !$term_ending))
+                    <li class="media p-3">
+                        <div class="media-body text-center text-muted">
+                            <i class="icon-checkmark3 text-success mr-2"></i> Aucune alerte active.
                         </div>
-                        <div class="info-card-body">
-                            <div class="infrastructure-overview mb-3">
-                                <div class="progress-container">
-                                    <div class="progress-label">État général des infrastructures</div>
-                                    <div class="progress" style="height: 6px;">
-                                        <div class="progress-bar bg-success" style="width: 85%"></div>
-                                    </div>
-                                    <div class="progress-value stat-editable" id="infrastructure-state" data-type="number" data-label="État général des infrastructures" data-format="percentage">85%</div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-6">
-                                    <ul class="list list-unstyled mb-0">
-                                        <li class="d-flex mb-2">
-                                            <span class="text-muted mr-2 stat-editable" id="infra-classrooms-label" data-type="text" data-label="Libellé infrastructure">Salles de classe:</span>
-                                            <span class="badge badge-success ml-auto stat-editable" id="infra-classrooms-count" data-type="number" data-label="Nombre de salles de classe" data-format="number">11</span>
-                                        </li>
-                                        <li class="d-flex mb-2">
-                                            <span class="text-muted mr-2 stat-editable" id="infra-principal-label" data-type="text" data-label="Libellé infrastructure">Bureau du proviseur:</span>
-                                            <span class="badge badge-success ml-auto stat-editable" id="infra-principal-count" data-type="number" data-label="Nombre de bureaux du proviseur" data-format="number">1</span>
-                                        </li>
-                                        <li class="d-flex mb-2">
-                                            <span class="text-muted mr-2 stat-editable" id="infra-kitchen-label" data-type="text" data-label="Libellé infrastructure">Cuisine:</span>
-                                            <span class="badge badge-success ml-auto stat-editable" id="infra-kitchen-count" data-type="number" data-label="Nombre de cuisines" data-format="number">1</span>
-                                        </li>
-                                        <li class="d-flex mb-2">
-                                            <span class="text-muted mr-2 stat-editable" id="infra-girls-wc-label" data-type="text" data-label="Libellé infrastructure">WC/Latrines filles:</span>
-                                            <span class="badge badge-success ml-auto stat-editable" id="infra-girls-wc-count" data-type="number" data-label="Nombre de WC/Latrines filles" data-format="number">5</span>
-                                        </li>
-                                    </ul>
-                                </div>
-                                <div class="col-md-6">
-                                    <ul class="list list-unstyled mb-0">
-                                        <li class="d-flex mb-2">
-                                            <span class="text-muted mr-2 stat-editable" id="infra-boys-wc-label" data-type="text" data-label="Libellé infrastructure">WC/Latrines garçons:</span>
-                                            <span class="badge badge-success ml-auto stat-editable" id="infra-boys-wc-count" data-type="number" data-label="Nombre de WC/Latrines garçons" data-format="number">5</span>
-                                        </li>
-                                        <li class="d-flex mb-2">
-                                            <span class="text-muted mr-2 stat-editable" id="infra-water-label" data-type="text" data-label="Libellé infrastructure">Point d'eau:</span>
-                                            <span class="badge badge-success ml-auto stat-editable" id="infra-water-count" data-type="number" data-label="Nombre de points d'eau" data-format="number">2</span>
-                                        </li>
-                                        <li class="d-flex mb-2">
-                                            <span class="text-muted mr-2 stat-editable" id="infra-sport-label" data-type="text" data-label="Libellé infrastructure">Terrain de sport:</span>
-                                            <span class="badge badge-warning ml-auto stat-editable" id="infra-sport-count" data-type="number" data-label="Nombre de terrains de sport" data-format="number">1</span>
-                                        </li>
-                                        <li class="d-flex mb-2">
-                                            <span class="text-muted mr-2 stat-editable" id="infra-library-label" data-type="text" data-label="Libellé infrastructure">Bibliothèque:</span>
-                                            <span class="badge badge-danger ml-auto stat-editable" id="infra-library-count" data-type="number" data-label="Nombre de bibliothèques" data-format="number">0</span>
-                                        </li>
-                                    </ul>
-                                </div>
-                            </div>
-                            <div class="mt-3">
-                                <h6 class="font-weight-semibold mb-2">Langues enseignées</h6>
-                                <div class="language-tags">
-                                    <span class="language-tag stat-editable" id="language-french" data-type="text" data-label="Langue enseignée">Français (FRS)</span>
-                                    <span class="language-tag stat-editable" id="language-english" data-type="text" data-label="Langue enseignée">Anglais (ANG)</span>
-                                    <span class="language-tag stat-editable" id="language-malagasy" data-type="text" data-label="Langue enseignée">Malagasy (MAL)</span>
-                                    <span class="language-tag stat-editable" id="language-svt" data-type="text" data-label="Langue enseignée">SVT</span>
-                                    <span class="language-tag stat-editable" id="language-eps" data-type="text" data-label="Langue enseignée">EPS</span>
-                                </div>
-                            </div>
-                        </div>
+                    </li>
+                    @endif
+                </ul>
+            </div>
+            <div class="card-footer text-center bg-white border-0 pt-0">
+                <form action="{{ route('notifications.check-alerts') }}" method="POST">
+                    @csrf
+                    <button type="submit" class="btn btn-outline-primary btn-sm"><i class="icon-sync mr-2"></i> Vérifier les alertes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card shadow-sm h-100">
+            <div class="card-header bg-white">
+                <h6 class="card-title font-weight-bold"><i class="icon-flash mr-2"></i> Actions Rapides</h6>
+            </div>
+            <div class="card-body">
+                <div class="row text-center">
+                    <div class="col-4 col-md-4 mb-3">
+                        <a href="{{ route('students.create') }}" class="btn btn-light btn-block p-3 d-flex flex-column align-items-center">
+                            <i class="icon-user-plus icon-2x text-primary mb-2"></i>
+                            <span>Inscrire un élève</span>
+                        </a>
+                    </div>
+                    <div class="col-4 col-md-4 mb-3">
+                        <a href="{{ route('marks.index') }}" class="btn btn-light btn-block p-3 d-flex flex-column align-items-center">
+                            <i class="icon-clipboard3 icon-2x text-success mb-2"></i>
+                            <span>Saisir des notes</span>
+                        </a>
+                    </div>
+                    <div class="col-4 col-md-4 mb-3">
+                        <a href="{{ route('payments.manage') }}" class="btn btn-light btn-block p-3 d-flex flex-column align-items-center">
+                            <i class="icon-cash3 icon-2x text-warning mb-2"></i>
+                            <span>Encaisser un paiement</span>
+                        </a>
+                    </div>
+                    <div class="col-4 col-md-4 mb-3">
+                        <a href="{{ route('marks.bulk') }}" class="btn btn-light btn-block p-3 d-flex flex-column align-items-center">
+                            <i class="icon-printer icon-2x text-info mb-2"></i>
+                            <span>Imprimer un bulletin</span>
+                        </a>
+                    </div>
+                    <div class="col-4 col-md-4 mb-3">
+                        <a href="{{ route('students.list_all') }}" class="btn btn-light btn-block p-3 d-flex flex-column align-items-center">
+                            <i class="icon-list-numbered icon-2x text-secondary mb-2"></i>
+                            <span>Faire l'appel</span>
+                        </a>
+                    </div>
+                    <div class="col-4 col-md-4 mb-3">
+                        <a href="{{ route('students.list_all') }}" class="btn btn-light btn-block p-3 d-flex flex-column align-items-center">
+                            <i class="icon-certificate icon-2x text-danger mb-2"></i>
+                            <span>Générer un certificat</span>
+                        </a>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+</div>
 
-    <!-- Vision et Objectifs -->
-    <div class="card fade-in mb-4 school-info-card" id="vision-objectives-section">
-        <div class="card-header bg-white d-flex align-items-center">
-            <div class="d-flex align-items-center">
-                <i class="icon-eye icon-2x text-primary mr-2"></i>
-                <h5 class="card-title mb-0">Vision et Objectifs</h5>
-            </div>
-            <div class="header-elements ml-auto">
-                <span class="badge badge-pill badge-primary stat-editable" id="priorities-year" data-type="text" data-label="Année des priorités">Priorités {{ $current_session ?? '2024-2025' }}</span>
-            </div>
-        </div>
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-6">
-                    <div class="vision-mission-card mb-3">
-                        <div class="vision-mission-header">
-                            <i class="icon-lamp3 text-primary mr-2"></i>
-                            <h6 class="font-weight-bold mb-0">Notre Vision</h6>
-                        </div>
-                        <div class="vision-mission-body">
-                            <p class="mb-0 stat-editable" id="school-vision" data-type="text" data-label="Vision de l'école">Devenir un établissement d'excellence reconnu pour la qualité de son enseignement, l'épanouissement de ses élèves et son engagement envers les valeurs chrétiennes adventistes.</p>
-                        </div>
-                    </div>
-                    
-                    <div class="vision-mission-card">
-                        <div class="vision-mission-header">
-                            <i class="icon-heart text-primary mr-2"></i>
-                            <h6 class="font-weight-bold mb-0">Notre Mission</h6>
-                        </div>
-                        <div class="vision-mission-body">
-                            <p class="mb-0 stat-editable" id="school-mission" data-type="text" data-label="Mission de l'école">Offrir une éducation holistique qui développe les compétences académiques, sociales et spirituelles des élèves, en les préparant à devenir des citoyens responsables et engagés dans leur communauté.</p>
-                        </div>
-                    </div>
+<!-- Row 5: Recent Activity -->
+<div class="row">
+    <div class="col-md-8">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white header-elements-inline">
+                <h6 class="card-title font-weight-bold"><i class="icon-history mr-2"></i> Derniers Paiements Encaissés</h6>
+                <div class="header-elements">
+                    <a href="{{ route('payments.encaissements.index') }}" class="text-default"><i class="icon-menu7"></i></a>
                 </div>
-                
-                <div class="col-md-6">
-                    <div class="objectives-card">
-                        <div class="objectives-header">
-                            <i class="icon-target text-primary mr-2"></i>
-                            <h6 class="font-weight-bold mb-0">Objectifs Stratégiques</h6>
-                        </div>
-                        <div class="objectives-body">
-                            <ul class="objectives-list">
-                                <li class="objective-item">
-                                    <div class="objective-icon">
-                                        <i class="icon-checkmark-circle"></i>
-                                    </div>
-                                    <div class="objective-content">
-                                        <h6 class="objective-title stat-editable" id="objective-1-title" data-type="text" data-label="Titre de l'objectif 1">Excellence Académique</h6>
-                                        <p class="objective-description stat-editable" id="objective-1-description" data-type="text" data-label="Description de l'objectif 1">Atteindre un taux de réussite de 98% aux examens nationaux d'ici 2025.</p>
-                                    </div>
-                                </li>
-                                <li class="objective-item">
-                                    <div class="objective-icon">
-                                        <i class="icon-checkmark-circle"></i>
-                                    </div>
-                                    <div class="objective-content">
-                                        <h6 class="objective-title stat-editable" id="objective-2-title" data-type="text" data-label="Titre de l'objectif 2">Développement des Infrastructures</h6>
-                                        <p class="objective-description stat-editable" id="objective-2-description" data-type="text" data-label="Description de l'objectif 2">Construire une bibliothèque moderne et un laboratoire scientifique d'ici 2024.</p>
-                                    </div>
-                                </li>
-                                <li class="objective-item">
-                                    <div class="objective-icon">
-                                        <i class="icon-checkmark-circle"></i>
-                                    </div>
-                                    <div class="objective-content">
-                                        <h6 class="objective-title stat-editable" id="objective-3-title" data-type="text" data-label="Titre de l'objectif 3">Inclusion et Diversité</h6>
-                                        <p class="objective-description stat-editable" id="objective-3-description" data-type="text" data-label="Description de l'objectif 3">Renforcer les programmes d'inclusion pour les élèves à besoins spécifiques.</p>
-                                    </div>
-                                </li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-striped table-sm text-nowrap">
+                    <thead>
+                        <tr>
+                            <th>Élève</th>
+                            <th>Montant</th>
+                            <th>Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($recent_receipts ?? [] as $receipt)
+                            <tr>
+                                <td>{{ $receipt->pr->student->user->name ?? 'N/A' }}</td>
+                                <td class="font-weight-semibold text-success">+{{ number_format($receipt->amt_paid, 0, ',', ' ') }} Ar</td>
+                                <td>{{ $receipt->created_at->format('d/m/Y H:i') }}</td>
+                            </tr>
+                        @empty
+                            <tr>
+                                <td colspan="3" class="text-center text-muted">Aucun paiement récent</td>
+                            </tr>
+                        @endforelse
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>
-
-    @if(Qs::userIsTeamSA())
-       {{-- Display Student Count Per Class --}}
-       <div class="card fade-in mt-3">
-           <div class="card-header bg-white">
-               <h5 class="card-title">Nombre d'élèves par classe</h5>
-               <div class="header-elements">
-                   <div class="list-icons">
-                       <a class="list-icons-item" data-action="collapse"></a>
-                   </div>
-               </div>
-           </div>
-           <div class="card-body">
-               <div class="row">
-                   @foreach($classes as $class)
-                   <div class="col-sm-6 col-md-4 col-xl-3 mb-3">
-                       <div class="modern-stat-card classes-card h-100">
-                           <div class="card-content">
-                               <div class="stat-header">
-                                   <div class="stat-icon-container">
-                                       <i class="icon-users2"></i>
-                                   </div>
-                                   <div class="stat-trend stable">
-                                       <span>{{ $class->name }}</span>
-                                   </div>
-                               </div>
-                               <div class="stat-body">
-                                   <h3 class="stat-number">{{ $class_student_counts[$class->id] }}</h3>
-                                   <p class="stat-label">Élèves</p>
-                                   <div class="stat-progress">
-                                       <div class="progress-bar" style="width: {{ min(100, ($class_student_counts[$class->id] / max(1, $total_active_students)) * 100) }}%"></div>
-                                   </div>
-                                   <span class="stat-subtitle">{{ number_format(($class_student_counts[$class->id] / max(1, $total_active_students)) * 100, 1) }}% du total</span>
-                               </div>
-                           </div>
-                       </div>
-                   </div>
-                   @endforeach
-               </div>
-           </div>
-       </div>
-    @endif
-
-    <!-- Dashboard Footer -->
-    <div class="card fade-in mt-4 school-info-card">
-        <div class="card-body">
-            <div class="row">
-                <div class="col-md-12">
-                    <div class="footer-section">
-                        <h6 class="font-weight-bold mb-3"><i class="icon-info22 mr-2 text-primary"></i>À propos</h6>
-                        <p class="text-muted mb-3 stat-editable" id="about-description" data-type="text" data-label="Description à propos">Ce tableau de bord présente les informations essentielles de l'établissement. Pour plus de détails, veuillez consulter les sections correspondantes.</p>
-                        <div class="d-flex flex-wrap">
-                            <span class="badge badge-pill badge-primary mr-2 mb-2 stat-editable" id="tag-1" data-type="text" data-label="Tag 1">Éducation</span>
-                            <span class="badge badge-pill badge-info mr-2 mb-2 stat-editable" id="tag-2" data-type="text" data-label="Tag 2">Gestion</span>
-                            <span class="badge badge-pill badge-success mr-2 mb-2 stat-editable" id="tag-3" data-type="text" data-label="Tag 3">Excellence</span>
-                            <span class="badge badge-pill badge-warning mr-2 mb-2 stat-editable" id="tag-4" data-type="text" data-label="Tag 4">Innovation</span>
-                            <span class="badge badge-pill badge-secondary mb-2 stat-editable" id="tag-5" data-type="text" data-label="Tag 5">Communauté</span>
-                        </div>
-                        <div class="mt-3 text-right">
-                            <span class="text-muted">Dernière mise à jour: {{ date('d/m/Y') }}</span>
-                        </div>
-                    </div>
+    
+    <div class="col-md-4">
+        <div class="card shadow-sm">
+            <div class="card-header bg-white header-elements-inline">
+                <h6 class="card-title font-weight-bold"><i class="icon-envelop2 mr-2"></i> Dernières Notifications</h6>
+                <div class="header-elements">
+                    <a href="{{ route('notifications.index') }}" class="text-default"><i class="icon-menu7"></i></a>
                 </div>
+            </div>
+            <div class="card-body p-0">
+                <ul class="media-list media-list-linked">
+                    @forelse($recent_notifications ?? [] as $notif)
+                        <li>
+                            <a href="{{ $notif->link ?? '#' }}" class="media p-3 {{ !$notif->is_read ? 'bg-light' : '' }}">
+                                <div class="mr-3">
+                                    <div class="bg-{{ $notif->color ?? 'info' }}-400 rounded-circle p-2">
+                                        <i class="{{ $notif->icon ?? 'icon-info22' }} text-white"></i>
+                                    </div>
+                                </div>
+                                <div class="media-body">
+                                    <span class="font-weight-semibold {{ !$notif->is_read ? 'text-dark' : 'text-muted' }}">{{ $notif->title }}</span>
+                                    <span class="d-block text-muted font-size-sm">{{ \Illuminate\Support\Str::limit($notif->message, 40) }}</span>
+                                </div>
+                                <div class="ml-2 align-self-center">
+                                    <span class="text-muted font-size-xs">{{ $notif->created_at->shortAbsoluteDiffForHumans() }}</span>
+                                </div>
+                            </a>
+                        </li>
+                    @empty
+                        <li class="media p-3">
+                            <div class="media-body text-center text-muted">Aucune notification.</div>
+                        </li>
+                    @endforelse
+                </ul>
             </div>
         </div>
     </div>
+</div>
+
 @endsection
 
+@section('scripts')
+<script src="{{ asset('assets/js/chart.min.js') }}"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Revenue Chart
+    @if(isset($monthly_revenue) && count($monthly_revenue) > 0)
+    const revCtx = document.getElementById('revenueChart').getContext('2d');
+    const revData = @json(array_reverse($monthly_revenue));
+    
+    new Chart(revCtx, {
+        type: 'bar',
+        data: {
+            labels: revData.map(d => d.month),
+            datasets: [
+                {
+                    label: 'Recettes (Ar)',
+                    data: revData.map(d => d.recettes),
+                    backgroundColor: '#4caf50',
+                    borderRadius: 4
+                },
+                {
+                    label: 'Dépenses (Ar)',
+                    data: revData.map(d => d.depenses),
+                    backgroundColor: '#f44336',
+                    borderRadius: 4
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: {
+                        callback: function(value) {
+                            if (value >= 1000000) return (value / 1000000).toFixed(1) + 'M';
+                            if (value >= 1000) return (value / 1000).toFixed(1) + 'k';
+                            return value;
+                        }
+                    }
+                }
+            },
+            plugins: {
+                legend: { position: 'top' }
+            }
+        }
+    });
+    @endif
+
+    // Payment Status Chart
+    @if(isset($payment_status))
+    const payCtx = document.getElementById('paymentStatusChart').getContext('2d');
+    new Chart(payCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Payé', 'Partiel', 'Impayé'],
+            datasets: [{
+                data: [{{ $payment_status['paye'] }}, {{ $payment_status['partiel'] }}, {{ $payment_status['impaye'] }}],
+                backgroundColor: ['#4caf50', '#ff9800', '#f44336'],
+                borderWidth: 0
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '70%',
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+    @endif
+
+    // Class Count Chart
+    @if(isset($class_student_counts) && isset($classes))
+    const classCtx = document.getElementById('classCountChart').getContext('2d');
+    
+    // Prepare data mapping
+    const classLabels = [];
+    const classData = [];
+    
+    @foreach($classes as $class)
+        @if(isset($class_student_counts[$class->id]))
+            classLabels.push('{{ $class->name }}');
+            classData.push({{ $class_student_counts[$class->id] }});
+        @endif
+    @endforeach
+
+    new Chart(classCtx, {
+        type: 'bar',
+        data: {
+            labels: classLabels,
+            datasets: [{
+                label: 'Effectif',
+                data: classData,
+                backgroundColor: '#2196f3',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { beginAtZero: true }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+    @endif
+});
+</script>
+@endsection
