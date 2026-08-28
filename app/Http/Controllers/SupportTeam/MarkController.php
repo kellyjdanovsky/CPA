@@ -256,6 +256,36 @@ class MarkController extends Controller
         return view('pages.support_team.marks.print.index', $d);
     }
     
+    public function batchDownloadPdfZip(Request $request, $exam_id, $class_id, $section_id)
+    {
+        $year = Qs::getCurrentSession();
+        $service = new \App\Services\BulletinGeneratorService();
+        $zipPath = $service->generateClassZip($exam_id, $class_id, $section_id, $year);
+        
+        if (file_exists($zipPath)) {
+            return response()->download($zipPath)->deleteFileAfterSend(true);
+        }
+        return back()->with('flash_danger', 'Erreur lors de la génération du fichier ZIP.');
+    }
+
+    public function batchPrintView(Request $request, $exam_id, $class_id, $section_id)
+    {
+        $year = Qs::getCurrentSession();
+        $students = $this->student->getRecord(['my_class_id' => $class_id, 'section_id' => $section_id, 'session' => $year])->get();
+        if ($students->count() < 1) {
+            return back()->with('flash_danger', 'Aucun étudiant trouvé.');
+        }
+
+        $d['students'] = $students;
+        $d['exam_id'] = $exam_id;
+        $d['year'] = $year;
+        $d['my_class'] = $this->my_class->find($class_id);
+        
+        // C'est juste un stub pour la vue continue
+        // Idéalement, on boucle sur $students et on inclut la vue du bulletin
+        return view('pages.support_team.marks.print.batch', $d);
+    }
+    
     public function print_multiple($student_id, $year)
     {
         /* Prevent Other Students/Parents from viewing Result of others */

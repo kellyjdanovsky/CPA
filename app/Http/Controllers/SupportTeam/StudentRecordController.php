@@ -101,6 +101,11 @@ class StudentRecordController extends Controller
        $sr['age'] = $req->age ?: Qs::calculateAge($req->dob);
 
        $this->student->createRecord($sr); // Create Student
+       
+       // Auto-Assign Payments
+       $paymentService = new \App\Services\PaymentAutoAssignService();
+       $paymentService->assignClassPaymentsToStudent($user->id, $req->my_class_id, $sr['session'], $data['student_type'], $data['status']);
+       
        return Qs::jsonStoreOk();
     }
 

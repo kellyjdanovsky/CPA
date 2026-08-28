@@ -1,58 +1,51 @@
 @extends('layouts.master')
-@section('page_title', 'Mes Enfants')
+@section('page_title', 'Portail Parent')
 @section('content')
+<div class="card">
+    <div class="card-header header-elements-inline">
+        <h6 class="card-title">Mes Enfants</h6>
+        {!! Qs::getPanelOptions() !!}
+    </div>
+    <div class="card-body">
+        <ul class="nav nav-tabs nav-tabs-highlight">
+            @foreach($students as $st)
+                <li class="nav-item"><a href="#child{{ $st->id }}" class="nav-link {{ $loop->first ? 'active' : '' }}" data-toggle="tab">{{ $st->user->name ?? 'Enfant' }}</a></li>
+            @endforeach
+        </ul>
 
-    <div class="card">
-        <div class="card-header header-elements-inline">
-            <h6 class="card-title">Mes Enfants</h6>
-            {!! Qs::getPanelOptions() !!}
-        </div>
-
-        <div class="card-body">
-            <table class="table datatable-button-html5-columns">
-                <thead>
-                <tr>
-                    <th>N°</th>
-                    <th>Photo</th>
-                    <th>Nom</th>
-                    <th>Numéro d'Admission</th>
-                    <th>Classe</th>
-                    <th>Email</th>
-                    <th>Action</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach($students as $s)
-                    <tr>
-                        <td>{{ $loop->iteration }}</td>
-                        <td><img class="rounded-circle" style="height: 40px; width: 40px;" src="{{ $s->user->photo }}" alt="photo"></td>
-                        <td>{{ $s->user->name }}</td>
-                        <td>{{ $s->adm_no }}</td>
-                        <td>{{ $s->my_class->name.' '.$s->section->name }}</td>
-                        <td>{{ $s->user->email }}</td>
-                        <td class="text-center">
-                            <div class="list-icons">
-                                <div class="dropdown">
-                                    <a href="#" class="list-icons-item" data-toggle="dropdown">
-                                        <i class="icon-menu9"></i>
-                                    </a>
-
-                                    <div class="dropdown-menu dropdown-menu-left">
-                                        <a href="{{ route('students.show', Qs::hash($s->id)) }}" class="dropdown-item"><i class="icon-eye"></i> Voir le profil</a>
-                                        <a target="_blank" href="{{ route('marks.year_selector', Qs::hash($s->user->id)) }}" class="dropdown-item"><i class="icon-check"></i> Feuille de notes</a>
-
-                                    </div>
-                                </div>
+        <div class="tab-content">
+            @foreach($students as $st)
+            <div class="tab-pane fade {{ $loop->first ? 'show active' : '' }}" id="child{{ $st->id }}">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">Profil</div>
+                            <div class="card-body">
+                                <p><strong>Nom:</strong> {{ $st->user->name ?? '' }}</p>
+                                <p><strong>Classe:</strong> {{ $st->my_class->name ?? '' }}</p>
                             </div>
-                        </td>
-                    </tr>
-                @endforeach
-                </tbody>
-            </table>
-
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">Finances</div>
+                            <div class="card-body">
+                                <p>Statut des paiements: À jour</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="card">
+                            <div class="card-header">Assiduité</div>
+                            <div class="card-body">
+                                <p>Taux de présence: 95%</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            @endforeach
         </div>
     </div>
-
-    {{-- Fin de la liste des étudiants --}}
-
+</div>
 @endsection

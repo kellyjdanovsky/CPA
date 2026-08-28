@@ -8,21 +8,7 @@
     <a href="{{ route('super_admin.backups') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['super_admin.backups',]) ? 'active' : '' }}"><i class="icon-database"></i> <span>Sauvegardes BD</span></a>
 </li>
 
-{{--Pins--}}
-<li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['pins.create', 'pins.index']) ? 'nav-item-expanded nav-item-open' : '' }} ">
-    <a href="#" class="nav-link"><i class="icon-lock2"></i> <span> Pins</span></a>
-
-    <ul class="nav nav-group-sub" data-submenu-title="Manage Pins">
-        {{--Generate Pins--}}
-            <li class="nav-item">
-                <a href="{{ route('pins.create') }}"
-                   class="nav-link {{ (Route::is('pins.create')) ? 'active' : '' }}">Gerer Pins</a>
-            </li>
-
-        {{--    Valid/Invalid Pins  --}}
-        <li class="nav-item">
-            <a href="{{ route('pins.index') }}"
-               class="nav-link {{ (Route::is('pins.index')) ? 'active' : '' }}">Voir Pins</a>
-        </li>
-    </ul>
-</li>
+{{--Journal d'Activités & Audit--}}
+<li class="nav-item">
+    <a href="{{ route('activity-logs.index') }}" class="nav-link {{ Route::is('activity-logs.*') ? 'active' : '' }}"><i class="icon-history"></i> <span>Journal d'Activités</span></a>
+</li>

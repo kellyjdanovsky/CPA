@@ -260,16 +260,29 @@ if ($usertype == 'teacher') {
                 @endif
 
                 @if(Qs::userIsTeamSA())
-                    {{--Manage Users--}}
-                    <li class="nav-item">
-                        <a href="{{ url('/users') }}" class="nav-link"><i class="icon-users4"></i> <span> Utilisateur</span></a>
+                    {{--Manage Users & Staff--}}
+                    <li class="nav-item nav-item-submenu {{ Route::is('users.*') || Route::is('staff.*') ? 'nav-item-expanded nav-item-open' : '' }}">
+                        <a href="#" class="nav-link {{ Route::is('users.*') || Route::is('staff.*') ? 'active' : '' }}">
+                            <i class="icon-users4"></i> <span>Utilisateurs & Personnel</span>
+                        </a>
+                        <ul class="nav nav-group-sub">
+                            <li class="nav-item">
+                                <a href="{{ url('/users') }}" class="nav-link {{ Route::is('users.*') ? 'active' : '' }}">
+                                    <i class="icon-user-check"></i> Comptes Utilisateurs
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('staff.index') }}" class="nav-link {{ Route::is('staff.*') ? 'active' : '' }}">
+                                    <i class="icon-briefcase"></i> Personnel & Contrats
+                                </a>
+                            </li>
+                        </ul>
                     </li>
 
                     {{--Manage Classes--}}
                     <li class="nav-item">
                         <a href="{{ url('/classes') }}" class="nav-link"><i class="icon-windows2"></i> <span> Classes</span></a>
                     </li>
-
 
                     {{--Manage Sections--}}
                     <li class="nav-item">
@@ -290,6 +303,55 @@ if ($usertype == 'teacher') {
                             <li class="nav-item">
                                 <a href="{{ route('sessions.index') }}" class="nav-link {{ Route::is('sessions.index') ? 'active' : '' }}">
                                     Gestion des Sessions
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('sessions.closure.wizard') }}" class="nav-link {{ Route::is('sessions.closure.*') ? 'active' : '' }}">
+                                    <i class="icon-lock5 text-warning"></i> Assistant de Clôture
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                @endif
+
+                {{-- Bibliothèque --}}
+                @if(Qs::userIsTeamSAT())
+                    <li class="nav-item nav-item-submenu {{ Route::is('library.*') ? 'nav-item-expanded nav-item-open' : '' }}">
+                        <a href="#" class="nav-link {{ Route::is('library.*') ? 'active' : '' }}">
+                            <i class="icon-book"></i> <span>Bibliothèque</span>
+                        </a>
+                        <ul class="nav nav-group-sub">
+                            <li class="nav-item">
+                                <a href="{{ route('library.index') }}" class="nav-link {{ Route::is('library.index') ? 'active' : '' }}">
+                                    <i class="icon-books"></i> Catalogue & Prêts
+                                </a>
+                            </li>
+                            @if(Qs::userIsTeamSA())
+                            <li class="nav-item">
+                                <a href="{{ route('library.create') }}" class="nav-link {{ Route::is('library.create') ? 'active' : '' }}">
+                                    <i class="icon-plus-circle2"></i> Ajouter un Livre
+                                </a>
+                            </li>
+                            @endif
+                        </ul>
+                    </li>
+                @endif
+
+                {{-- Centre d'Impression & Rapports --}}
+                @if(Qs::userIsTeamSAT())
+                    <li class="nav-item nav-item-submenu {{ Route::is('print-center.*') || Route::is('reports.*') ? 'nav-item-expanded nav-item-open' : '' }}">
+                        <a href="#" class="nav-link {{ Route::is('print-center.*') || Route::is('reports.*') ? 'active' : '' }}">
+                            <i class="icon-printer"></i> <span>Centre d'Impression</span>
+                        </a>
+                        <ul class="nav nav-group-sub">
+                            <li class="nav-item">
+                                <a href="{{ route('print-center.index') }}" class="nav-link {{ Route::is('print-center.*') ? 'active' : '' }}">
+                                    <i class="icon-printer2"></i> Centre d'Impression
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{{ route('reports.annual.index') }}" class="nav-link {{ Route::is('reports.annual.*') ? 'active' : '' }}">
+                                    <i class="icon-stats-growth"></i> Rapport Annuel
                                 </a>
                             </li>
                         </ul>
@@ -316,13 +378,10 @@ if ($usertype == 'teacher') {
                                        class="nav-link">Barem </a>
                             </li>
 
-
-
                             {{--Weighted Grades Tabulation--}}
                             <li class="nav-item">
                                 <a href="{{ url('/marks/weighted-grades') }}" class="nav-link">Notes Pondérées</a>
                             </li>
-
 
                         @endif
 

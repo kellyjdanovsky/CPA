@@ -287,30 +287,13 @@ class ReenrollmentController extends Controller
     {
         $current_year = Qs::getSetting('current_session');
         
-        // Récupérer les paiements pour cette classe et les paiements généraux
-        $pay1 = $this->payment->getPayment(['my_class_id' => $class_id, 'year' => $current_year])->get();
-        $pay2 = $this->payment->getGeneralPayment(['year' => $current_year])->get();
-        $payments = $pay2->count() ? $pay1->merge($pay2) : $pay1;
+        $paymentService = new \App\Services\PaymentAutoAssignService();
+        // Pour la réinscription, c'est toujours un ancien élève (student_type = 'Ancien')
+        // On récupère le régime depuis les informations de l'étudiant
+        $student = \App\Models\User::find($student_id);
+        $status = $student->status ?? 'Normal';
         
-        if($payments->count()){
-            $payment_records = [];
-            
-            foreach($payments as $p){
-                $payment_records[] = [
-                    'student_id' => $student_id,
-                    'payment_id' => $p->id,
-                    'year' => $current_year,
-                    'ref_no' => mt_rand(100000, 99999999),
-                    'created_at' => now(),
-                    'updated_at' => now()
-                ];
-            }
-            
-            // Insertion en masse pour optimiser les performances
-            if(count($payment_records) > 0){
-                DB::table('payment_records')->insert($payment_records);
-            }
-        }
+        $paymentService->assignClassPaymentsToStudent($student_id, $class_id, $current_year, 'Ancien', $status);
     }
     
     /**

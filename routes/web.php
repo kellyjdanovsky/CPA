@@ -377,8 +377,7 @@ Route::group(['namespace' => 'SuperAdmin','middleware' => 'super_admin', 'prefix
         Route::get('statistics', 'DuplicateManagementController@getStatistics')->name('duplicate.statistics');
         Route::get('search', 'DuplicateManagementController@searchDuplicates')->name('duplicate.search');
         Route::get('export/logs', 'DuplicateManagementController@exportLogs')->name('duplicate.export.logs');
-        
-        Route::post('locks/{id}/release', 'DuplicateManagementController@releaseLock')->name('duplicate.locks.release');
+             Route::post('locks/{id}/release', 'DuplicateManagementController@releaseLock')->name('duplicate.locks.release');
         Route::post('locks/cleanup', 'DuplicateManagementController@cleanupLocks')->name('duplicate.locks.cleanup');
         Route::post('logs/cleanup', 'DuplicateManagementController@cleanupLogs')->name('duplicate.logs.cleanup');
         Route::post('remove', 'DuplicateManagementController@removeDuplicates')->name('duplicate.remove');
@@ -401,3 +400,10 @@ require __DIR__.'/attendance_routes.php';
 require __DIR__.'/certificate_routes.php';
 require __DIR__.'/discipline_calendar_routes.php';
 
+require __DIR__.'/bulletin_batch_routes.php';
+require __DIR__.'/annual_report_routes.php';
+require __DIR__.'/session_closure_routes.php';
+require __DIR__.'/library_routes.php';
+require __DIR__.'/staff_routes.php';
+require __DIR__.'/activity_log_routes.php';
+require __DIR__.'/print_center_routes.php';

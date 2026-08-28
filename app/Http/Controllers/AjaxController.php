@@ -376,30 +376,118 @@ class AjaxController extends Controller
 
         $results = [
             'students' => [],
-            'teachers' => [],
-            'classes' => [],
-            'pages' => [],
+            'staff' => [],
+            'payments' => [],
+            'decaissements' => [],
+            'receipts' => [],
+            'certificates' => [],
             'total' => 0
         ];
 
-        // 1. Recherche Étudiants
-        $students = $this->student->activeStudents()
-            ->whereHas('user', function($q) use ($query) {
+        // 1. Étudiants
+        $students = \App\User::where('user_type', 'student')
+            ->where(function($q) use ($query) {
                 $q->where('name', 'like', '%'.$query.'%')
                   ->orWhere('username', 'like', '%'.$query.'%');
             })
-            ->with(['user', 'my_class', 'section'])
             ->take(5)
             ->get();
 
         foreach($students as $s) {
+            $student_record = \App\Models\StudentRecord::where('user_id', $s->id)->first();
+            $subtitle = $student_record && $student_record->my_class ? $student_record->my_class->name : 'Élève';
+            
             $results['students'][] = [
-                'name' => $s->user->name,
-                'subtitle' => $s->my_class->name . ' ' . $s->section->name . ' (' . $s->adm_no . ')',
-                'photo' => $s->user->photo,
-                'url' => route('students.show', Qs::hash($s->id))
+                'icon' => 'icon-user-graduate',
+                'title' => $s->name,
+                'subtitle' => $subtitle . ' (' . $s->username . ')',
+                'url' => $student_record ? route('students.show', Qs::hash($student_record->id)) : '#'
             ];
             $results['total']++;
+        }
+
+        // 2. Personnel / Enseignants
+        $staff = \App\User::whereIn('user_type', ['teacher', 'admin', 'super_admin', 'accountant'])
+            ->where('name', 'like', '%'.$query.'%')
+            ->take(5)
+            ->get();
+
+        foreach($staff as $s) {
+            $results['staff'][] = [
+                'icon' => 'icon-tie',
+                'title' => $s->name,
+                'subtitle' => ucfirst($s->user_type),
+                'url' => route('users.show', Qs::hash($s->id))
+            ];
+            $results['total']++;
+        }
+
+        // 3. Paiements (Titre)
+        $payments = \App\Models\Payment::where('title', 'like', '%'.$query.'%')
+            ->orWhere('ref_no', 'like', '%'.$query.'%')
+            ->take(5)
+            ->get();
+
+        foreach($payments as $p) {
+            $results['payments'][] = [
+                'icon' => 'icon-cash3',
+                'title' => $p->title,
+                'subtitle' => 'Montant: ' . number_format($p->amount, 0, ',', ' ') . ' MGA',
+                'url' => route('payments.show', Qs::hash($p->id)) ?? '#'
+            ];
+            $results['total']++;
+        }
+
+        // 4. Décaissements
+        if (class_exists(\App\Models\Decaissement::class)) {
+            $decaissements = \App\Models\Decaissement::where('reference_op', 'like', '%'.$query.'%')
+                ->orWhere('beneficiaire', 'like', '%'.$query.'%')
+                ->take(5)
+                ->get();
+
+            foreach($decaissements as $d) {
+                $results['decaissements'][] = [
+                    'icon' => 'icon-cash2',
+                    'title' => 'OP: ' . $d->reference_op,
+                    'subtitle' => $d->beneficiaire,
+                    'url' => route('decaissements.show', Qs::hash($d->id)) ?? '#'
+                ];
+                $results['total']++;
+            }
+        }
+
+        // 5. Reçus
+        if (class_exists(\App\Models\Receipt::class)) {
+            $receipts = \App\Models\Receipt::where('reference_number', 'like', '%'.$query.'%')
+                ->take(5)
+                ->get();
+
+            foreach($receipts as $r) {
+                $results['receipts'][] = [
+                    'icon' => 'icon-printer',
+                    'title' => 'Reçu N° ' . $r->reference_number,
+                    'subtitle' => 'Montant payé: ' . number_format($r->amount_paid ?? 0, 0, ',', ' ') . ' MGA',
+                    'url' => route('receipts.show', Qs::hash($r->id)) ?? '#'
+                ];
+                $results['total']++;
+            }
+        }
+
+        // 6. Certificats
+        if (class_exists(\App\Models\Certificate::class)) {
+            $certificates = \App\Models\Certificate::where('reference_no', 'like', '%'.$query.'%')
+                ->take(5)
+                ->get();
+
+            foreach($certificates as $c) {
+                $results['certificates'][] = [
+                    'icon' => 'icon-certificate',
+                    'title' => 'Réf: ' . $c->reference_no,
+                    'subtitle' => 'Élève: ' . ($c->student->user->name ?? 'N/A'),
+                    'url' => route('certificates.show', Qs::hash($c->id)) ?? '#'
+                ];
+                $results['total']++;
+            }
         }
 
         return response()->json($results);
