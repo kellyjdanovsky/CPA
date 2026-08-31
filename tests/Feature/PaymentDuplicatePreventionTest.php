@@ -4,6 +4,7 @@ namespace Tests\Feature;
 
 use Tests\TestCase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Helpers\Qs;
 use App\Models\Payment;
 use App\Models\User;
 use App\Models\MyClass;
@@ -41,6 +42,7 @@ class PaymentDuplicatePreventionTest extends TestCase
             'my_class_id' => $this->myClass->id,
             'description' => 'Test payment'
         ];
+        $year = Qs::getCurrentSession();
 
         // Première création - doit réussir
         $response1 = $this->postJson(route('payments.store'), $paymentData);
@@ -57,6 +59,12 @@ class PaymentDuplicatePreventionTest extends TestCase
 
         // Vérifier qu'il n'y a qu'un seul paiement dans la base
         $this->assertEquals(1, Payment::count());
+        $this->assertDatabaseHas('payments', [
+            'title' => $paymentData['title'],
+            'amount' => $paymentData['amount'],
+            'my_class_id' => $paymentData['my_class_id'],
+            'year' => $year,
+        ]);
     }
 
     /** @test */
@@ -77,6 +85,7 @@ class PaymentDuplicatePreventionTest extends TestCase
             'my_class_id' => $this->myClass->id,
             'description' => 'Test payment 2'
         ];
+        $year = Qs::getCurrentSession();
 
         // Les deux créations doivent réussir car les paiements sont différents
         $response1 = $this->postJson(route('payments.store'), $paymentData1);
@@ -87,6 +96,22 @@ class PaymentDuplicatePreventionTest extends TestCase
 
         // Vérifier qu'il y a deux paiements dans la base
         $this->assertEquals(2, Payment::count());
+        $this->assertDatabaseHas('payments', [
+            'title' => $paymentData1['title'],
+            'amount' => $paymentData1['amount'],
+            'my_class_id' => $paymentData1['my_class_id'],
+            'year' => $year,
+        ]);
+        $this->assertDatabaseHas('payments', [
+            'title' => $paymentData2['title'],
+            'amount' => $paymentData2['amount'],
+            'my_class_id' => $paymentData2['my_class_id'],
+            'year' => $year,
+        ]);
+
+        $payments = Payment::all();
+        $this->assertNotEmpty($payments[0]->ref_no);
+        $this->assertNotEmpty($payments[1]->ref_no);
     }
 
     /** @test */
